@@ -17,8 +17,9 @@ void wrench(ENetEvent event, const std::string& header)
                 _peer[&p]->netid == netid)
             {
                 // @todo add wrench dialog
-            } 
-            else return; // @note early exit.
+                
+                return; // @note early exit
+            }
         });
     }
 }

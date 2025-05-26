@@ -2,10 +2,12 @@ CXX = g++
 CXXFLAGS = -std=c++23 -g -Iinclude -MMD -MP
 
 LIBS := -L./include
+TARGET := main.exe
 ifeq ($(OS),Windows_NT)
     LIBS += -lws2_32 -lwinmm -lmimalloc_32
 else
     LIBS += -lmimalloc
+    TARGET := main.out
 endif
 
 SOURCES := main.cpp \
@@ -23,6 +25,7 @@ SOURCES := main.cpp \
 	include/state/equip.cpp \
 	include/action/logging_in.cpp \
 	include/action/enter_game.cpp \
+	include/action/refresh_item_data.cpp \
 	include/action/dialog_return.cpp \
 	include/action/join_request.cpp \
 	include/action/quit_to_exit.cpp \
@@ -42,8 +45,6 @@ SOURCES := main.cpp \
 OBJECTS := $(SOURCES:.cpp=.o)
 DEPS := $(OBJECTS:.o=.d)
 PCH := .make/pch.gch
-
-TARGET := main.exe
 
 all: .make $(PCH) $(TARGET)
 

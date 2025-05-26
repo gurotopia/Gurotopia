@@ -6,7 +6,6 @@
 
 void pickup(ENetEvent event, state state) 
 {
-    printf("%d", state.id);
     std::vector<ifloat>& ifloats{worlds[_peer[event.peer]->recent_worlds.back()].ifloats};
     int x = std::lround(_peer[event.peer]->pos[0]);
     int y = std::lround(_peer[event.peer]->pos[1]);
@@ -26,9 +25,10 @@ void pickup(ENetEvent event, state state)
             it->count -= (it->count - excess);
         }
         else it->count = 0; // @todo if gem amount is maxed out, do not take any.
+        
+        drop_visuals(event, {it->id, it->count}, it->pos, state.id/*@todo*/);
         if (it->count == 0) 
         {
-            drop_visuals(event, {it->id, it->count}, it->pos, state.id/*@todo*/);
             ifloats.erase(it);
             if (it->id != 112)
             {

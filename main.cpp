@@ -7,7 +7,7 @@
     looking for:
     - Indonesian translator
 */
-#include "include/pch.hpp" // @todo #pragma once
+#include "include/pch.hpp" // @todo #pragma once warning for linux/standalone GCC
 #include "include/database/items.hpp" // @note items.dat reading
 #include "include/mimalloc/mimalloc.h" // @note https://github.com/microsoft/mimalloc
 #include "include/network/compress.hpp" // @note isalzman's compressor
@@ -42,7 +42,6 @@ int main()
         im_data.resize(im_data.size() + size); // @note state + items.dat
         im_data[0] = std::byte{ 04 }; // @note 04 00 00 00 packet flag
         im_data[4] = std::byte{ 0x10 }; // @note 16 00 00 00 (state::type)
-        // @note {8}
         im_data[16] = std::byte{ 0x08 }; // @note 08 00 00 00 (state::id)
         *reinterpret_cast<std::streampos*>(&im_data[56]) = size; // @note 4 bits (items.dat size)
         file.seekg(0, std::ios::beg) // @note start from beginning of items.dat

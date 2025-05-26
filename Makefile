@@ -23,21 +23,23 @@ SOURCES := main.cpp \
 	include/state/pickup.cpp \
 	include/state/movement.cpp \
 	include/state/equip.cpp \
+	include/action/__action.cpp \
 	include/action/logging_in.cpp \
-	include/action/enter_game.cpp \
 	include/action/refresh_item_data.cpp \
+	include/action/enter_game.cpp \
 	include/action/dialog_return.cpp \
+	include/action/friends.cpp \
 	include/action/join_request.cpp \
 	include/action/quit_to_exit.cpp \
-	include/action/quit.cpp \
+	include/action/respawn.cpp \
 	include/action/input.cpp \
 	include/action/drop.cpp \
-	include/action/respawn.cpp \
-	include/action/friends.cpp \
+	include/action/wrench.cpp \
+	include/action/quit.cpp \
 	include/on/EmoticonDataChanged.cpp \
 	include/on/Action.cpp \
 	include/on/RequestWorldSelectMenu.cpp \
-	include/commands/commands.cpp \
+	include/commands/__command.cpp \
 	include/commands/warp.cpp \
 	include/commands/find.cpp \
 	include/tools/randomizer.cpp

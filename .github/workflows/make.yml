@@ -1,9 +1,11 @@
+name: Makefile
 on: 
   push:
   pull_request:
 jobs:
   build:
     runs-on: ${{ matrix.os }}
+    name: "${{ matrix.os }}"
     strategy:
       matrix:
         os: [windows-latest, ubuntu-latest]

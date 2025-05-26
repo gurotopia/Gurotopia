@@ -1,0 +1,12 @@
+name: Dockerfile
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: ubuntu-latest
+    steps:
+    - uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2 # updated on Jan 16
+    
+    - run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)

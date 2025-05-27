@@ -36,6 +36,7 @@ void punch(ENetEvent event, state state)
                         static_cast<float>(state.punch[1]) + randomizer(0.05f, 0.1f)
                     }
                 );
+            _peer[event.peer]->add_xp(std::trunc(1.0f + items[id].rarity / 5.0f));
         } // @note delete im, id
         else if (items[state.id].cloth_type != clothing::none) return;
         else if (state.id == 32)

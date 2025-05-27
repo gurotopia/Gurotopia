@@ -50,7 +50,21 @@ public:
     }
     signed gems{0};
 
-    std::array<unsigned short, 2> level{ 1, 0 }; // @note { level, XP } XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
+    std::array<unsigned short, 2> level{ 1, 0 }; // XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
+    /*
+    * @brief add XP safely, this function also handles level up.
+    */
+    void add_xp(unsigned short value) 
+    {
+        this->level.back() += value;
+
+        unsigned short lvl = this->level.front();
+        unsigned short xp_formula = 50 * (lvl * lvl + 2); // @note credits: https://www.growtopiagame.com/forums/member/553046-kasete
+        
+        unsigned short level_up = std::min<unsigned short>(this->level.back() / xp_formula, 125 - lvl);
+        this->level.front() += level_up;
+        this->level.back() -= level_up * xp_formula;
+    }
 
     std::array<std::string, 5ull> recent_worlds{}; // @note recent worlds, a list of 5 worlds, once it reaches 6 it'll be replaced by the oldest
     

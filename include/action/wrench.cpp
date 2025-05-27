@@ -29,7 +29,7 @@ void wrench(ENetEvent event, const std::string& header)
                             "embed_data|netID|{0}\n"
                             "add_popup_name|WrenchMenu|\n"
                             "set_default_color|`o\n"
-                            "add_player_info|`w{1}``|{2}|{3}|{4}|\n" // @todo add level system
+                            "add_player_info|`w{1}``|{2}|{3}|{4}|\n"
                             "add_spacer|small|\n"
                             "add_spacer|small|\n"
                             "add_button|renew_pvp_license|Get Card Battle License|noflags|0|0|\n"
@@ -79,7 +79,6 @@ void wrench(ENetEvent event, const std::string& header)
                 {
 
                 }
-                
                 return; // @note early exit else iteration will continue for EVERYONE in the world.
             }
         });

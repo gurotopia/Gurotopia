@@ -22,13 +22,14 @@ void wrench(ENetEvent event, const std::string& header)
                 /* wrench yourself */
                 if (_peer[&p]->user_id == _peer[event.peer]->user_id)
                 {
+                    unsigned short lvl = _peer[&p]->level.front();
                     gt_packet(p, false, 0, {
                         "OnDialogRequest",
                         std::format(
                             "embed_data|netID|{0}\n"
                             "add_popup_name|WrenchMenu|\n"
                             "set_default_color|`o\n"
-                            "add_player_info|`w{1}``|1|0|150|\n" // @todo add level system
+                            "add_player_info|`w{1}``|{2}|{3}|{4}|\n" // @todo add level system
                             "add_spacer|small|\n"
                             "add_spacer|small|\n"
                             "add_button|renew_pvp_license|Get Card Battle License|noflags|0|0|\n"
@@ -42,7 +43,7 @@ void wrench(ENetEvent event, const std::string& header)
                             "add_custom_button|bonus|image:interface/large/gui_wrench_daily_bonus_active.rttex;image_size:400,260;width:0.19;|\n"
                             "add_custom_button|my_worlds|image:interface/large/gui_wrench_my_worlds.rttex;image_size:400,260;width:0.19;|\n"
                             "add_custom_button|alist|image:interface/large/gui_wrench_achievements.rttex;image_size:400,260;width:0.19;|\n"
-                            "add_custom_label|(20/173)|target:alist;top:0.72;left:0.5;size:small|\n"
+                            "add_custom_label|(0/173)|target:alist;top:0.72;left:0.5;size:small|\n"
                             "add_custom_button|emojis|image:interface/large/gui_wrench_growmojis.rttex;image_size:400,260;width:0.19;|\n"
                             "add_custom_button|marvelous_missions|image:interface/large/gui_wrench_marvelous_missions.rttex;image_size:400,260;width:0.19;|\n"
                             "add_custom_button|title_edit|image:interface/large/gui_wrench_title.rttex;image_size:400,260;width:0.19;|\n"
@@ -57,17 +58,17 @@ void wrench(ENetEvent event, const std::string& header)
                             "add_textbox|Surgeon Level: 0|left|\n"
                             "add_spacer|small|\n"
                             "add_textbox|`wActive effects:``|left|\n"
-                            "{2}"
+                            "{5}" // @todo add effects
                             "add_spacer|small|\n"
-                            "add_textbox|`oYou have `w{3}`` backpack slots.``|left|\n"
-                            "add_textbox|`oCurrent world: `w{4}`` (`w{5}``, `w{6}``) (`w0`` person)````|left|\n"
+                            "add_textbox|`oYou have `w{6}`` backpack slots.``|left|\n"
+                            "add_textbox|`oCurrent world: `w{7}`` (`w{8}``, `w{9}``) (`w0`` person)````|left|\n"
                             "add_spacer|small|\n"
                             "add_textbox|`oTotal time played is `w0.0`` hours.  This account was created `w0`` days ago.``|left|" // @todo add account creation
                             "add_spacer|small|\n"
                             "end_dialog|popup||Continue|\n"
                             "add_quick_exit|\n",
-                            /* {0} {1}                   {2}            {3}                 */
-                            netid, _peer[&p]->ltoken[0], ""/*effects*/, _peer[&p]->slot_size, 
+                            /* {0} {1}                   {2}  {3}                      {4}                   {5}            {6}                  */
+                            netid, _peer[&p]->ltoken[0], lvl, _peer[&p]->level.back(), 50 * (lvl * lvl + 2), ""/*effects*/, _peer[&p]->slot_size, 
                             /* {4}                            {5}                            {6}                         */
                             _peer[&p]->recent_worlds.front(), std::round(_peer[&p]->pos[0]), std::round(_peer[&p]->pos[1])
                         ).c_str()

@@ -50,6 +50,8 @@ public:
     }
     signed gems{0};
 
+    std::array<unsigned short, 2> level{ 1, 0 }; // @note { level, XP } XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
+
     std::array<std::string, 5ull> recent_worlds{}; // @note recent worlds, a list of 5 worlds, once it reaches 6 it'll be replaced by the oldest
     
     std::array<std::chrono::steady_clock::time_point, 3ull> rate_limit{}; // @note rate limit objects

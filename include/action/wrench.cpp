@@ -70,7 +70,7 @@ void wrench(ENetEvent event, const std::string& header)
                             /* {0} {1}                   {2}  {3}                      {4}                   {5}            {6}                  */
                             netid, _peer[&p]->ltoken[0], lvl, _peer[&p]->level.back(), 50 * (lvl * lvl + 2), ""/*effects*/, _peer[&p]->slot_size, 
                             /* {4}                            {5}                            {6}                         */
-                            _peer[&p]->recent_worlds.front(), std::round(_peer[&p]->pos[0]), std::round(_peer[&p]->pos[1])
+                            _peer[&p]->recent_worlds.back(), std::round(_peer[&p]->pos[0]), std::round(_peer[&p]->pos[1])
                         ).c_str()
                     });
                 }

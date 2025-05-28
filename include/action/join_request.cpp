@@ -148,7 +148,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             *reinterpret_cast<float*>(&compress[16]) = static_cast<float>(ifloat.count);
             send_data(*event.peer, compress);
         } // @note delete compress
-        if (std::find(_peer[event.peer]->recent_worlds.begin(), _peer[event.peer]->recent_worlds.end(), w->name) == _peer[event.peer]->recent_worlds.end()) 
+        if (std::ranges::find(_peer[event.peer]->recent_worlds, w->name) == _peer[event.peer]->recent_worlds.end()) 
         {
             std::ranges::rotate(_peer[event.peer]->recent_worlds, _peer[event.peer]->recent_worlds.begin() + 1);
             _peer[event.peer]->recent_worlds.back() = w->name;

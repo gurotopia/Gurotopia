@@ -54,16 +54,16 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             data[4] = std::byte{ 04 };
             data[16] = std::byte{ 0x8 };
             unsigned char len = static_cast<unsigned char>(w->name.length());
-            data[66] = static_cast<std::byte>(len);
+            data[66] = std::byte{ len };
             for (unsigned char i = 0; i < len; ++i)
                 *reinterpret_cast<char*>(&data[68 + i]) = w->name[i];
-            std::size_t y = w->blocks.size() / 100, x = w->blocks.size() / y;
-            *reinterpret_cast<std::size_t*>(&data[68 + len]) = x;
-            *reinterpret_cast<std::size_t*>(&data[72 + len]) = y;
+            unsigned y = w->blocks.size() / 100, x = w->blocks.size() / y;
+            *reinterpret_cast<unsigned*>(&data[68 + len]) = x;
+            *reinterpret_cast<unsigned*>(&data[72 + len]) = y;
             *reinterpret_cast<unsigned short*>(&data[76 + len]) = static_cast<unsigned short>(w->blocks.size());
             int pos = 85 + len;
             short i = 0;
-            for (const auto& block : w->blocks)
+            for (const block &block : w->blocks)
             {
                 *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
                 *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
@@ -153,8 +153,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             std::ranges::rotate(_peer[event.peer]->recent_worlds, _peer[event.peer]->recent_worlds.begin() + 1);
             _peer[event.peer]->recent_worlds.back() = w->name;
         }
-        _peer[event.peer]->post_enter.unlock();
         EmoticonDataChanged(event);
+        _peer[event.peer]->post_enter.unlock();
         _peer[event.peer]->netid = ++w->visitors;
 
         gt_packet(*event.peer, false, -1/* ff ff ff ff */, {
@@ -187,7 +187,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         });
         gt_packet(*event.peer, false, 0, {
             "OnConsoleMessage", 
-            std::format("World `w{}`` entered.  There are `w{}`` other people here, `w{}`` online.", w->name, w->visitors - 1, peers().size()).c_str()});
+            std::format("World `w{}`` entered.  There are `w{}`` other people here, `w{}`` online.", w->name, w->visitors - 1, peers().size()).c_str()
+        });
         inventory_visuals(event);
         _peer[event.peer]->ready_exit = true;
         worlds.emplace(w->name, *w);

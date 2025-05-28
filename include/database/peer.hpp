@@ -13,6 +13,7 @@ public:
 #include <deque>
 #include <array>
 #include <unordered_map>
+#include <vector>
 
 class peer {
 public:
@@ -72,6 +73,7 @@ public:
     std::array<std::chrono::steady_clock::time_point, 3ull> rate_limit{}; // @note rate limit objects
     std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming
 };
+#include <bits/shared_ptr.h>
 extern std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 
 /* 

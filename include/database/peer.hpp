@@ -20,6 +20,7 @@ public:
     std::once_flag entered_game{}; // @note makes sure action|enter_game is triggered once.
     std::once_flag welcome_message{}; // @note makes sure "welcome back {}." message is triggered once
     std::mutex post_enter{}; // @note locked if peer is in a world. usage: post_enter.is_lock(). if true the peer is already in a world.
+    bool ready_exit{}; // @note peer can safely exit a world if true.
 
     signed netid{ -1 }; /* peer's netid is world identity. this will be useful for many packet sending */
     int user_id{}; // @note unqiue user id.

@@ -8,10 +8,10 @@
     - Indonesian translator
 */
 #include "include/pch.hpp" // @todo #pragma once warning for linux/standalone GCC
-#include "include/database/items.hpp" // @note items.dat reading
+#include "include/database/items.hpp"
 #include "include/mimalloc/mimalloc.h" // @note https://github.com/microsoft/mimalloc
 #include "include/network/compress.hpp" // @note isalzman's compressor
-#include "include/database/peer.hpp" // @note peer class
+#include "include/database/peer.hpp"
 #include "include/event_type/event_type"
 
 int main()

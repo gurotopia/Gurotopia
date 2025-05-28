@@ -23,7 +23,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         if (not create_rt(event, 2, 900)) throw std::runtime_error("");
         std::string big_name{world_name.empty() ? readch(std::string{header}, '|')[3] : world_name};
         if (not alpha(big_name) || big_name.empty()) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
-        std::ranges::transform(big_name, big_name.begin(), [](char c) { return std::toupper(c); }); // @note start -> START
+        std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
         std::unique_ptr<world> w = std::make_unique<world>(std::move(world().read(big_name)));
         if (w->name.empty())
         {
@@ -189,6 +189,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             "OnConsoleMessage", 
             std::format("World `w{}`` entered.  There are `w{}`` other people here, `w{}`` online.", w->name, w->visitors - 1, peers().size()).c_str()});
         inventory_visuals(event);
+        _peer[event.peer]->ready_exit = true;
         worlds.emplace(w->name, *w);
     }
     catch (const std::exception& exc)

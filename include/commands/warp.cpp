@@ -1,4 +1,3 @@
-#include "pch.hpp"
 #include "database/peer.hpp"
 #include "network/packet.hpp"
 #include "action/join_request.hpp"
@@ -8,7 +7,7 @@
 void warp(ENetEvent& event, const std::string_view text)
 {
     std::string world_name{ text.substr(sizeof("warp ")-1) };
-    std::ranges::transform(world_name, world_name.begin(), [](char c) { return std::toupper(c); });
+    std::for_each(world_name.begin(), world_name.end(), [](char& c) { c = std::toupper(c); });
 
     action(*event.peer, "log", std::format("msg| `6/warp {}``", world_name));
     gt_packet(*event.peer, false, 0, { "OnSetFreezeState", 1 });

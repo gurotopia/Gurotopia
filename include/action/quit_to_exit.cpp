@@ -6,7 +6,8 @@
 
 void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selection = false) 
 {
-    if (_peer[event.peer]->post_enter.try_lock()) return;
+    if (!_peer[event.peer]->ready_exit) return; // @todo investigating action|quit_to_exit being called 2-3 times in a row...?
+    _peer[event.peer]->ready_exit = false;
     --worlds[_peer[event.peer]->recent_worlds.back()].visitors;
     peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
     {

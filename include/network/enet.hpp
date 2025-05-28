@@ -3692,7 +3692,7 @@ extern "C" {
                 commandNumber       = ENET_PROTOCOL_COMMAND_SEND_UNRELIABLE_FRAGMENT;
                 startSequenceNumber = ENET_HOST_TO_NET_16(channel->outgoingUnreliableSequenceNumber + 1);
             } else {
-                commandNumber       = ENET_PROTOCOL_COMMAND_SEND_FRAGMENT | ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE;
+                commandNumber       = static_cast<enet_uint32>(ENET_PROTOCOL_COMMAND_SEND_FRAGMENT) | static_cast<enet_uint32>(ENET_PROTOCOL_COMMAND_FLAG_ACKNOWLEDGE);
                 startSequenceNumber = ENET_HOST_TO_NET_16(channel->outgoingReliableSequenceNumber + 1);
             }
 
@@ -5058,6 +5058,7 @@ extern "C" {
             t.QuadPart |= f.dwLowDateTime;
             return (t);
         }
+        #ifndef WIN_PTHREADS_TIME_H
         int clock_gettime(int X, struct timespec *tv) {
             (void)X;
             LARGE_INTEGER t;
@@ -5096,6 +5097,7 @@ extern "C" {
             tv->tv_nsec = t.QuadPart % 1000000 * 1000;
             return (0);
         }
+        #endif
     #elif __APPLE__ && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
         #define CLOCK_MONOTONIC 0
 

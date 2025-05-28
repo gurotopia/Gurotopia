@@ -4,6 +4,8 @@
 #include "action/quit_to_exit.hpp"
 #include "warp.hpp"
 
+#include <format>
+
 void warp(ENetEvent& event, const std::string_view text)
 {
     std::string world_name{ text.substr(sizeof("warp ")-1) };

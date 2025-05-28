@@ -4,6 +4,8 @@
 #include "network/packet.hpp"
 #include "pickup.hpp"
 
+#include <format>
+
 void pickup(ENetEvent event, state state) 
 {
     std::vector<ifloat>& ifloats{worlds[_peer[event.peer]->recent_worlds.back()].ifloats};

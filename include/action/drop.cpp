@@ -6,6 +6,8 @@
 
 #include "tools/string_view.hpp"
 
+#include <format>
+
 void drop(ENetEvent event, const std::string& header)
 {
     std::string id{readch(std::string{header}, '|')[4]};

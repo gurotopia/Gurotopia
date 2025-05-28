@@ -7,6 +7,8 @@
 
 #include "tools/string_view.hpp"
 
+#include <format>
+
 void type_receive(ENetEvent event) 
 {
     std::span<enet_uint8> data{event.packet->data, event.packet->dataLength};

@@ -3,6 +3,8 @@
 #include "database/world.hpp"
 #include "packet.hpp"
 
+#include <format>
+
 void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any>& params) 
 {
     std::vector<std::byte> data(61, std::byte{ 00 });

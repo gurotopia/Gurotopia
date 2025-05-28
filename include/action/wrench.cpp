@@ -6,6 +6,7 @@
 #include "tools/string_view.hpp"
 
 #include <cmath> // @note std::round
+#include <format>
 
 void wrench(ENetEvent event, const std::string& header) 
 {

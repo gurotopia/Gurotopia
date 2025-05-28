@@ -6,6 +6,8 @@
 
 #include "tools/randomizer.hpp"
 
+#include <format>
+
 void punch(ENetEvent event, state state) 
 {
     try

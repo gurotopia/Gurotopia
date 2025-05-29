@@ -14,7 +14,13 @@ public:
 #include <deque>
 #include <array>
 #include <vector>
-#include <bits/stl_algo.h>
+#if defined(_WIN32) && defined(_MSC_VER)
+    #undef max
+    #undef min
+    #include <minwindef.h>
+#elif defined(__GNUC__)
+    #include <bits/stl_algo.h>
+#endif
 
 class peer {
 public:
@@ -75,7 +81,11 @@ public:
     std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming
 };
 #include <unordered_map>
-#include <bits/shared_ptr.h>
+#if defined(_WIN32) && defined(_MSC_VER)
+    #include <memory>
+#elif defined(__GNUC__)
+    #include <bits/shared_ptr.h>
+#endif
 extern std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 
 /* 
@@ -84,9 +94,13 @@ extern std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 */
 bool create_rt(ENetEvent& event, std::size_t pos, int64_t length);
 
-#include <bits/std_function.h> // @note std::function<>
 extern ENetHost* server;
 
+#if defined(_WIN32) && defined(_MSC_VER)
+    #include <functional>
+#elif defined(__GNUC__)
+    #include <bits/std_function.h>
+#endif
 std::vector<ENetPeer*> peers(_ENetPeerState state = ENET_PEER_STATE_CONNECTED, std::function<void(ENetPeer&)> fun = [](ENetPeer& peer){});
 
 class state {

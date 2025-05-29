@@ -98,11 +98,6 @@
     #include <mmsystem.h>
 
     #include <intrin.h>
-    #if defined(_WIN32)
-    #include <emmintrin.h>
-    #elif
-    #include <immintrin.h>
-    #endif
 
     #if defined(_WIN32) && defined(_MSC_VER)
     #if _MSC_VER < 1900

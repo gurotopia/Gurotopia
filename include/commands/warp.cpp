@@ -6,6 +6,10 @@
 
 #include <format>
 
+#if defined(_WIN32) && defined(_MSC_VER)
+    #include <algorithm>
+#endif
+
 void warp(ENetEvent& event, const std::string_view text)
 {
     std::string world_name{ text.substr(sizeof("warp ")-1) };

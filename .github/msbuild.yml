@@ -1,0 +1,15 @@
+name: MSBuild
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2 # updated on Jan 16
+      
+      - uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
+
+      - run: msbuild msvc.sln /p:Configuration=Release /p:Platform=x64 /m
+        shell: cmd

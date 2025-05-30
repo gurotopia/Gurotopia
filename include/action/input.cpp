@@ -54,7 +54,8 @@ void input(ENetEvent event, const std::string& header)
             });
             gt_packet(p, false, 0, {
                 "OnConsoleMessage", 
-                std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`w{}``>`` `$`${}````", _peer[event.peer]->ltoken[0], text).c_str()
+                std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", 
+                    _peer[event.peer]->prefix, _peer[event.peer]->ltoken[0], text).c_str()
             });
         }
     });

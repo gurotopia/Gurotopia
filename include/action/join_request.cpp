@@ -155,6 +155,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             std::ranges::rotate(_peer[event.peer]->recent_worlds, _peer[event.peer]->recent_worlds.begin() + 1);
             _peer[event.peer]->recent_worlds.back() = w->name;
         }
+        if (_peer[event.peer]->user_id == w->owner) _peer[event.peer]->prefix = '2';
+        if (std::ranges::find(w->admin, _peer[event.peer]->user_id) == w->admin.end()) _peer[event.peer]->prefix = 'c';
         EmoticonDataChanged(event);
         _peer[event.peer]->post_enter.unlock();
         _peer[event.peer]->netid = ++w->visitors;
@@ -166,10 +168,10 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             {
                 gt_packet(*event.peer, false, -1/* ff ff ff ff */, {
                     "OnSpawn", 
-                    std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`w{}``\ncountry|us\ninvis|0\nmstate|0\nsmstate|0\nonlineID|\n",
-                    _peer[&p]->netid, _peer[&p]->user_id, static_cast<int>(_peer[&p]->pos.front()), static_cast<int>(_peer[&p]->pos.back()), _peer[&p]->ltoken[0]).c_str()
+                    std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|0\nsmstate|0\nonlineID|\n",
+                    _peer[&p]->netid, _peer[&p]->user_id, static_cast<int>(_peer[&p]->pos.front()), static_cast<int>(_peer[&p]->pos.back()), _peer[&p]->prefix, _peer[&p]->ltoken[0]).c_str()
                 });
-                std::string enter_message{ std::format("`5<`w{}`` entered, `w{}`` others here>``", _peer[event.peer]->ltoken[0], w->visitors) };
+                std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", _peer[event.peer]->prefix, _peer[event.peer]->ltoken[0], w->visitors) };
                 gt_packet(p, false, 0, {
                     "OnConsoleMessage", 
                     enter_message.c_str()
@@ -184,8 +186,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         /* @todo send this packet to everyone exept event.peer, and remove type|local */
         gt_packet(*event.peer, false, -1/* ff ff ff ff */, {
             "OnSpawn", 
-            std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`w{}``\ncountry|us\ninvis|0\nmstate|0\nsmstate|0\nonlineID|\ntype|local\n",
-            _peer[event.peer]->netid, _peer[event.peer]->user_id, static_cast<int>(_peer[event.peer]->pos.front()), static_cast<int>(_peer[event.peer]->pos.back()), _peer[event.peer]->ltoken[0]).c_str()
+            std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|0\nsmstate|0\nonlineID|\ntype|local\n",
+            _peer[event.peer]->netid, _peer[event.peer]->user_id, static_cast<int>(_peer[event.peer]->pos.front()), static_cast<int>(_peer[event.peer]->pos.back()), _peer[event.peer]->prefix, _peer[event.peer]->ltoken[0]).c_str()
         });
         gt_packet(*event.peer, false, 0, {
             "OnConsoleMessage", 

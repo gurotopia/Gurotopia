@@ -32,6 +32,7 @@
         signed netid{ -1 }; /* peer's netid is world identity. this will be useful for many packet sending */
         int user_id{}; // @note unqiue user id.
         std::array<const char*, 2ull> ltoken{}; // @note peer's ltoken e.g. [growid, password]
+        char prefix{'w'}; /* display name color, default: 'w' (White) */
         std::array<float, 10ull> clothing{}; // @note peer's clothing
         signed skin_color{ -1429995521 };
 

@@ -99,6 +99,7 @@ void punch(ENetEvent event, state state)
                 if (world.owner == 00)
                 {
                     world.owner = _peer[event.peer]->user_id;
+                    _peer[event.peer]->prefix = '2';
                     peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
                     {
                         if (!_peer[&p]->recent_worlds.empty() && !_peer[event.peer]->recent_worlds.empty() &&
@@ -119,7 +120,7 @@ void punch(ENetEvent event, state state)
                     });
                     gt_packet(*event.peer, true, 0, {
                        "OnNameChanged",
-                        std::format("`2{}``", _peer[event.peer]->ltoken[0]).c_str()
+                        std::format("`{}{}``", _peer[event.peer]->prefix, _peer[event.peer]->ltoken[0]).c_str()
                     });
                 }
                 else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");

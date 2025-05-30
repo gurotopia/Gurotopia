@@ -18,7 +18,7 @@ void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selectio
         {
             gt_packet(p, false, 0, {
                 "OnConsoleMessage", 
-                std::format("`5<`w{}`` left, `w{}`` others here>``", _peer[event.peer]->ltoken[0], worlds[_peer[event.peer]->recent_worlds.back()].visitors).c_str()
+                std::format("`5<`{}{}`` left, `w{}`` others here>``", _peer[event.peer]->prefix, _peer[event.peer]->ltoken[0], worlds[_peer[event.peer]->recent_worlds.back()].visitors).c_str()
             });
             gt_packet(p, true, 0, {
                 "OnRemove", 
@@ -30,6 +30,7 @@ void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selectio
         worlds.erase(_peer[event.peer]->recent_worlds.back());
     }
     _peer[event.peer]->post_enter.unlock();
+    _peer[event.peer]->prefix = 'w'; // @todo handle dev/moderator prefix not resetting (I will do this when project has roles)
     _peer[event.peer]->netid = -1; // this will fix any packets being sent outside of world
     if (!skip_selection) OnRequestWorldSelectMenu(event);
 }

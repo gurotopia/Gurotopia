@@ -30,7 +30,7 @@ void wrench(ENetEvent event, const std::string& header)
                             "embed_data|netID|{0}\n"
                             "add_popup_name|WrenchMenu|\n"
                             "set_default_color|`o\n"
-                            "add_player_info|`w{1}``|{2}|{3}|{4}|\n"
+                            "add_player_info|`{1}{2}``|{3}|{4}|{5}|\n"
                             "add_spacer|small|\n"
                             "add_spacer|small|\n"
                             "add_button|renew_pvp_license|Get Card Battle License|noflags|0|0|\n"
@@ -59,18 +59,18 @@ void wrench(ENetEvent event, const std::string& header)
                             "add_textbox|Surgeon Level: 0|left|\n"
                             "add_spacer|small|\n"
                             "add_textbox|`wActive effects:``|left|\n"
-                            "{5}" // @todo add effects
+                            "{6}" // @todo add effects
                             "add_spacer|small|\n"
-                            "add_textbox|`oYou have `w{6}`` backpack slots.``|left|\n"
-                            "add_textbox|`oCurrent world: `w{7}`` (`w{8}``, `w{9}``) (`w0`` person)````|left|\n"
+                            "add_textbox|`oYou have `w{7}`` backpack slots.``|left|\n"
+                            "add_textbox|`oCurrent world: `w{8}`` (`w{9}``, `w{10}``) (`w0`` person)````|left|\n"
                             "add_spacer|small|\n"
                             "add_textbox|`oTotal time played is `w0.0`` hours.  This account was created `w0`` days ago.``|left|" // @todo add account creation
                             "add_spacer|small|\n"
                             "end_dialog|popup||Continue|\n"
                             "add_quick_exit|\n",
-                            /* {0} {1}                   {2}  {3}                      {4}                   {5}            {6}                  */
-                            netid, _peer[&p]->ltoken[0], lvl, _peer[&p]->level.back(), 50 * (lvl * lvl + 2), ""/*effects*/, _peer[&p]->slot_size, 
-                            /* {4}                            {5}                            {6}                         */
+                            /* {0} {1}                {2}                   {3}  {4}                      {5}                   {6}            {7}                     */
+                            netid, _peer[&p]->prefix, _peer[&p]->ltoken[0], lvl, _peer[&p]->level.back(), 50 * (lvl * lvl + 2), ""/*effects*/, _peer[&p]->slot_size, 
+                            /* {8}                           {9}                            {10}                         */
                             _peer[&p]->recent_worlds.back(), std::round(_peer[&p]->pos[0]), std::round(_peer[&p]->pos[1])
                         ).c_str()
                     });
@@ -84,7 +84,7 @@ void wrench(ENetEvent event, const std::string& header)
                             "embed_data|netID|{0}\n"
                             "add_popup_name|WrenchMenu|\n"
                             "set_default_color|`o\n"
-                            "add_label_with_icon|big|`w{1} (`2{2}``)``|left|18|\n"
+                            "add_label_with_icon|big|`{1}{2} (`2{3}``)``|left|18|\n"
                             "embed_data|netID|{0}\n"
                             "add_spacer|small|\n"
                             "add_achieve|||left|26|\n"
@@ -106,7 +106,7 @@ void wrench(ENetEvent event, const std::string& header)
                             "add_spacer|small|\n"
                             "end_dialog|popup||Continue|\n"
                             "add_quick_exit|\n",
-                            netid, _peer[&p]->ltoken[0], lvl
+                            netid, _peer[&p]->prefix, _peer[&p]->ltoken[0], lvl
                         ).c_str()
                      });
                 }

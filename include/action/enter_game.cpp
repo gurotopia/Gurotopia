@@ -16,7 +16,11 @@ void enter_game(ENetEvent event, const std::string& header)
 
         OnRequestWorldSelectMenu(event);
 
-        gt_packet(*event.peer, false, 0, {"OnConsoleMessage", std::format("Welcome back, `w`w{}````. No friends are online.", _peer[event.peer]->ltoken[0]).c_str()}); 
+        gt_packet(*event.peer, false, 0, {
+            "OnConsoleMessage", 
+            std::format("Welcome back, `{}{}````. No friends are online.", 
+                _peer[event.peer]->prefix, _peer[event.peer]->ltoken[0]).c_str()
+        }); 
         gt_packet(*event.peer, false, 0, {"OnConsoleMessage", "`5Personal Settings active:`` `#Can customize profile``"}); 
         gt_packet(*event.peer, false, 0, {
             "UpdateMainMenuTheme", 

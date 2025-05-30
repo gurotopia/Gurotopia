@@ -17,6 +17,7 @@ void enter_game(ENetEvent event, const std::string& header)
         OnRequestWorldSelectMenu(event);
 
         gt_packet(*event.peer, false, 0, {"OnConsoleMessage", std::format("Welcome back, `w`w{}````. No friends are online.", _peer[event.peer]->ltoken[0]).c_str()}); 
+        gt_packet(*event.peer, false, 0, {"OnConsoleMessage", "`5Personal Settings active:`` `#Can customize profile``"}); 
         gt_packet(*event.peer, false, 0, {
             "UpdateMainMenuTheme", 
             0,
@@ -31,5 +32,18 @@ void enter_game(ENetEvent event, const std::string& header)
             1
         });
         gt_packet(*event.peer, false, 0, {"SetHasGrowID", 1, _peer[event.peer]->ltoken[0], ""}); 
+
+        {
+            std::time_t now = std::time(nullptr);
+            std::tm time = *std::localtime(&now);
+
+            gt_packet(*event.peer, false, 0, {
+                "OnTodaysDate",
+                time.tm_mon + 1,
+                time.tm_mday,
+                0u, // @todo
+                0u // @todo
+            }); 
+        } // @note delete now, time
     });
 }

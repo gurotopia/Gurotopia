@@ -40,8 +40,9 @@ SOURCES := main.cpp \
 	include/on/Action.cpp \
 	include/on/RequestWorldSelectMenu.cpp \
 	include/commands/__command.cpp \
-	include/commands/warp.cpp \
 	include/commands/find.cpp \
+	include/commands/warp.cpp \
+	include/commands/info.cpp \
 	include/tools/randomizer.cpp
 	
 OBJECTS := $(SOURCES:.cpp=.o)

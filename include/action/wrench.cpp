@@ -11,7 +11,7 @@
 void wrench(ENetEvent event, const std::string& header) 
 {
     std::vector<std::string> pipes = readch(header, '|');
-    if (pipes[3] == "netid" && !pipes[4].empty()/*empty netid*/)
+    if ((pipes[3] == "netid" && !pipes[4].empty()/*empty netid*/))
     {
         const short netid = stoi(pipes[4]);
         peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
@@ -20,10 +20,10 @@ void wrench(ENetEvent event, const std::string& header)
                 _peer[&p]->recent_worlds.back() == _peer[event.peer]->recent_worlds.back() &&
                 _peer[&p]->netid == netid)
             {
+                unsigned short lvl = _peer[&p]->level.front();
                 /* wrench yourself */
                 if (_peer[&p]->user_id == _peer[event.peer]->user_id)
                 {
-                    unsigned short lvl = _peer[&p]->level.front();
                     gt_packet(p, false, 0, {
                         "OnDialogRequest",
                         std::format(
@@ -78,7 +78,37 @@ void wrench(ENetEvent event, const std::string& header)
                 /* wrench someone else */
                 else
                 {
-
+                     gt_packet(p, false, 0, {
+                        "OnDialogRequest",
+                        std::format(
+                            "embed_data|netID|{0}\n"
+                            "add_popup_name|WrenchMenu|\n"
+                            "set_default_color|`o\n"
+                            "add_label_with_icon|big|`w{1} (`2{2}``)``|left|18|\n"
+                            "embed_data|netID|{0}\n"
+                            "add_spacer|small|\n"
+                            "add_achieve|||left|26|\n"
+                            "add_custom_margin|x:75;y:-70.85|\n"
+                            "add_custom_margin|x:-75;y:70.85|\n"
+                            "add_spacer|small|\n"
+                            "add_label|small|`1Achievements:`` 0/173|left\n"
+                            "add_spacer|small|\n"
+                            "add_label|small|`1Account Age:`` 0 days|left\n" // @todo add account creation
+                            "add_spacer|small|\n"
+                            "add_button|trade|`wTrade``|noflags|0|0|\n"
+                            "add_button|sendpm|`wSend Message``|noflags|0|0|\n"
+                            "add_textbox|(No Battle Leash equipped)|left|\n"
+                            "add_textbox|You need a valid license to battle!|left|\n"
+                            "add_button|friend_add|`wAdd as friend``|noflags|0|0|\n"
+                            "add_button|show_clothes|`wView worn clothes``|noflags|0|0|\n"
+                            "add_button|ignore_player|`wIgnore Player``|noflags|0|0|\n"
+                            "add_button|report_player|`wReport Player``|noflags|0|0|\n"
+                            "add_spacer|small|\n"
+                            "end_dialog|popup||Continue|\n"
+                            "add_quick_exit|\n",
+                            netid, _peer[&p]->ltoken[0], lvl
+                        ).c_str()
+                     });
                 }
                 return; // @note early exit else iteration will continue for EVERYONE in the world.
             }

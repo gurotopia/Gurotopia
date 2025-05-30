@@ -13,8 +13,12 @@ void punch(ENetEvent event, state state)
     try
     {
         if (not create_rt(event, 0, 160)) return;
-        short block1D = state.punch[1] * 100 + state.punch[0]; // 2D (x, y) to 1D ((destY * y + destX)) formula
         world &world = worlds[_peer[event.peer]->recent_worlds.back()];
+        if (world.owner != 00) // @note cause if no owner than world can break/place by anyone.
+            if (_peer[event.peer]->user_id != world.owner ||
+                !std::ranges::contains(world.admin, _peer[event.peer]->user_id)) return;
+
+        short block1D = state.punch[1] * 100 + state.punch[0]; // 2D (x, y) to 1D ((destY * y + destX)) formula
         block &b = world.blocks[block1D];
         if (state.id == 18) // @note punching a block
         {

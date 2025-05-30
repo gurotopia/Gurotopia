@@ -156,7 +156,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             _peer[event.peer]->recent_worlds.back() = w->name;
         }
         if (_peer[event.peer]->user_id == w->owner) _peer[event.peer]->prefix = '2';
-        if (std::ranges::find(w->admin, _peer[event.peer]->user_id) == w->admin.end()) _peer[event.peer]->prefix = 'c';
+        if (std::ranges::find(w->admin, _peer[event.peer]->user_id) != w->admin.end()) _peer[event.peer]->prefix = 'c';
         EmoticonDataChanged(event);
         _peer[event.peer]->post_enter.unlock();
         _peer[event.peer]->netid = ++w->visitors;

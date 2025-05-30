@@ -9,12 +9,12 @@
 void pickup(ENetEvent event, state state) 
 {
     std::vector<ifloat>& ifloats{worlds[_peer[event.peer]->recent_worlds.back()].ifloats};
-    int x = std::lround(_peer[event.peer]->pos[0]);
-    int y = std::lround(_peer[event.peer]->pos[1]);
+    const int x = std::lround(_peer[event.peer]->pos[0]);
+    const int y = std::lround(_peer[event.peer]->pos[1]);
     auto it = std::find_if(ifloats.begin(), ifloats.end(), [&](const ifloat& i) 
     {
-        int ix = std::lround(i.pos[0]);
-        int iy = std::lround(i.pos[1]);
+        const int ix = std::lround(i.pos[0]);
+        const int iy = std::lround(i.pos[1]);
         return (std::abs(ix - x) <= 1) && (std::abs(iy - y) <= 1);
     });
 

@@ -1,3 +1,6 @@
-#pragma once
+#ifndef QUIT
+#define QUIT
 
-void quit(ENetEvent event, const std::string& header);
+    extern void quit(ENetEvent event, const std::string& header);
+
+#endif

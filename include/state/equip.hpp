@@ -1,3 +1,6 @@
-#pragma once
+#ifndef EQUIP_HPP
+#define EQUIP_HPP
 
-void equip(ENetEvent event, state state);
+    extern void equip(ENetEvent event, state state);
+
+#endif

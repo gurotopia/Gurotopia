@@ -1,3 +1,6 @@
-#pragma once
+#ifndef ONREQUESTWORLDSELECTMENU_HPP
+#define ONREQUESTWORLDSELECTMENU_HPP
 
-void OnRequestWorldSelectMenu(ENetEvent event);
+    extern void OnRequestWorldSelectMenu(ENetEvent event);
+
+#endif

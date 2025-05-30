@@ -1,3 +1,6 @@
-#pragma once
+#ifndef TYPE_RECEIVE_HPP
+#define TYPE_RECEIVE_HPP
 
-void type_receive(ENetEvent event);
+    extern void type_receive(ENetEvent event);
+
+#endif

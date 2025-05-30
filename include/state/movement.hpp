@@ -1,3 +1,6 @@
-#pragma once
+#ifndef MOVEMENT_HPP
+#define MOVEMENT_HPP
 
-void movement(ENetEvent event, state state);
+    extern void movement(ENetEvent event, state state);
+
+#endif

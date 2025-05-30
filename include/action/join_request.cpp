@@ -144,10 +144,10 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 .type = 0x0e, 
                 .netid = -1,
                 .peer_state = static_cast<int>(ifloat.uid),
+                .count = static_cast<float>(ifloat.count),
                 .id = ifloat.id, 
                 .pos = {ifloat.pos[0] * 32, ifloat.pos[1] * 32}
             });
-            *reinterpret_cast<float*>(&compress[16]) = static_cast<float>(ifloat.count);
             send_data(*event.peer, compress);
         } // @note delete compress
         if (std::ranges::find(_peer[event.peer]->recent_worlds, w->name) == _peer[event.peer]->recent_worlds.end()) 

@@ -1,3 +1,6 @@
-#pragma once
+#ifndef PICKUP_HPP
+#define PICKUP_HPP
 
-void pickup(ENetEvent event, state state);
+    extern void pickup(ENetEvent event, state state);
+
+#endif

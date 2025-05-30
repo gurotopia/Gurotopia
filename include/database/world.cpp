@@ -104,11 +104,11 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2ull>& im, const std
         ifloat it = ifloats.emplace_back(ifloat{uid, im[0], im[1], pos}); // @note a iterator ahead of time
         s.netid = -1;
         s.peer_state = static_cast<int>(it.uid);
+        s.count = static_cast<float>(im[1]);
         s.id = it.id;
         s.pos = {it.pos[0] * 32, it.pos[1] * 32};
     }
     compress = compress_state(s);
-    *reinterpret_cast<float*>(&compress[16]) = static_cast<float>(im[1]);
     peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
     {
         if (!_peer[&p]->recent_worlds.empty() && !_peer[event.peer]->recent_worlds.empty() && 

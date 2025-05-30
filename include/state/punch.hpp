@@ -1,3 +1,6 @@
-#pragma once
+#ifndef PUNCH_HPP
+#define PUNCH_HPP
 
-void punch(ENetEvent event, state state);
+    extern void punch(ENetEvent event, state state);
+
+#endif

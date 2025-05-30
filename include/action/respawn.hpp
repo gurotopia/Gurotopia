@@ -1,3 +1,6 @@
-#pragma once
+#ifndef RESPAWN_HPP
+#define RESPAWN_HPP
 
-void respawn(ENetEvent event, const std::string& header);
+    extern void respawn(ENetEvent event, const std::string& header);
+
+#endif

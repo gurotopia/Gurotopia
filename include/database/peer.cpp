@@ -40,6 +40,7 @@ state get_state(const std::vector<std::byte>& packet)
         .type = _4bit[0],
         .netid = _4bit[1],
         .peer_state = _4bit[3],
+        .count = _4bit_f[4],
         .id = _4bit[5],
         .pos = {_4bit_f[6], _4bit_f[7]},
         .speed = {_4bit_f[8], _4bit_f[9]},
@@ -55,6 +56,7 @@ std::vector<std::byte> compress_state(const state& s)
     _4bit[0] = s.type;
     _4bit[1] = s.netid;
     _4bit[3] = s.peer_state;
+    _4bit_f[4] = s.count;
     _4bit[5] = s.id;
     _4bit_f[6] = s.pos[0];
     _4bit_f[7] = s.pos[1];

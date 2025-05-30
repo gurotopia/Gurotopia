@@ -1,3 +1,6 @@
-#pragma once
+#ifndef WRENCH
+#define WRENCH
 
-void wrench(ENetEvent event, const std::string& header);
+    extern void wrench(ENetEvent event, const std::string& header);
+
+#endif

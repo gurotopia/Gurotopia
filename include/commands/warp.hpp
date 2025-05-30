@@ -1,3 +1,6 @@
-#pragma once
+#ifndef WARP_HPP
+#define WARP_HPP
 
-void warp(ENetEvent& event, const std::string_view text);
+    extern void warp(ENetEvent& event, const std::string_view text);
+
+#endif

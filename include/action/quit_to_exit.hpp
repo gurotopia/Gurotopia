@@ -1,3 +1,6 @@
-#pragma once
+#ifndef QUIT_TO_EXIT
+#define QUIT_TO_EXIT
 
-void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selection);
+    extern void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selection);
+
+#endif

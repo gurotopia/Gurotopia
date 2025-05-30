@@ -52,8 +52,9 @@
     <ClCompile Include="include/on/Action.cpp" />
     <ClCompile Include="include/on/RequestWorldSelectMenu.cpp" />
     <ClCompile Include="include/commands/__command.cpp" />
-    <ClCompile Include="include/commands/warp.cpp" />
     <ClCompile Include="include/commands/find.cpp" />
+    <ClCompile Include="include/commands/warp.cpp" />
+    <ClCompile Include="include/commands/info.cpp" />
     <ClCompile Include="include/tools/randomizer.cpp" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

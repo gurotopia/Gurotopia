@@ -51,6 +51,7 @@
     <ClCompile Include="include/on/EmoticonDataChanged.cpp" />
     <ClCompile Include="include/on/Action.cpp" />
     <ClCompile Include="include/on/RequestWorldSelectMenu.cpp" />
+    <ClCompile Include="include/on/NameChanged.cpp" />
     <ClCompile Include="include/commands/__command.cpp" />
     <ClCompile Include="include/commands/find.cpp" />
     <ClCompile Include="include/commands/warp.cpp" />

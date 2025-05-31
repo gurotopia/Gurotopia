@@ -13,9 +13,10 @@ void enter_game(ENetEvent event, const std::string& header)
     std::call_once(_peer[event.peer]->entered_game, [&]() 
     {
         _peer[event.peer]->user_id = fnv1a(_peer[event.peer]->ltoken[0]); // @note FNV-1A is to proeprly downgrade std::hash to integer (Growtopia Standards)
+        if (_peer[event.peer]->role == role::moderator) _peer[event.peer]->prefix = "8@";
+        else if (_peer[event.peer]->role == role::developer) _peer[event.peer]->prefix = "6@";
 
         OnRequestWorldSelectMenu(event);
-
         gt_packet(*event.peer, false, 0, {
             "OnConsoleMessage", 
             std::format("Welcome back, `{}{}````. No friends are online.", 

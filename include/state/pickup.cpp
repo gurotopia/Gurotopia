@@ -5,6 +5,7 @@
 #include "pickup.hpp"
 
 #include <format>
+#include <cmath>
 
 void pickup(ENetEvent event, state state) 
 {

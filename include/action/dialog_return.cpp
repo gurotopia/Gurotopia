@@ -2,6 +2,8 @@
 #include "database/world.hpp"
 #include "action/dialog_return.hpp"
 
+#include <ranges> // @note for string_view.hpp
+
 #include "tools/string_view.hpp"
 
 void dialog_return(ENetEvent event, const std::string& header) 

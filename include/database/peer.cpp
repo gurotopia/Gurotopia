@@ -2,6 +2,28 @@
 #include "items.hpp"
 #include "peer.hpp"
 
+#include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
+
+peer& peer::read(const std::string& name)
+{
+    std::ifstream file(std::format("players\\{}.json", name));
+    if (file.is_open()) 
+    {
+        nlohmann::json j;
+        file >> j;
+        this->role = j["role"].get<char>();
+    }
+    return *this;
+}
+
+peer::~peer()
+{
+    nlohmann::json j;
+    j["role"] = this->role;
+
+    std::ofstream(std::format("players\\{}.json", this->ltoken[0])) << j.dump(4);
+}
+
 std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 
 bool create_rt(ENetEvent& event, std::size_t pos, int64_t length) 

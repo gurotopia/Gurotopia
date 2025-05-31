@@ -4,7 +4,9 @@
 #include "network/packet.hpp"
 #include "world.hpp"
 
-world& world::read(std::string name)
+#include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
+
+world& world::read(const std::string& name)
 {
     std::ifstream file(std::format("worlds\\{}.json", name));
     if (file.is_open()) 
@@ -40,7 +42,6 @@ world::~world()
         std::ofstream(std::format("worlds\\{}.json", this->name)) << j;
     }
 }
-
 
 std::unordered_map<std::string, world> worlds;
 

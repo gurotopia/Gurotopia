@@ -20,12 +20,10 @@
         std::array<float, 2ull> pos;
     };
 
-    #include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
-
     class world 
     {
     public:
-        world& read(std::string name);
+        world& read(const std::string& name);
         std::string name{};
         int owner{ 00 }; // @note owner of world using peer's user id.
         std::array<int, 6ull> admin{}; // @note admins (by user id). excluding owner. (6 is a experimental amount, if increase update me if any issue occur -leeendl)

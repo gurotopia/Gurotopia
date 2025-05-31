@@ -39,6 +39,7 @@ SOURCES := main.cpp \
 	include/on/EmoticonDataChanged.cpp \
 	include/on/Action.cpp \
 	include/on/RequestWorldSelectMenu.cpp \
+	include/on/NameChanged.cpp \
 	include/commands/__command.cpp \
 	include/commands/find.cpp \
 	include/commands/warp.cpp \

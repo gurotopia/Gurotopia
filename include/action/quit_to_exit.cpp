@@ -11,6 +11,7 @@ void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selectio
     if (!_peer[event.peer]->ready_exit) return; // @todo investigating action|quit_to_exit being called 2-3 times in a row...?
     _peer[event.peer]->ready_exit = false;
     --worlds[_peer[event.peer]->recent_worlds.back()].visitors;
+    std::string& prefix = _peer[event.peer]->prefix;
     peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
     {
         if (!_peer[&p]->recent_worlds.empty() && !_peer[event.peer]->recent_worlds.empty() && 
@@ -18,7 +19,7 @@ void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selectio
         {
             gt_packet(p, false, 0, {
                 "OnConsoleMessage", 
-                std::format("`5<`{}{}`` left, `w{}`` others here>``", _peer[event.peer]->prefix, _peer[event.peer]->ltoken[0], worlds[_peer[event.peer]->recent_worlds.back()].visitors).c_str()
+                std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, _peer[event.peer]->ltoken[0], worlds[_peer[event.peer]->recent_worlds.back()].visitors).c_str()
             });
             gt_packet(p, true, 0, {
                 "OnRemove", 
@@ -30,7 +31,7 @@ void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selectio
         worlds.erase(_peer[event.peer]->recent_worlds.back());
     }
     _peer[event.peer]->post_enter.unlock();
-    _peer[event.peer]->prefix = 'w'; // @todo handle dev/moderator prefix not resetting (I will do this when project has roles)
+    if (prefix == "2" || prefix == "c") prefix = "w";
     _peer[event.peer]->netid = -1; // this will fix any packets being sent outside of world
     if (!skip_selection) OnRequestWorldSelectMenu(event);
 }

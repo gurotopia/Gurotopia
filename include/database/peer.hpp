@@ -10,6 +10,10 @@
         short count{0}; // @note total amount of that item
     };
 
+    enum role : char {
+        player, moderator, developer
+    };
+
     #include <string>
     #include <mutex> // @note std::once_flag
     #include <deque>
@@ -23,6 +27,7 @@
 
     class peer {
     public:
+        peer& read(const std::string& name);
         std::once_flag logging_in{}; // @note makes sure "connecting to server..." is triggered once (e.g. OnSuperMain)
         std::once_flag entered_game{}; // @note makes sure action|enter_game is triggered once.
         std::once_flag welcome_message{}; // @note makes sure "welcome back {}." message is triggered once
@@ -32,7 +37,8 @@
         signed netid{ -1 }; /* peer's netid is world identity. this will be useful for many packet sending */
         int user_id{}; // @note unqiue user id.
         std::array<const char*, 2ull> ltoken{}; // @note peer's ltoken e.g. [growid, password]
-        char prefix{'w'}; /* display name color, default: 'w' (White) */
+        std::string prefix{"w"}; // @note display name color, default: 'w' (White)
+        char role{role::player};
         std::array<float, 10ull> clothing{}; // @note peer's clothing
         signed skin_color{ -1429995521 };
 
@@ -79,6 +85,7 @@
         
         std::array<std::chrono::steady_clock::time_point, 3ull> rate_limit{}; // @note rate limit objects
         std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming
+        ~peer();
     };
     #include <unordered_map>
     #include <memory>

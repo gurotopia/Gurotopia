@@ -15,15 +15,14 @@ world& world::read(const std::string& name)
         file >> j;
         this->name = name;
         this->owner = j.contains("owner") && !j["owner"].is_null() ? j["owner"].get<int>() : 00;
-        this->ifloat_uid = j.contains("fs_uid") && !j["fs_uid"].is_null() ? j["fs_uid"].get<std::size_t>() : 0;
+        this->ifloat_uid = j.contains("fs_uid") && !j["fs_uid"].is_null() ? j["fs_uid"].get<std::size_t>() : 0ull;
         
-        for (const auto& i : j["bs"]) this->blocks.emplace_back(block{
-            i["f"], i["b"], 
-            j.contains("l") && !j["l"].is_null() ? i["l"].get<std::string>() : ""});
-
-        for (const auto& i : j["fs"]) this->ifloats.emplace_back(ifloat{
-            i["u"], i["i"], i["c"], 
-            std::array<float, 2ull>{i["p"][0], i["p"][1]}});
+        for (const auto& i : j["bs"])
+            if (i.contains("f") && i.contains("b"))
+                this->blocks.emplace_back(block{ i["f"], i["b"], j.value("l", "") });
+        for (const auto& i : j["fs"]) 
+            if (i.contains("u") && i.contains("i") && i.contains("c") && i.contains("p") && i["p"].is_array() && i["p"].size() == 2)
+                this->ifloats.emplace_back(ifloat{ i["u"], i["i"], i["c"], { i["p"][0], i["p"][1] } });
     }
     return *this;
 }
@@ -33,19 +32,21 @@ world::~world()
     if (!this->name.empty())
     {
         nlohmann::json j;
-        if (this->owner != 00) j["owner"] = this->owner;
-        for (const auto& block : this->blocks)
+        if (this->owner != 0) j["owner"] = this->owner;
+        if (this->ifloat_uid != 0) j["fs_uid"] = this->ifloat_uid;
+        for (const block &block : this->blocks) 
         {
             nlohmann::json list = {{"f", block.fg}, {"b", block.bg}};
-            if (not block.label.empty()) list["l"] = block.label;
+            if (!block.label.empty()) list["l"] = block.label;
             j["bs"].push_back(list);
         }
-        if (this->owner != 0) j["fs_uid"] = this->ifloat_uid;
-        for (const auto& ifloat : this->ifloats)
-            if (ifloat.id != 0 || ifloat.count != 0) // @todo handle this
-                j["fs"].push_back({{"u", ifloat.uid}, {"i", ifloat.id}, {"c", ifloat.count}, {"p", ifloat.pos}});
-        
-        std::ofstream(std::format("worlds\\{}.json", this->name)) << j;
+        for (const ifloat &ifloat : this->ifloats) 
+        {
+            if (ifloat.id == 0 || ifloat.count == 0) continue;
+            j["fs"].push_back({{"u", ifloat.uid}, {"i", ifloat.id}, {"c", ifloat.count}, {"p", ifloat.pos}});
+        }
+
+        std::ofstream(std::format("worlds\\{}.json", this->name), std::ios::trunc) << j;
     }
 }
 

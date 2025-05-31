@@ -13,6 +13,7 @@ peer& peer::read(const std::string& name)
         file >> j;
         this->role = j.contains("role") && !j["role"].is_null() ? j["role"].get<char>() : role::player;
         this->gems = j.contains("gems") && !j["gems"].is_null() ? j["gems"].get<int>() : 0;
+        this->level = j.contains("level") && !j["level"].is_null() ? j["level"].get<std::array<unsigned short, 2>>() : this->level;
         for (const auto& i : j["slots"]) this->slots.emplace_back(slot{ i["i"], i["c"] });
     }
     return *this;
@@ -23,14 +24,14 @@ peer::~peer()
     nlohmann::json j;
     j["role"] = this->role;
     j["gems"] = this->gems;
+    j["level"] = this->level;
     for (const auto& slot : this->slots)
     {
         if ((slot.id == 18 || slot.id == 32) || slot.count <= 0) continue;
-        nlohmann::json list = {{"i", slot.id}, {"c", slot.count}};
-        j["slots"].push_back(list);
+        j["slots"].emplace_back(nlohmann::json{{"i", slot.id}, {"c", slot.count}});
     }
 
-    std::ofstream(std::format("players\\{}.json", this->ltoken[0])) << j.dump(4);
+    std::ofstream(std::format("players\\{}.json", this->ltoken[0]), std::ios::trunc) << j.dump();
 }
 
 std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;

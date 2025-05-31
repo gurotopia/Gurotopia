@@ -11,7 +11,9 @@ peer& peer::read(const std::string& name)
     {
         nlohmann::json j;
         file >> j;
-        this->role = j["role"].get<char>();
+        this->role = j.contains("role") && !j["role"].is_null() ? j["role"].get<char>() : role::player;
+        this->gems = j.contains("gems") && !j["gems"].is_null() ? j["gems"].get<int>() : 0;
+        for (const auto& i : j["slots"]) this->slots.emplace_back(slot{ i["i"], i["c"] });
     }
     return *this;
 }
@@ -20,6 +22,13 @@ peer::~peer()
 {
     nlohmann::json j;
     j["role"] = this->role;
+    j["gems"] = this->gems;
+    for (const auto& slot : this->slots)
+    {
+        if ((slot.id == 18 || slot.id == 32) || slot.count <= 0) continue;
+        nlohmann::json list = {{"i", slot.id}, {"c", slot.count}};
+        j["slots"].push_back(list);
+    }
 
     std::ofstream(std::format("players\\{}.json", this->ltoken[0])) << j.dump(4);
 }

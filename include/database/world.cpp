@@ -14,10 +14,16 @@ world& world::read(const std::string& name)
         nlohmann::json j;
         file >> j;
         this->name = name;
-        this->owner = j.contains("owner") ? j["owner"].get<int>() : 00;
-        this->ifloat_uid = j.contains("fs_uid") ? j["fs_uid"].get<std::size_t>() : 0;
-        for (const auto& i : j["bs"]) this->blocks.emplace_back(block{i["f"], i["b"], i.contains("l") ? i["l"].get<std::string>() : ""});
-        for (const auto& i : j["fs"]) this->ifloats.emplace_back(ifloat{i["u"], i["i"], i["c"], std::array<float, 2ull>{i["p"][0], i["p"][1]}});
+        this->owner = j.contains("owner") && !j["owner"].is_null() ? j["owner"].get<int>() : 00;
+        this->ifloat_uid = j.contains("fs_uid") && !j["fs_uid"].is_null() ? j["fs_uid"].get<std::size_t>() : 0;
+        
+        for (const auto& i : j["bs"]) this->blocks.emplace_back(block{
+            i["f"], i["b"], 
+            j.contains("l") && !j["l"].is_null() ? i["l"].get<std::string>() : ""});
+
+        for (const auto& i : j["fs"]) this->ifloats.emplace_back(ifloat{
+            i["u"], i["i"], i["c"], 
+            std::array<float, 2ull>{i["p"][0], i["p"][1]}});
     }
     return *this;
 }

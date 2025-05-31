@@ -14,8 +14,12 @@
 #include "include/database/peer.hpp"
 #include "include/event_type/event_type"
 
+#include <filesystem>
+
 int main()
 {
+    if (!std::filesystem::exists("worlds")) std::filesystem::create_directory("worlds");
+    if (!std::filesystem::exists("players")) std::filesystem::create_directory("players");
     {
         ENetCallbacks callbacks{
             .malloc = &mi_malloc,

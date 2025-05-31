@@ -81,7 +81,7 @@
             this->level.back() -= level_up * xp_formula;
         }
 
-        std::array<std::string, 5ull> recent_worlds{}; // @note recent worlds, a list of 5 worlds, once it reaches 6 it'll be replaced by the oldest
+        std::array<std::string, 6ull> recent_worlds{}; // @note recent worlds, a list of 6 worlds, once it reaches 7 it'll be replaced by the oldest
         
         std::array<std::chrono::steady_clock::time_point, 3ull> rate_limit{}; // @note rate limit objects
         std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming

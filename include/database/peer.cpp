@@ -11,9 +11,10 @@ peer& peer::read(const std::string& name)
     {
         nlohmann::json j;
         file >> j;
-        this->role = j.contains("role") && !j["role"].is_null() ? j["role"].get<char>() : role::player;
-        this->gems = j.contains("gems") && !j["gems"].is_null() ? j["gems"].get<int>() : 0;
+        this->role = j.contains("role") && !j["role"].is_null() ? j["role"].get<char>() : this->role;
+        this->gems = j.contains("gems") && !j["gems"].is_null() ? j["gems"].get<int>() : this->gems;
         this->level = j.contains("level") && !j["level"].is_null() ? j["level"].get<std::array<unsigned short, 2>>() : this->level;
+        this->recent_worlds = j.contains("r_worlds") && !j["r_worlds"].is_null() ? j["r_worlds"].get<std::array<std::string, 6ull>>() : this->recent_worlds;
         for (const auto& i : j["slots"]) this->slots.emplace_back(slot{ i["i"], i["c"] });
     }
     return *this;
@@ -25,7 +26,8 @@ peer::~peer()
     j["role"] = this->role;
     j["gems"] = this->gems;
     j["level"] = this->level;
-    for (const auto& slot : this->slots)
+    j["r_worlds"] = this->recent_worlds;
+    for (const slot &slot : this->slots)
     {
         if ((slot.id == 18 || slot.id == 32) || slot.count <= 0) continue;
         j["slots"].emplace_back(nlohmann::json{{"i", slot.id}, {"c", slot.count}});
@@ -48,13 +50,13 @@ bool create_rt(ENetEvent& event, std::size_t pos, int64_t length)
     return true;
 }
 
-ENetHost* server;
+ENetHost *server;
 
 std::vector<ENetPeer*> peers(_ENetPeerState state, std::function<void(ENetPeer&)> fun)
 {
     std::vector<ENetPeer*> _peers{};
     _peers.reserve(server->peerCount);
-    for (ENetPeer& peer : std::span(server->peers, server->peerCount))
+    for (ENetPeer &peer : std::span(server->peers, server->peerCount))
         if (peer.state == state) 
         {
             fun(peer);
@@ -66,8 +68,8 @@ std::vector<ENetPeer*> peers(_ENetPeerState state, std::function<void(ENetPeer&)
 
 state get_state(const std::vector<std::byte>& packet) 
 {
-    const int* _4bit = reinterpret_cast<const int*>(packet.data());
-    const float* _4bit_f = reinterpret_cast<const float*>(packet.data());
+    const int *_4bit = reinterpret_cast<const int*>(packet.data());
+    const float *_4bit_f = reinterpret_cast<const float*>(packet.data());
     return state{
         .type = _4bit[0],
         .netid = _4bit[1],
@@ -83,8 +85,8 @@ state get_state(const std::vector<std::byte>& packet)
 std::vector<std::byte> compress_state(const state& s) 
 {
     std::vector<std::byte> data(56, std::byte{ 00 });
-    int* _4bit = reinterpret_cast<int*>(data.data());
-    float* _4bit_f = reinterpret_cast<float*>(data.data());
+    int *_4bit = reinterpret_cast<int*>(data.data());
+    float *_4bit_f = reinterpret_cast<float*>(data.data());
     _4bit[0] = s.type;
     _4bit[1] = s.netid;
     _4bit[3] = s.peer_state;
@@ -109,7 +111,7 @@ void inventory_visuals(ENetEvent &event)
     data[16] = std::byte{ 0x08 };
     *reinterpret_cast<int*>(&data[58]) = std::byteswap<int>(_peer[event.peer]->slot_size);
     *reinterpret_cast<int*>(&data[62]) = std::byteswap<int>(size);
-    int* slot_ptr = reinterpret_cast<int*>(data.data() + 66);
+    int *slot_ptr = reinterpret_cast<int*>(data.data() + 66);
     for (const slot &slot : _peer[event.peer]->slots)
         *slot_ptr++ = (static_cast<int>(slot.id) | (static_cast<int>(slot.count) << 16)) & 0x00FFFFFF;
             

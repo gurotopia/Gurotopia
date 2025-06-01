@@ -51,7 +51,7 @@ int main()
 
         std::ifstream("items.dat", std::ios::binary)
             .read(reinterpret_cast<char*>(&im_data[60]), size);
-    } // @note delete size and closes file
+    } // @note delete size and close file
     cache_items();
 
     ENetEvent event{};

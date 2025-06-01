@@ -13,9 +13,6 @@ Global
 		{679AE5D7-7AFB-4F34-9BD2-0F27297F2C29}.Release|x64.ActiveCfg = Release|x64
 		{679AE5D7-7AFB-4F34-9BD2-0F27297F2C29}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {32BDFDE1-82AD-46E4-B31E-208776DE8FEC}
 	EndGlobalSection

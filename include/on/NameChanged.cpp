@@ -1,3 +1,4 @@
+#include "pch.hpp"
 #include "database/peer.hpp"
 #include "network/packet.hpp"
 #include "NameChanged.hpp"

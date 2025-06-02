@@ -1,8 +1,7 @@
+#include "pch.hpp"
 #include "database/peer.hpp"
 #include "database/world.hpp"
 #include "action/dialog_return.hpp"
-
-#include <ranges> // @note for string_view.hpp
 
 #include "tools/string_view.hpp"
 

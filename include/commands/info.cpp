@@ -3,8 +3,6 @@
 #include "action/wrench.hpp"
 #include "info.hpp"
 
-#include <format>
-
 void info(ENetEvent& event, const std::string_view text)
 {
     std::string name{ text.substr(sizeof("info ")-1) };

@@ -1,12 +1,10 @@
-#include "pch.hpp" // for tools/string_view.hpp
+#include "pch.hpp"
 #include "database/items.hpp"
 #include "database/peer.hpp"
 #include "network/packet.hpp"
 #include "drop.hpp"
 
 #include "tools/string_view.hpp"
-
-#include <format>
 
 void drop(ENetEvent event, const std::string& header)
 {

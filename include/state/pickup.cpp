@@ -1,10 +1,10 @@
+#include "pch.hpp"
 #include "database/items.hpp"
 #include "database/peer.hpp"
 #include "database/world.hpp"
 #include "network/packet.hpp"
 #include "pickup.hpp"
 
-#include <format>
 #include <cmath>
 
 void pickup(ENetEvent event, state state) 

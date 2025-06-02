@@ -2,8 +2,6 @@
 #include "network/packet.hpp"
 #include "RequestWorldSelectMenu.hpp"
 
-#include <format>
-
 void OnRequestWorldSelectMenu(ENetEvent event) 
 {
     auto section = [](const auto& range, const char* color) 

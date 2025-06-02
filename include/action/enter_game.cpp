@@ -6,8 +6,6 @@
 
 #include "tools/string_view.hpp"
 
-#include <format>
-
 void enter_game(ENetEvent event, const std::string& header) 
 {
     std::call_once(_peer[event.peer]->entered_game, [&]() 

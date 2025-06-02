@@ -13,7 +13,7 @@
 #include "include/mimalloc/mimalloc.h" // @note https://github.com/microsoft/mimalloc
 #include "include/network/compress.hpp" // @note isalzman's compressor
 #include "include/database/peer.hpp"
-#include "include/event_type/event_type"
+#include "include/event_type/__event_type.hpp"
 
 #include <filesystem>
 

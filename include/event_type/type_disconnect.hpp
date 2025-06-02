@@ -1,6 +1,6 @@
-#include "action/quit.hpp"
+#ifndef TYPE_DISCONNECT_HPP
+#define TYPE_DISCONNECT_HPP
 
-inline void type_disconnect(ENetEvent event)
-{
-    quit(event, "");
-}
+    extern void type_disconnect(ENetEvent event);
+
+#endif

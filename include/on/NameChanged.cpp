@@ -2,8 +2,6 @@
 #include "network/packet.hpp"
 #include "NameChanged.hpp"
 
-#include <format>
-
 void OnNameChanged(ENetEvent event) {
     gt_packet(*event.peer, true, 0, {
         "OnNameChanged",

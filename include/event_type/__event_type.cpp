@@ -1,12 +1,11 @@
-#pragma once
+#include "database/peer.hpp"
 #include "type_connect.hpp"
 #include "type_disconnect.hpp"
 #include "type_receive.hpp"
 #include "type_disconnect_timeout.hpp"
+#include "__event_type.hpp"
 
-#include <functional>
-
-inline std::unordered_map<ENetEventType, std::function<void(ENetEvent)>> event_pool
+std::unordered_map<ENetEventType, std::function<void(ENetEvent)>> event_pool
 {
     {::ENET_EVENT_TYPE_CONNECT, std::bind(&type_connect, std::placeholders::_1)},
     {::ENET_EVENT_TYPE_DISCONNECT, std::bind(&type_disconnect, std::placeholders::_1)},

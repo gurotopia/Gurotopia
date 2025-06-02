@@ -4,8 +4,6 @@
 #include "action/quit_to_exit.hpp"
 #include "warp.hpp"
 
-#include <format>
-
 #if defined(_WIN32) && defined(_MSC_VER)
     #include <algorithm>
 #endif

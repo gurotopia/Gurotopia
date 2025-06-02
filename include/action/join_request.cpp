@@ -4,12 +4,10 @@
 #include "database/world.hpp"
 #include "network/packet.hpp"
 #include "on/EmoticonDataChanged.hpp"
+#include "tools/randomizer.hpp"
 #include "join_request.hpp"
 
 #include "tools/string_view.hpp"
-#include "tools/randomizer.hpp"
-
-#include <format>
 
 constexpr std::array<std::byte, 4ull> EXIT{
     std::byte{ 0x45 }, // @note 'E'

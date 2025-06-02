@@ -4,8 +4,6 @@
 #include "on/RequestWorldSelectMenu.hpp"
 #include "quit_to_exit.hpp"
 
-#include <format>
-
 void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selection = false) 
 {
     if (!_peer[event.peer]->ready_exit) return; // @todo investigating action|quit_to_exit being called 2-3 times in a row...?

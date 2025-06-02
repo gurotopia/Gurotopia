@@ -7,8 +7,6 @@
 
 #include "tools/string_view.hpp"
 
-#include <format>
-
 void input(ENetEvent event, const std::string& header)
 {
     if (not create_rt(event, 1, 400)) return;

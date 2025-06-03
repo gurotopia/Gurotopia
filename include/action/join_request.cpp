@@ -174,15 +174,15 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                         prefix, _peer[&p]->ltoken[0], (role >= role::moderator) ? "1" : "0", (role >= developer) ? "1" : "0"
                     ).c_str()
                 });
-                const char* enter_message = std::format("`5<`{}{}`` entered, `w{}`` others here>``", prefix, _peer[event.peer]->ltoken[0], w->visitors).c_str();
+                std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", prefix, _peer[event.peer]->ltoken[0], w->visitors) };
                 gt_packet(p, false, 0, {
                     "OnConsoleMessage", 
-                    enter_message
+                    enter_message.c_str()
                 });
                 gt_packet(p, false, 0, {
                     "OnTalkBubble", 
                     _peer[event.peer]->netid, 
-                    enter_message
+                    enter_message.c_str()
                 });
             }
         }); // @note delete enter_message

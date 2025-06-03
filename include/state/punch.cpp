@@ -113,16 +113,16 @@ void punch(ENetEvent event, state state)
                     }
                     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
                     {
-                        const char* placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, _peer[event.peer]->ltoken[0]).c_str();
+                        std::string placed_message{ std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, _peer[event.peer]->ltoken[0]) };
                         gt_packet(p, false, 0, {
                             "OnTalkBubble", 
                             _peer[event.peer]->netid,
-                            placed_message,
+                            placed_message.c_str(),
                             0u
                         });
                         gt_packet(p, false, 0, {
                             "OnConsoleMessage",
-                            placed_message
+                            placed_message.c_str()
                         });
                     });
                     OnNameChanged(event);

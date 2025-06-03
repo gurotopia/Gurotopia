@@ -15,7 +15,7 @@ world& world::read(const std::string& name)
         file >> j;
         this->name = name;
         this->owner = j.contains("owner") && !j["owner"].is_null() ? j["owner"].get<int>() : 00;
-        this->ifloat_uid = j.contains("fs_uid") && !j["fs_uid"].is_null() ? j["fs_uid"].get<std::size_t>() : 0ull;
+        this->ifloat_uid = j.contains("fs_uid") && !j["fs_uid"].is_null() ? j["fs_uid"].get<std::size_t>() : 0zu;
         
         for (const auto& i : j["bs"])
             if (i.contains("f") && i.contains("b"))
@@ -55,17 +55,17 @@ std::unordered_map<std::string, world> worlds;
 void send_data(ENetPeer& peer, const std::vector<std::byte>& data)
 {
     std::size_t size = data.size();
-    if (size < 14) return;
-    ENetPacket *packet = enet_packet_create(nullptr, size + 5, ENET_PACKET_FLAG_RELIABLE);
-    if (packet == nullptr || packet->dataLength < (size + 4)) return;
+    if (size < 14zu) return;
+    ENetPacket *packet = enet_packet_create(nullptr, size + 5zu, ENET_PACKET_FLAG_RELIABLE);
+    if (packet == nullptr || packet->dataLength < (size + 4zu)) return;
     packet->data[0] = { 04 };
     memcpy(packet->data + 4, data.data(), size); // @note for safety reasons I will not reinterpret the values.
-    if (size >= 13 + sizeof(std::size_t)) 
+    if (size >= 13zu + sizeof(std::size_t)) 
     {
         std::size_t resize_forecast = *std::bit_cast<std::size_t*>(data.data() + 13); // @note we just wanna see if we can resize safely
         if (std::to_integer<unsigned char>(data[12]) & 0x8) // @note data[12] = peer_state in state class.
         {
-            if (resize_forecast <= 512 && packet->dataLength + resize_forecast <= 512)
+            if (resize_forecast <= 512zu && packet->dataLength + resize_forecast <= 512zu)
                 enet_packet_resize(packet, packet->dataLength + resize_forecast);
         }
     }
@@ -93,7 +93,7 @@ void block_punched(ENetEvent& event, state s, block &b)
 	state_visuals(event, s);
 }
 
-void drop_visuals(ENetEvent& event, const std::array<short, 2ull>& im, const std::array<float, 2ull>& pos, signed uid) 
+void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid) 
 {
     std::vector<std::byte> compress{};
     state s{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT

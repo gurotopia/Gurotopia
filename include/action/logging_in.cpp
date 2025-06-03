@@ -16,14 +16,14 @@ void logging_in(ENetEvent event, const std::string& header)
             std::string decoded = base64Decode(pipes[3]);
             if (std::size_t pos = decoded.find("growId="); pos != std::string::npos) 
             {
-                pos += sizeof("growId=")-1ull;
+                pos += sizeof("growId=")-1zu;
                 const std::size_t ampersand = decoded.find('&', pos);
                 _peer[event.peer]->ltoken[0] = strdup(decoded.substr(pos, ampersand - pos).c_str());
             }
 
             if (std::size_t pos = decoded.find("password="); pos != std::string::npos) 
             {
-                pos += sizeof("password=")-1ull;
+                pos += sizeof("password=")-1zu;
                 _peer[event.peer]->ltoken[1] = strdup(decoded.substr(pos).c_str());
             }
         }

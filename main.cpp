@@ -42,13 +42,13 @@ int main()
         std::uintmax_t size = std::filesystem::file_size("items.dat");
 
         im_data.resize(im_data.size() + size); // @note state + items.dat
-        im_data[0] = std::byte{ 04 }; // @note 04 00 00 00
-        im_data[4] = std::byte{ 0x10 }; // @note 16 00 00 00
-        im_data[16] = std::byte{ 0x08 }; // @note 08 00 00 00
-        *reinterpret_cast<std::uintmax_t*>(&im_data[56]) = size;
+        im_data[0zu] = std::byte{ 04 }; // @note 04 00 00 00
+        im_data[4zu] = std::byte{ 0x10 }; // @note 16 00 00 00
+        im_data[16zu] = std::byte{ 0x08 }; // @note 08 00 00 00
+        *reinterpret_cast<std::uintmax_t*>(&im_data[56zu]) = size;
 
         std::ifstream("items.dat", std::ios::binary)
-            .read(reinterpret_cast<char*>(&im_data[60]), size);
+            .read(reinterpret_cast<char*>(&im_data[60zu]), size);
     } // @note delete size and close file
     cache_items();
 

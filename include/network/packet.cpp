@@ -21,57 +21,57 @@ void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any
         if (param.type() == typeid(const char*)) 
         {
             std::string_view param_view{ std::any_cast<const char*>(param) };
-            data.resize(size + 2 + param_view.length() + sizeof(int));
+            data.resize(size + 2zu + param_view.length() + sizeof(int));
             data[size] = index; // @note element counter e.g. "OnConsoleMessage" -> 00, "hello" -> 01
-            data[size + 1] = std::byte{ 02 };
-            data[size + 2] = static_cast<std::byte>(param_view.length() & 0xff);
-            data[size + 3] = static_cast<std::byte>(( param_view.length() >> 8 ) & 0xff);
+            data[size + 1zu] = std::byte{ 02 };
+            data[size + 2zu] = static_cast<std::byte>(param_view.length() & 0xff);
+            data[size + 3zu] = static_cast<std::byte>(( param_view.length() >> 8 ) & 0xff);
 
             const std::byte *_1bit = reinterpret_cast<const std::byte*>(param_view.data());
-            for (size_t i = 0; i < param_view.length(); ++i)
-                data[size + 6 + i] = _1bit[i]; // @note e.g. 'a' -> 0x61. 'z' = 0x7A, hex tabel: https://en.cppreference.com/w/cpp/language/ascii
+            for (std::size_t i = 0zu; i < param_view.length(); ++i)
+                data[size + 6zu + i] = _1bit[i]; // @note e.g. 'a' -> 0x61. 'z' = 0x7A, hex tabel: https://en.cppreference.com/w/cpp/language/ascii
             
-            size += 2 + param_view.length() + sizeof(int);
+            size += 2zu + param_view.length() + sizeof(int);
         }
         else if (param.type() == typeid(int) || param.type() == typeid(unsigned)) 
         {
             bool is_signed = (param.type() == typeid(int));
             auto value = is_signed ? std::any_cast<int>(param) : std::any_cast<unsigned>(param);
-            data.resize(size + 2 + sizeof(value) + 2);
+            data.resize(size + 2zu + sizeof(value) + 2zu);
             data[size] = index; // @note element counter e.g. "OnSetBux" -> 00, 43562/-43562 -> 01
-            data[size + 1] = (is_signed) ? std::byte{ 0x09 } : std::byte{ 05 };
+            data[size + 1zu] = (is_signed) ? std::byte{ 0x09 } : std::byte{ 05 };
 
             const std::byte *_1bit = reinterpret_cast<const std::byte*>(&value);
-            for (std::size_t i = 0; i < sizeof(value); ++i)
-                data[size + 2 + i] = _1bit[i];
+            for (std::size_t i = 0zu; i < sizeof(value); ++i)
+                data[size + 2zu + i] = _1bit[i];
 
-            size += 2 + sizeof(value);
+            size += 2zu + sizeof(value);
         }
         else if (param.type() == typeid(std::vector<float>)) 
         {
             const std::vector<float>& vec = std::any_cast<const std::vector<float>&>(param);
-            data.resize(size + 2 + (sizeof(float) * vec.size()) + 2);
+            data.resize(size + 2zu + (sizeof(float) * vec.size()) + 2zu);
             data[size] = index;
-            data[size + 1] = 
-                (vec.size() == 1) ? std::byte{ 01 } :
-                (vec.size() == 2) ? std::byte{ 03 } :
-                (vec.size() == 3) ? std::byte{ 04 } :
+            data[size + 1zu] = 
+                (vec.size() == 1zu) ? std::byte{ 01 } :
+                (vec.size() == 2zu) ? std::byte{ 03 } :
+                (vec.size() == 3zu) ? std::byte{ 04 } :
                                     std::byte{ 00 };
 
             const std::byte *_1bit = reinterpret_cast<const std::byte*>(vec.data());
-            for (std::size_t i = 0; i < sizeof(float) * vec.size(); ++i)
-                data[size + 2 + i] = _1bit[i];
+            for (std::size_t i = 0zu; i < sizeof(float) * vec.size(); ++i)
+                data[size + 2zu + i] = _1bit[i];
 
-            size += 2 + (sizeof(float) * vec.size());
+            size += 2zu + (sizeof(float) * vec.size());
         }
         else return; // @note this will never pass unless you include a param that Growtopia does not recognize
 
         index = static_cast<std::byte>(std::to_integer<int>(index) + 1);
-        data[60] = index;
+        data[60zu] = index;
     }
 
     ENetPacket* packet = enet_packet_create(data.data(), size, ENET_PACKET_FLAG_RELIABLE);
-    if (packet != nullptr && packet->dataLength > 61)
+    if (packet != nullptr && packet->dataLength > 61zu)
         enet_peer_send(&p, 0, packet);
 }
 
@@ -82,13 +82,13 @@ void action(ENetPeer& p, const std::string& action, const std::string& str)
     data[0] = std::byte{ 03 };
     {
         const std::byte *_1bit = reinterpret_cast<const std::byte*>(action_view.data());
-        for (std::size_t i = 0; i < action_view.length(); ++i)
-            data[4 + i] = _1bit[i];
+        for (std::size_t i = 0zu; i < action_view.length(); ++i)
+            data[4zu + i] = _1bit[i];
     }
     {
         const std::byte *_1bit = reinterpret_cast<const std::byte*>(str.data());
-        for (std::size_t i = 0; i < str.length(); ++i)
-            data[4 + action_view.length() + i] = _1bit[i];
+        for (std::size_t i = 0zu; i < str.length(); ++i)
+            data[4zu + action_view.length() + i] = _1bit[i];
     }
     enet_peer_send(&p, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
 }

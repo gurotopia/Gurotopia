@@ -23,16 +23,16 @@ inline/* todo */ bool alpha(const std::string& str)
     return true;
 }
 
-constexpr std::array<int, 256ull> createLookupTable() noexcept 
+constexpr std::array<int, 256zu> createLookupTable() noexcept 
 {
-    std::array<int, 256ull> table{};
+    std::array<int, 256zu> table{};
     table.fill(-1);
     
     constexpr std::string_view base64_chars = 
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         "abcdefghijklmnopqrstuvwxyz"
         "0123456789+/";
-    for (std::size_t i = 0; i < base64_chars.size(); ++i)
+    for (std::size_t i = 0zu; i < base64_chars.size(); ++i)
         table[static_cast<unsigned char>(base64_chars[i])] = static_cast<int>(i);
 
     return table;
@@ -64,14 +64,14 @@ inline/* todo */ std::string base64Decode(std::string_view encoded)
 
 // @todo downgrade to a int (4 bit)
 inline std::size_t fnv1a(const std::string& value) noexcept {
-    constexpr std::size_t FNV_OFFSET = 14695981039346656037ull;
-    constexpr std::size_t FNV_PRIME = 1099511628211ull;
+    constexpr std::size_t offset = 14695981039346656037zu;
+    constexpr std::size_t prime = 1099511628211zu;
 
-    std::size_t fnv1a = FNV_OFFSET;
+    std::size_t fnv1a = offset;
     for (unsigned char c : value) 
     {
         fnv1a ^= c;
-        fnv1a *= FNV_PRIME;
+        fnv1a *= prime;
     }
     return fnv1a;
 }

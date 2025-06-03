@@ -33,7 +33,7 @@ void punch(ENetEvent event, state state)
             else if (b.bg != 0 && b.hits[1] >= items[b.bg].hits) id = b.bg, b.bg = 0;
             else return;
             b.hits = {0, 0};
-            std::array<short, 2ull> im{};
+            std::array<short, 2zu> im{};
             if (not randomizer(0, 7)) im = {112, 1}; // @todo get real growtopia gem drop amount.
             if (not randomizer(0, 13)) im = {id, 1};
             if (not randomizer(0, 9)) im = {++id, 1};

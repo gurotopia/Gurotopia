@@ -3208,13 +3208,18 @@ extern "C" {
 
                     #ifdef ENET_DEBUG
                     printf(
-                        "peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %llu outgoing, %llu/%llu incoming\n", currentPeer->incomingPeerID,
+                        "peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %zu outgoing, %zu/%zu incoming\n", 
+                        currentPeer->incomingPeerID,
+
                         currentPeer->packetLoss / (float) ENET_PEER_PACKET_LOSS_SCALE,
-                        currentPeer->packetLossVariance / (float) ENET_PEER_PACKET_LOSS_SCALE, currentPeer->roundTripTime, currentPeer->roundTripTimeVariance,
+                        currentPeer->packetLossVariance / (float) ENET_PEER_PACKET_LOSS_SCALE, 
+                        currentPeer->roundTripTime, 
+                        currentPeer->roundTripTimeVariance,
                         currentPeer->packetThrottle / (float) ENET_PEER_PACKET_THROTTLE_SCALE,
+
                         enet_list_size(&currentPeer->outgoingCommands),
-                        currentPeer->channels != NULL ? enet_list_size( &currentPeer->channels->incomingReliableCommands) : 0llu,
-                        currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0llu
+                        currentPeer->channels != NULL ? enet_list_size( &currentPeer->channels->incomingReliableCommands) : 0zu,
+                        currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0zu
                     );
                     #endif
 

@@ -36,14 +36,14 @@
 
         signed netid{ -1 }; /* peer's netid is world identity. this will be useful for many packet sending */
         int user_id{}; // @note unqiue user id.
-        std::array<const char*, 2ull> ltoken{}; // @note peer's ltoken e.g. [growid, password]
+        std::array<const char*, 2zu> ltoken{}; // @note peer's ltoken e.g. [growid, password]
         std::string prefix{"w"}; // @note display name color, default: 'w' (White)
         char role{role::player};
-        std::array<float, 10ull> clothing{}; // @note peer's clothing
+        std::array<float, 10zu> clothing{}; // @note peer's clothing
         signed skin_color{ -1429995521 };
 
-        std::array<float, 2ull> pos{}; // @note position {x, y}
-        std::array<float, 2ull> rest_pos{}; // @note respawn position {x, y}
+        std::array<float, 2zu> pos{}; // @note position {x, y}
+        std::array<float, 2zu> rest_pos{}; // @note respawn position {x, y}
         bool facing_left{}; // @note peer is directed towards the left direction
 
         short slot_size{16}; /* amount of slots this peer has | were talking total slots not itemed slots, to get itemed slots do slot.size() */
@@ -65,7 +65,7 @@
         }
         signed gems{0};
 
-        std::array<unsigned short, 2> level{ 1, 0 }; // XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
+        std::array<unsigned short, 2zu> level{ 1, 0 }; // XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
         /*
         * @brief add XP safely, this function also handles level up.
         */
@@ -81,10 +81,10 @@
             this->level.back() -= level_up * xp_formula;
         }
 
-        std::array<std::string, 6ull> recent_worlds{}; // @note recent worlds, a list of 6 worlds, once it reaches 7 it'll be replaced by the oldest
-        std::array<std::string, 200ull> my_worlds{}; // @note first 200 relevant worlds locked by peer.
+        std::array<std::string, 6zu> recent_worlds{}; // @note recent worlds, a list of 6 worlds, once it reaches 7 it'll be replaced by the oldest
+        std::array<std::string, 200zu> my_worlds{}; // @note first 200 relevant worlds locked by peer.
         
-        std::array<std::chrono::steady_clock::time_point, 3ull> rate_limit{}; // @note rate limit objects
+        std::array<std::chrono::steady_clock::time_point, 3zu> rate_limit{}; // @note rate limit objects
         std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming
         ~peer();
     };
@@ -113,9 +113,9 @@
         int peer_state{};
         float count{}; // @todo understand this better
         int id{}; // @note peer's active hand, so 18 (fist) = punching, 32 (wrench) interacting, ect...
-        std::array<float, 2ull> pos{}; // @note position 1D {x, y}
-        std::array<float, 2ull> speed{}; // @note player movement effect (gravity, speed, ect) 1D {x, y}
-        std::array<int, 2ull> punch{}; // @note punching/placing position 2D {x, y}
+        std::array<float, 2zu> pos{}; // @note position 1D {x, y}
+        std::array<float, 2zu> speed{}; // @note player movement effect (gravity, speed, ect) 1D {x, y}
+        std::array<int, 2zu> punch{}; // @note punching/placing position 2D {x, y}
     };
 
     extern state get_state(const std::vector<std::byte>& packet);

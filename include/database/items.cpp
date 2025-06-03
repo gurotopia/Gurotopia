@@ -7,7 +7,7 @@ std::vector<std::byte> im_data(60/* state {56} + items.dat size {4}*/, std::byte
 template<typename T>
 void shift_pos(std::vector<std::byte>& data, int& pos, T& value) 
 {
-    for (std::size_t i = 0; i < sizeof(T); ++i) 
+    for (std::size_t i = 0zu; i < sizeof(T); ++i) 
         reinterpret_cast<std::byte*>(&value)[i] = data[pos + i];
     pos += sizeof(T);
 }
@@ -16,7 +16,7 @@ void shift_pos(std::vector<std::byte>& data, int& pos, T& value)
 template<typename T>
 void data_modify(std::vector<std::byte>& data, int& pos, const T& value) 
 {
-    for (std::size_t i = 0; i < sizeof(T); ++i) 
+    for (std::size_t i = 0zu; i < sizeof(T); ++i) 
         data[pos + i] = reinterpret_cast<const std::byte*>(&value)[i];
 }
 
@@ -105,7 +105,7 @@ void cache_items()
         len = *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short) + len;
 
-        pos += sizeof(std::array<std::byte, 80ull>);
+        pos += sizeof(std::array<std::byte, 80zu>);
         if (version >= 11)
         {
             pos += *(reinterpret_cast<short*>(&im_data[pos]));
@@ -114,7 +114,7 @@ void cache_items()
         if (version >= 12)
         {
             shift_pos(im_data, pos, im.mod2);
-            pos += sizeof(std::array<std::byte, 9ull>);
+            pos += sizeof(std::array<std::byte, 9zu>);
         }
         if (version >= 13)
             shift_pos(im_data, pos, im.mod3);
@@ -122,7 +122,7 @@ void cache_items()
             shift_pos(im_data, pos, im.mod4);
         if (version >= 15)
         {
-            pos += sizeof(std::array<std::byte, 25ull>);
+            pos += sizeof(std::array<std::byte, 25zu>);
             pos += *(reinterpret_cast<short*>(&im_data[pos]));
             pos += sizeof(short);
         }
@@ -136,7 +136,7 @@ void cache_items()
         if (version >= 18)
             shift_pos(im_data, pos, im.mod6);
         if (version >= 19)
-            pos += sizeof(std::array<std::byte, 9ull>);
+            pos += sizeof(std::array<std::byte, 9zu>);
         if (version == 21)
             shift_pos(im_data, pos, im.mod7);
         

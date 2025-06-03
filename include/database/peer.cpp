@@ -54,14 +54,14 @@ bool create_rt(ENetEvent& event, std::size_t pos, int64_t length)
 
 ENetHost *server;
 
-std::vector<ENetPeer*> peers(ENetEvent event, _ENetPeerState state, peer_condition condition, std::function<void(ENetPeer&)> fun)
+std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::function<void(ENetPeer&)> fun)
 {
     std::vector<ENetPeer*> _peers{};
     _peers.reserve(server->peerCount);
     for (ENetPeer &peer : std::span(server->peers, server->peerCount))
-        if (peer.state == state) 
+        if (peer.state == ENET_PEER_STATE_CONNECTED) 
         {
-            if (condition == peer_condition::PEER_SAME_WORLD)
+            if (condition == PEER_SAME_WORLD)
             {
                 if ((_peer[&peer]->recent_worlds.empty() && _peer[event.peer]->recent_worlds.empty()) || 
                     (_peer[&peer]->recent_worlds.back() != _peer[event.peer]->recent_worlds.back())) continue;

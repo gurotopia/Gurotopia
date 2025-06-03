@@ -32,9 +32,9 @@ int main()
     } // @note delete callbacks
     server = enet_host_create({
         .host = in6addr_any,
-        .port = 17091
+        .port = 17091u
     },
-    50/*@note less to allocate than setting to MAX*/, 2);
+    50zu/*@note less to allocate than setting to MAX*/, 2zu);
     
     server->checksum = enet_crc32;
     enet_host_compress_with_range_coder(server);
@@ -54,7 +54,7 @@ int main()
 
     ENetEvent event{};
     while (true)
-        while (enet_host_service(server, &event, 50/*ms*/) > 0)
+        while (enet_host_service(server, &event, 50u/*ms*/) > 0)
             if (const auto i = event_pool.find(event.type); i != event_pool.end())
                 i->second(event);
     return 0;

@@ -57,16 +57,16 @@ void send_data(ENetPeer& peer, const std::vector<std::byte>& data)
     std::size_t size = data.size();
     if (size < 14zu) return;
     ENetPacket *packet = enet_packet_create(nullptr, size + 5zu, ENET_PACKET_FLAG_RELIABLE);
-    if (packet == nullptr || packet->dataLength < (size + 4zu)) return;
+    if (packet == nullptr || packet->dataLength < size + 4zu) return;
     packet->data[0] = { 04 };
-    memcpy(packet->data + 4, data.data(), size); // @note for safety reasons I will not reinterpret the values.
+    std::memcpy(packet->data + 4, data.data(), size);
     if (size >= 13zu + sizeof(std::size_t)) 
     {
-        std::size_t resize_forecast = *std::bit_cast<std::size_t*>(data.data() + 13); // @note we just wanna see if we can resize safely
-        if (std::to_integer<unsigned char>(data[12]) & 0x8) // @note data[12] = peer_state in state class.
+        std::size_t forecast = std::bit_cast<std::size_t>(data.data() + 13);
+        if ((std::to_integer<unsigned char>(data[12]) & 0x8) && 
+            forecast <= 512zu && packet->dataLength + forecast <= 512zu) 
         {
-            if (resize_forecast <= 512zu && packet->dataLength + resize_forecast <= 512zu)
-                enet_packet_resize(packet, packet->dataLength + resize_forecast);
+            enet_packet_resize(packet, packet->dataLength + forecast);
         }
     }
     enet_peer_send(&peer, 1, packet);
@@ -75,7 +75,7 @@ void send_data(ENetPeer& peer, const std::vector<std::byte>& data)
 void state_visuals(ENetEvent& event, state s) 
 {
     s.netid = _peer[event.peer]->netid;
-    peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
+    peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
         send_data(p, compress_state(s));
     });
@@ -113,7 +113,7 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
         s.pos = {it.pos[0] * 32, it.pos[1] * 32};
     }
     compress = compress_state(s);
-    peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p)  
+    peers(event, PEER_SAME_WORLD, [&](ENetPeer& p)  
     {
         send_data(p, compress);
     });
@@ -149,13 +149,13 @@ void tile_update(ENetEvent &event, state s, block &b, world& w)
         case std::byte{ type::DOOR }:
         {
             data[pos - 2] = std::byte{ 01 };
-            short len{ static_cast<short>(b.label.length()) };
+            std::span<const char> label = b.label;
+            short len{ static_cast<short>(label.size()) };
             data.resize(pos + 1 + 2 + len + 1); // @note 01 {2} {} 0 0
 
             data[pos] = std::byte{ 01 }; pos += sizeof(std::byte);
             
             *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-            std::span<const char> label{b.label.data(), b.label.size()};
             for (const char& c : label) data[pos++] = static_cast<std::byte>(c);
 
             pos += sizeof(std::byte); // @note '\0'
@@ -164,13 +164,13 @@ void tile_update(ENetEvent &event, state s, block &b, world& w)
         case std::byte{ type::SIGN }:
         {
             data[pos - 2] = std::byte{ 0x19 };
-            short len{ static_cast<short>(b.label.length()) };
+            std::span<const char> label = b.label;
+            short len{ static_cast<short>(label.size()) };
             data.resize(pos + 1 + 2 + len + 4); // @note 02 {2} {} ff ff ff ff
 
             data[pos] = std::byte{ 02 }; pos += sizeof(std::byte);
 
             *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-            std::span<const char> label{ b.label.data(), b.label.size() };
             for (const char& c : label) data[pos++] = static_cast<std::byte>(c);
 
             *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
@@ -178,7 +178,7 @@ void tile_update(ENetEvent &event, state s, block &b, world& w)
         }
     }
 
-    peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
+    peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
         send_data(p, data);
     });

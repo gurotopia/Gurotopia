@@ -11,7 +11,7 @@ void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selectio
     _peer[event.peer]->ready_exit = false;
     --worlds[_peer[event.peer]->recent_worlds.back()].visitors;
     std::string& prefix = _peer[event.peer]->prefix;
-    peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
+    peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
         gt_packet(p, false, 0, {
             "OnConsoleMessage", 

@@ -163,7 +163,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         EmoticonDataChanged(event);
         _peer[event.peer]->post_enter.unlock();
         _peer[event.peer]->netid = ++w->visitors;
-        peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
+        peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
         {
             if (_peer[&p]->user_id != _peer[event.peer]->user_id) 
             {

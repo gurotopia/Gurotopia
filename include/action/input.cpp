@@ -10,15 +10,14 @@
 void input(ENetEvent event, const std::string& header)
 {
     if (not create_rt(event, 1, 400)) return;
-
     std::string text{readch(std::string{header}, '|')[4]};
     {
         if (text.empty()) return;
-
         auto start = std::ranges::find_if(text, [](unsigned char c) { return !std::isspace(c); });
         auto end = std::ranges::find_if(text.rbegin(), text.rend(), [](unsigned char c) { return !std::isspace(c); }).base();
         if (start < end) text.assign(start, end);
     } // @note delete start, end
+
     _peer[event.peer]->messages.push_back(std::chrono::steady_clock::now());
     if (_peer[event.peer]->messages.size() > 5) _peer[event.peer]->messages.pop_front();
     if (_peer[event.peer]->messages.size() == 5 && std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - _peer[event.peer]->messages.front()).count() < 6)
@@ -29,17 +28,14 @@ void input(ENetEvent event, const std::string& header)
         });
     else if (text.starts_with('/')) 
     {
-        action(*event.peer, "log", std::format("msg| `6{}``", text).c_str());
-
+        action(*event.peer, "log", std::format("msg| `6{}``", text));
         std::string_view text_view = text.substr(1, text.find(' ') - 1); // @note e.g. /warp {} -> warp. this excludes the arguement and slash.
         if (const auto it = cmd_pool.find(text_view); it != cmd_pool.end()) 
             it->second(std::ref(event), std::move(text.substr(1)));
         else 
             action(*event.peer, "log", "msg|`4Unknown command.`` Enter `$/?`` for a list of valid commands.");
     }
-    if (text.back() == ' ') text.pop_back();
-    if (!text.empty() && text.front() == ' ') text.erase(0, 1);
-    peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
+    else peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
         gt_packet(p, false, 0, {
             "OnTalkBubble", 

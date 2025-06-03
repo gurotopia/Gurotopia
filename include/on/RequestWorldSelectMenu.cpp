@@ -9,14 +9,21 @@ void OnRequestWorldSelectMenu(ENetEvent event)
     {
         std::string result;
         for (const auto& name : range)
-            if (not name.empty()) // @note some may be stored empty but still an object. e.g. std::array
-                result += std::format("\nadd_floater|{}|0|0.5|{}", name, color);
+            if (not name.empty())
+                result += std::format("add_floater|{}|0|0.5|{}\n", name, color);
         return result;
     };
     gt_packet(*event.peer, false, 0, {
         "OnRequestWorldSelectMenu", 
-        std::format("add_filter|\nadd_heading|Top Worlds<ROW2>|{}\nadd_heading|Recently Visited Worlds<CR>|{}\n",
-        "\nadd_floater|wotd_world|\u013B WOTD|0|0.5|3529161471", section(_peer[event.peer]->recent_worlds, "3417414143")).c_str(), 
+            std::format(
+                "add_filter|\n"
+                "add_heading|Top Worlds<ROW2>|\n{}"
+                "add_heading|My Worlds<CR>|\n{}"
+                "add_heading|Recently Visited Worlds<CR>|\n{}",
+            "add_floater|wotd_world|\u013B WOTD|0|0.5|3529161471\n", 
+            section(_peer[event.peer]->my_worlds, "2147418367"), 
+            section(_peer[event.peer]->recent_worlds, "3417414143")
+        ).c_str(), 
         0
     });
     gt_packet(*event.peer, false, 0, {

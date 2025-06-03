@@ -15,6 +15,7 @@ peer& peer::read(const std::string& name)
         this->gems = j.contains("gems") && !j["gems"].is_null() ? j["gems"].get<int>() : this->gems;
         this->level = j.contains("level") && !j["level"].is_null() ? j["level"].get<std::array<unsigned short, 2>>() : this->level;
         this->recent_worlds = j.contains("r_worlds") && !j["r_worlds"].is_null() ? j["r_worlds"].get<std::array<std::string, 6ull>>() : this->recent_worlds;
+        this->my_worlds = j.contains("my_worlds") && !j["my_worlds"].is_null() ? j["my_worlds"].get<std::array<std::string, 200ull>>() : this->my_worlds;
         for (const auto& i : j["slots"]) this->slots.emplace_back(slot{ i["i"], i["c"] });
     }
     return *this;
@@ -27,6 +28,7 @@ peer::~peer()
     j["gems"] = this->gems;
     j["level"] = this->level;
     j["r_worlds"] = this->recent_worlds;
+    j["my_worlds"] = this->my_worlds;
     for (const slot &slot : this->slots)
     {
         if ((slot.id == 18 || slot.id == 32) || slot.count <= 0) continue;

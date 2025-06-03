@@ -29,8 +29,6 @@ int main()
         };
         if (enet_initialize_with_callbacks(ENET_VERSION, &callbacks) == 0)
             printf("\e[38;5;247mENet initialize success! (v%d.%d.%d)\e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
-        else
-            printf("\e[1;31mENet initialize failed.\e[0m\n");
     } // @note delete callbacks
     server = enet_host_create({
         .host = in6addr_any,

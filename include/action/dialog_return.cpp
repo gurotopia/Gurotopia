@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "database/peer.hpp"
 #include "database/world.hpp"
+#include "network/packet.hpp"
 #include "action/dialog_return.hpp"
 
 #include "tools/string_view.hpp"
@@ -22,6 +23,40 @@ void dialog_return(ENetEvent event, const std::string& header)
             _peer[event.peer]->pos[0] - 1 : 
             _peer[event.peer]->pos[0] + 1); // @note get the tile next to peer. so like O|
         drop_visuals(event, {id, count}, {x_nabor, _peer[event.peer]->pos[1]});
+    }
+    else if (dialog_name == "popup" && pipes[6] == "buttonClicked") // @todo why does netID|1| appear twice??
+    {
+        if (pipes[7] == "my_worlds")
+        {
+            auto section = [](const auto& range) 
+            {
+                std::string result;
+                for (const auto& name : range)
+                    if (not name.empty())
+                        result += std::format("add_button|{0}|{0}|noflags|0|0|\n", name);
+                return result;
+            };
+            gt_packet(*event.peer, false, 0, {
+                "OnDialogRequest",
+                std::format(
+                    "set_default_color|`o\n"
+                    "start_custom_tabs|\n"
+                    "add_custom_button|myWorldsUiTab_0|image:interface/large/btn_tabs2.rttex;image_size:228,92;frame:1,0;width:0.15;|\n"
+                    "add_custom_button|myWorldsUiTab_1|image:interface/large/btn_tabs2.rttex;image_size:228,92;frame:0,1;width:0.15;|\n"
+                    "add_custom_button|myWorldsUiTab_2|image:interface/large/btn_tabs2.rttex;image_size:228,92;frame:0,2;width:0.15;|\n"
+                    "end_custom_tabs|\n"
+                    "add_label|big|Locked Worlds|left|0|\n"
+                    "add_spacer|small|\n"
+                    "add_textbox|Place a World Lock in a world to lock it. Break your World Lock to unlock a world.|left|\n"
+                    "add_spacer|small|\n"
+                    "{}\n"
+                    "add_spacer|small|\n"
+                    "end_dialog|worlds_list||Back|\n"
+                    "add_quick_exit|\n",
+                    section(_peer[event.peer]->my_worlds)
+                ).c_str()
+            });
+        }
     }
     else if (dialog_name == "find" && pipes[0] == "buttonClicked" && pipes[1].starts_with("searchableItemListButton") && !readch(pipes[1], '_')[1].empty())
     {

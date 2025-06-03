@@ -226,6 +226,10 @@ static const struct in6_addr enet_v6_localhost = {{{ 0x00, 0x00, 0x00, 0x00, 0x0
 #define ENET_HOST_BROADCAST 0xFFFFFFFFU
 #define ENET_PORT_ANY       0
 
+#ifdef ENET_DEBUG
+    #include "stdio.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

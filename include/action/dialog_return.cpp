@@ -63,22 +63,9 @@ void dialog_return(ENetEvent event, const std::string& header)
         _peer[event.peer]->emplace(slot{static_cast<short>(stoi(readch(pipes[1], '_')[1])), 200});
         inventory_visuals(event);
     }
-    else if (dialog_name == "door_edit" && pipes[6] == "door_name" && pipes[8] == "door_target" && pipes[10] == "door_id" && (!pipes[1].empty() || !pipes[4].empty()))
-    {
-        const short tilex = stoi(pipes[1]);
-        const short tiley = stoi(pipes[4]);
-        world& w = worlds[_peer[event.peer]->recent_worlds.back()];
-        block& b = w.blocks[tiley * 100 + tilex];
-        b.label = pipes[7];
-
-        state s{
-            .id = b.fg,
-            .pos = { tilex * 32.0f, tiley * 32.0f },
-            .punch = { tilex, tiley }
-        };
-        tile_update(event, s, b, w);
-    }
-    else if (dialog_name == "sign_edit" && pipes[6] == "sign_text" && (!pipes[1].empty() || !pipes[4].empty()))
+    else if ((dialog_name == "door_edit" && pipes[6] == "door_name") || 
+             (dialog_name == "sign_edit" && pipes[6] == "sign_text") && 
+             (!pipes[1].empty() || !pipes[4].empty()))
     {
         const short tilex = stoi(pipes[1]);
         const short tiley = stoi(pipes[4]);

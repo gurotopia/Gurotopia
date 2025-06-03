@@ -37,24 +37,19 @@ void input(ENetEvent event, const std::string& header)
         else 
             action(*event.peer, "log", "msg|`4Unknown command.`` Enter `$/?`` for a list of valid commands.");
     }
-    else if (text.back() == ' ' && text.length() > 1) text.pop_back(); // @note trim back spaces. "test "
-    else if (text.front() == ' ' && text.length() > 1) text = text.substr(1, text.length() - 1); // @note trim front spacing. " test"
-    else if (text.empty()) return; // @note ignore empty messages.
-    else peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
+    if (text.back() == ' ') text.pop_back();
+    if (!text.empty() && text.front() == ' ') text.erase(0, 1);
+    peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
-        if (!_peer[&p]->recent_worlds.empty() && !_peer[event.peer]->recent_worlds.empty() && 
-            _peer[&p]->recent_worlds.back() == _peer[event.peer]->recent_worlds.back())
-        {
-            gt_packet(p, false, 0, {
-                "OnTalkBubble", 
-                _peer[event.peer]->netid, 
-                std::format("CP:0_PL:0_OID:_player_chat={}", text).c_str()
-            });
-            gt_packet(p, false, 0, {
-                "OnConsoleMessage", 
-                std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", 
-                    _peer[event.peer]->prefix, _peer[event.peer]->ltoken[0], text).c_str()
-            });
-        }
+        gt_packet(p, false, 0, {
+            "OnTalkBubble", 
+            _peer[event.peer]->netid, 
+            std::format("CP:0_PL:0_OID:_player_chat={}", text).c_str()
+        });
+        gt_packet(p, false, 0, {
+            "OnConsoleMessage", 
+            std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", 
+                _peer[event.peer]->prefix, _peer[event.peer]->ltoken[0], text).c_str()
+        });
     });
 }

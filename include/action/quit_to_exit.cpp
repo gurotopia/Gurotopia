@@ -11,20 +11,16 @@ void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selectio
     _peer[event.peer]->ready_exit = false;
     --worlds[_peer[event.peer]->recent_worlds.back()].visitors;
     std::string& prefix = _peer[event.peer]->prefix;
-    peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
+    peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
-        if (!_peer[&p]->recent_worlds.empty() && !_peer[event.peer]->recent_worlds.empty() && 
-            _peer[&p]->recent_worlds.back() == _peer[event.peer]->recent_worlds.back()) 
-        {
-            gt_packet(p, false, 0, {
-                "OnConsoleMessage", 
-                std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, _peer[event.peer]->ltoken[0], worlds[_peer[event.peer]->recent_worlds.back()].visitors).c_str()
-            });
-            gt_packet(p, true, 0, {
-                "OnRemove", 
-                std::format("netID|{}\npId|\n", _peer[event.peer]->netid).c_str()
-            });
-        }
+        gt_packet(p, false, 0, {
+            "OnConsoleMessage", 
+            std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, _peer[event.peer]->ltoken[0], worlds[_peer[event.peer]->recent_worlds.back()].visitors).c_str()
+        });
+        gt_packet(p, true, 0, {
+            "OnRemove", 
+            std::format("netID|{}\npId|\n", _peer[event.peer]->netid).c_str()
+        });
     });
     if (worlds[_peer[event.peer]->recent_worlds.back()].visitors <= 0) {
         worlds.erase(_peer[event.peer]->recent_worlds.back());

@@ -13,11 +13,9 @@ void wrench(ENetEvent event, const std::string& header)
     if ((pipes[3] == "netid" && !pipes[4].empty()/*empty netid*/))
     {
         const short netid = stoi(pipes[4]);
-        peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
+        peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
         {
-            if (!_peer[&p]->recent_worlds.empty() && !_peer[event.peer]->recent_worlds.empty() && 
-                _peer[&p]->recent_worlds.back() == _peer[event.peer]->recent_worlds.back() &&
-                _peer[&p]->netid == netid)
+            if (_peer[&p]->netid == netid)
             {
                 unsigned short lvl = _peer[&p]->level.front();
                 /* wrench yourself */

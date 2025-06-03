@@ -7,7 +7,7 @@
 void info(ENetEvent& event, const std::string_view text)
 {
     std::string name{ text.substr(sizeof("info ")-1) };
-    peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
+    peers(event, ENET_PEER_STATE_CONNECTED, PEER_ALL, [&](ENetPeer& p) 
     {
         /* @todo handle peer's offline or not in a world (no netid) */
         if (_peer[&p]->ltoken[0] == name)

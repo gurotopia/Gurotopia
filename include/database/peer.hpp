@@ -103,7 +103,13 @@
 
     #include <functional>
 
-    extern std::vector<ENetPeer*> peers(_ENetPeerState state = ENET_PEER_STATE_CONNECTED, std::function<void(ENetPeer&)> fun = [](ENetPeer& peer){});
+    enum peer_condition
+    {
+        PEER_ALL, // @note all peer(s)
+        PEER_SAME_WORLD // @note only peer(s) in the same world as ENetEvent::peer
+    };
+
+    extern std::vector<ENetPeer*> peers(ENetEvent event, _ENetPeerState state = ENET_PEER_STATE_CONNECTED, peer_condition condition = PEER_ALL, std::function<void(ENetPeer&)> fun = [](ENetPeer& peer){});
 
     class state {
         public:

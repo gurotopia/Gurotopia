@@ -37,7 +37,7 @@ void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any
         {
             bool is_signed = (param.type() == typeid(int));
             auto value = is_signed ? std::any_cast<int>(param) : std::any_cast<unsigned>(param);
-            data.resize(size + 2zu + sizeof(value) + 2zu);
+            data.resize(size + 2zu + sizeof(value));
             data[size] = index; // @note element counter e.g. "OnSetBux" -> 00, 43562/-43562 -> 01
             data[size + 1zu] = (is_signed) ? std::byte{ 0x09 } : std::byte{ 05 };
 
@@ -50,7 +50,7 @@ void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any
         else if (param.type() == typeid(std::vector<float>)) 
         {
             const std::vector<float>& vec = std::any_cast<const std::vector<float>&>(param);
-            data.resize(size + 2zu + (sizeof(float) * vec.size()) + 2zu);
+            data.resize(size + 2zu + (sizeof(float) * vec.size()));
             data[size] = index;
             data[size + 1zu] = 
                 (vec.size() == 1zu) ? std::byte{ 01 } :

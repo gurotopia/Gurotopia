@@ -111,23 +111,19 @@ void punch(ENetEvent event, state state)
                         std::ranges::rotate(_peer[event.peer]->my_worlds, _peer[event.peer]->my_worlds.begin() + 1);
                         _peer[event.peer]->my_worlds.back() = world.name;
                     }
-                    peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
+                    peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
                     {
-                        if (!_peer[&p]->recent_worlds.empty() && !_peer[event.peer]->recent_worlds.empty() &&
-                            _peer[&p]->recent_worlds.back() == _peer[event.peer]->recent_worlds.back()) 
-                        {
-                            const char* placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, _peer[event.peer]->ltoken[0]).c_str();
-                            gt_packet(p, false, 0, {
-                                "OnTalkBubble", 
-                                _peer[event.peer]->netid,
-                                placed_message,
-                                0u
-                            });
-                            gt_packet(p, false, 0, {
-                                "OnConsoleMessage",
-                                placed_message
-                            });
-                        }
+                        const char* placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, _peer[event.peer]->ltoken[0]).c_str();
+                        gt_packet(p, false, 0, {
+                            "OnTalkBubble", 
+                            _peer[event.peer]->netid,
+                            placed_message,
+                            0u
+                        });
+                        gt_packet(p, false, 0, {
+                            "OnConsoleMessage",
+                            placed_message
+                        });
                     });
                     OnNameChanged(event);
                 }

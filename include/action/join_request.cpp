@@ -106,7 +106,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     case std::byte{ type::DOOR }:
                     {
                         data[pos - 2zu] = std::byte{ 01 };
-                        std::span<const char> label{ block.label.data(), block.label.size() };
+                        std::span<const char> label = block.label;
                         short len{ static_cast<short>(label.size()) };
                         data.resize(data.size() + 4zu + len); // @note 01 {2} {} 0 0
                         data[pos] = std::byte{ 01 }; pos += sizeof(std::byte);
@@ -118,7 +118,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     case std::byte{ type::SIGN }:
                     {
                         data[pos - 2zu] = std::byte{ 0x19 };
-                        std::span<const char> label{ block.label.data(), block.label.size() };
+                        std::span<const char> label = block.label;
                         short len{ static_cast<short>(label.size()) };
                         data.resize(data.size() + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
                         data[pos] = std::byte{ 02 }; pos += sizeof(std::byte);
@@ -163,11 +163,9 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         EmoticonDataChanged(event);
         _peer[event.peer]->post_enter.unlock();
         _peer[event.peer]->netid = ++w->visitors;
-        peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
+        peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
         {
-            if (!_peer[&p]->recent_worlds.empty() && !_peer[event.peer]->recent_worlds.empty() && 
-                _peer[&p]->recent_worlds.back() == _peer[event.peer]->recent_worlds.back()  && 
-                /*skip the evnet.peer*/_peer[&p]->user_id != _peer[event.peer]->user_id)
+            if (_peer[&p]->user_id != _peer[event.peer]->user_id) 
             {
                 gt_packet(*event.peer, false, -1/* ff ff ff ff */, {
                     "OnSpawn", 
@@ -176,18 +174,18 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                         prefix, _peer[&p]->ltoken[0], (role >= role::moderator) ? "1" : "0", (role >= developer) ? "1" : "0"
                     ).c_str()
                 });
-                std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", prefix, _peer[event.peer]->ltoken[0], w->visitors) };
+                const char* enter_message = std::format("`5<`{}{}`` entered, `w{}`` others here>``", prefix, _peer[event.peer]->ltoken[0], w->visitors).c_str();
                 gt_packet(p, false, 0, {
                     "OnConsoleMessage", 
-                    enter_message.c_str()
+                    enter_message
                 });
                 gt_packet(p, false, 0, {
                     "OnTalkBubble", 
                     _peer[event.peer]->netid, 
-                    enter_message.c_str()
+                    enter_message
                 });
-            } // @note delete enter_message
-        });
+            }
+        }); // @note delete enter_message
         /* @todo send this packet to everyone exept event.peer, and remove type|local */
         gt_packet(*event.peer, false, -1/* ff ff ff ff */, {
             "OnSpawn", 
@@ -198,7 +196,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         });
         gt_packet(*event.peer, false, 0, {
             "OnConsoleMessage", 
-            std::format("World `w{}`` entered.  There are `w{}`` other people here, `w{}`` online.", w->name, w->visitors - 1, peers().size()).c_str()
+            std::format("World `w{}`` entered.  There are `w{}`` other people here, `w{}`` online.", w->name, w->visitors - 1, peers(event).size()).c_str()
         });
         inventory_visuals(event);
         _peer[event.peer]->ready_exit = true;

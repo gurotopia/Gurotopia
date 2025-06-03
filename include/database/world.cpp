@@ -75,13 +75,9 @@ void send_data(ENetPeer& peer, const std::vector<std::byte>& data)
 void state_visuals(ENetEvent& event, state s) 
 {
     s.netid = _peer[event.peer]->netid;
-    peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
+    peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
-        if (!_peer[&p]->recent_worlds.empty() && !_peer[event.peer]->recent_worlds.empty() && 
-            _peer[&p]->recent_worlds.back() == _peer[event.peer]->recent_worlds.back()) 
-        {
-            send_data(p, compress_state(s));
-        }
+        send_data(p, compress_state(s));
     });
 }
 
@@ -117,13 +113,9 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
         s.pos = {it.pos[0] * 32, it.pos[1] * 32};
     }
     compress = compress_state(s);
-    peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) 
+    peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p)  
     {
-        if (!_peer[&p]->recent_worlds.empty() && !_peer[event.peer]->recent_worlds.empty() && 
-            _peer[&p]->recent_worlds.back() == _peer[event.peer]->recent_worlds.back())
-        {
-            send_data(p, compress);
-        }
+        send_data(p, compress);
     });
 }
 
@@ -186,11 +178,8 @@ void tile_update(ENetEvent &event, state s, block &b, world& w)
         }
     }
 
-    peers(ENET_PEER_STATE_CONNECTED, [&](ENetPeer& p) {
-        if (!_peer[&p]->recent_worlds.empty() && !_peer[event.peer]->recent_worlds.empty() &&
-            _peer[&p]->recent_worlds.back() == _peer[event.peer]->recent_worlds.back()) 
-        {
-            send_data(p, data);
-        }
+    peers(event, ENET_PEER_STATE_CONNECTED, PEER_SAME_WORLD, [&](ENetPeer& p) 
+    {
+        send_data(p, data);
     });
 }

@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++23 -g -Iinclude -MMD -MP
+CXXFLAGS = -std=c++2b -g -Iinclude -MMD -MP
 
 LIBS := -L./include
 TARGET := main.exe

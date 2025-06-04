@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "Build Gurotopia",
-            "type": "shell",
+            "type": "cppbuild",
             "command": "c:/msys64/usr/bin/bash.exe",
             "args": [
                 "-c",
@@ -16,7 +16,7 @@
         },
         {
             "label": "Clean Gurotopia",
-            "type": "shell",
+            "type": "cppbuild",
             "command": "c:/msys64/usr/bin/bash.exe",
             "args": [
                 "-c",

@@ -8,7 +8,8 @@
 
 void logging_in(ENetEvent event, const std::string& header)
 {
-    std::call_once(_peer[event.peer]->logging_in, [&]() 
+    auto& peer = _peer[event.peer];
+    std::call_once(peer->logging_in, [&]() 
     {
         std::vector<std::string> pipes = readch(header, '|');
         if (pipes[2] == "ltoken")
@@ -18,16 +19,16 @@ void logging_in(ENetEvent event, const std::string& header)
             {
                 pos += sizeof("growId=")-1zu;
                 const std::size_t ampersand = decoded.find('&', pos);
-                _peer[event.peer]->ltoken[0] = strdup(decoded.substr(pos, ampersand - pos).c_str());
+                peer->ltoken[0] = strdup(decoded.substr(pos, ampersand - pos).c_str());
             }
 
             if (std::size_t pos = decoded.find("password="); pos != std::string::npos) 
             {
                 pos += sizeof("password=")-1zu;
-                _peer[event.peer]->ltoken[1] = strdup(decoded.substr(pos).c_str());
+                peer->ltoken[1] = strdup(decoded.substr(pos).c_str());
             }
         }
-        _peer[event.peer]->read(_peer[event.peer]->ltoken[0]);
+        peer->read(peer->ltoken[0]);
         gt_packet(*event.peer, false, 0, {
             "OnSuperMainStartAcceptLogonHrdxs47254722215a",
             0u,

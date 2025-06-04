@@ -17,9 +17,10 @@ void wrench(ENetEvent event, const std::string& header)
         {
             if (_peer[&p]->netid == netid)
             {
-                unsigned short lvl = _peer[&p]->level.front();
+                auto& peer = _peer[&p];
+                unsigned short lvl = peer->level.front();
                 /* wrench yourself */
-                if (_peer[&p]->user_id == _peer[event.peer]->user_id)
+                if (peer->user_id == _peer[event.peer]->user_id)
                 {
                     gt_packet(p, false, 0, {
                         "OnDialogRequest",
@@ -65,10 +66,10 @@ void wrench(ENetEvent event, const std::string& header)
                             "add_spacer|small|\n"
                             "end_dialog|popup||Continue|\n"
                             "add_quick_exit|\n",
-                            /* {0} {1}                {2}                   {3}  {4}                      {5}                   {6}            {7}                     */
-                            netid, _peer[&p]->prefix, _peer[&p]->ltoken[0], lvl, _peer[&p]->level.back(), 50 * (lvl * lvl + 2), ""/*effects*/, _peer[&p]->slot_size, 
-                            /* {8}                           {9}                            {10}                         */
-                            _peer[&p]->recent_worlds.back(), std::round(_peer[&p]->pos[0]), std::round(_peer[&p]->pos[1])
+                        /*  {0}    {1}           {2}              {3}  {4}                 {5}                   {6}            {7}            */
+                            netid, peer->prefix, peer->ltoken[0], lvl, peer->level.back(), 50 * (lvl * lvl + 2), ""/*effects*/, peer->slot_size, 
+                        /*  {8}                         {9}                       {10}                    */
+                            peer->recent_worlds.back(), std::round(peer->pos[0]), std::round(peer->pos[1])
                         ).c_str()
                     });
                 }
@@ -103,7 +104,7 @@ void wrench(ENetEvent event, const std::string& header)
                             "add_spacer|small|\n"
                             "end_dialog|popup||Continue|\n"
                             "add_quick_exit|\n",
-                            netid, _peer[&p]->prefix, _peer[&p]->ltoken[0], lvl
+                            netid, peer->prefix, peer->ltoken[0], lvl
                         ).c_str()
                      });
                 }

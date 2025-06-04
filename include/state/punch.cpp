@@ -15,10 +15,11 @@ void punch(ENetEvent event, state state)
     try
     {
         if (not create_rt(event, 0, 160)) return;
-        world &world = worlds[_peer[event.peer]->recent_worlds.back()];
-        if (world.owner != 00 && _peer[event.peer]->role == role::player) // @note cause if no owner than world can break/place by anyone.
-            if (_peer[event.peer]->user_id != world.owner &&
-                !std::ranges::contains(world.admin, _peer[event.peer]->user_id)) return;
+        auto& peer = _peer[event.peer];
+        world &world = worlds[peer->recent_worlds.back()];
+        if (world.owner != 00 && peer->role == role::player) // @note cause if no owner than world can break/place by anyone.
+            if (peer->user_id != world.owner &&
+                !std::ranges::contains(world.admin, peer->user_id)) return;
 
         short block1D = state.punch[1] * 100 + state.punch[0]; // 2D (x, y) to 1D ((destY * y + destX)) formula
         block &b = world.blocks[block1D];
@@ -45,7 +46,7 @@ void punch(ENetEvent event, state state)
                         static_cast<float>(state.punch[1]) + randomizer(0.05f, 0.1f)
                     }
                 );
-            _peer[event.peer]->add_xp(std::trunc(1.0f + items[id].rarity / 5.0f));
+            peer->add_xp(std::trunc(1.0f + items[id].rarity / 5.0f));
         } // @note delete im, id
         else if (items[state.id].cloth_type != clothing::none) return;
         else if (state.id == 32)
@@ -104,19 +105,19 @@ void punch(ENetEvent event, state state)
             {
                 if (world.owner == 00)
                 {
-                    world.owner = _peer[event.peer]->user_id;
-                    if (_peer[event.peer]->role == role::player) _peer[event.peer]->prefix = "2";
-                    if (std::ranges::find(_peer[event.peer]->my_worlds, world.name) == _peer[event.peer]->my_worlds.end()) 
+                    world.owner = peer->user_id;
+                    if (peer->role == role::player) peer->prefix = "2";
+                    if (std::ranges::find(peer->my_worlds, world.name) == peer->my_worlds.end()) 
                     {
-                        std::ranges::rotate(_peer[event.peer]->my_worlds, _peer[event.peer]->my_worlds.begin() + 1);
-                        _peer[event.peer]->my_worlds.back() = world.name;
+                        std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
+                        peer->my_worlds.back() = world.name;
                     }
                     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
                     {
-                        std::string placed_message{ std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, _peer[event.peer]->ltoken[0]) };
+                        std::string placed_message{ std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, peer->ltoken[0]) };
                         gt_packet(p, false, 0, {
                             "OnTalkBubble", 
-                            _peer[event.peer]->netid,
+                            peer->netid,
                             placed_message.c_str(),
                             0u
                         });
@@ -141,11 +142,11 @@ void punch(ENetEvent event, state state)
                 bool y_nabor = state.punch.back() == std::lround(state.pos.back() / 32) + 1;
 
                 bool collision = (x && y) || (x_nabor && y_nabor);
-                if ((_peer[event.peer]->facing_left && collision) || 
-                    (not _peer[event.peer]->facing_left && collision)) return;
+                if ((peer->facing_left && collision) || 
+                    (not peer->facing_left && collision)) return;
             }
             (items[state.id].type == std::byte{ type::BACKGROUND }) ? b.bg = state.id : b.fg = state.id; // @note this helps prevent foregrounds to act as backgrounds.
-            _peer[event.peer]->emplace(slot{
+            peer->emplace(slot{
                 static_cast<short>(state.id),
                 -1 // @note remove that item the peer just placed.
             });
@@ -157,7 +158,7 @@ void punch(ENetEvent event, state state)
         if (exc.what() && *exc.what()) 
             gt_packet(*event.peer, false, 0, {
                 "OnTalkBubble", 
-                _peer[event.peer]->netid,
+                _peer[event.peer]->netid, // @note we are not using 'peer' ref cause of ratelimit and waste of memory.
                 exc.what()
             });
     }

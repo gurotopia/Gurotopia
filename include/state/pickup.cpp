@@ -9,9 +9,10 @@
 
 void pickup(ENetEvent event, state state) 
 {
-    std::vector<ifloat>& ifloats{worlds[_peer[event.peer]->recent_worlds.back()].ifloats};
-    const int x = std::lround(_peer[event.peer]->pos[0]);
-    const int y = std::lround(_peer[event.peer]->pos[1]);
+    auto& peer = _peer[event.peer];
+    std::vector<ifloat>& ifloats{worlds[peer->recent_worlds.back()].ifloats};
+    const int x = std::lround(peer->pos[0]);
+    const int y = std::lround(peer->pos[1]);
     auto it = std::find_if(ifloats.begin(), ifloats.end(), [&](const ifloat& i) 
     {
         const int ix = std::lround(i.pos[0]);
@@ -24,7 +25,7 @@ void pickup(ENetEvent event, state state)
         short remember_count = it->count;
         if (it->id != 112)
         {
-            short excess = _peer[event.peer]->emplace(slot{it->id, remember_count});
+            short excess = peer->emplace(slot{it->id, remember_count});
             it->count -= (it->count - excess);
         }
         else it->count = 0; // @todo if gem amount is maxed out, do not take any.
@@ -43,10 +44,10 @@ void pickup(ENetEvent event, state state)
             }
             else 
             {
-                _peer[event.peer]->gems += remember_count;
+                peer->gems += remember_count;
                 gt_packet(*event.peer, false, 0, {
                     "OnSetBux",
-                    _peer[event.peer]->gems,
+                    peer->gems,
                     1,
                     1
                 });

@@ -21,6 +21,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
     try 
     {
         if (not create_rt(event, 2, 900)) throw std::runtime_error("");
+        auto& peer = _peer[event.peer];
         std::string big_name{world_name.empty() ? readch(std::string{header}, '|')[3] : world_name};
         if (not alpha(big_name) || big_name.empty()) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
@@ -92,9 +93,9 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     case std::byte{ type::MAIN_DOOR }: 
                     {
                         data[pos - 2zu] = std::byte{ 01 };
-                        _peer[event.peer]->pos.front() = (i % x) * 32;
-                        _peer[event.peer]->pos.back() = (i / x) * 32;
-                        _peer[event.peer]->rest_pos = _peer[event.peer]->pos; // @note static repsawn position
+                        peer->pos.front() = (i % x) * 32;
+                        peer->pos.back() = (i / x) * 32;
+                        peer->rest_pos = peer->pos; // @note static repsawn position
                         data.resize(data.size() + 8zu);
                         data[pos] = std::byte{ 01 }; pos += sizeof(std::byte);
                         *reinterpret_cast<short*>(&data[pos]) = 4; pos += sizeof(short); // @note length of "EXIT"
@@ -148,40 +149,39 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             });
             send_data(*event.peer, compress);
         } // @note delete compress
-        if (std::ranges::find(_peer[event.peer]->recent_worlds, w->name) == _peer[event.peer]->recent_worlds.end()) 
+        if (std::ranges::find(peer->recent_worlds, w->name) == peer->recent_worlds.end()) 
         {
-            std::ranges::rotate(_peer[event.peer]->recent_worlds, _peer[event.peer]->recent_worlds.begin() + 1);
-            _peer[event.peer]->recent_worlds.back() = w->name;
+            std::ranges::rotate(peer->recent_worlds, peer->recent_worlds.begin() + 1);
+            peer->recent_worlds.back() = w->name;
         }
-        std::string& prefix = _peer[event.peer]->prefix;
-        if (_peer[event.peer]->user_id == w->owner) prefix = "2";
-        else if (std::ranges::find(w->admin, _peer[event.peer]->user_id) != w->admin.end()) prefix = "c";
+        if (peer->user_id == w->owner) peer->prefix = "2";
+        else if (std::ranges::find(w->admin, peer->user_id) != w->admin.end()) peer->prefix = "c";
 
-        char& role = _peer[event.peer]->role;
-        if (role == role::moderator) _peer[event.peer]->prefix = "8@";
-        else if (role == role::developer) _peer[event.peer]->prefix = "6@";
+        char& role = peer->role;
+        if (role == role::moderator) peer->prefix = "8@";
+        else if (role == role::developer) peer->prefix = "6@";
         EmoticonDataChanged(event);
-        _peer[event.peer]->post_enter.unlock();
-        _peer[event.peer]->netid = ++w->visitors;
+        peer->post_enter.unlock();
+        peer->netid = ++w->visitors;
         peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
         {
-            if (_peer[&p]->user_id != _peer[event.peer]->user_id) 
+            if (_peer[&p]->user_id != peer->user_id) 
             {
                 gt_packet(*event.peer, false, -1/* ff ff ff ff */, {
                     "OnSpawn", 
                     std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n",
                         _peer[&p]->netid, _peer[&p]->user_id, static_cast<int>(_peer[&p]->pos.front()), static_cast<int>(_peer[&p]->pos.back()), 
-                        prefix, _peer[&p]->ltoken[0], (role >= role::moderator) ? "1" : "0", (role >= developer) ? "1" : "0"
+                        peer->prefix, _peer[&p]->ltoken[0], (role >= role::moderator) ? "1" : "0", (role >= developer) ? "1" : "0"
                     ).c_str()
                 });
-                std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", prefix, _peer[event.peer]->ltoken[0], w->visitors) };
+                std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], w->visitors) };
                 gt_packet(p, false, 0, {
                     "OnConsoleMessage", 
                     enter_message.c_str()
                 });
                 gt_packet(p, false, 0, {
                     "OnTalkBubble", 
-                    _peer[event.peer]->netid, 
+                    peer->netid, 
                     enter_message.c_str()
                 });
             }
@@ -190,8 +190,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         gt_packet(*event.peer, false, -1/* ff ff ff ff */, {
             "OnSpawn", 
             std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\ntype|local\n",
-                _peer[event.peer]->netid, _peer[event.peer]->user_id, static_cast<int>(_peer[event.peer]->pos.front()), static_cast<int>(_peer[event.peer]->pos.back()), 
-                prefix, _peer[event.peer]->ltoken[0], (role >= role::moderator) ? "1" : "0", (role >= developer) ? "1" : "0"
+                peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), 
+                peer->prefix, peer->ltoken[0], (role >= role::moderator) ? "1" : "0", (role >= developer) ? "1" : "0"
             ).c_str()
         });
         gt_packet(*event.peer, false, 0, {
@@ -199,7 +199,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             std::format("World `w{}`` entered.  There are `w{}`` other people here, `w{}`` online.", w->name, w->visitors - 1, peers(event).size()).c_str()
         });
         inventory_visuals(event);
-        _peer[event.peer]->ready_exit = true;
+        peer->ready_exit = true;
         worlds.emplace(w->name, *w);
     }
     catch (const std::exception& exc)

@@ -9,6 +9,7 @@
 
 void input(ENetEvent event, const std::string& header)
 {
+    auto& peer = _peer[event.peer];
     if (not create_rt(event, 1, 400)) return;
     std::string text{readch(std::string{header}, '|')[4]};
     {
@@ -18,9 +19,9 @@ void input(ENetEvent event, const std::string& header)
         if (start < end) text.assign(start, end);
     } // @note delete start, end
 
-    _peer[event.peer]->messages.push_back(std::chrono::steady_clock::now());
-    if (_peer[event.peer]->messages.size() > 5) _peer[event.peer]->messages.pop_front();
-    if (_peer[event.peer]->messages.size() == 5 && std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - _peer[event.peer]->messages.front()).count() < 6)
+    peer->messages.push_back(std::chrono::steady_clock::now());
+    if (peer->messages.size() > 5) peer->messages.pop_front();
+    if (peer->messages.size() == 5 && std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - peer->messages.front()).count() < 6)
         gt_packet(*event.peer, false, 0, {
             "OnConsoleMessage", 
             "`6>>`4Spam detected! ``Please wait a bit before typing anything else.  "  
@@ -39,13 +40,13 @@ void input(ENetEvent event, const std::string& header)
     {
         gt_packet(p, false, 0, {
             "OnTalkBubble", 
-            _peer[event.peer]->netid, 
+            peer->netid, 
             std::format("CP:0_PL:0_OID:_player_chat={}", text).c_str()
         });
         gt_packet(p, false, 0, {
             "OnConsoleMessage", 
             std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", 
-                _peer[event.peer]->prefix, _peer[event.peer]->ltoken[0], text).c_str()
+                peer->prefix, peer->ltoken[0], text).c_str()
         });
     });
 }

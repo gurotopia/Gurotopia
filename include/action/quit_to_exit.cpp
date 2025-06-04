@@ -7,26 +7,27 @@
 
 void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selection = false) 
 {
-    if (!_peer[event.peer]->ready_exit) return; // @todo investigating action|quit_to_exit being called 2-3 times in a row...?
-    _peer[event.peer]->ready_exit = false;
-    --worlds[_peer[event.peer]->recent_worlds.back()].visitors;
-    std::string& prefix = _peer[event.peer]->prefix;
+    auto& peer = _peer[event.peer];
+    if (!peer->ready_exit) return; // @todo investigating action|quit_to_exit being called 2-3 times in a row...?
+    peer->ready_exit = false;
+    --worlds[peer->recent_worlds.back()].visitors;
+    std::string& prefix = peer->prefix;
     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
         gt_packet(p, false, 0, {
             "OnConsoleMessage", 
-            std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, _peer[event.peer]->ltoken[0], worlds[_peer[event.peer]->recent_worlds.back()].visitors).c_str()
+            std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, peer->ltoken[0], worlds[peer->recent_worlds.back()].visitors).c_str()
         });
         gt_packet(p, true, 0, {
             "OnRemove", 
-            std::format("netID|{}\npId|\n", _peer[event.peer]->netid).c_str()
+            std::format("netID|{}\npId|\n", peer->netid).c_str()
         });
     });
-    if (worlds[_peer[event.peer]->recent_worlds.back()].visitors <= 0) {
-        worlds.erase(_peer[event.peer]->recent_worlds.back());
+    if (worlds[peer->recent_worlds.back()].visitors <= 0) {
+        worlds.erase(peer->recent_worlds.back());
     }
-    _peer[event.peer]->post_enter.unlock();
+    peer->post_enter.unlock();
     if (prefix == "2" || prefix == "c") prefix = "w";
-    _peer[event.peer]->netid = -1; // this will fix any packets being sent outside of world
+    peer->netid = -1; // this will fix any packets being sent outside of world
     if (!skip_selection) OnRequestWorldSelectMenu(event);
 }

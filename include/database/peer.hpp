@@ -29,7 +29,6 @@
     public:
         peer& read(const std::string& name);
         std::once_flag logging_in{}; // @note makes sure "connecting to server..." is triggered once (e.g. OnSuperMain)
-        std::once_flag entered_game{}; // @note makes sure action|enter_game is triggered once.
         std::once_flag welcome_message{}; // @note makes sure "welcome back {}." message is triggered once
         std::mutex post_enter{}; // @note locked if peer is in a world. usage: post_enter.is_lock(). if true the peer is already in a world.
         bool ready_exit{}; // @note peer can safely exit a world if true.

@@ -8,6 +8,7 @@
 
 void dialog_return(ENetEvent event, const std::string& header) 
 {
+    auto& peer = _peer[event.peer];
     std::vector<std::string> pipes = readch(header, '|');
     std::string dialog_name = pipes[3];
     if (pipes.size() > 3)
@@ -17,12 +18,10 @@ void dialog_return(ENetEvent event, const std::string& header)
     {
         const short id = stoi(pipes[1]); // @note comfirm they have the item without extra iteration.
         const short count = stoi(pipes[4]);
-        _peer[event.peer]->emplace(slot{id, static_cast<short>(count * -1)}); // @note take away
+        peer->emplace(slot{id, static_cast<short>(count * -1)}); // @note take away
         inventory_visuals(event);
-        float x_nabor = (_peer[event.peer]->facing_left ? 
-            _peer[event.peer]->pos[0] - 1 : 
-            _peer[event.peer]->pos[0] + 1); // @note get the tile next to peer. so like O|
-        drop_visuals(event, {id, count}, {x_nabor, _peer[event.peer]->pos[1]});
+        float x_nabor = (peer->facing_left ? peer->pos[0] - 1 : peer->pos[0] + 1); // @note peer's naboring tile (drop position)
+        drop_visuals(event, {id, count}, {x_nabor, peer->pos[1]});
     }
     else if (dialog_name == "popup" && pipes[6] == "buttonClicked") // @todo why does netID|1| appear twice??
     {
@@ -53,14 +52,14 @@ void dialog_return(ENetEvent event, const std::string& header)
                     "add_spacer|small|\n"
                     "end_dialog|worlds_list||Back|\n"
                     "add_quick_exit|\n",
-                    section(_peer[event.peer]->my_worlds)
+                    section(peer->my_worlds)
                 ).c_str()
             });
         }
     }
     else if (dialog_name == "find" && pipes[0] == "buttonClicked" && pipes[1].starts_with("searchableItemListButton") && !readch(pipes[1], '_')[1].empty())
     {
-        _peer[event.peer]->emplace(slot{static_cast<short>(stoi(readch(pipes[1], '_')[1])), 200});
+        peer->emplace(slot{static_cast<short>(stoi(readch(pipes[1], '_')[1])), 200});
         inventory_visuals(event);
     }
     else if ((dialog_name == "door_edit" && pipes[6] == "door_name") || 
@@ -69,7 +68,7 @@ void dialog_return(ENetEvent event, const std::string& header)
     {
         const short tilex = stoi(pipes[1]);
         const short tiley = stoi(pipes[4]);
-        world& w = worlds[_peer[event.peer]->recent_worlds.back()];
+        world& w = worlds[peer->recent_worlds.back()];
         block& b = w.blocks[tiley * 100 + tilex];
         b.label = pipes[7];
 

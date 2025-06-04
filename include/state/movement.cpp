@@ -5,7 +5,7 @@
 
 void movement(ENetEvent event, state state) 
 {
-    auto& peer = _peer[event.peer];
+    auto &peer = _peer[event.peer];
     if (peer->post_enter.try_lock()) // memory optimize- push only during an actual world enter
     {
         clothing_visuals(event);

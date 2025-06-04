@@ -102,9 +102,9 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
     }
     else
     {
-        world& world = worlds[_peer[event.peer]->recent_worlds.back()];
+        world &world = worlds[_peer[event.peer]->recent_worlds.back()];
         std::size_t uid = world.ifloat_uid++;
-        std::vector<ifloat>& ifloats{world.ifloats};
+        std::vector<ifloat> &ifloats{world.ifloats};
         ifloat it = ifloats.emplace_back(ifloat{uid, im[0], im[1], pos}); // @note a iterator ahead of time
         s.netid = -1;
         s.peer_state = static_cast<int>(it.uid);
@@ -121,13 +121,14 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
 
 void clothing_visuals(ENetEvent &event) 
 {
+    auto &peer = _peer[event.peer];
     gt_packet(*event.peer, true, 0, {
         "OnSetClothing", 
-        std::vector<float>{_peer[event.peer]->clothing[hair], _peer[event.peer]->clothing[shirt], _peer[event.peer]->clothing[legs]}, 
-        std::vector<float>{_peer[event.peer]->clothing[feet], _peer[event.peer]->clothing[face], _peer[event.peer]->clothing[hand]}, 
-        std::vector<float>{_peer[event.peer]->clothing[back], _peer[event.peer]->clothing[head], _peer[event.peer]->clothing[charm]}, 
-        _peer[event.peer]->skin_color,
-        std::vector<float>{_peer[event.peer]->clothing[ances], 0.0f, 0.0f}
+        std::vector<float>{peer->clothing[hair], peer->clothing[shirt], peer->clothing[legs]}, 
+        std::vector<float>{peer->clothing[feet], peer->clothing[face], peer->clothing[hand]}, 
+        std::vector<float>{peer->clothing[back], peer->clothing[head], peer->clothing[charm]}, 
+        peer->skin_color,
+        std::vector<float>{peer->clothing[ances], 0.0f, 0.0f}
     });
 }
 

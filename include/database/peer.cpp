@@ -42,13 +42,13 @@ std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 
 bool create_rt(ENetEvent& event, std::size_t pos, int64_t length) 
 {
-    auto& last_time = _peer[event.peer]->rate_limit[pos];
+    auto &rt = _peer[event.peer]->rate_limit[pos];
     auto now = std::chrono::steady_clock::now();
 
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - last_time).count() <= length)
+    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - rt).count() <= length)
         return false;
 
-    last_time = now;
+    rt = now;
     return true;
 }
 
@@ -58,13 +58,14 @@ std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::fun
 {
     std::vector<ENetPeer*> _peers{};
     _peers.reserve(server->peerCount);
+    auto &peer_worlds = _peer[event.peer]->recent_worlds;
     for (ENetPeer &peer : std::span(server->peers, server->peerCount))
         if (peer.state == ENET_PEER_STATE_CONNECTED) 
         {
             if (condition == PEER_SAME_WORLD)
             {
-                if ((_peer[&peer]->recent_worlds.empty() && _peer[event.peer]->recent_worlds.empty()) || 
-                    (_peer[&peer]->recent_worlds.back() != _peer[event.peer]->recent_worlds.back())) continue;
+                if ((_peer[&peer]->recent_worlds.empty() && peer_worlds.empty()) || 
+                    (_peer[&peer]->recent_worlds.back() != peer_worlds.back())) continue;
             }
             fun(peer);
             _peers.push_back(&peer);
@@ -110,17 +111,19 @@ std::vector<std::byte> compress_state(const state& s)
 
 void inventory_visuals(ENetEvent &event)
 {
-	std::size_t size = _peer[event.peer]->slots.size();
-    std::vector<std::byte> data(66 + (size * sizeof(int)) + sizeof(int), std::byte( 00 ));
-    data[0] = std::byte{ 04 };
-    data[4] = std::byte{ 0x9 };
-    *reinterpret_cast<int*>(&data[8]) = _peer[event.peer]->netid;
-    data[16] = std::byte{ 0x08 };
-    *reinterpret_cast<int*>(&data[58]) = std::byteswap<int>(_peer[event.peer]->slot_size);
-    *reinterpret_cast<int*>(&data[62]) = std::byteswap<int>(size);
+    auto &peer = _peer[event.peer];
+	std::size_t size = peer->slots.size();
+    std::vector<std::byte> data(66zu + (size * sizeof(int)));
+    
+    data[0zu] = std::byte{ 04 };
+    data[4zu] = std::byte{ 0x09 };
+    *reinterpret_cast<int*>(&data[8zu]) = peer->netid;
+    data[16zu] = std::byte{ 0x08 };
+    *reinterpret_cast<int*>(&data[58zu]) = std::byteswap<int>(peer->slot_size);
+    *reinterpret_cast<int*>(&data[62zu]) = std::byteswap<int>(size);
     int *slot_ptr = reinterpret_cast<int*>(data.data() + 66);
-    for (const slot &slot : _peer[event.peer]->slots)
-        *slot_ptr++ = (static_cast<int>(slot.id) | (static_cast<int>(slot.count) << 16)) & 0x00FFFFFF;
-            
+    for (const slot &slot : peer->slots)
+        *slot_ptr++ = (slot.id | (slot.count << 16)) & 0x00FFFFFF; 
+
 	enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
 }

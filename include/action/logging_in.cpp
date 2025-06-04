@@ -8,7 +8,7 @@
 
 void logging_in(ENetEvent event, const std::string& header)
 {
-    auto& peer = _peer[event.peer];
+    auto &peer = _peer[event.peer];
     std::call_once(peer->logging_in, [&]() 
     {
         std::vector<std::string> pipes = readch(header, '|');

@@ -13,7 +13,7 @@ void OnRequestWorldSelectMenu(ENetEvent event)
                 result += std::format("add_floater|{}|0|0.5|{}\n", name, color);
         return result;
     };
-    auto& peer = _peer[event.peer];
+    auto &peer = _peer[event.peer];
     gt_packet(*event.peer, false, 0, {
         "OnRequestWorldSelectMenu", 
             std::format(

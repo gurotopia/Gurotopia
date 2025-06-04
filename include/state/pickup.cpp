@@ -9,7 +9,7 @@
 
 void pickup(ENetEvent event, state state) 
 {
-    auto& peer = _peer[event.peer];
+    auto &peer = _peer[event.peer];
     std::vector<ifloat>& ifloats{worlds[peer->recent_worlds.back()].ifloats};
     const int x = std::lround(peer->pos[0]);
     const int y = std::lround(peer->pos[1]);
@@ -36,9 +36,10 @@ void pickup(ENetEvent event, state state)
             ifloats.erase(it);
             if (it->id != 112)
             {
+                item &item = items[it->id];
                 gt_packet(*event.peer, false, 0, {
                     "OnConsoleMessage",
-                    std::format("Collected `w{} {}``. Rarity: `w{}``", remember_count, items[it->id].raw_name, items[it->id].rarity).c_str()
+                    std::format("Collected `w{} {}``. Rarity: `w{}``", remember_count, item.raw_name, item.rarity).c_str()
                 });
                 inventory_visuals(event);
             }

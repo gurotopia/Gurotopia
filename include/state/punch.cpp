@@ -15,7 +15,7 @@ void punch(ENetEvent event, state state)
     try
     {
         if (not create_rt(event, 0, 160)) return;
-        auto& peer = _peer[event.peer];
+        auto &peer = _peer[event.peer];
         world &world = worlds[peer->recent_worlds.back()];
         if (world.owner != 00 && peer->role == role::player) // @note cause if no owner than world can break/place by anyone.
             if (peer->user_id != world.owner &&
@@ -23,14 +23,16 @@ void punch(ENetEvent event, state state)
 
         short block1D = state.punch[1] * 100 + state.punch[0]; // 2D (x, y) to 1D ((destY * y + destX)) formula
         block &b = world.blocks[block1D];
+        item &item_fg = items[b.fg];
+        item &item_id = items[state.id];
         if (state.id == 18) // @note punching a block
         {
             if (b.bg == 0 && b.fg == 0) return;
-            if (items[b.fg].type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
-            if (items[b.fg].type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
+            if (item_fg.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
+            if (item_fg.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
             block_punched(event, state, b);
             short id{};
-            if (b.fg != 0 && b.hits[0] >= items[b.fg].hits) id = b.fg, b.fg = 0;
+            if (b.fg != 0 && b.hits[0] >= item_fg.hits) id = b.fg, b.fg = 0;
             else if (b.bg != 0 && b.hits[1] >= items[b.bg].hits) id = b.bg, b.bg = 0;
             else return;
             b.hits = {0, 0};
@@ -48,10 +50,10 @@ void punch(ENetEvent event, state state)
                 );
             peer->add_xp(std::trunc(1.0f + items[id].rarity / 5.0f));
         } // @note delete im, id
-        else if (items[state.id].cloth_type != clothing::none) return;
+        else if (item_id.cloth_type != clothing::none) return;
         else if (state.id == 32)
         {
-            switch (items[b.fg].type)
+            switch (item_fg.type)
             {
                 case std::byte{ type::DOOR }:
                         gt_packet(*event.peer, false, 0, {
@@ -68,7 +70,7 @@ void punch(ENetEvent event, state state)
                         "add_checkbox|checkbox_locked|Is open to public|1\n"
                         "embed_data|tilex|{}\n"
                         "embed_data|tiley|{}\n"
-                        "end_dialog|door_edit|Cancel|OK|", items[b.fg].raw_name, b.fg, b.label, state.punch[0], state.punch[1]).c_str()
+                        "end_dialog|door_edit|Cancel|OK|", item_fg.raw_name, b.fg, b.label, state.punch[0], state.punch[1]).c_str()
                     });
                     break;
                 case std::byte{ type::SIGN }:
@@ -81,7 +83,7 @@ void punch(ENetEvent event, state state)
                         "add_text_input|sign_text||{}|128|\n"
                         "embed_data|tilex|{}\n"
                         "embed_data|tiley|{}\n"
-                        "end_dialog|sign_edit|Cancel|OK|", items[b.fg].raw_name, b.fg, b.label, state.punch[0], state.punch[1]).c_str()
+                        "end_dialog|sign_edit|Cancel|OK|", item_fg.raw_name, b.fg, b.label, state.punch[0], state.punch[1]).c_str()
                     });
                     break;
                 case std::byte{ type::ENTRANCE }:
@@ -93,7 +95,7 @@ void punch(ENetEvent event, state state)
                         "add_checkbox|checkbox_public|Is open to public|1"
                         "embed_data|tilex|{}"
                         "embed_data|tiley|{}"
-                        "end_dialog|gateway_edit|Cancel|OK|", items[b.fg].raw_name, b.fg, state.punch[0], state.punch[1]).c_str()
+                        "end_dialog|gateway_edit|Cancel|OK|", item_fg.raw_name, b.fg, state.punch[0], state.punch[1]).c_str()
                     });
                     break;
             }
@@ -101,7 +103,7 @@ void punch(ENetEvent event, state state)
         }
         else // @note placing a block
         {
-            if (items[state.id].type == std::byte{ type::LOCK })
+            if (item_id.type == std::byte{ type::LOCK })
             {
                 if (world.owner == 00)
                 {
@@ -130,7 +132,7 @@ void punch(ENetEvent event, state state)
                 }
                 else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
             }
-            if (items[state.id].collision == collision::full)
+            if (item_id.collision == collision::full)
             {
                 // 이 (left, right)
                 bool x = state.punch.front() == std::lround(state.pos.front() / 32);
@@ -145,7 +147,7 @@ void punch(ENetEvent event, state state)
                 if ((peer->facing_left && collision) || 
                     (not peer->facing_left && collision)) return;
             }
-            (items[state.id].type == std::byte{ type::BACKGROUND }) ? b.bg = state.id : b.fg = state.id; // @note this helps prevent foregrounds to act as backgrounds.
+            (item_id.type == std::byte{ type::BACKGROUND }) ? b.bg = state.id : b.fg = state.id; // @note this helps prevent foregrounds to act as backgrounds.
             peer->emplace(slot{
                 static_cast<short>(state.id),
                 -1 // @note remove that item the peer just placed.

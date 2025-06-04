@@ -8,7 +8,7 @@
 
 void dialog_return(ENetEvent event, const std::string& header) 
 {
-    auto& peer = _peer[event.peer];
+    auto &peer = _peer[event.peer];
     std::vector<std::string> pipes = readch(header, '|');
     std::string dialog_name = pipes[3];
     if (pipes.size() > 3)

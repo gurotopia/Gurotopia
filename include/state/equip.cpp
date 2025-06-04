@@ -5,17 +5,13 @@
 
 void equip(ENetEvent event, state state)
 {
-    auto& peer = _peer[event.peer];
-    auto& item = items[state.id];
+    item &item = items[state.id];
+    auto &type = _peer[event.peer]->clothing[item.cloth_type];
     
-    /* checks if item is clothing. */
-    if (item.cloth_type != clothing::none) {
-
+    if (item.cloth_type != clothing::none) 
+    {
         /* checks if clothing is already equipped. if so unequip. else equip. */
-        if (peer->clothing[item.cloth_type] == state.id)
-            peer->clothing[item.cloth_type] = 0;
-        else
-            peer->clothing[item.cloth_type] = state.id;
+        type = (type == state.id) ? 0 : state.id;
 
         clothing_visuals(event);
     }

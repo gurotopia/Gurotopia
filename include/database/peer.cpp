@@ -5,6 +5,23 @@
 
 #include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
 
+int peer::emplace(slot s) 
+{
+    if (auto it = std::find_if(slots.begin(), slots.end(), [&](const slot &found) { return found.id == s.id; }); it != slots.end()) 
+    {
+        int excess = std::max(0, (it->count + s.count) - 200);
+        it->count = std::min(it->count + s.count, 200);
+        if (it->count == 0)
+        {
+            item &item = items[it->id];
+            if (item.cloth_type != clothing::none) this->clothing[item.cloth_type] = 0;
+        }
+        return excess;
+    }
+    else slots.emplace_back(std::move(s)); // @note no such item in inventory, so we create a new entry.
+    return 0;
+}
+
 peer& peer::read(const std::string& name)
 {
     std::ifstream file(std::format("players\\{}.json", name));

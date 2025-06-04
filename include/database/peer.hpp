@@ -28,42 +28,33 @@
     class peer {
     public:
         peer& read(const std::string& name);
+
         std::once_flag logging_in{}; // @note makes sure "connecting to server..." is triggered once (e.g. OnSuperMain)
         std::once_flag welcome_message{}; // @note makes sure "welcome back {}." message is triggered once
         bool ready_exit{}; // @note peer can safely exit a world if true.
 
-        signed netid{ -1 }; /* peer's netid is world identity. this will be useful for many packet sending */
+        signed netid{ -1 }; // @note peer's netid is world identity. this will be useful for many packet sending
         int user_id{}; // @note unqiue user id.
-        std::array<const char*, 2zu> ltoken{}; // @note peer's ltoken e.g. [growid, password]
-        std::string prefix{"w"}; // @note display name color, default: 'w' (White)
+        std::array<const char*, 2zu> ltoken{}; // @note peer's ltoken e.g. {growid, password}
+        std::string prefix{"w"}; // @note display name color, default: "w" (White)
         char role{role::player};
-        std::array<float, 10zu> clothing{}; // @note peer's clothing
+        std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
         signed skin_color{ -1429995521 };
 
         std::array<float, 2zu> pos{}; // @note position {x, y}
         std::array<float, 2zu> rest_pos{}; // @note respawn position {x, y}
         bool facing_left{}; // @note peer is directed towards the left direction
 
-        short slot_size{16}; /* amount of slots this peer has | were talking total slots not itemed slots, to get itemed slots do slot.size() */
-        std::vector<slot> slots{{18, 1}, {32, 1}}; /* an array of each slot. storing id, count */
+        short slot_size{16}; // @note amount of slots this peer has | were talking total slots not itemed slots, to get itemed slots do slot.size()
+        std::vector<slot> slots{{18, 1}, {32, 1}}; // @note an array of each slot. storing {id, count}
         /*
         * @brief set slot::count to nagative value if you want to remove an amount. 
         * @return the remaining amount if exeeds 200. e.g. emplace(slot{0, 201}) returns 1.
         */
-        int emplace(slot s) 
-        {
-            if (auto it = std::find_if(slots.begin(), slots.end(), [&](const slot &found) { return found.id == s.id; }); it != slots.end()) 
-            {
-                int excess = std::max(0, (it->count + s.count) - 200);
-                it->count = std::min(it->count + s.count, 200);
-                return excess;
-            }
-            else slots.emplace_back(std::move(s)); // @note no such item in inventory, so we create a new entry.
-            return 0;
-        }
-        signed gems{0};
+        int emplace(slot s);
 
-        std::array<unsigned short, 2zu> level{ 1, 0 }; // XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
+        signed gems{0};
+        std::array<unsigned short, 2zu> level{ 1, 0 }; // {level, xp} XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
         /*
         * @brief add XP safely, this function also handles level up.
         */
@@ -84,6 +75,7 @@
         
         std::array<std::chrono::steady_clock::time_point, 3zu> rate_limit{}; // @note rate limit objects
         std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming
+        
         ~peer();
     };
     #include <unordered_map>

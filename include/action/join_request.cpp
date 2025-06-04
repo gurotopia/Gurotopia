@@ -161,7 +161,6 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         if (role == role::moderator) peer->prefix = "8@";
         else if (role == role::developer) peer->prefix = "6@";
         EmoticonDataChanged(event);
-        peer->post_enter.unlock();
         peer->netid = ++w->visitors;
         peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
         {

@@ -26,7 +26,6 @@ void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selectio
     if (worlds[peer->recent_worlds.back()].visitors <= 0) {
         worlds.erase(peer->recent_worlds.back());
     }
-    peer->post_enter.unlock();
     if (prefix == "2" || prefix == "c") prefix = "w";
     peer->netid = -1; // this will fix any packets being sent outside of world
     if (!skip_selection) OnRequestWorldSelectMenu(event);

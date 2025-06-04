@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "items.hpp"
 #include "peer.hpp"
+#include "world.hpp"
 
 #include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
 
@@ -123,7 +124,8 @@ void inventory_visuals(ENetEvent &event)
     *reinterpret_cast<int*>(&data[62zu]) = std::byteswap<int>(size);
     int *slot_ptr = reinterpret_cast<int*>(data.data() + 66);
     for (const slot &slot : peer->slots)
-        *slot_ptr++ = (slot.id | (slot.count << 16)) & 0x00FFFFFF; 
+        *slot_ptr++ = (slot.id | (slot.count << 16)) & 0x00ffffff;
 
 	enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
+    clothing_visuals(event); // @todo
 }

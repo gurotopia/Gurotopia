@@ -58,12 +58,12 @@ void send_data(ENetPeer& peer, const std::vector<std::byte>& data)
     if (size < 14zu) return;
     ENetPacket *packet = enet_packet_create(nullptr, size + 5zu, ENET_PACKET_FLAG_RELIABLE);
     if (packet == nullptr || packet->dataLength < size + 4zu) return;
-    packet->data[0] = { 04 };
+    packet->data[0zu] = { 04 };
     std::memcpy(packet->data + 4, data.data(), size);
     if (size >= 13zu + sizeof(std::size_t)) 
     {
         std::size_t forecast = std::bit_cast<std::size_t>(data.data() + 13);
-        if ((std::to_integer<unsigned char>(data[12]) & 0x8) && 
+        if ((std::to_integer<unsigned char>(data[12zu]) & 0x8) && 
             forecast <= 512zu && packet->dataLength + forecast <= 512zu) 
         {
             enet_packet_resize(packet, packet->dataLength + forecast);

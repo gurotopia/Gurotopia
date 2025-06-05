@@ -7,11 +7,11 @@
 void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any>& params) 
 {
     std::vector<std::byte> data(61, std::byte{ 00 });
-    data[0] = std::byte{ 04 };
-    data[4] = std::byte{ 01 };
-    *reinterpret_cast<signed*>(&data[8]) = (not netid) ? -1 : _peer[&p]->netid;
-    data[16] = std::byte{ 0x08 };
-    *reinterpret_cast<signed*>(&data[24]) = delay;
+    data[0zu] = std::byte{ 04 };
+    data[4zu] = std::byte{ 01 };
+    *reinterpret_cast<signed*>(&data[8zu]) = (not netid) ? -1 : _peer[&p]->netid;
+    data[16zu] = std::byte{ 0x08 };
+    *reinterpret_cast<signed*>(&data[24zu]) = delay;
     // @note 04 00 00 00 01 00 00 00 {netid} {...8} 08 00 00 00 {...8} {delay}
 
     std::size_t size = data.size();
@@ -79,7 +79,7 @@ void action(ENetPeer& p, const std::string& action, const std::string& str)
 {
     std::string_view action_view = std::format("action|{}\n", action);
     std::vector<std::byte> data(4 + action_view.length() + str.length(), std::byte{ 00 });
-    data[0] = std::byte{ 03 };
+    data[0zu] = std::byte{ 03 };
     {
         const std::byte *_1bit = reinterpret_cast<const std::byte*>(action_view.data());
         for (std::size_t i = 0zu; i < action_view.length(); ++i)

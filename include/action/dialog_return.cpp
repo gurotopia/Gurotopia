@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "database/items.hpp"
 #include "database/peer.hpp"
 #include "database/world.hpp"
 #include "network/packet.hpp"
@@ -10,22 +11,33 @@ void dialog_return(ENetEvent event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
     std::vector<std::string> pipes = readch(header, '|');
-    std::string dialog_name = pipes[3];
+    std::string dialog_name = pipes[3zu];
     if (pipes.size() > 3)
         pipes.erase(pipes.begin(), pipes.begin() + 4);
     else return; // if button has no name.
-    if (dialog_name == "drop_item" && pipes[0] == "itemID" && pipes[3] == "count" && (!pipes[1].empty() || !pipes[4].empty()))
+    if (((dialog_name == "drop_item" || dialog_name == "trash_item") && pipes[0zu] == "itemID" && pipes[3zu] == "count") && 
+        (!pipes[1zu].empty() || !pipes[4zu].empty()))
     {
-        const short id = stoi(pipes[1]); // @note comfirm they have the item without extra iteration.
-        const short count = stoi(pipes[4]);
+        const short id = stoi(pipes[1zu]);
+        const short count = stoi(pipes[4zu]);
         peer->emplace(slot{id, static_cast<short>(count * -1)}); // @note take away
         inventory_visuals(event);
-        float x_nabor = (peer->facing_left ? peer->pos[0] - 1 : peer->pos[0] + 1); // @note peer's naboring tile (drop position)
-        drop_visuals(event, {id, count}, {x_nabor, peer->pos[1]});
+        if (dialog_name == "drop_item") 
+        {
+            float x_nabor = (peer->facing_left ? peer->pos[0] - 1 : peer->pos[0] + 1); // @note peer's naboring tile (drop position)
+            drop_visuals(event, {id, count}, {x_nabor, peer->pos[1]});
+        } 
+        else if (dialog_name == "trash_item")
+        {
+            gt_packet(*event.peer, false, 0, {
+                "OnConsoleMessage",
+                std::format("{} `w{}`` recycled, `w0`` gems earned.", count, items[id].raw_name).c_str()
+            });
+        }
     }
-    else if (dialog_name == "popup" && pipes[6] == "buttonClicked") // @todo why does netID|1| appear twice??
+    else if (dialog_name == "popup" && pipes[6zu] == "buttonClicked") // @todo why does netID|1| appear twice??
     {
-        if (pipes[7] == "my_worlds")
+        if (pipes[7zu] == "my_worlds")
         {
             auto section = [](const auto& range) 
             {
@@ -57,20 +69,21 @@ void dialog_return(ENetEvent event, const std::string& header)
             });
         }
     }
-    else if (dialog_name == "find" && pipes[0] == "buttonClicked" && pipes[1].starts_with("searchableItemListButton") && !readch(pipes[1], '_')[1].empty())
+    else if ((dialog_name == "find" && pipes[0zu] == "buttonClicked" && pipes[1zu].starts_with("searchableItemListButton")) && 
+             !readch(pipes[1zu], '_')[1].empty())
     {
-        peer->emplace(slot{static_cast<short>(stoi(readch(pipes[1], '_')[1])), 200});
+        peer->emplace(slot{static_cast<short>(stoi(readch(pipes[1zu], '_')[1])), 200});
         inventory_visuals(event);
     }
-    else if ((dialog_name == "door_edit" && pipes[6] == "door_name") || 
-             (dialog_name == "sign_edit" && pipes[6] == "sign_text") && 
-             (!pipes[1].empty() || !pipes[4].empty()))
+    else if ((dialog_name == "door_edit" && pipes[6zu] == "door_name") || 
+             (dialog_name == "sign_edit" && pipes[6zu] == "sign_text") && 
+             (!pipes[1zu].empty() || !pipes[4zu].empty()))
     {
-        const short tilex = stoi(pipes[1]);
-        const short tiley = stoi(pipes[4]);
+        const short tilex = stoi(pipes[1zu]);
+        const short tiley = stoi(pipes[4zu]);
         world& w = worlds[peer->recent_worlds.back()];
         block& b = w.blocks[tiley * 100 + tilex];
-        b.label = pipes[7];
+        b.label = pipes[7zu];
 
         state s{
             .id = b.fg,

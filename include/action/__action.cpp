@@ -13,6 +13,7 @@
 #include "respawn.hpp"
 #include "input.hpp"
 #include "drop.hpp"
+#include "trash.hpp"
 #include "wrench.hpp"
 
 #include "quit.hpp"
@@ -34,6 +35,7 @@ std::unordered_map<std::string, std::function<void(ENetEvent, const std::string&
     {"action|respawn_spike", std::bind(&respawn, std::placeholders::_1, std::placeholders::_2)},
     {"action|input", std::bind(&input, std::placeholders::_1, std::placeholders::_2)},
     {"action|drop", std::bind(&drop, std::placeholders::_1, std::placeholders::_2)},
+    {"action|trash", std::bind(&trash, std::placeholders::_1, std::placeholders::_2)},
     {"action|wrench", std::bind(&wrench, std::placeholders::_1, std::placeholders::_2)},
 
     {"action|quit", std::bind(&quit, std::placeholders::_1, std::placeholders::_2)}

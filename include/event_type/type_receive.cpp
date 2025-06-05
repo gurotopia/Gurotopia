@@ -10,15 +10,17 @@
 void type_receive(ENetEvent event) 
 {
     std::span<enet_uint8> data{event.packet->data, event.packet->dataLength};
-    switch (data[0]) 
+    switch (data[0zu]) 
     {
         case 2: case 3: 
         {
             std::string header{data.begin() + 4, data.end() - 1};
             printf("\e[38;5;249m%s\e[0m\n", header.c_str());
+
             std::ranges::replace(header, '\n', '|');
             std::vector<std::string> pipes = readch(header, '|');
-            const std::string action = (pipes[0] == "protocol") ? pipes[0] : std::format("{}|{}", pipes[0], pipes[1]);
+            
+            const std::string action = (pipes[0zu] == "protocol") ? pipes[0zu] : std::format("{}|{}", pipes[0zu], pipes[1zu]);
             if (const auto i = action_pool.find(action); i != action_pool.end())
                 i->second(event, header);
             break;

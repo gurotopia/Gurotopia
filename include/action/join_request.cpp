@@ -51,18 +51,18 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         }
         {
             std::vector<std::byte> data(85 + w->name.length() + 5/*unknown*/ + (8 * w->blocks.size()) + 12/*initial drop*/, std::byte{ 00 });
-            data[0] = std::byte{ 04 };
-            data[4] = std::byte{ 04 };
-            data[16] = std::byte{ 0x8 };
+            data[0zu] = std::byte{ 04 };
+            data[4zu] = std::byte{ 04 };
+            data[16zu] = std::byte{ 0x8 };
             unsigned char len = static_cast<unsigned char>(w->name.length());
-            data[66] = std::byte{ len };
+            data[66zu] = std::byte{ len };
             for (unsigned char i = 0; i < len; ++i)
-                *reinterpret_cast<char*>(&data[68 + i]) = w->name[i];
+                *reinterpret_cast<char*>(&data[68zu + i]) = w->name[i];
             unsigned y = w->blocks.size() / 100, x = w->blocks.size() / y;
-            *reinterpret_cast<unsigned*>(&data[68 + len]) = x;
-            *reinterpret_cast<unsigned*>(&data[72 + len]) = y;
-            *reinterpret_cast<unsigned short*>(&data[76 + len]) = static_cast<unsigned short>(w->blocks.size());
-            int pos = 85 + len;
+            *reinterpret_cast<unsigned*>(&data[68zu + len]) = x;
+            *reinterpret_cast<unsigned*>(&data[72zu + len]) = y;
+            *reinterpret_cast<unsigned short*>(&data[76zu + len]) = static_cast<unsigned short>(w->blocks.size());
+            std::size_t pos = 85 + len;
             short i = 0;
             for (const block &block : w->blocks)
             {

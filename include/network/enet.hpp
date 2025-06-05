@@ -32,7 +32,6 @@
  * SOFTWARE.
  *
  */
-#pragma once
 #ifndef ENET_INCLUDE_H
 #define ENET_INCLUDE_H
 
@@ -44,7 +43,7 @@
 
 #define ENET_VERSION_MAJOR 2
 #define ENET_VERSION_MINOR 6
-#define ENET_VERSION_PATCH 3
+#define ENET_VERSION_PATCH 4
 #define ENET_VERSION_CREATE(major, minor, patch) (((major)<<16) | ((minor)<<8) | (patch))
 #define ENET_VERSION_GET_MAJOR(version) (((version)>>16)&0xFF)
 #define ENET_VERSION_GET_MINOR(version) (((version)>>8)&0xFF)
@@ -3208,18 +3207,13 @@ extern "C" {
 
                     #ifdef ENET_DEBUG
                     printf(
-                        "peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %zu outgoing, %zu/%zu incoming\n", 
-                        currentPeer->incomingPeerID,
-
+                        "peer %u: %f%%+-%f%% packet loss, %u+-%u ms round trip time, %f%% throttle, %llu outgoing, %llu/%llu incoming\n", currentPeer->incomingPeerID,
                         currentPeer->packetLoss / (float) ENET_PEER_PACKET_LOSS_SCALE,
-                        currentPeer->packetLossVariance / (float) ENET_PEER_PACKET_LOSS_SCALE, 
-                        currentPeer->roundTripTime, 
-                        currentPeer->roundTripTimeVariance,
+                        currentPeer->packetLossVariance / (float) ENET_PEER_PACKET_LOSS_SCALE, currentPeer->roundTripTime, currentPeer->roundTripTimeVariance,
                         currentPeer->packetThrottle / (float) ENET_PEER_PACKET_THROTTLE_SCALE,
-
                         enet_list_size(&currentPeer->outgoingCommands),
-                        currentPeer->channels != NULL ? enet_list_size( &currentPeer->channels->incomingReliableCommands) : 0zu,
-                        currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0zu
+                        currentPeer->channels != NULL ? enet_list_size( &currentPeer->channels->incomingReliableCommands) : 0llu,
+                        currentPeer->channels != NULL ? enet_list_size(&currentPeer->channels->incomingUnreliableCommands) : 0llu
                     );
                     #endif
 
@@ -4538,6 +4532,8 @@ extern "C" {
      *  @param address   the address at which other peers may connect to this host.  If NULL, then no peers may connect to the host.
      *  @param peerCount the maximum number of peers that should be allocated for the host.
      *  @param channelLimit the maximum number of channels allowed; if 0, then this is equivalent to ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT
+     *  @param incomingBandwidth downstream bandwidth of the host in bytes/second; if 0, ENet will assume unlimited bandwidth.
+     *  @param outgoingBandwidth upstream bandwidth of the host in bytes/second; if 0, ENet will assume unlimited bandwidth.
      *
      *  @returns the host on success and NULL on failure
      *
@@ -5043,7 +5039,12 @@ extern "C" {
 // !
 // =======================================================================//
 
+    #define internal_clock_gettime clock_gettime
+
     #ifdef _WIN32
+        #undef internal_clock_gettime
+        #define internal_clock_gettime _clock_gettime
+
         static LARGE_INTEGER getFILETIMEoffset() {
             SYSTEMTIME s;
             FILETIME f;
@@ -5062,8 +5063,7 @@ extern "C" {
             t.QuadPart |= f.dwLowDateTime;
             return (t);
         }
-        #ifndef WIN_PTHREADS_TIME_H
-        int clock_gettime(int X, struct timespec *tv) {
+        static int _clock_gettime(int X, struct timespec *tv) {
             (void)X;
             LARGE_INTEGER t;
             FILETIME f;
@@ -5101,7 +5101,6 @@ extern "C" {
             tv->tv_nsec = t.QuadPart % 1000000 * 1000;
             return (0);
         }
-        #endif
     #elif __APPLE__ && __MAC_OS_X_VERSION_MIN_REQUIRED < 101200
         #define CLOCK_MONOTONIC 0
 
@@ -5135,9 +5134,9 @@ extern "C" {
 
         struct timespec ts;
     #if defined(CLOCK_MONOTONIC_RAW)
-        clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
+        internal_clock_gettime(CLOCK_MONOTONIC_RAW, &ts);
     #else
-        clock_gettime(CLOCK_MONOTONIC, &ts);
+        internal_clock_gettime(CLOCK_MONOTONIC, &ts);
     #endif
 
         static const uint64_t ns_in_s = 1000 * 1000 * 1000;

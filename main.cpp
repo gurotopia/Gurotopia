@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 25-6-2024
-    @author @leeendl | Lead Contributor, English Comments
+    @author @leeendl | English Comments
 
     Project has open arms for contribution!
 

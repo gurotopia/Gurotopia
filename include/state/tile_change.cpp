@@ -4,13 +4,14 @@
 #include "database/world.hpp"
 #include "network/packet.hpp"
 #include "on/NameChanged.hpp"
-#include "punch.hpp"
+#include "equip.hpp"
+#include "tile_change.hpp"
 
 #include "tools/randomizer.hpp"
 
 #include <cmath>
 
-void punch(ENetEvent event, state state) 
+void tile_change(ENetEvent event, state state) 
 {
     try
     {
@@ -50,7 +51,12 @@ void punch(ENetEvent event, state state)
                 );
             peer->add_xp(std::trunc(1.0f + items[id].rarity / 5.0f));
         } // @note delete im, id
-        else if (item_id.cloth_type != clothing::none) return;
+        else if (item_id.cloth_type != clothing::none) 
+        {
+            equip(event, state); // @note imitate equip
+            return; 
+        }
+        else if (item_id.type == std::byte{ type::CONSUMEABLE }) return;
         else if (state.id == 32)
         {
             switch (item_fg.type)

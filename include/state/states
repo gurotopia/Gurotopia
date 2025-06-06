@@ -1,7 +1,7 @@
 #pragma once
 
 #include "movement.hpp"
-#include "punch.hpp"
+#include "tile_change.hpp"
 #include "equip.hpp"
 #include "pickup.hpp"
 
@@ -10,7 +10,7 @@
 inline std::unordered_map<int, std::function<void(ENetEvent, state)>> state_pool
 {
     {0, std::bind(&movement, std::placeholders::_1, std::placeholders::_2)},
-    {3, std::bind(&punch, std::placeholders::_1, std::placeholders::_2)},
+    {3, std::bind(&tile_change, std::placeholders::_1, std::placeholders::_2)},
     {10, std::bind(&equip, std::placeholders::_1, std::placeholders::_2)},
     {11, std::bind(&pickup, std::placeholders::_1, std::placeholders::_2)}
 };

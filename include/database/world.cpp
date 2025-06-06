@@ -84,8 +84,8 @@ void state_visuals(ENetEvent& event, state s)
 void block_punched(ENetEvent& event, state s, block &b)
 {
     (b.fg == 0) ? ++b.hits[1] : ++b.hits[0];
-    s.type = 8; /* change packet type from 3 to 8. */
-    s.id = 6; /* hit phase visuals */
+    s.type = 0x8; // @note PACKET_TILE_APPLY_DAMAGE
+    s.id = 6; // @note idk exactly
 	state_visuals(event, s);
 }
 

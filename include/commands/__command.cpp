@@ -5,6 +5,7 @@
 #include "find.hpp"
 #include "warp.hpp"
 #include "info.hpp"
+#include "punch.hpp"
 #include "__command.hpp"
 
 std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::string_view)>> cmd_pool
@@ -16,6 +17,7 @@ std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::s
     {"find", &find},
     {"warp", &warp},
     {"info", &info},
+    {"punch", &punch},
     {"wave", &Action}, {"dance", &Action}, {"love", &Action}, {"sleep", &Action}, {"facepalm", &Action}, {"fp", &Action}, {"smh", &Action}, {"yes", &Action}, 
     {"no", &Action}, {"omg", &Action}, {"idk", &Action}, {"shrug", &Action}, {"furious", &Action}, {"rolleyes", &Action}, {"foldarms", &Action}, {"fa", &Action}, 
     {"stubborn", &Action}, {"fold", &Action}, {"dab", &Action}, {"sassy", &Action}, {"dance2", &Action}, {"march", &Action}, {"grumpy", &Action}, {"shy", &Action}

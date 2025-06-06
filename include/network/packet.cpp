@@ -70,9 +70,7 @@ void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any
         data[60zu] = index;
     }
 
-    ENetPacket* packet = enet_packet_create(data.data(), size, ENET_PACKET_FLAG_RELIABLE);
-    if (packet != nullptr && packet->dataLength > 61zu)
-        enet_peer_send(&p, 0, packet);
+    enet_peer_send(&p, 0, enet_packet_create(data.data(), size, ENET_PACKET_FLAG_RELIABLE));
 }
 
 void action(ENetPeer& p, const std::string& action, const std::string& str) 
@@ -90,5 +88,6 @@ void action(ENetPeer& p, const std::string& action, const std::string& str)
         for (std::size_t i = 0zu; i < str.length(); ++i)
             data[4zu + action_view.length() + i] = _1bit[i];
     }
+    
     enet_peer_send(&p, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
 }

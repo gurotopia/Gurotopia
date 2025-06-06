@@ -16,7 +16,7 @@ void dialog_return(ENetEvent event, const std::string& header)
         pipes.erase(pipes.begin(), pipes.begin() + 4);
     else return; // if button has no name.
     if (((dialog_name == "drop_item" || dialog_name == "trash_item") && pipes[0zu] == "itemID" && pipes[3zu] == "count") && 
-        (!pipes[1zu].empty() || !pipes[4zu].empty()))
+        (!pipes[1zu].empty() && !pipes[4zu].empty()))
     {
         const short id = stoi(pipes[1zu]);
         const short count = stoi(pipes[4zu]);

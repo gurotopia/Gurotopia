@@ -107,24 +107,31 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     case std::byte{ type::DOOR }:
                     {
                         data[pos - 2zu] = std::byte{ 01 };
-                        std::span<const char> label = block.label;
-                        short len{ static_cast<short>(label.size()) };
+                        std::span<const char> label{ block.label.data(), block.label.size() };
+                        short len{ static_cast<short>(block.label.length()) };
                         data.resize(data.size() + 4zu + len); // @note 01 {2} {} 0 0
+
                         data[pos] = std::byte{ 01 }; pos += sizeof(std::byte);
+
                         *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
+
                         for (const char& c : label) data[pos++] = static_cast<std::byte>(c);
+
                         data[pos] = std::byte{ 00 }; pos += sizeof(std::byte); // @note '\0'
                         break;
                     }
                     case std::byte{ type::SIGN }:
                     {
                         data[pos - 2zu] = std::byte{ 0x19 };
-                        std::span<const char> label = block.label;
-                        short len{ static_cast<short>(label.size()) };
+                        short len{ static_cast<short>(block.label.length()) };
                         data.resize(data.size() + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
                         data[pos] = std::byte{ 02 }; pos += sizeof(std::byte);
+
                         *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
+
+                        std::span<const char> label{ block.label.data(), block.label.size() };
                         for (const char& c : label) data[pos++] = static_cast<std::byte>(c);
+
                         *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
                         break;
                     }

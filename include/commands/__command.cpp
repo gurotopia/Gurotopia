@@ -13,7 +13,7 @@ std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::s
 {
     {"help", [](ENetEvent& event, const std::string_view text) 
     {
-        action(*event.peer, "log", "msg|>> Commands: /find /warp {world name} /info {name} /wave /dance /love /sleep /facepalm /fp /smh /yes /no /omg /idk /shrug /furious /rolleyes /foldarms /stubborn /fold /dab /sassy /dance2 /march /grumpy /shy");
+        action(*event.peer, "log", "msg|>> Commands: /find /warp {world name} /info {name} /sb {msg} /wave /dance /love /sleep /facepalm /fp /smh /yes /no /omg /idk /shrug /furious /rolleyes /foldarms /stubborn /fold /dab /sassy /dance2 /march /grumpy /shy");
     }},
     {"find", &find},
     {"warp", &warp},

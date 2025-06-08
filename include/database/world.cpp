@@ -17,12 +17,20 @@ world::world(const std::string& name)
         this->owner = j.contains("owner") && !j["owner"].is_null() ? j["owner"].get<int>() : 00;
         this->ifloat_uid = j.contains("fs_uid") && !j["fs_uid"].is_null() ? j["fs_uid"].get<std::size_t>() : 0zu;
         
-        for (const auto& i : j["bs"])
-            if (i.contains("f") && i.contains("b"))
-                this->blocks.emplace_back(block{ i["f"], i["b"], j.value("l", "") });
-        for (const auto& i : j["fs"]) 
-            if (i.contains("u") && i.contains("i") && i.contains("c") && i.contains("p") && i["p"].is_array() && i["p"].size() == 2)
-                this->ifloats.emplace_back(ifloat{ i["u"], i["i"], i["c"], { i["p"][0], i["p"][1] } });
+        for (const nlohmann::json &jj : j["bs"]) 
+            if (jj.contains("f") && jj.contains("b"))
+            {    this->blocks.emplace_back(block{ 
+                    jj["f"], jj["b"], 
+                    jj.contains("l") && !jj["l"].is_null() ? jj["l"] : "" 
+                });
+            }
+        for (const nlohmann::json &jj : j["fs"]) 
+            if (jj.contains("u") && jj.contains("i") && jj.contains("c") && jj.contains("p") && jj["p"].is_array() && jj["p"].size() == 2)
+            {    this->ifloats.emplace_back(ifloat{ 
+                    jj["u"], jj["i"], jj["c"], 
+                    { jj["p"][0], jj["p"][1] } 
+                });
+            }
     }
 }
 
@@ -138,41 +146,37 @@ void tile_update(ENetEvent &event, state s, block &block, world& w)
     std::vector<std::byte> data = compress_state(s);
 
     short pos = 56;
-    data.resize(pos + 8); // @note {2} {2} 00 00 00 00
+    data.resize(pos + 8zu); // @note {2} {2} 00 00 00 00
     *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
     *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
     pos += sizeof(short); // @todo
     pos += sizeof(short); // @todo (water = 00 04)
-
+    
     switch (items[block.fg].type)
     {
         case std::byte{ type::DOOR }:
         {
-            data[pos - 2] = std::byte{ 01 };
-            std::span<const char> label = block.label;
-            short len{ static_cast<short>(label.size()) };
-            data.resize(pos + 1 + 2 + len + 1); // @note 01 {2} {} 0 0
+            data[pos - 2zu] = std::byte{ 01 };
+            std::size_t len = block.label.length();
+            data.resize(pos + 1zu + 2zu + len + 1zu); // @note 01 {2} {} 0 0
 
             data[pos] = std::byte{ 01 }; pos += sizeof(std::byte);
             
-            *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-            for (const char& c : label) data[pos++] = static_cast<std::byte>(c);
-
+            *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
+            for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
             pos += sizeof(std::byte); // @note '\0'
             break;
         }
         case std::byte{ type::SIGN }:
         {
-            data[pos - 2] = std::byte{ 0x19 };
-            std::span<const char> label = block.label;
-            short len{ static_cast<short>(label.size()) };
-            data.resize(pos + 1 + 2 + len + 4); // @note 02 {2} {} ff ff ff ff
+            data[pos - 2zu] = std::byte{ 0x19 };
+            std::size_t len = block.label.length();
+            data.resize(pos + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
 
             data[pos] = std::byte{ 02 }; pos += sizeof(std::byte);
 
-            *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-            for (const char& c : label) data[pos++] = static_cast<std::byte>(c);
-
+            *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
+            for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
             *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
             break;
         }

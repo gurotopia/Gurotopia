@@ -9,6 +9,7 @@
         std::string label{""}; // @note sign/door label
         std::array<int, 2zu> hits{0, 0}; // @note fg, bg
     };
+    #define cord(x,y) (y * 100 + x)
 
     /* uid, id, count, pos*/
     class ifloat 

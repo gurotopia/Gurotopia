@@ -82,7 +82,7 @@ void dialog_return(ENetEvent event, const std::string& header)
         const short tilex = stoi(pipes[1zu]);
         const short tiley = stoi(pipes[4zu]);
         world &world = worlds[peer->recent_worlds.back()];
-        block &block = world.blocks[tiley * 100 + tilex];
+        block &block = world.blocks[cord(tilex, tiley)];
         block.label = pipes[7zu];
 
         state s{

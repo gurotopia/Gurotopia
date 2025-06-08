@@ -18,37 +18,44 @@ void tile_change(ENetEvent event, state state)
         if (not create_rt(event, 0, 160)) return;
         auto &peer = _peer[event.peer];
         world &world = worlds[peer->recent_worlds.back()];
-        if (world.owner != 00 && peer->role == role::player) // @note cause if no owner than world can break/place by anyone.
+
+        /* locked worlds are only accessable by owner, admin, moderator (and above) */
+        if (world.owner != 00 && peer->role == role::player)
             if (peer->user_id != world.owner &&
                 !std::ranges::contains(world.admin, peer->user_id)) return;
 
-        short block1D = state.punch[1] * 100 + state.punch[0]; // 2D (x, y) to 1D ((destY * y + destX)) formula
-        block &block = world.blocks[block1D];
+        block &block = world.blocks[cord(state.punch[0], state.punch[1])];
         item &item_fg = items[block.fg];
         item &item_id = items[state.id];
+
         if (state.id == 18) // @note punching a block
         {
             if (block.bg == 0 && block.fg == 0) return;
             if (item_fg.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
             if (item_fg.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
+
             block_punched(event, state, block);
+            
             short id{};
             if (block.fg != 0 && block.hits[0] >= item_fg.hits) id = block.fg, block.fg = 0;
             else if (block.bg != 0 && block.hits[1] >= items[block.bg].hits) id = block.bg, block.bg = 0;
             else return;
+
             block.hits = {0, 0};
-            std::array<short, 2zu> im{};
+            std::array<short, 2zu> im{}; // @todo handle cases were a gem and seed/block may drop together.
+
             if (not randomizer(0, 7)) im = {112, 1}; // @todo get real growtopia gem drop amount.
             if (not randomizer(0, 13)) im = {id, 1};
             if (not randomizer(0, 9)) im = {++id, 1};
+            /* something will drop... */
             if (not im.empty())
-                drop_visuals(event, 
-                    im,
+            {
+                drop_visuals(event, im,
                     {
                         static_cast<float>(state.punch[0]) + randomizer(0.05f, 0.1f), 
                         static_cast<float>(state.punch[1]) + randomizer(0.05f, 0.1f)
-                    }
-                );
+                    });
+            }
             peer->add_xp(std::trunc(1.0f + items[id].rarity / 5.0f));
         } // @note delete im, id
         else if (item_id.cloth_type != clothing::none) 

@@ -13,46 +13,39 @@ void pickup(ENetEvent event, state state)
     std::vector<ifloat>& ifloats{worlds[peer->recent_worlds.back()].ifloats};
     const int x = std::lround(peer->pos[0]);
     const int y = std::lround(peer->pos[1]);
-    auto it = std::find_if(ifloats.begin(), ifloats.end(), [&](const ifloat& i) 
-    {
-        const int ix = std::lround(i.pos[0]);
-        const int iy = std::lround(i.pos[1]);
-        return (std::abs(ix - x) <= 1) && (std::abs(iy - y) <= 1);
+
+    auto it = std::find_if(ifloats.begin(), ifloats.end(), [x, y](const ifloat& i) {
+        return (std::abs(std::lround(i.pos[0]) - x) <= 1) && 
+               (std::abs(std::lround(i.pos[1]) - y) <= 1);
     });
 
     if (it != ifloats.end()) 
     {
-        short remember_count = it->count;
-        if (it->id != 112)
+        item &item = items[it->id];
+        if (item.type != std::byte{ GEM })
         {
-            short excess = peer->emplace(slot{it->id, remember_count});
-            it->count -= (it->count - excess);
+            gt_packet(*event.peer, false, 0, {
+                "OnConsoleMessage",
+                (item.rarity >= 999) ?
+                    std::format("Collected `w{} {}``.", it->count, item.raw_name).c_str() :
+                    std::format("Collected `w{} {}``. Rarity: `w{}``", it->count, item.raw_name, item.rarity).c_str()
+            });
+            short excess = peer->emplace(slot{it->id, it->count});
+            it->count = excess;
+            inventory_visuals(event);
         }
-        else it->count = 0; // @todo if gem amount is maxed out, do not take any.
-        
+        else 
+        {
+            peer->gems += it->count;
+            it->count = 0;
+            gt_packet(*event.peer, false, 0, {
+                "OnSetBux",
+                peer->gems,
+                1,
+                1
+            });
+        }
         drop_visuals(event, {it->id, it->count}, it->pos, state.id/*@todo*/);
-        if (it->count == 0) 
-        {
-            ifloats.erase(it);
-            if (it->id != 112)
-            {
-                item &item = items[it->id];
-                gt_packet(*event.peer, false, 0, {
-                    "OnConsoleMessage",
-                    std::format("Collected `w{} {}``. Rarity: `w{}``", remember_count, item.raw_name, item.rarity).c_str()
-                });
-                inventory_visuals(event);
-            }
-            else 
-            {
-                peer->gems += remember_count;
-                gt_packet(*event.peer, false, 0, {
-                    "OnSetBux",
-                    peer->gems,
-                    1,
-                    1
-                });
-            }
-        }
+        if (it->count == 0) ifloats.erase(it);
     }
 }

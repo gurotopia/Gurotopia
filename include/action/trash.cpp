@@ -8,8 +8,11 @@
 
 void trash(ENetEvent event, const std::string& header)
 {
+    std::string id = readch(std::string{header}, '|')[4];
+    if (id.empty()) return;
+
     for (const slot &slot : _peer[event.peer]->slots)
-        if (slot.id == stoi(readch(std::string{header}, '|')[4]))
+        if (slot.id == stoi(id))
         {
             item &item = items[slot.id];
             if (item.type == std::byte{ type::WRENCH } || item.type == std::byte{ type::FIST }) return;

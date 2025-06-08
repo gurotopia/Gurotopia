@@ -48,6 +48,7 @@
         * @return the remaining amount if exeeds 200. e.g. emplace(slot{0, 201}) returns 1.
         */
         int emplace(slot s);
+        std::vector<short> fav{};
 
         signed gems{0};
         std::array<unsigned short, 2zu> level{ 1, 0 }; // {level, xp} XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete

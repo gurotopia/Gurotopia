@@ -6,7 +6,7 @@
 
 #include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
 
-world& world::read(const std::string& name)
+world::world(const std::string& name)
 {
     std::ifstream file(std::format("worlds\\{}.json", name));
     if (file.is_open()) 
@@ -24,7 +24,6 @@ world& world::read(const std::string& name)
             if (i.contains("u") && i.contains("i") && i.contains("c") && i.contains("p") && i["p"].is_array() && i["p"].size() == 2)
                 this->ifloats.emplace_back(ifloat{ i["u"], i["i"], i["c"], { i["p"][0], i["p"][1] } });
     }
-    return *this;
 }
 
 world::~world()
@@ -81,9 +80,9 @@ void state_visuals(ENetEvent& event, state s)
     });
 }
 
-void block_punched(ENetEvent& event, state s, block &b)
+void block_punched(ENetEvent& event, state s, block &block)
 {
-    (b.fg == 0) ? ++b.hits[1] : ++b.hits[0];
+    (block.fg == 0) ? ++block.hits[1] : ++block.hits[0];
     s.type = 0x8; // @note PACKET_TILE_APPLY_DAMAGE
     s.id = 6; // @note idk exactly
 	state_visuals(event, s);
@@ -132,7 +131,7 @@ void clothing_visuals(ENetEvent &event)
     });
 }
 
-void tile_update(ENetEvent &event, state s, block &b, world& w) 
+void tile_update(ENetEvent &event, state s, block &block, world& w) 
 {
     s.type = 05; // @note PACKET_SEND_TILE_UPDATE_DATA
     s.peer_state = 0x08;
@@ -140,17 +139,17 @@ void tile_update(ENetEvent &event, state s, block &b, world& w)
 
     short pos = 56;
     data.resize(pos + 8); // @note {2} {2} 00 00 00 00
-    *reinterpret_cast<short*>(&data[pos]) = b.fg; pos += sizeof(short);
-    *reinterpret_cast<short*>(&data[pos]) = b.bg; pos += sizeof(short);
+    *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
+    *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
     pos += sizeof(short); // @todo
     pos += sizeof(short); // @todo (water = 00 04)
 
-    switch (items[b.fg].type)
+    switch (items[block.fg].type)
     {
         case std::byte{ type::DOOR }:
         {
             data[pos - 2] = std::byte{ 01 };
-            std::span<const char> label = b.label;
+            std::span<const char> label = block.label;
             short len{ static_cast<short>(label.size()) };
             data.resize(pos + 1 + 2 + len + 1); // @note 01 {2} {} 0 0
 
@@ -165,7 +164,7 @@ void tile_update(ENetEvent &event, state s, block &b, world& w)
         case std::byte{ type::SIGN }:
         {
             data[pos - 2] = std::byte{ 0x19 };
-            std::span<const char> label = b.label;
+            std::span<const char> label = block.label;
             short len{ static_cast<short>(label.size()) };
             data.resize(pos + 1 + 2 + len + 4); // @note 02 {2} {} ff ff ff ff
 

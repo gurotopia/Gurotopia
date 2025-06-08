@@ -25,16 +25,16 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         std::string big_name{world_name.empty() ? readch(std::string{header}, '|')[3] : world_name};
         if (not alpha(big_name) || big_name.empty()) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
-        std::unique_ptr<world> w = std::make_unique<world>(std::move(world().read(big_name)));
-        if (w->name.empty())
+        world world(big_name);
+        if (world.name.empty())
         {
             const unsigned main_door = randomizer(2, 100 * 60 / 100 - 4);
 
             std::vector<block> blocks(100 * 60, block{0, 0});
-            block *base_ptr = blocks.data();
+            block *block_ptr = blocks.data();
             std::ranges::for_each(blocks, [&](block& b)
             {
-                long long i = &b - base_ptr;
+                long long i = &b - block_ptr;
                 if (i >= 3700)
                 {
                     b.bg = 14; // cave background
@@ -46,25 +46,25 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 else if (i == 3700 + main_door) b.fg = 8; // bedrock (below main door)
             });
 
-            w->blocks = std::move(blocks);
-            w->name = big_name; // init
+            world.blocks = std::move(blocks);
+            world.name = big_name; // init
         }
         {
-            std::vector<std::byte> data(85 + w->name.length() + 5/*unknown*/ + (8 * w->blocks.size()) + 12/*initial drop*/, std::byte{ 00 });
+            std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12/*initial drop*/, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };
             data[4zu] = std::byte{ 04 };
             data[16zu] = std::byte{ 0x8 };
-            unsigned char len = static_cast<unsigned char>(w->name.length());
+            unsigned char len = static_cast<unsigned char>(world.name.length());
             data[66zu] = std::byte{ len };
             for (unsigned char i = 0; i < len; ++i)
-                *reinterpret_cast<char*>(&data[68zu + i]) = w->name[i];
-            unsigned y = w->blocks.size() / 100, x = w->blocks.size() / y;
+                *reinterpret_cast<char*>(&data[68zu + i]) = world.name[i];
+            unsigned y = world.blocks.size() / 100, x = world.blocks.size() / y;
             *reinterpret_cast<unsigned*>(&data[68zu + len]) = x;
             *reinterpret_cast<unsigned*>(&data[72zu + len]) = y;
-            *reinterpret_cast<unsigned short*>(&data[76zu + len]) = static_cast<unsigned short>(w->blocks.size());
+            *reinterpret_cast<unsigned short*>(&data[76zu + len]) = static_cast<unsigned short>(world.blocks.size());
             std::size_t pos = 85 + len;
             short i = 0;
-            for (const block &block : w->blocks)
+            for (const block &block : world.blocks)
             {
                 *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
                 *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
@@ -79,11 +79,11 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     case std::byte{ type::LOCK }: 
                     {
                         data[pos - 2zu] = std::byte{ 01 };
-                        std::size_t admins = std::ranges::count_if(w->admin, std::identity{});
+                        std::size_t admins = std::ranges::count_if(world.admin, std::identity{});
                         data.resize(data.size() + 14zu + (admins * 4zu));
                         data[pos] = std::byte{ 03 }; pos += sizeof(std::byte);
                         data[pos] = std::byte{ 00 }; pos += sizeof(std::byte);
-                        *reinterpret_cast<int*>(&data[pos]) = w->owner; pos += sizeof(int);
+                        *reinterpret_cast<int*>(&data[pos]) = world.owner; pos += sizeof(int);
                         *reinterpret_cast<int*>(&data[pos]) = admins + 1; pos += sizeof(int);
                         *reinterpret_cast<int*>(&data[pos]) = -100; pos += sizeof(int);
                         /* @todo admin list */
@@ -144,7 +144,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data
 
-        for (const auto& ifloat : w->ifloats)
+        for (const auto& ifloat : world.ifloats)
         {
             std::vector<std::byte> compress = compress_state({
                 .type = 0x0e, 
@@ -156,19 +156,19 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             });
             send_data(*event.peer, compress);
         } // @note delete compress
-        if (std::ranges::find(peer->recent_worlds, w->name) == peer->recent_worlds.end()) 
+        if (std::ranges::find(peer->recent_worlds, world.name) == peer->recent_worlds.end()) 
         {
             std::ranges::rotate(peer->recent_worlds, peer->recent_worlds.begin() + 1);
-            peer->recent_worlds.back() = w->name;
+            peer->recent_worlds.back() = world.name;
         }
-        if (peer->user_id == w->owner) peer->prefix = "2";
-        else if (std::ranges::find(w->admin, peer->user_id) != w->admin.end()) peer->prefix = "c";
+        if (peer->user_id == world.owner) peer->prefix = "2";
+        else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix = "c";
 
         char& role = peer->role;
         if (role == role::moderator) peer->prefix = "8@";
         else if (role == role::developer) peer->prefix = "6@";
         EmoticonDataChanged(event);
-        peer->netid = ++w->visitors;
+        peer->netid = ++world.visitors;
         peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
         {
             if (_peer[&p]->user_id != peer->user_id) 
@@ -180,7 +180,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                         peer->prefix, _peer[&p]->ltoken[0], (role >= role::moderator) ? "1" : "0", (role >= developer) ? "1" : "0"
                     ).c_str()
                 });
-                std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], w->visitors) };
+                std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors) };
                 gt_packet(p, false, 0, {
                     "OnConsoleMessage", 
                     enter_message.c_str()
@@ -202,11 +202,11 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         });
         gt_packet(*event.peer, false, 0, {
             "OnConsoleMessage", 
-            std::format("World `w{}`` entered.  There are `w{}`` other people here, `w{}`` online.", w->name, w->visitors - 1, peers(event).size()).c_str()
+            std::format("World `w{}`` entered.  There are `w{}`` other people here, `w{}`` online.", world.name, world.visitors - 1, peers(event).size()).c_str()
         });
         inventory_visuals(event);
         peer->ready_exit = true;
-        worlds.emplace(w->name, *w);
+        worlds.emplace(world.name, world);
     }
     catch (const std::exception& exc)
     {

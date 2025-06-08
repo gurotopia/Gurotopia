@@ -23,7 +23,7 @@
     class world 
     {
     public:
-        world& read(const std::string& name);
+        world(const std::string& name = "");
         std::string name{};
         int owner{ 00 }; // @note owner of world using peer's user id.
         std::array<int, 6zu> admin{}; // @note admins (by user id). excluding owner. (6 is a experimental amount, if increase update me if any issue occur -leeendl)

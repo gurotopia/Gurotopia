@@ -81,15 +81,15 @@ void dialog_return(ENetEvent event, const std::string& header)
     {
         const short tilex = stoi(pipes[1zu]);
         const short tiley = stoi(pipes[4zu]);
-        world& w = worlds[peer->recent_worlds.back()];
-        block& b = w.blocks[tiley * 100 + tilex];
-        b.label = pipes[7zu];
+        world &world = worlds[peer->recent_worlds.back()];
+        block &block = world.blocks[tiley * 100 + tilex];
+        block.label = pipes[7zu];
 
         state s{
-            .id = b.fg,
+            .id = block.fg,
             .pos = { tilex * 32.0f, tiley * 32.0f },
             .punch = { tilex, tiley }
         };
-        tile_update(event, s, b, w);
+        tile_update(event, s, block, world);
     }
 }

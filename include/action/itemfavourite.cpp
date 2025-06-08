@@ -13,7 +13,13 @@ void itemfavourite(ENetEvent event, const std::string& header)
     auto &peer = _peer[event.peer];
     auto it = std::ranges::find(peer->fav, stoi(id));
     bool fav = it != peer->fav.end();
-    if (peer->fav.size() >= 20 && !fav) return; // @note allows unfav even if there are already 20.
+    if (peer->fav.size() >= 20 && !fav)
+    {
+        constexpr std::string_view message = "You cannot favorite any more items. Remove some from your list and try again.";
+        gt_packet(*event.peer, false, 0, { "OnTalkBubble", peer->netid, message.data(), 0u, 1u });
+        gt_packet(*event.peer, false, 0, { "OnConsoleMessage", message.data() });
+        return;
+    }
 
     gt_packet(*event.peer, false, 0, {
         "OnFavItemUpdated",

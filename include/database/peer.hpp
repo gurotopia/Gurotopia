@@ -14,8 +14,7 @@
         player, moderator, developer
     };
 
-    #include <string>
-    #include <mutex> // @note std::once_flag
+    #include <chrono>
     #include <deque>
     #include <array>
     #include <vector>
@@ -23,20 +22,17 @@
         #undef max
         #undef min
     #endif
-    #include <algorithm>
 
     class peer {
     public:
         peer& read(const std::string& name);
-
-        std::once_flag logging_in{}; // @note makes sure "connecting to server..." is triggered once (e.g. OnSuperMain)
-        std::once_flag welcome_message{}; // @note makes sure "welcome back {}." message is triggered once
+        
         bool ready_exit{}; // @note peer can safely exit a world if true.
 
         signed netid{ -1 }; // @note peer's netid is world identity. this will be useful for many packet sending
         int user_id{}; // @note unqiue user id.
         std::array<const char*, 2zu> ltoken{}; // @note peer's ltoken e.g. {growid, password}
-        std::string prefix{"w"}; // @note display name color, default: "w" (White)
+        std::string prefix{ "w" }; // @note display name color, default: "w" (White)
         char role{role::player};
         std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
         signed skin_color{ -1429995521 };
@@ -58,17 +54,7 @@
         /*
         * @brief add XP safely, this function also handles level up.
         */
-        void add_xp(unsigned short value) 
-        {
-            this->level.back() += value;
-
-            unsigned short lvl = this->level.front();
-            unsigned short xp_formula = 50 * (lvl * lvl + 2); // @note credits: https://www.growtopiagame.com/forums/member/553046-kasete
-            
-            unsigned short level_up = std::min<unsigned short>(this->level.back() / xp_formula, 125 - lvl);
-            this->level.front() += level_up;
-            this->level.back() -= level_up * xp_formula;
-        }
+        void add_xp(unsigned short value);
 
         std::array<std::string, 6zu> recent_worlds{}; // @note recent worlds, a list of 6 worlds, once it reaches 7 it'll be replaced by the oldest
         std::array<std::string, 200zu> my_worlds{}; // @note first 200 relevant worlds locked by peer.
@@ -102,7 +88,7 @@
     extern std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition = PEER_ALL, std::function<void(ENetPeer&)> fun = [](ENetPeer& peer){});
 
     class state {
-        public:
+    public:
         int type{};
         int netid{};
         // @todo unknown data

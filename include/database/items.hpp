@@ -168,7 +168,7 @@
 
     class item 
     {
-        public:
+    public:
         unsigned short id{}; /* item identity */
         std::byte cat{};
         std::byte type{};

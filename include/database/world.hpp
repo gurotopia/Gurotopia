@@ -4,7 +4,7 @@
     /* fg, bg, hits */
     class block 
     {
-        public:
+    public:
         short fg{0}, bg{0};
         std::string label{""}; // @note sign/door label
         std::array<int, 2zu> hits{0, 0}; // @note fg, bg
@@ -13,7 +13,7 @@
     /* uid, id, count, pos*/
     class ifloat 
     {
-        public:
+    public:
         std::size_t uid{0zu};
         short id{0};
         short count{0};

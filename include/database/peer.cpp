@@ -22,6 +22,18 @@ int peer::emplace(slot s)
     return 0;
 }
 
+void peer::add_xp(unsigned short value) 
+{
+    this->level.back() += value;
+
+    unsigned short lvl = this->level.front();
+    unsigned short xp_formula = 50 * (lvl * lvl + 2); // @note credits: https://www.growtopiagame.com/forums/member/553046-kasete
+    
+    unsigned short level_up = std::min<unsigned short>(this->level.back() / xp_formula, 125 - lvl);
+    this->level.front() += level_up;
+    this->level.back() -= level_up * xp_formula;
+}
+
 peer& peer::read(const std::string& name)
 {
     std::ifstream file(std::format("players\\{}.json", name));

@@ -10,6 +10,15 @@
         short count{0}; // @note total amount of that item
     };
 
+    class billboard {
+    public:
+        short id{0}; // @note the item they're selling
+        bool show{};
+        bool isBuying{};
+        int price{1};
+        bool perItem{}; // @note true if world locks per item, false if items per world lock
+    };
+
     enum role : char {
         player, moderator, developer
     };
@@ -36,6 +45,7 @@
         char role{role::player};
         std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
         signed skin_color{ -1429995521 };
+        billboard billboard{};
 
         std::array<float, 2zu> pos{}; // @note position {x, y}
         std::array<float, 2zu> rest_pos{}; // @note respawn position {x, y}

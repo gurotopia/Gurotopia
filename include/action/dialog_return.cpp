@@ -68,6 +68,32 @@ void dialog_return(ENetEvent event, const std::string& header)
                 ).c_str()
             });
         }
+        else if (pipes[7zu] == "billboard_edit")
+        {
+            gt_packet(*event.peer, false, 0, {
+                "OnDialogRequest",
+                std::format("set_default_color|`o\n"
+                "add_label_with_icon|big|`wTrade Billboard``|left|8282|\n"
+                "add_spacer|small|\n"
+                "{0}"
+                "add_item_picker|billboard_item|`wSelect Billboard Item``|Choose an item to put on your billboard!|\n"
+                "add_spacer|small|\n"
+                "add_checkbox|billboard_toggle|`$Show Billboard``|{1}\n"
+                "add_checkbox|billboard_buying_toggle|`$Is Buying``|{2}\n"
+                "add_text_input|setprice|Price of item:|{3}|5|\n"
+                "add_checkbox|chk_peritem|World Locks per Item|{4}\n"
+                "add_checkbox|chk_perlock|Items per World Lock|{5}\n"
+                "add_spacer|small|\n"
+                "end_dialog|billboard_edit|Close|Update|\n",
+                /* sorry. this is very messy... I am tired T-T */
+                (peer->billboard.id == 0) ? "" : std::format(
+                    "add_label_with_icon|small|`w{}``|left|{}|\n", 
+                    items[peer->billboard.id].raw_name, peer->billboard.id),
+                int{peer->billboard.show}, int{peer->billboard.isBuying}, peer->billboard.price, 
+                int{peer->billboard.perItem}, int{!peer->billboard.perItem}
+                ).c_str()
+            });
+        }
     }
     else if ((dialog_name == "find" && pipes[0zu] == "buttonClicked" && pipes[1zu].starts_with("searchableItemListButton")) && 
              !readch(pipes[1zu], '_')[1].empty())
@@ -91,5 +117,40 @@ void dialog_return(ENetEvent event, const std::string& header)
             .punch = { tilex, tiley }
         };
         tile_update(event, s, block, world);
+    }
+    /* @todo this ended up very sloppy, I will clean up later*/
+    else if (dialog_name == "billboard_edit" && !pipes[1zu].empty())
+    {
+        printf("%s", pipes[0zu].c_str());
+        if (pipes[0zu] == "billboard_item") 
+        {
+            const short id = stoi(pipes[1zu]); // @note this is billboard_item, I will use it a lot so I shorten to "id"
+            if (id == 18 || id == 32) return;
+            peer->billboard = {
+                .id = id,
+                .show = stoi(pipes[3zu]) != 0,
+                .isBuying = stoi(pipes[5zu]) != 0,
+                .price = stoi(pipes[7zu]),
+                .perItem = stoi(pipes[9zu]) != 0,
+            };
+        }
+        else 
+        {
+            peer->billboard = {
+                .id = peer->billboard.id,
+                .show = stoi(pipes[1zu]) != 0,
+                .isBuying = stoi(pipes[3zu]) != 0,
+                .price = stoi(pipes[5zu]),
+                .perItem = stoi(pipes[7zu]) != 0,
+            };
+        }
+        gt_packet(*event.peer, true, 0, {
+            "OnBillboardChange",
+            peer->netid,
+            signed{peer->billboard.id},
+            std::format("{},{}", int{peer->billboard.show}, int{peer->billboard.isBuying}).c_str(),
+            peer->billboard.price,
+            signed{peer->billboard.perItem}
+        });
     }
 }

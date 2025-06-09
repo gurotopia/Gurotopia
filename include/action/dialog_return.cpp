@@ -134,7 +134,7 @@ void dialog_return(ENetEvent event, const std::string& header)
                 .perItem = stoi(pipes[9zu]) != 0,
             };
         }
-        else 
+        else // @note billboard_toggle
         {
             peer->billboard = {
                 .id = peer->billboard.id,

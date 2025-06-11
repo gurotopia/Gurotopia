@@ -11,23 +11,22 @@ void dialog_return(ENetEvent event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
     std::vector<std::string> pipes = readch(header, '|');
-    std::string dialog_name = pipes[3zu];
-    if (pipes.size() > 3)
-        pipes.erase(pipes.begin(), pipes.begin() + 4);
-    else return; // if button has no name.
-    if (((dialog_name == "drop_item" || dialog_name == "trash_item") && pipes[0zu] == "itemID" && pipes[3zu] == "count") && 
-        (!pipes[1zu].empty() && !pipes[4zu].empty()))
+
+    if (pipes.size() < 3) return; // if button has no name.
+    
+    if (((pipes[3zu] == "drop_item" || pipes[3zu] == "trash_item") && pipes[4zu] == "itemID" && pipes[7zu] == "count") && 
+        (!pipes[5zu].empty() && !pipes[8zu].empty()))
     {
-        const short id = stoi(pipes[1zu]);
-        const short count = stoi(pipes[4zu]);
+        const short id = stoi(pipes[5zu]);
+        const short count = stoi(pipes[8zu]);
         peer->emplace(slot{id, static_cast<short>(count * -1)}); // @note take away
         inventory_visuals(event);
-        if (dialog_name == "drop_item") 
+        if (pipes[3zu] == "drop_item") 
         {
             float x_nabor = (peer->facing_left ? peer->pos[0] - 1 : peer->pos[0] + 1); // @note peer's naboring tile (drop position)
             drop_visuals(event, {id, count}, {x_nabor, peer->pos[1]});
         } 
-        else if (dialog_name == "trash_item")
+        else if (pipes[3zu] == "trash_item")
         {
             gt_packet(*event.peer, false, 0, {
                 "OnConsoleMessage",
@@ -35,9 +34,9 @@ void dialog_return(ENetEvent event, const std::string& header)
             });
         }
     }
-    else if (dialog_name == "popup" && pipes[6zu] == "buttonClicked") // @todo why does netID|1| appear twice??
+    else if (pipes[3zu] == "popup" && pipes[10zu] == "buttonClicked") // @todo why does netID|1| appear twice??
     {
-        if (pipes[7zu] == "my_worlds")
+        if (pipes[11zu] == "my_worlds")
         {
             auto section = [](const auto& range) 
             {
@@ -68,7 +67,7 @@ void dialog_return(ENetEvent event, const std::string& header)
                 ).c_str()
             });
         }
-        else if (pipes[7zu] == "billboard_edit")
+        else if (pipes[11zu] == "billboard_edit")
         {
             gt_packet(*event.peer, false, 0, {
                 "OnDialogRequest",
@@ -85,31 +84,30 @@ void dialog_return(ENetEvent event, const std::string& header)
                 "add_checkbox|chk_perlock|Items per World Lock|{5}\n"
                 "add_spacer|small|\n"
                 "end_dialog|billboard_edit|Close|Update|\n",
-                /* sorry. this is very messy... I am tired T-T */
                 (peer->billboard.id == 0) ? "" : std::format(
                     "add_label_with_icon|small|`w{}``|left|{}|\n", 
                     items[peer->billboard.id].raw_name, peer->billboard.id),
-                int{peer->billboard.show}, int{peer->billboard.isBuying}, peer->billboard.price, 
-                int{peer->billboard.perItem}, int{!peer->billboard.perItem}
+                signed{peer->billboard.show}, signed{peer->billboard.isBuying}, peer->billboard.price, 
+                signed{peer->billboard.perItem}, signed{!peer->billboard.perItem}
                 ).c_str()
             });
         }
     }
-    else if ((dialog_name == "find" && pipes[0zu] == "buttonClicked" && pipes[1zu].starts_with("searchableItemListButton")) && 
-             !readch(pipes[1zu], '_')[1].empty())
+    else if ((pipes[3zu] == "find" && pipes[4zu] == "buttonClicked" && pipes[5zu].starts_with("searchableItemListButton")) && 
+             !readch(pipes[5zu], '_')[1].empty())
     {
-        peer->emplace(slot{static_cast<short>(stoi(readch(pipes[1zu], '_')[1])), 200});
+        peer->emplace(slot{static_cast<short>(stoi(readch(pipes[5zu], '_')[1])), 200});
         inventory_visuals(event);
     }
-    else if ((dialog_name == "door_edit" && pipes[6zu] == "door_name") || 
-             (dialog_name == "sign_edit" && pipes[6zu] == "sign_text") && 
-             (!pipes[1zu].empty() || !pipes[4zu].empty()))
+    else if ((pipes[3zu] == "door_edit" && pipes[10zu] == "door_name") || 
+             (pipes[3zu] == "sign_edit" && pipes[10zu] == "sign_text") && 
+             (!pipes[5zu].empty() || !pipes[8zu].empty()))
     {
-        const short tilex = stoi(pipes[1zu]);
-        const short tiley = stoi(pipes[4zu]);
+        const short tilex = stoi(pipes[5zu]);
+        const short tiley = stoi(pipes[8zu]);
         world &world = worlds[peer->recent_worlds.back()];
         block &block = world.blocks[cord(tilex, tiley)];
-        block.label = pipes[7zu];
+        block.label = pipes[11zu];
 
         state s{
             .id = block.fg,
@@ -119,36 +117,35 @@ void dialog_return(ENetEvent event, const std::string& header)
         tile_update(event, s, block, world);
     }
     /* @todo this ended up very sloppy, I will clean up later*/
-    else if (dialog_name == "billboard_edit" && !pipes[1zu].empty())
+    else if (pipes[3zu] == "billboard_edit" && !pipes[5zu].empty())
     {
-        printf("%s", pipes[0zu].c_str());
-        if (pipes[0zu] == "billboard_item") 
+        if (pipes[4zu] == "billboard_item") 
         {
-            const short id = stoi(pipes[1zu]); // @note this is billboard_item, I will use it a lot so I shorten to "id"
+            const short id = stoi(pipes[5zu]); // @note this is billboard_item, I will use it a lot so I shorten to "id"
             if (id == 18 || id == 32) return;
             peer->billboard = {
                 .id = id,
-                .show = stoi(pipes[3zu]) != 0,
-                .isBuying = stoi(pipes[5zu]) != 0,
-                .price = stoi(pipes[7zu]),
-                .perItem = stoi(pipes[9zu]) != 0,
+                .show = stoi(pipes[7zu]) != 0,
+                .isBuying = stoi(pipes[9zu]) != 0,
+                .price = stoi(pipes[11zu]),
+                .perItem = stoi(pipes[13zu]) != 0,
             };
         }
         else // @note billboard_toggle
         {
             peer->billboard = {
                 .id = peer->billboard.id,
-                .show = stoi(pipes[1zu]) != 0,
-                .isBuying = stoi(pipes[3zu]) != 0,
-                .price = stoi(pipes[5zu]),
-                .perItem = stoi(pipes[7zu]) != 0,
+                .show = stoi(pipes[5zu]) != 0,
+                .isBuying = stoi(pipes[7zu]) != 0,
+                .price = stoi(pipes[9zu]),
+                .perItem = stoi(pipes[11zu]) != 0,
             };
         }
         gt_packet(*event.peer, true, 0, {
             "OnBillboardChange",
             peer->netid,
             signed{peer->billboard.id},
-            std::format("{},{}", int{peer->billboard.show}, int{peer->billboard.isBuying}).c_str(),
+            std::format("{},{}", signed{peer->billboard.show}, signed{peer->billboard.isBuying}).c_str(),
             peer->billboard.price,
             signed{peer->billboard.perItem}
         });

@@ -57,7 +57,7 @@
         * @brief set slot::count to nagative value if you want to remove an amount. 
         * @return the remaining amount if exeeds 200. e.g. emplace(slot{0, 201}) returns 1.
         */
-        int emplace(slot s);
+        short emplace(slot s);
         std::vector<short> fav{};
 
         signed gems{0};

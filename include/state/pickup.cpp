@@ -32,7 +32,6 @@ void pickup(ENetEvent event, state state)
             });
             short excess = peer->emplace(slot{it->id, it->count});
             it->count = excess;
-            inventory_visuals(event);
         }
         else 
         {
@@ -46,6 +45,7 @@ void pickup(ENetEvent event, state state)
             });
         }
         drop_visuals(event, {it->id, it->count}, it->pos, state.id/*@todo*/);
+        inventory_visuals(event); // @todo confused here... (if I put this higher it duplicates the item.)
         if (it->count == 0) ifloats.erase(it);
     }
 }

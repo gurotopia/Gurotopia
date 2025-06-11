@@ -5,20 +5,21 @@
 
 #include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
 
-int peer::emplace(slot s) 
+short peer::emplace(slot s) 
 {
-    if (auto it = std::find_if(slots.begin(), slots.end(), [&](const slot &found) { return found.id == s.id; }); it != slots.end()) 
+    if (auto it = std::ranges::find_if(this->slots, [&s](const slot &found) { return found.id == s.id; }); it != this->slots.end()) 
     {
-        int excess = std::max(0, (it->count + s.count) - 200);
+        short excess = std::max(0, (it->count + s.count) - 200);
         it->count = std::min(it->count + s.count, 200);
         if (it->count == 0)
         {
             item &item = items[it->id];
             if (item.cloth_type != clothing::none) this->clothing[item.cloth_type] = 0;
         }
+        printf("inv count: %d", it->count);
         return excess;
     }
-    else slots.emplace_back(std::move(s)); // @note no such item in inventory, so we create a new entry.
+    else this->slots.emplace_back(std::move(s)); // @note no such item in inventory, so we create a new entry.
     return 0;
 }
 
@@ -154,8 +155,9 @@ void inventory_visuals(ENetEvent &event)
     *reinterpret_cast<int*>(&data[58zu]) = std::byteswap<int>(peer->slot_size);
     *reinterpret_cast<int*>(&data[62zu]) = std::byteswap<int>(size);
     int *slot_ptr = reinterpret_cast<int*>(data.data() + 66);
-    for (const slot &slot : peer->slots)
+    for (const slot &slot : peer->slots) {
         *slot_ptr++ = (slot.id | (slot.count << 16)) & 0x00ffffff;
+    }
 
 	enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
     clothing_visuals(event); // @todo

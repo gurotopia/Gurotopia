@@ -1,11 +1,12 @@
 #ifndef WORLD_HPP
 #define WORLD_HPP
 
-    /* fg, bg, hits */
+    /* fg, bg, tick, label, hits */
     class block 
     {
     public:
         short fg{0}, bg{0};
+        std::chrono::steady_clock::time_point tick; // @note record a point in time for the tile e.g. tree growth, providers, ect.
         std::string label{""}; // @note sign/door label
         std::array<int, 2zu> hits{0, 0}; // @note fg, bg
     };

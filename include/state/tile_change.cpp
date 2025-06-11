@@ -116,34 +116,43 @@ void tile_change(ENetEvent event, state state)
         }
         else // @note placing a block
         {
-            if (item_id.type == std::byte{ type::LOCK })
+            switch (item_id.type)
             {
-                if (world.owner == 00)
+                case std::byte{ type::LOCK }:
                 {
-                    world.owner = peer->user_id;
-                    if (peer->role == role::player) peer->prefix = "2";
-                    if (std::ranges::find(peer->my_worlds, world.name) == peer->my_worlds.end()) 
+                    if (world.owner == 00)
                     {
-                        std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
-                        peer->my_worlds.back() = world.name;
+                        world.owner = peer->user_id;
+                        if (peer->role == role::player) peer->prefix = "2";
+                        if (std::ranges::find(peer->my_worlds, world.name) == peer->my_worlds.end()) 
+                        {
+                            std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
+                            peer->my_worlds.back() = world.name;
+                        }
+                        peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
+                        {
+                            std::string placed_message{ std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, peer->ltoken[0]) };
+                            gt_packet(p, false, 0, {
+                                "OnTalkBubble", 
+                                peer->netid,
+                                placed_message.c_str(),
+                                0u
+                            });
+                            gt_packet(p, false, 0, {
+                                "OnConsoleMessage",
+                                placed_message.c_str()
+                            });
+                        });
+                        OnNameChanged(event);
                     }
-                    peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
-                    {
-                        std::string placed_message{ std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, peer->ltoken[0]) };
-                        gt_packet(p, false, 0, {
-                            "OnTalkBubble", 
-                            peer->netid,
-                            placed_message.c_str(),
-                            0u
-                        });
-                        gt_packet(p, false, 0, {
-                            "OnConsoleMessage",
-                            placed_message.c_str()
-                        });
-                    });
-                    OnNameChanged(event);
+                    else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
+                    break;
                 }
-                else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
+                case std::byte{ type::SEED }:
+                {
+                    block.tick = std::chrono::steady_clock::now();
+                    break;
+                }
             }
             if (item_id.collision == collision::full)
             {

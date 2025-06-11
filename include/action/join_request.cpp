@@ -9,6 +9,8 @@
 
 #include "tools/string_view.hpp"
 
+using namespace std::chrono; // @note keep an eye out for re-defines! (I normally avoid using namespaces, but std::chrono is annoying to type T-T)
+
 constexpr std::array<std::byte, 4zu> EXIT{
     std::byte{ 0x45 }, // @note 'E'
     std::byte{ 0x58 }, // @note 'X'
@@ -126,6 +128,15 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                         for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
                         *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
                         break;
+                    }
+                    case std::byte{ type::SEED }:
+                    {
+                        data[pos - 2zu] = std::byte{ 0x11 };
+                        data.resize(data.size() + 1zu + 5zu);
+
+                        data[pos] = std::byte{ 04 }; pos += sizeof(std::byte);
+                        *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
+                        data[pos] = std::byte{ 03 }; pos += sizeof(std::byte); // @note no clue...
                     }
                     default:
                         data.resize(data.size() + 16zu); // @todo

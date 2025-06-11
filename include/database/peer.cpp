@@ -16,7 +16,6 @@ short peer::emplace(slot s)
             item &item = items[it->id];
             if (item.cloth_type != clothing::none) this->clothing[item.cloth_type] = 0;
         }
-        printf("inv count: %d", it->count);
         return excess;
     }
     else this->slots.emplace_back(std::move(s)); // @note no such item in inventory, so we create a new entry.
@@ -154,7 +153,7 @@ void inventory_visuals(ENetEvent &event)
     data[16zu] = std::byte{ 0x08 };
     *reinterpret_cast<int*>(&data[58zu]) = std::byteswap<int>(peer->slot_size);
     *reinterpret_cast<int*>(&data[62zu]) = std::byteswap<int>(size);
-    int *slot_ptr = reinterpret_cast<int*>(data.data() + 66);
+    int *slot_ptr = reinterpret_cast<int*>(&data[66zu]);
     for (const slot &slot : peer->slots) {
         *slot_ptr++ = (slot.id | (slot.count << 16)) & 0x00ffffff;
     }

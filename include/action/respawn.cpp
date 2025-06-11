@@ -3,8 +3,6 @@
 #include "network/packet.hpp"
 #include "respawn.hpp"
 
-using namespace std::chrono;
-
 void respawn(ENetEvent event, const std::string& header) 
 {
     gt_packet(*event.peer, true, 0, { 

@@ -21,6 +21,9 @@ world::world(const std::string& name)
             if (jj.contains("f") && jj.contains("b"))
             {    this->blocks.emplace_back(block{ 
                     jj["f"], jj["b"], 
+                    jj.contains("t") && !jj["t"].is_null() ? 
+                        std::chrono::steady_clock::time_point(std::chrono::seconds(jj["t"].get<int>())) : 
+                        std::chrono::steady_clock::time_point(),
                     jj.contains("l") && !jj["l"].is_null() ? jj["l"] : "" 
                 });
             }
@@ -44,6 +47,8 @@ world::~world()
         for (const block &block : this->blocks) 
         {
             nlohmann::json list = {{"f", block.fg}, {"b", block.bg}};
+            auto seconds = std::chrono::duration_cast<std::chrono::seconds>(block.tick.time_since_epoch()).count();
+            if (seconds > 0) list["t"] = seconds;
             if (!block.label.empty()) list["l"] = block.label;
             j["bs"].push_back(list);
         }
@@ -105,7 +110,6 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
         s.netid = _peer[event.peer]->netid;
         s.peer_state = -1;
         s.id = uid;
-        s.pos = {0.0f, 0.0f};
     }
     else
     {

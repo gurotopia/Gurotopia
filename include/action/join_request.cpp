@@ -151,7 +151,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     case std::byte{ type::WEATHER_MACHINE }:
                     {
                         data.resize(data.size() + 16zu); // @todo add toggle visuals
-                        gt_packet(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
+                        if (block.toggled)
+                            gt_packet(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
                         break;
                     }
                     default:

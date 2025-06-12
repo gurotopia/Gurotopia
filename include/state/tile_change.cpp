@@ -91,47 +91,87 @@ void tile_change(ENetEvent event, state state)
         {
             switch (item_fg.type)
             {
+                case std::byte{ type::LOCK }:
+                {
+                    if (peer->user_id == world.owner)
+                    {
+                        gt_packet(*event.peer, false, 0, {
+                            "OnDialogRequest",
+                            std::format("set_default_color|`o\n"
+                                "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
+                                "add_popup_name|LockEdit|\n"
+                                "add_label|small|`wAccess list:``|left\n"
+                                "embed_data|tilex|{}\n"
+                                "embed_data|tiley|{}\n"
+                                "add_spacer|small|\n"
+                                "add_label|small|Currently, you're the only one with access.``|left\n"
+                                "add_spacer|small|\n"
+                                "add_player_picker|playerNetID|`wAdd``|\n"
+                                "add_checkbox|checkbox_public|Allow anyone to Build and Break|0\n"
+                                "add_checkbox|checkbox_disable_music|Disable Custom Music Blocks|0\n"
+                                "add_text_input|tempo|Music BPM|100|3|\n"
+                                "add_checkbox|checkbox_disable_music_render|Make Custom Music Blocks invisible|0\n"
+                                "add_smalltext|Your current home world is: JOLEIT|left|\n"
+                                "add_checkbox|checkbox_set_as_home_world|Set as Home World|0|\n"
+                                "add_text_input|minimum_entry_level|World Level: |1|3|\n"
+                                "add_smalltext|Set minimum world entry level.|\n"
+                                "add_button|sessionlength_dialog|`wSet World Timer``|noflags|0|0|\n"
+                                "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
+                                "add_button|getKey|Get World Key|noflags|0|0|\n"
+                                "end_dialog|lock_edit|Cancel|OK|\n",
+                                item_fg.raw_name, block.fg
+                            ).c_str()
+                        });
+                    }
+                    break;
+                }
                 case std::byte{ type::DOOR }:
                         gt_packet(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
-                        "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
-                        "add_text_input|door_name|Label|{}|100|\n"
-                        "add_popup_name|DoorEdit|\n"
-                        "add_text_input|door_target|Destination||24|\n"
-                        "add_smalltext|Enter a Destination in this format: `2WORLDNAME:ID``|left|\n"
-                        "add_smalltext|Leave `2WORLDNAME`` blank (:ID) to go to the door with `2ID`` in the `2Current World``.|left|\n"
-                        "add_text_input|door_id|ID||11|\n"
-                        "add_smalltext|Set a unique `2ID`` to target this door as a Destination from another!|left|\n"
-                        "add_checkbox|checkbox_locked|Is open to public|1\n"
-                        "embed_data|tilex|{}\n"
-                        "embed_data|tiley|{}\n"
-                        "end_dialog|door_edit|Cancel|OK|", item_fg.raw_name, block.fg, block.label, state.punch[0], state.punch[1]).c_str()
+                            "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
+                            "add_text_input|door_name|Label|{}|100|\n"
+                            "add_popup_name|DoorEdit|\n"
+                            "add_text_input|door_target|Destination||24|\n"
+                            "add_smalltext|Enter a Destination in this format: `2WORLDNAME:ID``|left|\n"
+                            "add_smalltext|Leave `2WORLDNAME`` blank (:ID) to go to the door with `2ID`` in the `2Current World``.|left|\n"
+                            "add_text_input|door_id|ID||11|\n"
+                            "add_smalltext|Set a unique `2ID`` to target this door as a Destination from another!|left|\n"
+                            "add_checkbox|checkbox_locked|Is open to public|1\n"
+                            "embed_data|tilex|{}\n"
+                            "embed_data|tiley|{}\n"
+                            "end_dialog|door_edit|Cancel|OK|", 
+                            item_fg.raw_name, block.fg, block.label, state.punch[0], state.punch[1]
+                        ).c_str()
                     });
                     break;
                 case std::byte{ type::SIGN }:
                         gt_packet(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
-                        "add_popup_name|SignEdit|\n"
-                        "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
-                        "add_textbox|What would you like to write on this sign?``|left|\n"
-                        "add_text_input|sign_text||{}|128|\n"
-                        "embed_data|tilex|{}\n"
-                        "embed_data|tiley|{}\n"
-                        "end_dialog|sign_edit|Cancel|OK|", item_fg.raw_name, block.fg, block.label, state.punch[0], state.punch[1]).c_str()
+                            "add_popup_name|SignEdit|\n"
+                            "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
+                            "add_textbox|What would you like to write on this sign?``|left|\n"
+                            "add_text_input|sign_text||{}|128|\n"
+                            "embed_data|tilex|{}\n"
+                            "embed_data|tiley|{}\n"
+                            "end_dialog|sign_edit|Cancel|OK|", 
+                            item_fg.raw_name, block.fg, block.label, state.punch[0], state.punch[1]
+                        ).c_str()
                     });
                     break;
                 case std::byte{ type::ENTRANCE }:
                     gt_packet(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
-                        "set_default_color|`o"
-                        "add_label_with_icon|big|`wEdit {}``|left|{}|"
-                        "add_checkbox|checkbox_public|Is open to public|1"
-                        "embed_data|tilex|{}"
-                        "embed_data|tiley|{}"
-                        "end_dialog|gateway_edit|Cancel|OK|", item_fg.raw_name, block.fg, state.punch[0], state.punch[1]).c_str()
+                            "set_default_color|`o"
+                            "add_label_with_icon|big|`wEdit {}``|left|{}|"
+                            "add_checkbox|checkbox_public|Is open to public|1"
+                            "embed_data|tilex|{}"
+                            "embed_data|tiley|{}"
+                            "end_dialog|gateway_edit|Cancel|OK|", 
+                            item_fg.raw_name, block.fg, state.punch[0], state.punch[1]
+                        ).c_str()
                     });
                     break;
             }

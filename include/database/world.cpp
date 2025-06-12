@@ -88,7 +88,6 @@ void send_data(ENetPeer& peer, const std::vector<std::byte>& data)
 
 void state_visuals(ENetEvent& event, state s) 
 {
-    s.netid = _peer[event.peer]->netid;
     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
         send_data(p, compress_state(s));
@@ -100,6 +99,7 @@ void block_punched(ENetEvent& event, state s, block &block)
     (block.fg == 0) ? ++block.hits[1] : ++block.hits[0];
     s.type = 0x8; // @note PACKET_TILE_APPLY_DAMAGE
     s.id = 6; // @note idk exactly
+    s.netid = _peer[event.peer]->netid;
 	state_visuals(event, s);
 }
 

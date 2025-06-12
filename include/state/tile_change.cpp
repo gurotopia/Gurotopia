@@ -139,7 +139,6 @@ void tile_change(ENetEvent event, state state)
         }
         else // @note placing a block
         {
-            state_visuals(event, std::move(state)); // finished.
             switch (item_id.type)
             {
                 case std::byte{ type::LOCK }:
@@ -148,14 +147,10 @@ void tile_change(ENetEvent event, state state)
                     {
                         world.owner = peer->user_id;
                         if (peer->role == role::player) peer->prefix = "2";
-                        std::vector<std::byte> compress = compress_state({
-                            .type = 0x0f, // @note PACKET_SEND_LOCK
-                            .netid = world.owner,
-                            .peer_state = 0x08,
-                            .id = item_id.id, 
-                            .punch = state.punch
-                        });
-                        send_data(*event.peer, compress);
+                        state.type = 0x0f;
+                        state.netid = world.owner;
+                        state.peer_state = 0x08;
+                        state.id = item_id.id;
                         if (std::ranges::find(peer->my_worlds, world.name) == peer->my_worlds.end()) 
                         {
                             std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
@@ -188,6 +183,7 @@ void tile_change(ENetEvent event, state state)
                 }
                 case std::byte{ type::WEATHER_MACHINE }:
                 {
+                    block.toggled = true;
                     peers(event, PEER_SAME_WORLD, [&block](ENetPeer& p)
                     {
                         gt_packet(p, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
@@ -216,6 +212,8 @@ void tile_change(ENetEvent event, state state)
                 -1 // @note remove that item the peer just placed.
             });
         }
+        if (state.netid != world.owner) state.netid = peer->netid;
+        state_visuals(event, std::move(state)); // finished.
     }
     catch (const std::exception& exc)
     {

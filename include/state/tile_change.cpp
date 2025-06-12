@@ -4,6 +4,7 @@
 #include "database/world.hpp"
 #include "network/packet.hpp"
 #include "on/NameChanged.hpp"
+#include "commands/weather.hpp"
 #include "equip.hpp"
 #include "tile_change.hpp"
 
@@ -42,6 +43,20 @@ void tile_change(ENetEvent event, state state)
                 block.hits[0] = 999;
                 im.emplace_back(block.fg - 1, randomizer(1, 8));
                 if (!randomizer(0, 5)) im.emplace_back(block.fg, 1);
+            }
+            if (item_fg.type == std::byte{ type::WEATHER_MACHINE })
+            {
+                int remember_weather{0};
+                if (!block.toggled) 
+                {
+                    block.toggled = true;
+                    remember_weather = get_weather_id(block.fg);
+                }
+                else block.toggled = false;
+                peers(event, PEER_SAME_WORLD, [&remember_weather](ENetPeer& p)
+                {
+                    gt_packet(p, false, 0, { "OnSetCurrentWeather", remember_weather });
+                });
             }
             block_punched(event, state, block);
             
@@ -169,6 +184,14 @@ void tile_change(ENetEvent event, state state)
                 case std::byte{ type::PROVIDER }:
                 {
                     block.tick = std::chrono::steady_clock::now();
+                    break;
+                }
+                case std::byte{ type::WEATHER_MACHINE }:
+                {
+                    peers(event, PEER_SAME_WORLD, [&block](ENetPeer& p)
+                    {
+                        gt_packet(p, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
+                    });
                     break;
                 }
             }

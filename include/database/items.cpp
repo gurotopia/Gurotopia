@@ -44,6 +44,11 @@ void cache_items()
             im.raw_name[i] = std::to_integer<char>(im_data[pos] ^ std::byte(token[(i + im.id) % token.length()])), 
             ++pos;
 
+        if ((im.raw_name.contains("Weather Machine") || im.raw_name.contains(" Blast")) && im.type != std::byte{ type::SEED })
+        {
+            printf("%s, id: %d\n", im.raw_name.c_str(), im.id);
+        }
+
         len = *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short) + len;
 

@@ -6,8 +6,9 @@
     {
     public:
         short fg{0}, bg{0};
-        std::chrono::steady_clock::time_point tick; // @note record a point in time for the tile e.g. tree growth, providers, ect.
-        std::string label{""}; // @note sign/door label
+        bool toggled{}; // @note saves a tile's toggle state
+        std::chrono::steady_clock::time_point tick{}; // @note record a point in time for the tile e.g. tree growth, providers, ect.
+        std::string label{}; // @note sign/door label
         std::array<int, 2zu> hits{0, 0}; // @note fg, bg
     };
     #define cord(x,y) (y * 100 + x)

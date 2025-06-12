@@ -5,6 +5,7 @@
 #include "network/packet.hpp"
 #include "on/EmoticonDataChanged.hpp"
 #include "tools/randomizer.hpp"
+#include "commands/weather.hpp"
 #include "join_request.hpp"
 
 #include "tools/string_view.hpp"
@@ -145,6 +146,12 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
 
                         data[pos] = std::byte{ 0x9 }; pos += sizeof(std::byte);
                         *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
+                        break;
+                    }
+                    case std::byte{ type::WEATHER_MACHINE }:
+                    {
+                        data.resize(data.size() + 16zu); // @todo add toggle visuals
+                        gt_packet(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
                         break;
                     }
                     default:

@@ -119,7 +119,7 @@ void tile_change(ENetEvent event, state state)
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item_fg.raw_name, block.fg
+                                item_fg.raw_name, block.fg, state.punch[0], state.punch[1]
                             ).c_str()
                         });
                     }

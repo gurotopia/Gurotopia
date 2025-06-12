@@ -172,7 +172,6 @@
         unsigned short id{}; /* item identity */
         std::byte cat{};
         std::byte type{};
-        std::byte mt{};
         std::string raw_name{}; /* the exact name of the item including uppercases */
         std::byte collision{};
         short hits{}; // @todo make it unsigned.
@@ -181,6 +180,7 @@
         short rarity{};
         std::string audio_directory{}; // @note ../../audio.mp3
         int audioHash{};
+        int tick{}; // @note tile tick time e.g. trees, providers, ect.. (measured in seconds)
         short mod{};
         short mod1{};
 

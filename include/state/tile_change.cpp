@@ -11,6 +11,8 @@
 
 #include <cmath>
 
+using namespace std::chrono; // @note keep an eye out for re-defines! (I normally avoid using namespaces, but std::chrono is annoying to type T-T)
+
 void tile_change(ENetEvent event, state state) 
 {
     try
@@ -34,6 +36,10 @@ void tile_change(ENetEvent event, state state)
             if (item_fg.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
             if (item_fg.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
 
+            if (item_fg.type == std::byte{ type::SEED } && (steady_clock::now() - block.tick) / 1s >= item_fg.tick)
+            {
+                block.hits[0] = 999;
+            }
             block_punched(event, state, block);
             
             short id{};
@@ -42,20 +48,26 @@ void tile_change(ENetEvent event, state state)
             else return;
 
             block.hits = {0, 0};
-            std::array<short, 2zu> im{}; // @todo handle cases were a gem and seed/block may drop together.
+            std::vector<std::pair<short, short>> im{};
 
-            if (not randomizer(0, 7)) im = {112, 1}; // @todo get real growtopia gem drop amount.
-            if (not randomizer(0, 13)) im = {id, 1};
-            if (not randomizer(0, 9)) im = {++id, 1};
-            /* something will drop... */
-            if (not im.empty())
+            if (!randomizer(0, 7)) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
+            if (item_fg.type == std::byte{ type::SEED })
             {
-                drop_visuals(event, im,
+                im.emplace_back(id - 1, randomizer(1, 8));
+                if (!randomizer(0, 5)) im.emplace_back(id, 1);
+            }
+            else 
+            {
+                if (!randomizer(0, 13)) im.emplace_back(id, 1);
+                if (!randomizer(0, 9)) im.emplace_back(id + 1, 1);
+            }
+            /* something will drop... */
+            for (auto & i : im)
+                drop_visuals(event, {i.first, i.second},
                     {
                         static_cast<float>(state.punch[0]) + randomizer(0.05f, 0.1f), 
                         static_cast<float>(state.punch[1]) + randomizer(0.05f, 0.1f)
                     });
-            }
             peer->add_xp(std::trunc(1.0f + items[id].rarity / 5.0f));
         } // @note delete im, id
         else if (item_id.cloth_type != clothing::none) 

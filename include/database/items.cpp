@@ -56,6 +56,7 @@ void cache_items()
             if (im.hits != 0) im.hits /= 6; // @note unknown reason behind why break hit is muliplied by 6 then having to divide by 6
         } // @note delete raw_hits
         shift_pos(im_data, pos, im.hit_reset);
+
         if (im.type == std::byte {type::CLOTHING}) 
         {
             std::byte cloth_type{};
@@ -65,10 +66,12 @@ void cache_items()
         else pos += 1; // @note assign nothing
         if (im.type == std::byte{type::AURA}) im.cloth_type = clothing::ances;
         shift_pos(im_data, pos, im.rarity);
+
         pos += 1;
 
         len = *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short);
+        im.audio_directory.resize(len);
         for (short i = 0; i < len; ++i) 
             im.audio_directory += std::to_integer<char>(im_data[pos]), 
             ++pos;
@@ -91,7 +94,9 @@ void cache_items()
         len = *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short) + len;
 
-        pos += 20;
+        pos += 16;
+
+        shift_pos(im_data, pos, im.tick);
 
         shift_pos(im_data, pos, im.mod);
         shift_pos(im_data, pos, im.mod1);

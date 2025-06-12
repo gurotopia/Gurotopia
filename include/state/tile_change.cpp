@@ -36,9 +36,12 @@ void tile_change(ENetEvent event, state state)
             if (item_fg.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
             if (item_fg.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
 
+            std::vector<std::pair<short, short>> im{};
             if (item_fg.type == std::byte{ type::SEED } && (steady_clock::now() - block.tick) / 1s >= item_fg.tick)
             {
                 block.hits[0] = 999;
+                im.emplace_back(block.fg - 1, randomizer(1, 8));
+                if (!randomizer(0, 5)) im.emplace_back(block.fg, 1);
             }
             block_punched(event, state, block);
             
@@ -46,17 +49,10 @@ void tile_change(ENetEvent event, state state)
             if (block.fg != 0 && block.hits[0] >= item_fg.hits) id = block.fg, block.fg = 0;
             else if (block.bg != 0 && block.hits[1] >= items[block.bg].hits) id = block.bg, block.bg = 0;
             else return;
-
             block.hits = {0, 0};
-            std::vector<std::pair<short, short>> im{};
 
             if (!randomizer(0, 7)) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
-            if (item_fg.type == std::byte{ type::SEED })
-            {
-                im.emplace_back(id - 1, randomizer(1, 8));
-                if (!randomizer(0, 5)) im.emplace_back(id, 1);
-            }
-            else 
+            if (item_fg.type != std::byte{ type::SEED })
             {
                 if (!randomizer(0, 13)) im.emplace_back(id, 1);
                 if (!randomizer(0, 9)) im.emplace_back(id + 1, 1);
@@ -128,6 +124,7 @@ void tile_change(ENetEvent event, state state)
         }
         else // @note placing a block
         {
+            state_visuals(event, std::move(state)); // finished.
             switch (item_id.type)
             {
                 case std::byte{ type::LOCK }:
@@ -136,6 +133,14 @@ void tile_change(ENetEvent event, state state)
                     {
                         world.owner = peer->user_id;
                         if (peer->role == role::player) peer->prefix = "2";
+                        std::vector<std::byte> compress = compress_state({
+                            .type = 0x0f, // @note PACKET_SEND_LOCK
+                            .netid = world.owner,
+                            .peer_state = 0x08,
+                            .id = item_id.id, 
+                            .punch = state.punch
+                        });
+                        send_data(*event.peer, compress);
                         if (std::ranges::find(peer->my_worlds, world.name) == peer->my_worlds.end()) 
                         {
                             std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
@@ -161,6 +166,7 @@ void tile_change(ENetEvent event, state state)
                     break;
                 }
                 case std::byte{ type::SEED }:
+                case std::byte{ type::PROVIDER }:
                 {
                     block.tick = std::chrono::steady_clock::now();
                     break;
@@ -187,7 +193,6 @@ void tile_change(ENetEvent event, state state)
                 -1 // @note remove that item the peer just placed.
             });
         }
-        state_visuals(event, std::move(state)); // finished.
     }
     catch (const std::exception& exc)
     {

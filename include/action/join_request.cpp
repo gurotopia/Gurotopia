@@ -137,6 +137,15 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                         data[pos] = std::byte{ 04 }; pos += sizeof(std::byte);
                         *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
                         data[pos] = std::byte{ 03 }; pos += sizeof(std::byte); // @note no clue...
+                        break;
+                    }
+                    case std::byte{ type::PROVIDER }:
+                    {
+                        data.resize(data.size() + 5zu);
+
+                        data[pos] = std::byte{ 0x9 }; pos += sizeof(std::byte);
+                        *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
+                        break;
                     }
                     default:
                         data.resize(data.size() + 16zu); // @todo

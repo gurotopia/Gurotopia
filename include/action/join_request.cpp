@@ -10,7 +10,8 @@
 
 #include "tools/string_view.hpp"
 
-using namespace std::chrono; // @note keep an eye out for re-defines! (I normally avoid using namespaces, but std::chrono is annoying to type T-T)
+using namespace std::chrono::_V2;
+using namespace std::literals::chrono_literals; // @note for 'ms', 's', ect.
 
 constexpr std::array<std::byte, 4zu> EXIT{
     std::byte{ 0x45 }, // @note 'E'

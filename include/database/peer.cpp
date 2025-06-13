@@ -5,6 +5,8 @@
 
 #include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
 
+using namespace std::chrono::_V2;
+
 short peer::emplace(slot s) 
 {
     if (auto it = std::ranges::find_if(this->slots, [&s](const slot &found) { return found.id == s.id; }); it != this->slots.end()) 
@@ -75,9 +77,9 @@ std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 bool create_rt(ENetEvent& event, std::size_t pos, int64_t length) 
 {
     auto &rt = _peer[event.peer]->rate_limit[pos];
-    auto now = std::chrono::steady_clock::now();
+    auto now = steady_clock::now();
 
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - rt).count() <= length)
+    if (duration_cast<std::chrono::milliseconds>(now - rt).count() <= length)
         return false;
 
     rt = now;

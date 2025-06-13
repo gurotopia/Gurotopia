@@ -12,7 +12,8 @@
 
 #include <cmath>
 
-using namespace std::chrono; // @note keep an eye out for re-defines! (I normally avoid using namespaces, but std::chrono is annoying to type T-T)
+using namespace std::chrono::_V2;
+using namespace std::literals::chrono_literals; // @note for 'ms', 's', ect.
 
 void tile_change(ENetEvent event, state state) 
 {
@@ -218,7 +219,7 @@ void tile_change(ENetEvent event, state state)
                 case std::byte{ type::SEED }:
                 case std::byte{ type::PROVIDER }:
                 {
-                    block.tick = std::chrono::steady_clock::now();
+                    block.tick = steady_clock::now();
                     break;
                 }
                 case std::byte{ type::WEATHER_MACHINE }:

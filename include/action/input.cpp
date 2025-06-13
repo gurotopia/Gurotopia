@@ -7,6 +7,8 @@
 
 #include "tools/string_view.hpp"
 
+using namespace std::chrono::_V2;
+
 void input(ENetEvent event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
@@ -17,9 +19,9 @@ void input(ENetEvent event, const std::string& header)
     text.erase(text.begin(), std::find_if_not(text.begin(), text.end(), ::isspace));
     text.erase(std::find_if_not(text.rbegin(), text.rend(), ::isspace).base(), text.end());
     
-    peer->messages.push_back(std::chrono::steady_clock::now());
+    peer->messages.push_back(steady_clock::now());
     if (peer->messages.size() > 5) peer->messages.pop_front();
-    if (peer->messages.size() == 5 && std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - peer->messages.front()).count() < 6)
+    if (peer->messages.size() == 5 && duration_cast<std::chrono::seconds>(steady_clock::now() - peer->messages.front()).count() < 6)
         gt_packet(*event.peer, false, 0, {
             "OnConsoleMessage", 
             "`6>>`4Spam detected! ``Please wait a bit before typing anything else.  "  

@@ -7,7 +7,11 @@
 
 #include "tools/string_view.hpp"
 
-using namespace std::chrono::_V2;
+#if defined(_WIN32) && defined(_MSC_VER)
+    using namespace std::chrono;
+#else
+    using namespace std::chrono::_V2;
+#endif
 
 void input(ENetEvent event, const std::string& header)
 {

@@ -6,7 +6,11 @@
 
 #include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
 
-using namespace std::chrono::_V2;
+#if defined(_WIN32) && defined(_MSC_VER)
+    using namespace std::chrono;
+#else
+    using namespace std::chrono::_V2;
+#endif
 
 world::world(const std::string& name)
 {

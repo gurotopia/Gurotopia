@@ -21,15 +21,16 @@ int get_weather_id(unsigned item_id)
 
         case 1532: return 14; // @note undersea (blast)
         case 1750: return 15; // @note warp speed
-        case 2046: return 16; // @note comet
 
-        case 2284: return 17; // @note party
-        case 2744: return 18; // @note pineapples
-        case 3252: return 19; // @note snowy night
-        case 3446: return 20; // @note spring
-        case 3534: return 21; // @note howling sky
+        case 2046: return 17; // @note comet
+        case 2284: return 18; // @note party
+        case 2744: return 19; // @note pineapples
+        case 3252: return 20; // @note snowy night
+        case 3446: return 21; // @note spring
+        case 3534: return 22; // @note howling sky
 
-        case 3694: return 23; // @note heatwave (23-28)
+        case 3694: return 23; // @note heatwave (24-28)
+        
         case 3832: return 29; // @note stuff
         case 4242: return 30; // @note pagoda
         case 4486: return 31; // @note apocalypse

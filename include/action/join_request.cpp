@@ -10,7 +10,11 @@
 
 #include "tools/string_view.hpp"
 
-using namespace std::chrono::_V2;
+#if defined(_WIN32) && defined(_MSC_VER)
+    using namespace std::chrono;
+#else
+    using namespace std::chrono::_V2;
+#endif
 using namespace std::literals::chrono_literals; // @note for 'ms', 's', ect.
 
 constexpr std::array<std::byte, 4zu> EXIT{
@@ -151,7 +155,6 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     }
                     case std::byte{ type::WEATHER_MACHINE }:
                     {
-                        data.resize(data.size() + 16zu); // @todo add toggle visuals
                         if (block.toggled)
                             gt_packet(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
                         break;

@@ -12,7 +12,11 @@
 
 #include <cmath>
 
-using namespace std::chrono::_V2;
+#if defined(_WIN32) && defined(_MSC_VER)
+    using namespace std::chrono;
+#else
+    using namespace std::chrono::_V2;
+#endif
 using namespace std::literals::chrono_literals; // @note for 'ms', 's', ect.
 
 void tile_change(ENetEvent event, state state) 
@@ -224,6 +228,7 @@ void tile_change(ENetEvent event, state state)
                 }
                 case std::byte{ type::WEATHER_MACHINE }:
                 {
+                    printf("pass");
                     block.toggled = true;
                     peers(event, PEER_SAME_WORLD, [&block](ENetPeer& p)
                     {

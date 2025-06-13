@@ -70,6 +70,8 @@ void tile_change(ENetEvent event, state state)
             else if (block.bg != 0 && block.hits[1] >= items[block.bg].hits) id = block.bg, block.bg = 0;
             else return;
             block.hits = {0, 0};
+            block.label = ""; // @todo
+            block.toggled = false; // @todo
 
             if (!randomizer(0, 7)) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
             if (item_fg.type != std::byte{ type::SEED })
@@ -228,7 +230,6 @@ void tile_change(ENetEvent event, state state)
                 }
                 case std::byte{ type::WEATHER_MACHINE }:
                 {
-                    printf("pass");
                     block.toggled = true;
                     peers(event, PEER_SAME_WORLD, [&block](ENetPeer& p)
                     {

@@ -5,16 +5,16 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    name: "${{ matrix.os }}"
+    name: "${{ matrix.msvc_version }}"
     strategy:
       matrix:
-        msbuild_version: ['15.0', '16.0', '17.0', '17.14']
+        msvc_version: ['15.0', '16.0', '17.0']
     steps:
       - uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2 # updated on Jan 16
       
       - uses: microsoft/setup-msbuild@6fb02220983dee41ce7ae257b6f4d8f9bf5ed4ce # v2
         with:
-          vs-version: ${{ matrix.msbuild_version }}
+          vs-version: ${{ matrix.msvc_version }}
 
       - run: msbuild msvc.sln /p:Configuration=Debug /p:Platform=x64 /m
         shell: cmd

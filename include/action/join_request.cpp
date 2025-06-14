@@ -1,7 +1,4 @@
 #include "pch.hpp"
-#include "database/items.hpp"
-#include "database/peer.hpp"
-#include "database/world.hpp"
 #include "network/packet.hpp"
 #include "on/EmoticonDataChanged.hpp"
 #include "tools/randomizer.hpp"
@@ -190,8 +187,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix = "c";
 
         char& role = peer->role;
-        if (role == role::moderator) peer->prefix = "8@";
-        else if (role == role::developer) peer->prefix = "6@";
+        if (role == role::MODERATOR) peer->prefix = "8@";
+        else if (role == role::DEVELOPER) peer->prefix = "6@";
         EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
         peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
@@ -202,7 +199,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     "OnSpawn", 
                     std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n",
                         _peer[&p]->netid, _peer[&p]->user_id, static_cast<int>(_peer[&p]->pos.front()), static_cast<int>(_peer[&p]->pos.back()), 
-                        peer->prefix, _peer[&p]->ltoken[0], (role >= role::moderator) ? "1" : "0", (role >= developer) ? "1" : "0"
+                        peer->prefix, _peer[&p]->ltoken[0], (role >= role::MODERATOR) ? "1" : "0", (role >= role::DEVELOPER) ? "1" : "0"
                     ).c_str()
                 });
                 std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors) };
@@ -222,7 +219,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             "OnSpawn", 
             std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\ntype|local\n",
                 peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), 
-                peer->prefix, peer->ltoken[0], (role >= role::moderator) ? "1" : "0", (role >= developer) ? "1" : "0"
+                peer->prefix, peer->ltoken[0], (role >= role::MODERATOR) ? "1" : "0", (role >= role::DEVELOPER) ? "1" : "0"
             ).c_str()
         });
         gt_packet(*event.peer, false, 0, {

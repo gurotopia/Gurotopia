@@ -1,7 +1,4 @@
 #include "pch.hpp"
-#include "database/items.hpp"
-#include "database/peer.hpp"
-#include "database/world.hpp"
 #include "network/packet.hpp"
 #include "on/NameChanged.hpp"
 #include "commands/weather.hpp"
@@ -28,7 +25,7 @@ void tile_change(ENetEvent event, state state)
         world &world = worlds[peer->recent_worlds.back()];
 
         /* locked worlds are only accessable by owner, admin, moderator (and above) */
-        if (world.owner != 00 && peer->role == role::player)
+        if (world.owner != 00 && peer->role == role::PLAYER)
             if (peer->user_id != world.owner &&
                 !std::ranges::contains(world.admin, peer->user_id)) return;
 
@@ -193,7 +190,7 @@ void tile_change(ENetEvent event, state state)
                     if (world.owner == 00)
                     {
                         world.owner = peer->user_id;
-                        if (peer->role == role::player) peer->prefix = "2";
+                        if (peer->role == role::PLAYER) peer->prefix = "2";
                         state.type = 0x0f;
                         state.netid = world.owner;
                         state.peer_state = 0x08;

@@ -1,6 +1,4 @@
 #include "pch.hpp"
-#include "database/peer.hpp"
-#include "database/world.hpp"
 #include "network/packet.hpp"
 #include "RequestWorldSelectMenu.hpp"
 

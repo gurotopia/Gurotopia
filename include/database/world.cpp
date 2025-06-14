@@ -4,8 +4,6 @@
 #include "network/packet.hpp"
 #include "world.hpp"
 
-#include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
-
 #if defined(_WIN32) && defined(_MSC_VER)
     using namespace std::chrono;
 #else

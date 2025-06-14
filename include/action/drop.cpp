@@ -1,6 +1,4 @@
 #include "pch.hpp"
-#include "database/items.hpp"
-#include "database/peer.hpp"
 #include "network/packet.hpp"
 #include "drop.hpp"
 

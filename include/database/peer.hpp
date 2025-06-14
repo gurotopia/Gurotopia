@@ -20,13 +20,13 @@
     };
 
     enum role : char {
-        player, moderator, developer
+        PLAYER, 
+        MODERATOR, 
+        DEVELOPER
     };
-
-    #include <chrono>
+    
     #include <deque>
     #include <array>
-    #include <vector>
     #if defined(_WIN32) && defined(_MSC_VER)
         #undef max
         #undef min
@@ -42,7 +42,7 @@
         int user_id{}; // @note unqiue user id.
         std::array<const char*, 2zu> ltoken{}; // @note peer's ltoken e.g. {growid, password}
         std::string prefix{ "w" }; // @note display name color, default: "w" (White)
-        char role{role::player};
+        char role{role::PLAYER};
         std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
         signed skin_color{ -1429995521 };
         Billboard billboard{};
@@ -75,7 +75,6 @@
         
         ~peer();
     };
-    #include <unordered_map>
     #include <memory>
 
     extern std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;

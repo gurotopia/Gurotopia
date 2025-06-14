@@ -71,7 +71,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
                 *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
                 pos += sizeof(short); // @todo
-                pos += sizeof(short); // @todo (water = 00 04)
+                pos += sizeof(short); // @todo water = 00 04, glue = 00 08, both = 00 0c, fire = 00 10, paint (red) = 00 20, pattern repeats...
                 switch (items[block.fg].type)
                 {
                     case std::byte{ type::FOREGROUND }: 
@@ -144,7 +144,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     }
                     case std::byte{ type::PROVIDER }:
                     {
-                        data[pos - 2zu] = std::byte{ 0x11 };
+                        data[pos - 2zu] = std::byte{ 0x31 };
                         data.resize(data.size() + 5zu);
 
                         data[pos++] = std::byte{ 0x9 };

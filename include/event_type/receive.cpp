@@ -1,11 +1,11 @@
 #include "pch.hpp"
 #include "action/__action.hpp"
 #include "state/states"
-#include "type_receive.hpp"
+#include "receive.hpp"
 
 #include "tools/string_view.hpp"
 
-void type_receive(ENetEvent event) 
+void receive(ENetEvent event) 
 {
     std::span<enet_uint8> data{event.packet->data, event.packet->dataLength};
     switch (data[0zu]) 

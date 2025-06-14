@@ -30,6 +30,7 @@ void tile_change(ENetEvent event, state state)
         block &block = world.blocks[cord(state.punch[0], state.punch[1])];
         item &item_state = items[state.id];
         item &item = (block.fg != 0) ? items[block.fg] : items[block.bg];
+        if (item.id == 0) return;
 
         if (state.id == 18) // @note punching a block
         {

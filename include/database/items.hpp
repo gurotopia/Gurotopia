@@ -195,9 +195,6 @@
 
     extern std::vector<std::byte> im_data;
 
-    template<typename T>
-    extern void shift_pos(std::vector<std::byte>& data, int& pos, T& value);
-
     extern void cache_items();
 
 #endif

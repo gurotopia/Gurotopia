@@ -1,15 +1,13 @@
 /*
     @copyright gurotopia (c) 25-6-2024
-    @version beta-319
+    @version beta-321
 
     looking for:
     - Indonesian translator
     - reverse engineer
 */
 #include "include/pch.hpp"
-#include "include/database/items.hpp"
 #include "include/network/compress.hpp" // @note isalzman's compressor
-#include "include/database/peer.hpp"
 #include "include/event_type/__event_type.hpp"
 
 #include <filesystem>

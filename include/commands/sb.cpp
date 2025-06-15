@@ -6,16 +6,14 @@ void sb(ENetEvent& event, const std::string_view text)
 {
     std::string message{ text.substr(sizeof("sb ")-1) };
     auto &peer = _peer[event.peer];
-    short total = peers(event).size();
-    
-    if (peer->gems < total * 40) 
-    {
-        gt_packet(*event.peer, false, 0, {
-            "OnConsoleMessage",
-            std::format("you need `${} Gems`` to Super Broadcast!", total * 40).c_str() // @todo get rgt message
-        });
-        return;
-    }
+
+    std::string display = peer->recent_worlds.back();
+    for (auto &b : worlds[peer->recent_worlds.back()].blocks)
+        if (b.fg == 226 && b.toggled) 
+        {
+            display = "`4JAMMED``";
+            break; // @note we don't care if other signals are toggled.
+        }
 
     peers(event, PEER_ALL, [&](ENetPeer& p) 
     {
@@ -23,7 +21,7 @@ void sb(ENetEvent& event, const std::string_view text)
             "OnConsoleMessage",
             std::format(
                 "CP:0_PL:0_OID:_CT:[SB]_ `5** from (`{}{}`````5) in [```${}```5] ** : ```${}``",
-                peer->prefix, peer->ltoken[0], peer->recent_worlds.back(), message
+                peer->prefix, peer->ltoken[0], display, message
             ).c_str()
         });
     });

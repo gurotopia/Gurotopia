@@ -12,7 +12,7 @@
 #else
     using namespace std::chrono::_V2;
 #endif
-using namespace std::literals::chrono_literals; // @note for 'ms', 's', ect.
+using namespace std::literals::chrono_literals;
 
 constexpr std::array<std::byte, 4zu> EXIT{
     std::byte{ 0x45 }, // @note 'E'
@@ -26,11 +26,15 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
     try 
     {
         if (not create_rt(event, 2, 900)) throw std::runtime_error("");
+
         auto &peer = _peer[event.peer];
         std::string big_name{world_name.empty() ? readch(std::string{header}, '|')[3] : world_name};
+
         if (not alpha(big_name) || big_name.empty()) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
+        
         world world(big_name);
+        std::vector<std::string> buffs{};
         if (world.name.empty())
         {
             const unsigned main_door = randomizer(2, 100 * 60 / 100 - 4);
@@ -49,13 +53,12 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 else if (i == cord(main_door, 37)) block.fg = 8; // bedrock (below main door)
             }
             world.blocks = std::move(blocks);
-            world.name = big_name; // init
+            world.name = std::move(big_name);
         }
-        std::vector<std::string> world_buffs{};
         {
             std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12/*initial drop*/, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };
-            data[4zu] = std::byte{ 04 };
+            data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
             data[16zu] = std::byte{ 0x8 };
             unsigned char len = static_cast<unsigned char>(world.name.length());
             data[66zu] = std::byte{ len };
@@ -171,7 +174,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                         if (block.toggled) 
                         {
                             data[pos - 2zu] = std::byte{ 0x40 };
-                            if (block.fg == 226) world_buffs.emplace_back("`4JAMMED");
+                            if (block.fg == 226 && std::ranges::find(buffs, "`4JAMMED") == buffs.end()) 
+                                buffs.emplace_back("`4JAMMED");
                         }
                         break;
                     }
@@ -242,25 +246,27 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         });
         auto section = [](const auto& range) 
         {
-            std::string result;
-            if (!range.empty()) result += "`0[``";
-            for (const auto& buff : range)
-                if (!buff.empty())
-                    result += std::format("{}``,", buff);
-            result.pop_back(); // @note remove the last ','
-            if (!range.empty()) result += "`0]``";
+            if (range.empty()) return std::string{};
+            std::string result{};
+
+            result += "`0[``";
+            for (const auto& buff : range) 
+                result += std::format("{}``,", buff);
+            result.pop_back();
+            result += "`0]``";
+            
             return result;
         };
         gt_packet(*event.peer, false, 0, {
             "OnConsoleMessage", 
             std::format(
                 "World `w{} {}`` entered.  There are `w{}`` other people here, `w{}`` online.", 
-                world.name, section(world_buffs), world.visitors - 1, peers(event).size()
+                world.name, section(buffs), world.visitors - 1, peers(event).size()
             ).c_str()
         });
         inventory_visuals(event);
         peer->ready_exit = true;
-        worlds.emplace(world.name, world);
+        worlds.emplace(world.name, world); // @todo possible race-condition..
     }
     catch (const std::exception& exc)
     {

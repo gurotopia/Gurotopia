@@ -14,13 +14,10 @@ inline/* todo */ std::vector<std::string> readch(const std::string& str, const c
     return separations;
 }
 
-/* @return true if string contains ONLY alpha [a, b, c] or digits [1, 2, 3] */
+/* @return true if string contains ONLY alpha [a, b, c] or num [1, 2, 3] */
 inline/* todo */ bool alpha(const std::string& str) 
 {
-    for (char c : str)
-        if (not std::isalnum(static_cast<unsigned char>(c)))
-            return false;
-    return true;
+    return std::ranges::all_of(str, [](unsigned char c) { return std::isalnum(c); });
 }
 
 constexpr std::array<int, 256zu> createLookupTable() noexcept 

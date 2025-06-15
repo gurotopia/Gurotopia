@@ -30,7 +30,9 @@
         std::string name{};
         int owner{ 00 }; // @note owner of world using peer's user id.
         std::array<int, 6zu> admin{}; // @note admins (by user id). excluding owner. (6 is a experimental amount, if increase update me if any issue occur -leeendl)
+        
         short visitors{0}; // @note the current number of peers in a world, excluding invisable peers
+
         std::vector<block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
         std::size_t ifloat_uid{0zu}; // @note floating item UID
         std::vector<ifloat> ifloats{}; // @note (i)tem floating

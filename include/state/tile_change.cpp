@@ -14,7 +14,7 @@
 #else
     using namespace std::chrono::_V2;
 #endif
-using namespace std::literals::chrono_literals; // @note for 'ms', 's', ect.
+using namespace std::literals::chrono_literals;
 
 void tile_change(ENetEvent event, state state) 
 {
@@ -36,8 +36,6 @@ void tile_change(ENetEvent event, state state)
             if (item.id == 0) return;
             if (item.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
             if (item.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
-
-            printf("dragon gate type: %d", item.type);
 
             std::vector<std::pair<short, short>> im{}; // @note list of dropped items
             switch (item.type)
@@ -80,7 +78,8 @@ void tile_change(ENetEvent event, state state)
                                 "Signal jammer enabled. This world is now `4hidden`` from the universe."
                             });
                         }
-                    } else block.toggled = false;
+                    } 
+                    else block.toggled = false;
                     break;
                 }
             }

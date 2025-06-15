@@ -29,11 +29,11 @@ void tile_change(ENetEvent event, state state)
 
         block &block = world.blocks[cord(state.punch[0], state.punch[1])];
         item &item_state = items[state.id];
-        item &item = (block.fg != 0) ? items[block.fg] : items[block.bg];
-        if (item.id == 0) return;
 
+        item &item = (block.fg != 0) ? items[block.fg] : items[block.bg];
         if (state.id == 18) // @note punching a block
         {
+            if (item.id == 0) return;
             if (item.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
             if (item.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
 
@@ -52,10 +52,12 @@ void tile_change(ENetEvent event, state state)
                     remember_weather = get_weather_id(item.id);
                 }
                 else block.toggled = false;
-                peers(event, PEER_SAME_WORLD, [&remember_weather](ENetPeer& p)
+                peers(event, PEER_SAME_WORLD, [remember_weather](ENetPeer& p)
                 {
                     gt_packet(p, false, 0, { "OnSetCurrentWeather", remember_weather });
                 });
+                for (auto &b : world.blocks)
+                    if (item.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
             }
             block_punched(event, state, block);
             
@@ -224,10 +226,12 @@ void tile_change(ENetEvent event, state state)
                 case std::byte{ type::WEATHER_MACHINE }:
                 {
                     block.toggled = true;
-                    peers(event, PEER_SAME_WORLD, [&block](ENetPeer& p)
+                    peers(event, PEER_SAME_WORLD, [state](ENetPeer& p)
                     {
-                        gt_packet(p, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
+                        gt_packet(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
                     });
+                    for (auto &b : world.blocks)
+                        if (item.type == std::byte{ type::WEATHER_MACHINE } && b.fg != state.id) b.toggled = false;
                     break;
                 }
             }

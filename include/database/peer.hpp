@@ -83,7 +83,7 @@
     * @param pos please resize peer::rate_limit to fit the pos provided, understand the rules! if pos is 5, then size should be 6. 
     * @return false if ratelimited
     */
-    extern bool create_rt(ENetEvent& event, std::size_t pos, int64_t length);
+    extern bool create_rt(ENetEvent& event, std::size_t pos, int length);
 
     extern ENetHost* server;
 

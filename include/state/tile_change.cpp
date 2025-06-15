@@ -70,14 +70,17 @@ void tile_change(ENetEvent event, state state)
                 case std::byte{ type::TOGGLEABLE_BLOCK }:
                 case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
                 {
-                    block.toggled = (!block.toggled) ? true : false;
-                    if (item.id == 226)
+                    if (!block.toggled) 
                     {
-                        gt_packet(*event.peer, false, 0, {
-                            "OnConsoleMessage",
-                            "Signal jammer enabled. This world is now `4hidden`` from the universe."
-                        });
-                    }
+                        block.toggled = true;
+                        if (item.id == 226)
+                        {
+                            gt_packet(*event.peer, false, 0, {
+                                "OnConsoleMessage",
+                                "Signal jammer enabled. This world is now `4hidden`` from the universe."
+                            });
+                        }
+                    } else block.toggled = false;
                     break;
                 }
             }

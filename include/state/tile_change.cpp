@@ -37,27 +37,49 @@ void tile_change(ENetEvent event, state state)
             if (item.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
             if (item.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
 
+            printf("dragon gate type: %d", item.type);
+
             std::vector<std::pair<short, short>> im{}; // @note list of dropped items
-            if (item.type == std::byte{ type::SEED } && (steady_clock::now() - block.tick) / 1s >= item.tick)
+            switch (item.type)
             {
-                block.hits[0] = 999;
-                im.emplace_back(item.id - 1, randomizer(1, 8)); // @note fruit (from tree)
-            }
-            if (item.type == std::byte{ type::WEATHER_MACHINE })
-            {
-                int remember_weather{0};
-                if (!block.toggled) 
+                case std::byte{ type::SEED }:
                 {
-                    block.toggled = true;
-                    remember_weather = get_weather_id(item.id);
+                    if ((steady_clock::now() - block.tick) / 1s >= item.tick)
+                    {
+                        block.hits[0] = 999;
+                        im.emplace_back(item.id - 1, randomizer(1, 8)); // @note fruit (from tree)
+                    }
+                    break;
                 }
-                else block.toggled = false;
-                peers(event, PEER_SAME_WORLD, [remember_weather](ENetPeer& p)
+                case std::byte{ type::WEATHER_MACHINE }:
                 {
-                    gt_packet(p, false, 0, { "OnSetCurrentWeather", remember_weather });
-                });
-                for (auto &b : world.blocks)
-                    if (item.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
+                    int remember_weather{0};
+                    if (!block.toggled) 
+                    {
+                        block.toggled = true;
+                        remember_weather = get_weather_id(item.id);
+                    }
+                    else block.toggled = false;
+                    peers(event, PEER_SAME_WORLD, [remember_weather](ENetPeer& p)
+                    {
+                        gt_packet(p, false, 0, { "OnSetCurrentWeather", remember_weather });
+                    });
+                    for (auto &b : world.blocks)
+                        if (item.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
+                }
+                case std::byte{ type::TOGGLEABLE_BLOCK }:
+                case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
+                {
+                    block.toggled = (!block.toggled) ? true : false;
+                    if (item.id == 226)
+                    {
+                        gt_packet(*event.peer, false, 0, {
+                            "OnConsoleMessage",
+                            "Signal jammer enabled. This world is now `4hidden`` from the universe."
+                        });
+                    }
+                    break;
+                }
             }
             block_punched(event, state, block);
             

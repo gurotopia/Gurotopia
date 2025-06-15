@@ -51,6 +51,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             world.blocks = std::move(blocks);
             world.name = big_name; // init
         }
+        std::vector<std::string> world_buffs{};
         {
             std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12/*initial drop*/, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };
@@ -157,6 +158,23 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                             gt_packet(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
                         break;
                     }
+                    case std::byte{ type::TOGGLEABLE_BLOCK }:
+                    {
+                        if (block.toggled) 
+                        {
+                            data[pos - 2zu] = std::byte{ 0x50 };
+                        }
+                        break;
+                    }
+                    case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
+                    {
+                        if (block.toggled) 
+                        {
+                            data[pos - 2zu] = std::byte{ 0x40 };
+                            if (block.fg == 226) world_buffs.emplace_back("`4JAMMED");
+                        }
+                        break;
+                    }
                     default:
                         data.resize(data.size() + 16zu); // @todo
                         break;
@@ -222,9 +240,23 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 peer->prefix, peer->ltoken[0], (role >= role::MODERATOR) ? "1" : "0", (role >= role::DEVELOPER) ? "1" : "0"
             ).c_str()
         });
+        auto section = [](const auto& range) 
+        {
+            std::string result;
+            if (!range.empty()) result += "`0[``";
+            for (const auto& buff : range)
+                if (!buff.empty())
+                    result += std::format("{}``,", buff);
+            result.pop_back(); // @note remove the last ','
+            if (!range.empty()) result += "`0]``";
+            return result;
+        };
         gt_packet(*event.peer, false, 0, {
             "OnConsoleMessage", 
-            std::format("World `w{}`` entered.  There are `w{}`` other people here, `w{}`` online.", world.name, world.visitors - 1, peers(event).size()).c_str()
+            std::format(
+                "World `w{} {}`` entered.  There are `w{}`` other people here, `w{}`` online.", 
+                world.name, section(world_buffs), world.visitors - 1, peers(event).size()
+            ).c_str()
         });
         inventory_visuals(event);
         peer->ready_exit = true;

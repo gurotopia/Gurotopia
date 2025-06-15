@@ -1,6 +1,4 @@
-#include "database/items.hpp"
-#include "database/peer.hpp"
-#include "database/world.hpp"
+#include "pch.hpp"
 #include "equip.hpp"
 
 void equip(ENetEvent event, state state)

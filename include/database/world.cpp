@@ -4,7 +4,11 @@
 #include "network/packet.hpp"
 #include "world.hpp"
 
-#include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
+#if defined(_WIN32) && defined(_MSC_VER)
+    using namespace std::chrono;
+#else
+    using namespace std::chrono::_V2;
+#endif
 
 world::world(const std::string& name)
 {
@@ -23,8 +27,8 @@ world::world(const std::string& name)
                     jj["f"], jj["b"], 
                     jj.contains("to") && !jj["to"].is_null() ? jj["to"].get<bool>() : false,
                     jj.contains("t") && !jj["t"].is_null() ? 
-                        std::chrono::steady_clock::time_point(std::chrono::seconds(jj["t"].get<int>())) : 
-                        std::chrono::steady_clock::time_point(),
+                        steady_clock::time_point(std::chrono::seconds(jj["t"].get<int>())) : 
+                        steady_clock::time_point(),
                     jj.contains("l") && !jj["l"].is_null() ? jj["l"] : "" 
                 });
             }
@@ -49,7 +53,7 @@ world::~world()
         {
             nlohmann::json list = {{"f", block.fg}, {"b", block.bg}};
             if (block.toggled) list["to"] = block.toggled;
-            auto seconds = std::chrono::duration_cast<std::chrono::seconds>(block.tick.time_since_epoch()).count();
+            auto seconds = duration_cast<std::chrono::seconds>(block.tick.time_since_epoch()).count();
             if (seconds > 0) list["t"] = seconds;
             if (!block.label.empty()) list["l"] = block.label;
             j["bs"].push_back(list);

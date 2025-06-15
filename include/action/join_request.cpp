@@ -1,7 +1,4 @@
 #include "pch.hpp"
-#include "database/items.hpp"
-#include "database/peer.hpp"
-#include "database/world.hpp"
 #include "network/packet.hpp"
 #include "on/EmoticonDataChanged.hpp"
 #include "tools/randomizer.hpp"
@@ -10,7 +7,12 @@
 
 #include "tools/string_view.hpp"
 
-using namespace std::chrono; // @note keep an eye out for re-defines! (I normally avoid using namespaces, but std::chrono is annoying to type T-T)
+#if defined(_WIN32) && defined(_MSC_VER)
+    using namespace std::chrono;
+#else
+    using namespace std::chrono::_V2;
+#endif
+using namespace std::literals::chrono_literals; // @note for 'ms', 's', ect.
 
 constexpr std::array<std::byte, 4zu> EXIT{
     std::byte{ 0x45 }, // @note 'E'
@@ -49,6 +51,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             world.blocks = std::move(blocks);
             world.name = big_name; // init
         }
+        std::vector<std::string> world_buffs{};
         {
             std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12/*initial drop*/, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };
@@ -69,7 +72,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
                 *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
                 pos += sizeof(short); // @todo
-                pos += sizeof(short); // @todo (water = 00 04)
+                pos += sizeof(short); // @todo water = 00 04, glue = 00 08, both = 00 0c, fire = 00 10, paint (red) = 00 20, pattern repeats...
                 switch (items[block.fg].type)
                 {
                     case std::byte{ type::FOREGROUND }: 
@@ -82,8 +85,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                         std::size_t admins = std::ranges::count_if(world.admin, std::identity{});
                         data.resize(data.size() + 14zu + (admins * 4zu));
 
-                        data[pos] = std::byte{ 03 }; pos += sizeof(std::byte);
-                        data[pos] = std::byte{ 00 }; pos += sizeof(std::byte);
+                        data[pos++] = std::byte{ 03 };
+                        data[pos++] = std::byte{ 00 };
                         *reinterpret_cast<int*>(&data[pos]) = world.owner; pos += sizeof(int);
                         *reinterpret_cast<int*>(&data[pos]) = admins + 1; pos += sizeof(int);
                         *reinterpret_cast<int*>(&data[pos]) = -100; pos += sizeof(int);
@@ -95,13 +98,13 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                         data[pos - 2zu] = std::byte{ 01 };
                         peer->pos.front() = (i % x) * 32;
                         peer->pos.back() = (i / x) * 32;
-                        peer->rest_pos = peer->pos; // @note static repsawn position
+                        peer->rest_pos = peer->pos;
                         data.resize(data.size() + 8zu);
 
-                        data[pos] = std::byte{ 01 }; pos += sizeof(std::byte);
+                        data[pos++] = std::byte{ 01 };
                         *reinterpret_cast<short*>(&data[pos]) = 4; pos += sizeof(short); // @note length of "EXIT"
                         *reinterpret_cast<std::array<std::byte, 4zu>*>(&data[pos]) = EXIT; pos += sizeof(std::array<std::byte, 4zu>);
-                        data[pos] = std::byte{ 00 }; pos += sizeof(std::byte); // @note '\0'
+                        data[pos++] = std::byte{ 00 }; // @note '\0'
                         break;
                     }
                     case std::byte{ type::DOOR }:
@@ -110,11 +113,11 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                         std::size_t len = block.label.length();
                         data.resize(data.size() + 4zu + len); // @note 01 {2} {} 0 0
 
-                        data[pos] = std::byte{ 01 }; pos += sizeof(std::byte);
+                        data[pos++] = std::byte{ 01 };
 
                         *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
                         for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
-                        data[pos] = std::byte{ 00 }; pos += sizeof(std::byte); // @note '\0'
+                        data[pos++] = std::byte{ 00 }; // @note '\0'
                         break;
                     }
                     case std::byte{ type::SIGN }:
@@ -123,7 +126,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                         std::size_t len = block.label.length();
                         data.resize(data.size() + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
 
-                        data[pos] = std::byte{ 02 }; pos += sizeof(std::byte);
+                        data[pos++] = std::byte{ 02 };
 
                         *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
                         for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
@@ -135,24 +138,41 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                         data[pos - 2zu] = std::byte{ 0x11 };
                         data.resize(data.size() + 1zu + 5zu);
 
-                        data[pos] = std::byte{ 04 }; pos += sizeof(std::byte);
+                        data[pos++] = std::byte{ 04 };
                         *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
-                        data[pos] = std::byte{ 03 }; pos += sizeof(std::byte); // @note no clue...
+                        data[pos++] = std::byte{ 03 }; // @note no clue...
                         break;
                     }
                     case std::byte{ type::PROVIDER }:
                     {
+                        data[pos - 2zu] = std::byte{ 0x31 };
                         data.resize(data.size() + 5zu);
 
-                        data[pos] = std::byte{ 0x9 }; pos += sizeof(std::byte);
+                        data[pos++] = std::byte{ 0x9 };
                         *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
                         break;
                     }
-                    case std::byte{ type::WEATHER_MACHINE }:
+                    case std::byte{ type::WEATHER_MACHINE }: // @note there are no added bytes (I think)
                     {
-                        data.resize(data.size() + 16zu); // @todo add toggle visuals
                         if (block.toggled)
                             gt_packet(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
+                        break;
+                    }
+                    case std::byte{ type::TOGGLEABLE_BLOCK }:
+                    {
+                        if (block.toggled) 
+                        {
+                            data[pos - 2zu] = std::byte{ 0x50 };
+                        }
+                        break;
+                    }
+                    case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
+                    {
+                        if (block.toggled) 
+                        {
+                            data[pos - 2zu] = std::byte{ 0x40 };
+                            if (block.fg == 226) world_buffs.emplace_back("`4JAMMED");
+                        }
                         break;
                     }
                     default:
@@ -185,8 +205,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix = "c";
 
         char& role = peer->role;
-        if (role == role::moderator) peer->prefix = "8@";
-        else if (role == role::developer) peer->prefix = "6@";
+        if (role == role::MODERATOR) peer->prefix = "8@";
+        else if (role == role::DEVELOPER) peer->prefix = "6@";
         EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
         peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
@@ -197,7 +217,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     "OnSpawn", 
                     std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n",
                         _peer[&p]->netid, _peer[&p]->user_id, static_cast<int>(_peer[&p]->pos.front()), static_cast<int>(_peer[&p]->pos.back()), 
-                        peer->prefix, _peer[&p]->ltoken[0], (role >= role::moderator) ? "1" : "0", (role >= developer) ? "1" : "0"
+                        peer->prefix, _peer[&p]->ltoken[0], (role >= role::MODERATOR) ? "1" : "0", (role >= role::DEVELOPER) ? "1" : "0"
                     ).c_str()
                 });
                 std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors) };
@@ -217,12 +237,26 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             "OnSpawn", 
             std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\ntype|local\n",
                 peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), 
-                peer->prefix, peer->ltoken[0], (role >= role::moderator) ? "1" : "0", (role >= developer) ? "1" : "0"
+                peer->prefix, peer->ltoken[0], (role >= role::MODERATOR) ? "1" : "0", (role >= role::DEVELOPER) ? "1" : "0"
             ).c_str()
         });
+        auto section = [](const auto& range) 
+        {
+            std::string result;
+            if (!range.empty()) result += "`0[``";
+            for (const auto& buff : range)
+                if (!buff.empty())
+                    result += std::format("{}``,", buff);
+            result.pop_back(); // @note remove the last ','
+            if (!range.empty()) result += "`0]``";
+            return result;
+        };
         gt_packet(*event.peer, false, 0, {
             "OnConsoleMessage", 
-            std::format("World `w{}`` entered.  There are `w{}`` other people here, `w{}`` online.", world.name, world.visitors - 1, peers(event).size()).c_str()
+            std::format(
+                "World `w{} {}`` entered.  There are `w{}`` other people here, `w{}`` online.", 
+                world.name, section(world_buffs), world.visitors - 1, peers(event).size()
+            ).c_str()
         });
         inventory_visuals(event);
         peer->ready_exit = true;

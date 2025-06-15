@@ -1,24 +1,23 @@
 /*
     @copyright gurotopia (c) 25-6-2024
-    @author @leeendl | English Comments
-
-    Project has open arms for contribution!
+    @version beta-327
 
     looking for:
     - Indonesian translator
-    - reverse engineer expert
+    - reverse engineer
 */
 #include "include/pch.hpp"
-#include "include/database/items.hpp"
-#include "include/mimalloc/mimalloc.h" // @note https://github.com/microsoft/mimalloc
 #include "include/network/compress.hpp" // @note isalzman's compressor
-#include "include/database/peer.hpp"
 #include "include/event_type/__event_type.hpp"
 
 #include <filesystem>
 
 int main()
 {
+    printf("\e[38;5;248m nlohmann/JSON \e[1;37m%d.%d.%d \e[0m\n", NLOHMANN_JSON_VERSION_MAJOR, NLOHMANN_JSON_VERSION_MINOR, NLOHMANN_JSON_VERSION_PATCH);
+    printf("\e[38;5;248m microsoft/mimalloc \e[1;37mbeta-%d \e[0m\n", MI_MALLOC_VERSION);
+    printf("\e[38;5;248m zpl-c/enet \e[1;37m%d.%d.%d \e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
+
     if (!std::filesystem::exists("worlds")) std::filesystem::create_directory("worlds");
     if (!std::filesystem::exists("players")) std::filesystem::create_directory("players");
     {
@@ -27,8 +26,7 @@ int main()
             .free = &mi_free,
             .no_memory = []() { printf("\e[1;31mENet memory overflow\e[0m\n"); }
         };
-        if (enet_initialize_with_callbacks(ENET_VERSION, &callbacks) == 0)
-            printf("\e[38;5;247mENet initialize success! (v%d.%d.%d)\e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
+        enet_initialize_with_callbacks(ENET_VERSION, &callbacks);
     } // @note delete callbacks
     server = enet_host_create({
         .host = in6addr_any,
@@ -39,7 +37,7 @@ int main()
     server->checksum = enet_crc32;
     enet_host_compress_with_range_coder(server);
     {
-        std::uintmax_t size = std::filesystem::file_size("items.dat");
+        const uintmax_t size = std::filesystem::file_size("items.dat");
 
         im_data.resize(im_data.size() + size); // @note state + items.dat
         im_data[0zu] = std::byte{ 04 }; // @note 04 00 00 00

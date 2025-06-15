@@ -3,7 +3,11 @@
 #include "peer.hpp"
 #include "world.hpp"
 
-#include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
+#if defined(_WIN32) && defined(_MSC_VER)
+    using namespace std::chrono;
+#else
+    using namespace std::chrono::_V2;
+#endif
 
 short peer::emplace(slot s) 
 {
@@ -75,9 +79,9 @@ std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 bool create_rt(ENetEvent& event, std::size_t pos, int64_t length) 
 {
     auto &rt = _peer[event.peer]->rate_limit[pos];
-    auto now = std::chrono::steady_clock::now();
+    auto now = steady_clock::now();
 
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(now - rt).count() <= length)
+    if (duration_cast<std::chrono::milliseconds>(now - rt).count() <= length)
         return false;
 
     rt = now;

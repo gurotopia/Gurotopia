@@ -1,6 +1,4 @@
 #include "pch.hpp"
-#include "database/peer.hpp"
-#include "database/world.hpp"
 #include "punch.hpp"
 
 void punch(ENetEvent& event, const std::string_view text) 

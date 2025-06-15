@@ -1,13 +1,8 @@
 #include "pch.hpp"
-#include "database/peer.hpp"
 #include "network/packet.hpp"
 #include "action/join_request.hpp"
 #include "action/quit_to_exit.hpp"
 #include "warp.hpp"
-
-#if defined(_WIN32) && defined(_MSC_VER)
-    #include <algorithm>
-#endif
 
 void warp(ENetEvent& event, const std::string_view text)
 {

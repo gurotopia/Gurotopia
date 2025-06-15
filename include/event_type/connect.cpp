@@ -1,7 +1,7 @@
-#include "database/peer.hpp"
-#include "type_connect.hpp"
+#include "pch.hpp"
+#include "connect.hpp"
 
-void type_connect(ENetEvent event) 
+void _connect(ENetEvent event) 
 {
     constexpr std::array<enet_uint8, 4zu> connect_data = { 01 };
     enet_peer_send(event.peer, 0, enet_packet_create(connect_data.data(), connect_data.size(), ENET_PACKET_FLAG_RELIABLE));

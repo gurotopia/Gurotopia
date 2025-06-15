@@ -191,14 +191,9 @@
         int mod6{}; // @note version 18 | no clue...
         short mod7{}; // @note version 21 | 2025 transformation items
     };
-    #include <unordered_map>
     extern std::unordered_map<unsigned short, item> items;
 
-    #include <vector>
     extern std::vector<std::byte> im_data;
-
-    template<typename T>
-    extern void shift_pos(std::vector<std::byte>& data, int& pos, T& value);
 
     extern void cache_items();
 

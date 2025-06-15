@@ -1,7 +1,4 @@
 #include "pch.hpp"
-#include "database/items.hpp"
-#include "database/peer.hpp"
-#include "database/world.hpp"
 #include "network/packet.hpp"
 #include "on/NameChanged.hpp"
 #include "commands/weather.hpp"
@@ -12,7 +9,12 @@
 
 #include <cmath>
 
-using namespace std::chrono; // @note keep an eye out for re-defines! (I normally avoid using namespaces, but std::chrono is annoying to type T-T)
+#if defined(_WIN32) && defined(_MSC_VER)
+    using namespace std::chrono;
+#else
+    using namespace std::chrono::_V2;
+#endif
+using namespace std::literals::chrono_literals; // @note for 'ms', 's', ect.
 
 void tile_change(ENetEvent event, state state) 
 {
@@ -22,116 +24,181 @@ void tile_change(ENetEvent event, state state)
         auto &peer = _peer[event.peer];
         world &world = worlds[peer->recent_worlds.back()];
 
-        /* locked worlds are only accessable by owner, admin, moderator (and above) */
-        if (world.owner != 00 && peer->role == role::player)
-            if (peer->user_id != world.owner &&
-                !std::ranges::contains(world.admin, peer->user_id)) return;
+        if ((world.owner != 0 && peer->role == role::PLAYER) && 
+            (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
 
         block &block = world.blocks[cord(state.punch[0], state.punch[1])];
-        item &item_fg = items[block.fg];
-        item &item_id = items[state.id];
+        item &item_state = items[state.id];
 
+        item &item = (block.fg != 0) ? items[block.fg] : items[block.bg];
         if (state.id == 18) // @note punching a block
         {
-            if (block.bg == 0 && block.fg == 0) return;
-            if (item_fg.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
-            if (item_fg.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
+            if (item.id == 0) return;
+            if (item.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
+            if (item.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
 
-            std::vector<std::pair<short, short>> im{};
-            if (item_fg.type == std::byte{ type::SEED } && (steady_clock::now() - block.tick) / 1s >= item_fg.tick)
+            printf("dragon gate type: %d", item.type);
+
+            std::vector<std::pair<short, short>> im{}; // @note list of dropped items
+            switch (item.type)
             {
-                block.hits[0] = 999;
-                im.emplace_back(block.fg - 1, randomizer(1, 8));
-                if (!randomizer(0, 5)) im.emplace_back(block.fg, 1);
-            }
-            if (item_fg.type == std::byte{ type::WEATHER_MACHINE })
-            {
-                int remember_weather{0};
-                if (!block.toggled) 
+                case std::byte{ type::SEED }:
                 {
-                    block.toggled = true;
-                    remember_weather = get_weather_id(block.fg);
+                    if ((steady_clock::now() - block.tick) / 1s >= item.tick)
+                    {
+                        block.hits[0] = 999;
+                        im.emplace_back(item.id - 1, randomizer(1, 8)); // @note fruit (from tree)
+                    }
+                    break;
                 }
-                else block.toggled = false;
-                peers(event, PEER_SAME_WORLD, [&remember_weather](ENetPeer& p)
+                case std::byte{ type::WEATHER_MACHINE }:
                 {
-                    gt_packet(p, false, 0, { "OnSetCurrentWeather", remember_weather });
-                });
+                    int remember_weather{0};
+                    if (!block.toggled) 
+                    {
+                        block.toggled = true;
+                        remember_weather = get_weather_id(item.id);
+                    }
+                    else block.toggled = false;
+                    peers(event, PEER_SAME_WORLD, [remember_weather](ENetPeer& p)
+                    {
+                        gt_packet(p, false, 0, { "OnSetCurrentWeather", remember_weather });
+                    });
+                    for (auto &b : world.blocks)
+                        if (item.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
+                }
+                case std::byte{ type::TOGGLEABLE_BLOCK }:
+                case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
+                {
+                    if (!block.toggled) 
+                    {
+                        block.toggled = true;
+                        if (item.id == 226)
+                        {
+                            gt_packet(*event.peer, false, 0, {
+                                "OnConsoleMessage",
+                                "Signal jammer enabled. This world is now `4hidden`` from the universe."
+                            });
+                        }
+                    } else block.toggled = false;
+                    break;
+                }
             }
             block_punched(event, state, block);
             
-            short id{};
-            if (block.fg != 0 && block.hits[0] >= item_fg.hits) id = block.fg, block.fg = 0;
-            else if (block.bg != 0 && block.hits[1] >= items[block.bg].hits) id = block.bg, block.bg = 0;
+            short remember_id = item.id;
+            if (block.hits[0] >= item.hits) block.fg = 0;
+            else if (block.hits[1] >= item.hits) block.bg = 0;
             else return;
             block.hits = {0, 0};
+            block.label = ""; // @todo
+            block.toggled = false; // @todo
 
             if (!randomizer(0, 7)) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
-            if (item_fg.type != std::byte{ type::SEED })
+            if (item.type != std::byte{ type::SEED })
             {
-                if (!randomizer(0, 13)) im.emplace_back(id, 1);
-                if (!randomizer(0, 9)) im.emplace_back(id + 1, 1);
+                if (!randomizer(0, 13)) im.emplace_back(remember_id, 1);
+                if (!randomizer(0, 9)) im.emplace_back(remember_id + 1, 1);
             }
-            /* something will drop... */
             for (auto & i : im)
                 drop_visuals(event, {i.first, i.second},
                     {
                         static_cast<float>(state.punch[0]) + randomizer(0.05f, 0.1f), 
                         static_cast<float>(state.punch[1]) + randomizer(0.05f, 0.1f)
                     });
-            peer->add_xp(std::trunc(1.0f + items[id].rarity / 5.0f));
+            peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
         } // @note delete im, id
-        else if (item_id.cloth_type != clothing::none) 
+        else if (item_state.cloth_type != clothing::none) 
         {
             equip(event, state); // @note imitate equip
             return; 
         }
-        else if (item_id.type == std::byte{ type::CONSUMEABLE }) return;
+        else if (item_state.type == std::byte{ type::CONSUMEABLE }) return;
         else if (state.id == 32)
         {
-            switch (item_fg.type)
+            switch (item.type)
             {
+                case std::byte{ type::LOCK }:
+                {
+                    if (peer->user_id == world.owner)
+                    {
+                        gt_packet(*event.peer, false, 0, {
+                            "OnDialogRequest",
+                            std::format("set_default_color|`o\n"
+                                "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
+                                "add_popup_name|LockEdit|\n"
+                                "add_label|small|`wAccess list:``|left\n"
+                                "embed_data|tilex|{}\n"
+                                "embed_data|tiley|{}\n"
+                                "add_spacer|small|\n"
+                                "add_label|small|Currently, you're the only one with access.``|left\n"
+                                "add_spacer|small|\n"
+                                "add_player_picker|playerNetID|`wAdd``|\n"
+                                "add_checkbox|checkbox_public|Allow anyone to Build and Break|0\n"
+                                "add_checkbox|checkbox_disable_music|Disable Custom Music Blocks|0\n"
+                                "add_text_input|tempo|Music BPM|100|3|\n"
+                                "add_checkbox|checkbox_disable_music_render|Make Custom Music Blocks invisible|0\n"
+                                "add_smalltext|Your current home world is: JOLEIT|left|\n"
+                                "add_checkbox|checkbox_set_as_home_world|Set as Home World|0|\n"
+                                "add_text_input|minimum_entry_level|World Level: |1|3|\n"
+                                "add_smalltext|Set minimum world entry level.|\n"
+                                "add_button|sessionlength_dialog|`wSet World Timer``|noflags|0|0|\n"
+                                "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
+                                "add_button|getKey|Get World Key|noflags|0|0|\n"
+                                "end_dialog|lock_edit|Cancel|OK|\n",
+                                item.raw_name, item.id, state.punch[0], state.punch[1]
+                            ).c_str()
+                        });
+                    }
+                    break;
+                }
                 case std::byte{ type::DOOR }:
                         gt_packet(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
-                        "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
-                        "add_text_input|door_name|Label|{}|100|\n"
-                        "add_popup_name|DoorEdit|\n"
-                        "add_text_input|door_target|Destination||24|\n"
-                        "add_smalltext|Enter a Destination in this format: `2WORLDNAME:ID``|left|\n"
-                        "add_smalltext|Leave `2WORLDNAME`` blank (:ID) to go to the door with `2ID`` in the `2Current World``.|left|\n"
-                        "add_text_input|door_id|ID||11|\n"
-                        "add_smalltext|Set a unique `2ID`` to target this door as a Destination from another!|left|\n"
-                        "add_checkbox|checkbox_locked|Is open to public|1\n"
-                        "embed_data|tilex|{}\n"
-                        "embed_data|tiley|{}\n"
-                        "end_dialog|door_edit|Cancel|OK|", item_fg.raw_name, block.fg, block.label, state.punch[0], state.punch[1]).c_str()
+                            "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
+                            "add_text_input|door_name|Label|{}|100|\n"
+                            "add_popup_name|DoorEdit|\n"
+                            "add_text_input|door_target|Destination||24|\n"
+                            "add_smalltext|Enter a Destination in this format: `2WORLDNAME:ID``|left|\n"
+                            "add_smalltext|Leave `2WORLDNAME`` blank (:ID) to go to the door with `2ID`` in the `2Current World``.|left|\n"
+                            "add_text_input|door_id|ID||11|\n"
+                            "add_smalltext|Set a unique `2ID`` to target this door as a Destination from another!|left|\n"
+                            "add_checkbox|checkbox_locked|Is open to public|1\n"
+                            "embed_data|tilex|{}\n"
+                            "embed_data|tiley|{}\n"
+                            "end_dialog|door_edit|Cancel|OK|", 
+                            item.raw_name, item.id, block.label, state.punch[0], state.punch[1]
+                        ).c_str()
                     });
                     break;
                 case std::byte{ type::SIGN }:
                         gt_packet(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
-                        "add_popup_name|SignEdit|\n"
-                        "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
-                        "add_textbox|What would you like to write on this sign?``|left|\n"
-                        "add_text_input|sign_text||{}|128|\n"
-                        "embed_data|tilex|{}\n"
-                        "embed_data|tiley|{}\n"
-                        "end_dialog|sign_edit|Cancel|OK|", item_fg.raw_name, block.fg, block.label, state.punch[0], state.punch[1]).c_str()
+                            "add_popup_name|SignEdit|\n"
+                            "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
+                            "add_textbox|What would you like to write on this sign?``|left|\n"
+                            "add_text_input|sign_text||{}|128|\n"
+                            "embed_data|tilex|{}\n"
+                            "embed_data|tiley|{}\n"
+                            "end_dialog|sign_edit|Cancel|OK|", 
+                            item.raw_name, item.id, block.label, state.punch[0], state.punch[1]
+                        ).c_str()
                     });
                     break;
                 case std::byte{ type::ENTRANCE }:
                     gt_packet(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
-                        "set_default_color|`o"
-                        "add_label_with_icon|big|`wEdit {}``|left|{}|"
-                        "add_checkbox|checkbox_public|Is open to public|1"
-                        "embed_data|tilex|{}"
-                        "embed_data|tiley|{}"
-                        "end_dialog|gateway_edit|Cancel|OK|", item_fg.raw_name, block.fg, state.punch[0], state.punch[1]).c_str()
+                            "set_default_color|`o"
+                            "add_label_with_icon|big|`wEdit {}``|left|{}|"
+                            "add_checkbox|checkbox_public|Is open to public|1"
+                            "embed_data|tilex|{}"
+                            "embed_data|tiley|{}"
+                            "end_dialog|gateway_edit|Cancel|OK|", 
+                            item.raw_name, item.id, state.punch[0], state.punch[1]
+                        ).c_str()
                     });
                     break;
             }
@@ -139,18 +206,18 @@ void tile_change(ENetEvent event, state state)
         }
         else // @note placing a block
         {
-            switch (item_id.type)
+            switch (item_state.type)
             {
                 case std::byte{ type::LOCK }:
                 {
                     if (world.owner == 00)
                     {
                         world.owner = peer->user_id;
-                        if (peer->role == role::player) peer->prefix = "2";
+                        if (peer->role == role::PLAYER) peer->prefix = "2";
                         state.type = 0x0f;
                         state.netid = world.owner;
                         state.peer_state = 0x08;
-                        state.id = item_id.id;
+                        state.id = state.id;
                         if (std::ranges::find(peer->my_worlds, world.name) == peer->my_worlds.end()) 
                         {
                             std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
@@ -178,20 +245,22 @@ void tile_change(ENetEvent event, state state)
                 case std::byte{ type::SEED }:
                 case std::byte{ type::PROVIDER }:
                 {
-                    block.tick = std::chrono::steady_clock::now();
+                    block.tick = steady_clock::now();
                     break;
                 }
                 case std::byte{ type::WEATHER_MACHINE }:
                 {
                     block.toggled = true;
-                    peers(event, PEER_SAME_WORLD, [&block](ENetPeer& p)
+                    peers(event, PEER_SAME_WORLD, [state](ENetPeer& p)
                     {
-                        gt_packet(p, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
+                        gt_packet(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
                     });
+                    for (auto &b : world.blocks)
+                        if (item.type == std::byte{ type::WEATHER_MACHINE } && b.fg != state.id) b.toggled = false;
                     break;
                 }
             }
-            if (item_id.collision == collision::full)
+            if (item_state.collision == collision::full)
             {
                 // 이 (left, right)
                 bool x = state.punch.front() == std::lround(state.pos.front() / 32);
@@ -206,11 +275,9 @@ void tile_change(ENetEvent event, state state)
                 if ((peer->facing_left && collision) || 
                     (not peer->facing_left && collision)) return;
             }
-            (item_id.type == std::byte{ type::BACKGROUND }) ? block.bg = state.id : block.fg = state.id;
-            peer->emplace(slot{
-                static_cast<short>(state.id),
-                -1 // @note remove that item the peer just placed.
-            });
+            (item_state.type == std::byte{ type::BACKGROUND }) ? block.bg = state.id : block.fg = state.id;
+            peer->emplace(slot{ static_cast<short>(state.id), -1 });
+            inventory_visuals(event);
         }
         if (state.netid != world.owner) state.netid = peer->netid;
         state_visuals(event, std::move(state)); // finished.

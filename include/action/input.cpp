@@ -13,7 +13,7 @@
 
 void input(ENetEvent event, const std::string& header)
 {
-    auto &peer = _peer[event.peer];
+    auto& peer = _peer[event.peer];
     if (not create_rt(event, 1, 400)) return;
     std::string text{readch(std::string{header}, '|')[4]};
 
@@ -32,7 +32,7 @@ void input(ENetEvent event, const std::string& header)
     else if (text.starts_with('/')) 
     {
         action(*event.peer, "log", std::format("msg| `6{}``", text));
-        std::string_view command = text.substr(1, text.find(' ') - 1);
+        std::string command = text.substr(1, text.find(' ') - 1);
         
         if (auto it = cmd_pool.find(command); it != cmd_pool.end()) 
             it->second(std::ref(event), std::move(text.substr(1)));

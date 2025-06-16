@@ -38,7 +38,7 @@ void receive(ENetEvent event)
                         for (std::size_t i = 0zu; i < size; ++i)
                             raw_state[i] = _1bit[i];
                     }
-                    if ((raw_state[12] & std::byte{ 0x08 }) != std::byte{false} and 
+                    if ((std::to_integer<bool>(raw_state[12] & std::byte{ 0x08 })) && 
                         size < static_cast<std::size_t>(*reinterpret_cast<int*>(&raw_state[52])) + 56) break;
                 } // @note deletes size
                 state = get_state(std::move(raw_state));

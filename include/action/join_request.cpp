@@ -198,7 +198,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 .id = ifloat.id, 
                 .pos = {ifloat.pos[0] * 32, ifloat.pos[1] * 32}
             });
-            send_data(*event.peer, compress);
+            send_data(*event.peer, std::move(compress));
         } // @note delete compress
         if (std::ranges::find(peer->recent_worlds, world.name) == peer->recent_worlds.end()) 
         {

@@ -70,7 +70,7 @@ world::~world()
 
 std::unordered_map<std::string, world> worlds;
 
-void send_data(ENetPeer& peer, const std::vector<std::byte>& data)
+void send_data(ENetPeer& peer, const std::vector<std::byte> data)
 {
     std::size_t size = data.size();
     if (size < 14zu) return;
@@ -90,32 +90,32 @@ void send_data(ENetPeer& peer, const std::vector<std::byte>& data)
     enet_peer_send(&peer, 1, packet);
 }
 
-void state_visuals(ENetEvent& event, state s) 
+void state_visuals(ENetEvent& event, state &&state) 
 {
     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
-        send_data(p, compress_state(s));
+        send_data(p, compress_state(std::move(state)));
     });
 }
 
-void block_punched(ENetEvent& event, state s, block &block)
+void block_punched(ENetEvent& event, state state, block &block)
 {
     (block.fg == 0) ? ++block.hits[1] : ++block.hits[0];
-    s.type = 0x8; // @note PACKET_TILE_APPLY_DAMAGE
-    s.id = 6; // @note idk exactly
-    s.netid = _peer[event.peer]->netid;
-	state_visuals(event, s);
+    state.type = 0x8; // @note PACKET_TILE_APPLY_DAMAGE
+    state.id = 6; // @note idk exactly
+    state.netid = _peer[event.peer]->netid;
+	state_visuals(event, std::move(state));
 }
 
 void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid) 
 {
     std::vector<std::byte> compress{};
-    state s{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
+    state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
     if (im[1] == 0 || im[0] == 0)
     {
-        s.netid = _peer[event.peer]->netid;
-        s.peer_state = -1;
-        s.id = uid;
+        state.netid = _peer[event.peer]->netid;
+        state.peer_state = -1;
+        state.id = uid;
     }
     else
     {
@@ -123,16 +123,16 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
         std::size_t uid = world.ifloat_uid++;
         std::vector<ifloat> &ifloats{world.ifloats};
         ifloat it = ifloats.emplace_back(ifloat{uid, im[0], im[1], pos}); // @note a iterator ahead of time
-        s.netid = -1;
-        s.peer_state = static_cast<int>(it.uid);
-        s.count = static_cast<float>(im[1]);
-        s.id = it.id;
-        s.pos = {it.pos[0] * 32, it.pos[1] * 32};
+        state.netid = -1;
+        state.peer_state = static_cast<int>(it.uid);
+        state.count = static_cast<float>(im[1]);
+        state.id = it.id;
+        state.pos = {it.pos[0] * 32, it.pos[1] * 32};
     }
-    compress = compress_state(s);
+    compress = compress_state(std::move(state));
     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p)  
     {
-        send_data(p, compress);
+        send_data(p, std::move(compress));
     });
 }
 
@@ -194,6 +194,6 @@ void tile_update(ENetEvent &event, state s, block &block, world& w)
 
     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
-        send_data(p, data);
+        send_data(p, std::move(data));
     });
 }

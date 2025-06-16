@@ -68,6 +68,8 @@ void tile_change(ENetEvent event, state state)
                     });
                     for (auto &b : world.blocks)
                         if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
+                    
+                    break;
                 }
                 case std::byte{ type::TOGGLEABLE_BLOCK }:
                 case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
@@ -87,13 +89,13 @@ void tile_change(ENetEvent event, state state)
                     break;
                 }
             }
-            block_punched(event, state, block);
+            block_punched(event, std::move(state), block);
             
             short remember_id = item.id;
             if (block.hits[0] >= item.hits) block.fg = 0;
             else if (block.hits[1] >= item.hits) block.bg = 0;
             else return;
-            block.hits = {0, 0};
+            block.hits = {0, 0}; // @todo
             block.label = ""; // @todo
             block.toggled = false; // @todo
 

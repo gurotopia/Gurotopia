@@ -93,19 +93,28 @@ void tile_change(ENetEvent event, state state)
             block.label = ""; // @todo
             block.toggled = false; // @todo
 
-            if (!randomizer(0, 7)) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
-            if (item.type != std::byte{ type::SEED })
+            if (item.cat == std::byte{ 02 }) // pick up (item goes back in your inventory)
             {
-                if (!randomizer(0, 13)) im.emplace_back(remember_id, 1);
-                if (!randomizer(0, 9)) im.emplace_back(remember_id + 1, 1);
+                peer->emplace(slot{remember_id, 1});
+                inventory_visuals(event);
             }
-            for (auto & i : im)
-                drop_visuals(event, {i.first, i.second},
-                    {
-                        static_cast<float>(state.punch[0]) + randomizer(0.05f, 0.1f), 
-                        static_cast<float>(state.punch[1]) + randomizer(0.05f, 0.1f)
-                    });
-            peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
+            else // normal break (drop gem, seed, block & give XP)
+            {
+                if (!randomizer(0, 7)) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
+                if (item.type != std::byte{ type::SEED })
+                {
+                    if (!randomizer(0, 13)) im.emplace_back(remember_id, 1);
+                    if (!randomizer(0, 9)) im.emplace_back(remember_id + 1, 1);
+                }
+                for (auto & i : im)
+                    drop_visuals(event, {i.first, i.second},
+                        {
+                            static_cast<float>(state.punch[0]) + randomizer(0.05f, 0.1f), 
+                            static_cast<float>(state.punch[1]) + randomizer(0.05f, 0.1f)
+                        });
+                        
+                peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
+            }
         } // @note delete im, id
         else if (item_state.cloth_type != clothing::none) 
         {

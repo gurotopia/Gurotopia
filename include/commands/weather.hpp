@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WEATHER_HPP
 #define WEATHER_HPP
 

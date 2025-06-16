@@ -247,20 +247,18 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         auto section = [](const auto& range) 
         {
             if (range.empty()) return std::string{};
-            std::string result{};
-
-            result += "`0[``";
-            for (const auto& buff : range) 
-                result += std::format("{}``,", buff);
-            result.pop_back();
-            result += "`0]``";
             
-            return result;
+            std::string list{};
+            for (const auto& buff : range) 
+                list.append(std::format("{}``,", buff));
+            list.pop_back();
+
+            return std::format(" `0[``{}`0]``", list);
         };
         gt_packet(*event.peer, false, 0, {
             "OnConsoleMessage", 
             std::format(
-                "World `w{} {}`` entered.  There are `w{}`` other people here, `w{}`` online.", 
+                "World `w{}{}`` entered.  There are `w{}`` other people here, `w{}`` online.", 
                 world.name, section(buffs), world.visitors - 1, peers(event).size()
             ).c_str()
         });

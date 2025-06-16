@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WORLD_HPP
 #define WORLD_HPP
 

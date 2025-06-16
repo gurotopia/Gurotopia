@@ -1,3 +1,4 @@
+#pragma once
 #ifndef ENTER_GAME_HPP
 #define ENTER_GAME_HPP
 

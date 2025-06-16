@@ -1,3 +1,4 @@
+#pragma once
 #ifndef FRIENDS_HPP
 #define FRIENDS_HPP
 

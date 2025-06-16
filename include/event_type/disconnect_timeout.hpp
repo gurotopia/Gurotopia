@@ -1,3 +1,4 @@
+#pragma once
 #ifndef DISCONNECT_TIMEOUT_HPP
 #define DISCONNECT_TIMEOUT_HPP
 

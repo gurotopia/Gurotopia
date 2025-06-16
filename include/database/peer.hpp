@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PEER_HPP
 #define PEER_HPP
 

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef EMOTICONDATACHANGED_HPP
 #define EMOTICONDATACHANGED_HPP
 

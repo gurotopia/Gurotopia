@@ -13,7 +13,7 @@
 
 void input(ENetEvent event, const std::string& header)
 {
-    auto& peer = _peer[event.peer];
+    auto &peer = _peer[event.peer];
     if (not create_rt(event, 1, 400)) return;
     std::string text{readch(std::string{header}, '|')[4]};
 

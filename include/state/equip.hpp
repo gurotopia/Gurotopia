@@ -1,3 +1,4 @@
+#pragma once
 #ifndef EQUIP_HPP
 #define EQUIP_HPP
 

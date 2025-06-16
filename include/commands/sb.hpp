@@ -1,3 +1,4 @@
+#pragma once
 #ifndef SB_HPP
 #define SB_HPP
 

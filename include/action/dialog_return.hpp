@@ -1,3 +1,4 @@
+#pragma once
 #ifndef DIALOG_RETURN_HPP
 #define DIALOG_RETURN_HPP
 

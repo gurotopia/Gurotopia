@@ -1,3 +1,4 @@
+#pragma once
 #ifndef DROP_HPP
 #define DROP_HPP
 

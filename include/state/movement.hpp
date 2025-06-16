@@ -1,3 +1,4 @@
+#pragma once
 #ifndef MOVEMENT_HPP
 #define MOVEMENT_HPP
 

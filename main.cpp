@@ -14,6 +14,7 @@
 
 int main()
 {
+    /* libary version checker */
     printf("\e[38;5;248m nlohmann/JSON \e[1;37m%d.%d.%d \e[0m\n", NLOHMANN_JSON_VERSION_MAJOR, NLOHMANN_JSON_VERSION_MINOR, NLOHMANN_JSON_VERSION_PATCH);
     printf("\e[38;5;248m microsoft/mimalloc \e[1;37mbeta-%d \e[0m\n", MI_MALLOC_VERSION);
     printf("\e[38;5;248m zpl-c/enet \e[1;37m%d.%d.%d \e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
@@ -52,7 +53,7 @@ int main()
 
     ENetEvent event{};
     while (true)
-        while (enet_host_service(server, &event, 50u/*ms*/) > 0)
+        while (enet_host_service(server, &event, 1u/*ms*/) > 0)
             if (const auto i = event_pool.find(event.type); i != event_pool.end())
                 i->second(event);
     return 0;

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef COMPRESS_HPP
 #define COMPRESS_HPP
 

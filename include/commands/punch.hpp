@@ -1,3 +1,4 @@
+#pragma once
 #ifndef CMD_PUNCH_HPP
 #define CMD_PUNCH_HPP
 

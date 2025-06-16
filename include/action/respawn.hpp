@@ -1,3 +1,4 @@
+#pragma once
 #ifndef RESPAWN_HPP
 #define RESPAWN_HPP
 

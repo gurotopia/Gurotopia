@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PICKUP_HPP
 #define PICKUP_HPP
 

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PACKET_HPP
 #define PACKET_HPP
 

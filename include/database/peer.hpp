@@ -111,10 +111,10 @@
         std::array<int, 2zu> punch{}; // @note punching/placing position 2D {x, y}
     };
 
-    extern state get_state(const std::vector<std::byte>& packet);
+    extern state get_state(const std::vector<std::byte> &&packet);
 
     /* put it back into it's original form */
-    extern std::vector<std::byte> compress_state(const state& s);
+    extern std::vector<std::byte> compress_state(const state &&s);
 
     extern void inventory_visuals(ENetEvent &event);
 

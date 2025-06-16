@@ -112,7 +112,7 @@ std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::fun
     return _peers;
 }
 
-state get_state(const std::vector<std::byte>& packet) 
+state get_state(const std::vector<std::byte> &&packet) 
 {
     const int *_4bit = reinterpret_cast<const int*>(packet.data());
     const float *_4bit_f = reinterpret_cast<const float*>(packet.data());
@@ -128,7 +128,7 @@ state get_state(const std::vector<std::byte>& packet)
     };
 }
 
-std::vector<std::byte> compress_state(const state& s) 
+std::vector<std::byte> compress_state(const state &&s) 
 {
     std::vector<std::byte> data(56, std::byte{ 00 });
     int *_4bit = reinterpret_cast<int*>(data.data());

@@ -62,8 +62,11 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             data[16zu] = std::byte{ 0x8 };
             unsigned char len = static_cast<unsigned char>(world.name.length());
             data[66zu] = std::byte{ len };
+
+            const std::byte *_1bit = reinterpret_cast<const std::byte*>(world.name.data());
             for (unsigned char i = 0; i < len; ++i)
-                *reinterpret_cast<char*>(&data[68zu + i]) = world.name[i];
+                data[68zu + i] = _1bit[i];
+
             unsigned y = world.blocks.size() / 100, x = world.blocks.size() / y;
             *reinterpret_cast<unsigned*>(&data[68zu + len]) = x;
             *reinterpret_cast<unsigned*>(&data[72zu + len]) = y;

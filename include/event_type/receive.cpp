@@ -23,7 +23,7 @@ void receive(ENetEvent event)
             
             const std::string action = (pipes[0zu] == "protocol") ? pipes[0zu] : std::format("{}|{}", pipes[0zu], pipes[1zu]);
             if (const auto i = action_pool.find(action); i != action_pool.end())
-                i->second(event, header);
+                i->second(std::move(event), header);
             break;
         }
         case 4: 
@@ -33,7 +33,8 @@ void receive(ENetEvent event)
                 std::vector<std::byte> raw_state{event.packet->dataLength - 4};
                 {
                     std::size_t size = raw_state.size();
-                    if ((size + 4zu) >= 60zu) {
+                    if ((size + 4zu) >= 60zu) 
+                    {
                         std::byte *_1bit = reinterpret_cast<std::byte*>(event.packet->data) + 4;
                         for (std::size_t i = 0zu; i < size; ++i)
                             raw_state[i] = _1bit[i];
@@ -44,7 +45,7 @@ void receive(ENetEvent event)
                 state = get_state(std::move(raw_state));
             } // @note deletes raw_state
             if (const auto i = state_pool.find(state.type); i != state_pool.end())
-                i->second(event, std::move(state));
+                i->second(std::move(event), std::move(state));
             break;
         }
     }

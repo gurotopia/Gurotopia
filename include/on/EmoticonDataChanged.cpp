@@ -21,7 +21,7 @@ void EmoticonDataChanged(ENetEvent& event)
     std::string EmoticonData;
     EmoticonData.reserve(emoticon.size() * 23/* emoticon data + ()||1/0& */);
     for (const auto &[key, value] : emoticon) 
-        EmoticonData += std::format("({})|{}|1&", key, value); // @todo add requirements for unlocking emoticons
+        EmoticonData.append(std::format("({})|{}|1&", key, value)); // @todo add requirements for unlocking emoticons
     gt_packet(*event.peer, false, 0, {
         "OnEmoticonDataChanged", 
         201560520, 

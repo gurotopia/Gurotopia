@@ -70,7 +70,7 @@ world::~world()
 
 std::unordered_map<std::string, world> worlds;
 
-void send_data(ENetPeer& peer, const std::vector<std::byte> data)
+void send_data(ENetPeer& peer, const std::vector<std::byte> &&data)
 {
     std::size_t size = data.size();
     ENetPacket *packet = enet_packet_create(nullptr, size + 5zu, ENET_PACKET_FLAG_RELIABLE);

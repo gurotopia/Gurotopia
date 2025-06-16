@@ -75,6 +75,8 @@ int get_weather_id(unsigned item_id)
 void weather(ENetEvent& event, const std::string_view text)
 {
     std::string id{ text.substr(sizeof("weather ")-1) };
+    if (id.empty()) return;
+
     gt_packet(*event.peer, false, 0, {
         "OnSetCurrentWeather",
         stoi(id)

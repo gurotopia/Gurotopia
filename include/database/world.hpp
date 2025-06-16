@@ -44,7 +44,7 @@
     };
     extern std::unordered_map<std::string, world> worlds;
 
-    extern void send_data(ENetPeer& peer, const std::vector<std::byte> data);
+    extern void send_data(ENetPeer& peer, const std::vector<std::byte> &&data);
 
     extern void state_visuals(ENetEvent& event, state &&s);
 

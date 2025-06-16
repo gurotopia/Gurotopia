@@ -8,7 +8,7 @@ void sb(ENetEvent& event, const std::string_view text)
     auto &peer = _peer[event.peer];
 
     std::string display = peer->recent_worlds.back();
-    for (auto &b : worlds[peer->recent_worlds.back()].blocks)
+    for (block &b : worlds[peer->recent_worlds.back()].blocks)
         if (b.fg == 226 && b.toggled) 
         {
             display = "`4JAMMED``";

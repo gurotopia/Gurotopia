@@ -4,7 +4,7 @@
 void equip(ENetEvent event, state state)
 {
     item &item = items[state.id];
-    auto &type = _peer[event.peer]->clothing[item.cloth_type];
+    float &type = _peer[event.peer]->clothing[item.cloth_type];
     
     if (item.cloth_type != clothing::none) 
     {

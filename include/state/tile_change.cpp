@@ -24,12 +24,11 @@ void tile_change(ENetEvent event, state state)
         auto &peer = _peer[event.peer];
         world &world = worlds[peer->recent_worlds.back()];
 
-        if ((world.owner != 0 && peer->role == role::PLAYER) && 
+        if ((world.owner != 0 && !world._public && peer->role == role::PLAYER) &&
             (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
 
         block &block = world.blocks[cord(state.punch[0], state.punch[1])];
         item &item_state = items[state.id];
-
         item &item = (block.fg != 0) ? items[block.fg] : items[block.bg];
         if (state.id == 18) // @note punching a block
         {
@@ -40,6 +39,11 @@ void tile_change(ENetEvent event, state state)
             std::vector<std::pair<short, short>> im{}; // @note list of dropped items
             switch (item.type)
             {
+                case std::byte{ type::LOCK }: // @todo add message saying who owns the lock.
+                {
+                    if (peer->user_id != world.owner) return;
+                    break;
+                }
                 case std::byte{ type::SEED }:
                 {
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick)
@@ -63,7 +67,7 @@ void tile_change(ENetEvent event, state state)
                         gt_packet(p, false, 0, { "OnSetCurrentWeather", remember_weather });
                     });
                     for (auto &b : world.blocks)
-                        if (item.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
+                        if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
                 }
                 case std::byte{ type::TOGGLEABLE_BLOCK }:
                 case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
@@ -126,7 +130,7 @@ void tile_change(ENetEvent event, state state)
         {
             switch (item.type)
             {
-                case std::byte{ type::LOCK }:
+                case std::byte{ type::LOCK }: // @todo handle sl, bl, hl, builder lock, ect.
                 {
                     if (peer->user_id == world.owner)
                     {
@@ -142,7 +146,7 @@ void tile_change(ENetEvent event, state state)
                                 "add_label|small|Currently, you're the only one with access.``|left\n"
                                 "add_spacer|small|\n"
                                 "add_player_picker|playerNetID|`wAdd``|\n"
-                                "add_checkbox|checkbox_public|Allow anyone to Build and Break|0\n"
+                                "add_checkbox|checkbox_public|Allow anyone to Build and Break|{}\n"
                                 "add_checkbox|checkbox_disable_music|Disable Custom Music Blocks|0\n"
                                 "add_text_input|tempo|Music BPM|100|3|\n"
                                 "add_checkbox|checkbox_disable_music_render|Make Custom Music Blocks invisible|0\n"
@@ -154,7 +158,7 @@ void tile_change(ENetEvent event, state state)
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item.raw_name, item.id, state.punch[0], state.punch[1]
+                                item.raw_name, item.id, state.punch[0], state.punch[1], signed{world._public}
                             ).c_str()
                         });
                     }
@@ -264,7 +268,7 @@ void tile_change(ENetEvent event, state state)
                         gt_packet(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
                     });
                     for (auto &b : world.blocks)
-                        if (item.type == std::byte{ type::WEATHER_MACHINE } && b.fg != state.id) b.toggled = false;
+                        if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != state.id) b.toggled = false;
                     break;
                 }
             }

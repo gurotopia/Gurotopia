@@ -4,7 +4,7 @@
 #include "network/packet.hpp"
 #include "world.hpp"
 
-#if defined(_WIN32) && defined(_MSC_VER)
+#if defined(_MSC_VER)
     using namespace std::chrono;
 #else
     using namespace std::chrono::_V2;

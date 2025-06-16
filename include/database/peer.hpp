@@ -28,7 +28,7 @@
     
     #include <deque>
     #include <array>
-    #if defined(_WIN32) && defined(_MSC_VER)
+    #if defined(_MSC_VER)
         #undef max
         #undef min
     #endif

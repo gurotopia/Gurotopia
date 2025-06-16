@@ -25,7 +25,11 @@ void cache_items()
     unsigned pos{60};
     short version{};
     shift_pos(im_data, pos, version);
-    printf("\e[38;5;248m items.dat \e[1;37m%d \e[0m\n", version);
+#if defined(_MSC_VER)
+    printf("items.dat %d\n", version);
+#else
+    printf("\e[38;5;248mitems.dat \e[1;37m%d\e[0m\n", version);
+#endif
     short count{};
     shift_pos(im_data, pos, count); pos += 2; // @note downside count to 2 bit (short)
     static constexpr std::string_view token{"PBG892FXX982ABC*"};

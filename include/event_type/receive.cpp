@@ -13,8 +13,11 @@ void receive(ENetEvent event)
         case 2: case 3: 
         {
             std::string header{data.begin() + 4, data.end() - 1};
+#if defined(_MSC_VER)
+            printf("%s\n", header.c_str());
+#else
             printf("\e[38;5;249m%s\e[0m\n", header.c_str());
-
+#endif
             std::ranges::replace(header, '\n', '|');
             std::vector<std::string> pipes = readch(header, '|');
             

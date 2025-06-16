@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 25-6-2024
-    @version beta-332
+    @version beta-335
 
     looking for:
     - Indonesian translator
@@ -15,9 +15,15 @@
 int main()
 {
     /* libary version checker */
-    printf("\e[38;5;248m nlohmann/JSON \e[1;37m%d.%d.%d \e[0m\n", NLOHMANN_JSON_VERSION_MAJOR, NLOHMANN_JSON_VERSION_MINOR, NLOHMANN_JSON_VERSION_PATCH);
-    printf("\e[38;5;248m microsoft/mimalloc \e[1;37mbeta-%d \e[0m\n", MI_MALLOC_VERSION);
-    printf("\e[38;5;248m zpl-c/enet \e[1;37m%d.%d.%d \e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
+#if defined(_MSC_VER)
+    printf("nlohmann/JSON %d.%d.%d\n", NLOHMANN_JSON_VERSION_MAJOR, NLOHMANN_JSON_VERSION_MINOR, NLOHMANN_JSON_VERSION_PATCH);
+    printf("microsoft/mimalloc beta-%d\n", MI_MALLOC_VERSION);
+    printf("zpl-c/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
+#else
+    printf("\e[38;5;248mnlohmann/JSON \e[1;37m%d.%d.%d\e[0m\n", NLOHMANN_JSON_VERSION_MAJOR, NLOHMANN_JSON_VERSION_MINOR, NLOHMANN_JSON_VERSION_PATCH);
+    printf("\e[38;5;248mmicrosoft/mimalloc \e[1;37mbeta-%d\e[0m\n", MI_MALLOC_VERSION);
+    printf("\e[38;5;248mzpl-c/enet \e[1;37m%d.%d.%d\e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
+#endif
 
     if (!std::filesystem::exists("worlds")) std::filesystem::create_directory("worlds");
     if (!std::filesystem::exists("players")) std::filesystem::create_directory("players");
@@ -25,7 +31,7 @@ int main()
         ENetCallbacks callbacks{
             .malloc = &mi_malloc,
             .free = &mi_free,
-            .no_memory = []() { printf("\e[1;31mENet memory overflow\e[0m\n"); }
+            .no_memory = []() { printf("ENet memory overflow\n"); }
         };
         enet_initialize_with_callbacks(ENET_VERSION, &callbacks);
     } // @note delete callbacks

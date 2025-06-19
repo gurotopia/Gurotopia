@@ -19,7 +19,6 @@
     class ifloat 
     {
     public:
-        std::size_t uid{0zu};
         short id{0};
         short count{0};
         std::array<float, 2zu> pos;
@@ -38,8 +37,8 @@
         short visitors{0}; // @note the current number of peers in a world, excluding invisable peers
 
         std::vector<block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
-        std::size_t ifloat_uid{0zu}; // @note floating item UID
-        std::unordered_map<std::size_t, ifloat> ifloats{}; // @note (i)tem floating
+        int ifloat_uid{0}; // @note floating item UID
+        std::unordered_map<int, ifloat> ifloats{}; // @note (i)tem floating
         ~world();
     };
     extern std::unordered_map<std::string, world> worlds;

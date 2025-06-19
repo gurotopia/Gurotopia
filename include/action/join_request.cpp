@@ -190,9 +190,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             }
             pos += 12; // @note rgt has it as: bb 7f 06 00 00 00 00 00 5b 0d 0a 00
 
-            int ifloats_size = static_cast<int>(world.ifloats.size());
-            *reinterpret_cast<int*>(&data[pos]) = ifloats_size; pos += sizeof(int);
-            *reinterpret_cast<int*>(&data[pos]) = ifloats_size; pos += sizeof(int);
+            *reinterpret_cast<int*>(&data[pos]) = world.ifloat_uid; pos += sizeof(int);
+            *reinterpret_cast<int*>(&data[pos]) = world.ifloat_uid; pos += sizeof(int);
             for (const auto& ifloat : world.ifloats) 
             {
                 data.resize(data.size() + 16zu);
@@ -200,7 +199,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 *reinterpret_cast<float*>(&data[pos]) = ifloat.second.pos[0] * 32.0f; pos += sizeof(float);
                 *reinterpret_cast<float*>(&data[pos]) = ifloat.second.pos[1] * 32.0f; pos += sizeof(float);
                 *reinterpret_cast<short*>(&data[pos]) = ifloat.second.count; pos += sizeof(short);
-                *reinterpret_cast<int*>(&data[pos]) = static_cast<int>(ifloat.first); pos += sizeof(int);
+                *reinterpret_cast<int*>(&data[pos]) = ifloat.first; pos += sizeof(int);
             }
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data

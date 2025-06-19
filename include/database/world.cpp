@@ -19,7 +19,7 @@ world::world(const std::string& name)
         file >> j;
         this->name = name;
         this->owner = j.contains("owner") && !j["owner"].is_null() ? j["owner"].get<int>() : 00;
-        
+
         for (const nlohmann::json &jj : j["bs"]) 
             if (jj.contains("f") && jj.contains("b"))
             {    this->blocks.emplace_back(block{ 
@@ -31,12 +31,12 @@ world::world(const std::string& name)
                     jj.contains("l") && !jj["l"].is_null() ? jj["l"] : "" 
                 });
             }
-        std::size_t index = 0;
+        int index = 0;
         for (const nlohmann::json &jj : j["fs"]) 
-            if (jj.contains("u") && jj.contains("i") && jj.contains("c") && jj.contains("p") && jj["p"].is_array() && jj["p"].size() == 2)
+            if (jj.contains("i") && jj.contains("c") && jj.contains("p") && jj["p"].is_array() && jj["p"].size() == 2)
             {
                 this->ifloats.emplace(++index, ifloat{ 
-                    jj["u"], jj["i"], jj["c"], 
+                    jj["i"], jj["c"], 
                     { jj["p"][0], jj["p"][1] } 
                 });
             }
@@ -62,7 +62,7 @@ world::~world()
         for (const auto &ifloat : this->ifloats) 
         {
             if (ifloat.second.id == 0 || ifloat.second.count == 0) continue;
-            j["fs"].push_back({{"u", ifloat.second.uid}, {"i", ifloat.second.id}, {"c", ifloat.second.count}, {"p", ifloat.second.pos}});
+            j["fs"].push_back({{"i", ifloat.second.id}, {"c", ifloat.second.count}, {"p", ifloat.second.pos}});
         }
 
         std::ofstream(std::format("worlds\\{}.json", this->name), std::ios::trunc) << j;
@@ -112,10 +112,9 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
     else
     {
         world &world = worlds[_peer[event.peer]->recent_worlds.back()];
-        std::size_t uid = ++world.ifloat_uid;
-        auto it = world.ifloats.emplace(uid, ifloat{uid, im[0], im[1], pos}); // @note a iterator ahead of time
+        auto it = world.ifloats.emplace(++world.ifloat_uid, ifloat{im[0], im[1], pos}); // @note a iterator ahead of time
         state.netid = -1;
-        state.uid = static_cast<int>(it.first->second.uid);
+        state.uid = static_cast<int>(it.first->first);
         state.count = static_cast<float>(im[1]);
         state.id = it.first->second.id;
         state.pos = {it.first->second.pos[0] * 32, it.first->second.pos[1] * 32};

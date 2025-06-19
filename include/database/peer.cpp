@@ -119,6 +119,7 @@ state get_state(const std::vector<std::byte> &&packet)
     return state{
         .type = _4bit[0],
         .netid = _4bit[1],
+        .uid = _4bit[2],
         .peer_state = _4bit[3],
         .count = _4bit_f[4],
         .id = _4bit[5],
@@ -135,6 +136,7 @@ std::vector<std::byte> compress_state(const state &&s)
     float *_4bit_f = reinterpret_cast<float*>(data.data());
     _4bit[0] = s.type;
     _4bit[1] = s.netid;
+    _4bit[2] = s.uid;
     _4bit[3] = s.peer_state;
     _4bit_f[4] = s.count;
     _4bit[5] = s.id;

@@ -39,7 +39,7 @@
 
         std::vector<block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
         std::size_t ifloat_uid{0zu}; // @note floating item UID
-        std::vector<ifloat> ifloats{}; // @note (i)tem floating
+        std::unordered_map<std::size_t, ifloat> ifloats{}; // @note (i)tem floating
         ~world();
     };
     extern std::unordered_map<std::string, world> worlds;

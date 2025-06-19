@@ -56,7 +56,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             world.name = std::move(big_name);
         }
         {
-            std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12/*initial drop*/, std::byte{ 00 });
+            std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 8/*total drop uid*/ + 100, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };
             data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
             data[16zu] = std::byte{ 0x8 };
@@ -188,21 +188,22 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 }
                 ++i;
             }
+            pos += 12; // @note rgt has it as: bb 7f 06 00 00 00 00 00 5b 0d 0a 00
+
+            int ifloats_size = static_cast<int>(world.ifloats.size());
+            *reinterpret_cast<int*>(&data[pos]) = ifloats_size; pos += sizeof(int);
+            *reinterpret_cast<int*>(&data[pos]) = ifloats_size; pos += sizeof(int);
+            for (const auto& ifloat : world.ifloats) 
+            {
+                data.resize(data.size() + 16zu);
+                *reinterpret_cast<short*>(&data[pos]) = ifloat.second.id; pos += sizeof(short);
+                *reinterpret_cast<float*>(&data[pos]) = ifloat.second.pos[0] * 32.0f; pos += sizeof(float);
+                *reinterpret_cast<float*>(&data[pos]) = ifloat.second.pos[1] * 32.0f; pos += sizeof(float);
+                *reinterpret_cast<short*>(&data[pos]) = ifloat.second.count; pos += sizeof(short);
+                *reinterpret_cast<int*>(&data[pos]) = static_cast<int>(ifloat.first); pos += sizeof(int);
+            }
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data
-
-        for (const auto& ifloat : world.ifloats)
-        {
-            std::vector<std::byte> compress = compress_state({
-                .type = 0x0e, 
-                .netid = -1,
-                .peer_state = static_cast<int>(ifloat.uid),
-                .count = static_cast<float>(ifloat.count),
-                .id = ifloat.id, 
-                .pos = {ifloat.pos[0] * 32, ifloat.pos[1] * 32}
-            });
-            send_data(*event.peer, std::move(compress));
-        } // @note delete compress
         if (std::ranges::find(peer->recent_worlds, world.name) == peer->recent_worlds.end()) 
         {
             std::ranges::rotate(peer->recent_worlds, peer->recent_worlds.begin() + 1);

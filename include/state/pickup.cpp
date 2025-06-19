@@ -7,33 +7,27 @@
 void pickup(ENetEvent event, state state) 
 {
     auto &peer = _peer[event.peer];
-    std::vector<ifloat>& ifloats{worlds[peer->recent_worlds.back()].ifloats};
-    const int x = std::lround(peer->pos[0]);
-    const int y = std::lround(peer->pos[1]);
+    auto &ifloats = worlds[peer->recent_worlds.back()].ifloats;
 
-    auto it = std::find_if(ifloats.begin(), ifloats.end(), [x, y](const ifloat& i) {
-        return (std::abs(std::lround(i.pos[0]) - x) <= 1) && 
-               (std::abs(std::lround(i.pos[1]) - y) <= 1);
-    });
-
+    auto it = ifloats.find(state.id);
     if (it != ifloats.end()) 
     {
-        item &item = items[it->id];
+        item &item = items[it->second.id];
         if (item.type != std::byte{ GEM })
         {
             gt_packet(*event.peer, false, 0, {
                 "OnConsoleMessage",
                 (item.rarity >= 999) ?
-                    std::format("Collected `w{} {}``.", it->count, item.raw_name).c_str() :
-                    std::format("Collected `w{} {}``. Rarity: `w{}``", it->count, item.raw_name, item.rarity).c_str()
+                    std::format("Collected `w{} {}``.", it->second.count, item.raw_name).c_str() :
+                    std::format("Collected `w{} {}``. Rarity: `w{}``", it->second.count, item.raw_name, item.rarity).c_str()
             });
-            short excess = peer->emplace(slot{it->id, it->count});
-            it->count = excess;
+            short excess = peer->emplace(slot{it->second.id, it->second.count});
+            it->second.count = excess;
         }
         else 
         {
-            peer->gems += it->count;
-            it->count = 0;
+            peer->gems += it->second.count;
+            it->second.count = 0;
             gt_packet(*event.peer, false, 0, {
                 "OnSetBux",
                 peer->gems,
@@ -41,8 +35,8 @@ void pickup(ENetEvent event, state state)
                 1
             });
         }
-        drop_visuals(event, {it->id, it->count}, it->pos, state.id/*@todo*/);
+        drop_visuals(event, {it->second.id, it->second.count}, it->second.pos, state.id/*@todo*/);
         inventory_visuals(event); // @todo confused here... (if I put this higher it duplicates the item.)
-        if (it->count == 0) ifloats.erase(it);
+        if (it->second.count == 0) ifloats.erase(it);
     }
 }

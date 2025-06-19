@@ -116,12 +116,12 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     case std::byte{ type::DOOR }:
                     {
                         data[pos - 2zu] = std::byte{ 01 };
-                        std::size_t len = block.label.length();
+                        short len = block.label.length();
                         data.resize(data.size() + 4zu + len); // @note 01 {2} {} 0 0
 
                         data[pos++] = std::byte{ 01 };
 
-                        *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
+                        *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
                         for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
                         data[pos++] = std::byte{ 00 }; // @note '\0'
                         break;
@@ -129,12 +129,12 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     case std::byte{ type::SIGN }:
                     {
                         data[pos - 2zu] = std::byte{ 0x19 };
-                        std::size_t len = block.label.length();
+                        short len = block.label.length();
                         data.resize(data.size() + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
 
                         data[pos++] = std::byte{ 02 };
 
-                        *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
+                        *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
                         for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
                         *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
                         break;

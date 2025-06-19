@@ -16,7 +16,7 @@ void dialog_return(ENetEvent event, const std::string& header)
     {
         const short id = stoi(pipes[5zu]);
         const short count = stoi(pipes[8zu]);
-        peer->emplace(slot{id, static_cast<short>(count * -1)}); // @note take away
+        peer->emplace(slot(id, -count)); // @note take away
         inventory_visuals(event);
         if (pipes[3zu] == "drop_item") 
         {
@@ -93,7 +93,7 @@ void dialog_return(ENetEvent event, const std::string& header)
     else if ((pipes[3zu] == "find" && pipes[4zu] == "buttonClicked" && pipes[5zu].starts_with("searchableItemListButton")) && 
              !readch(pipes[5zu], '_')[1].empty())
     {
-        peer->emplace(slot{static_cast<short>(stoi(readch(pipes[5zu], '_')[1])), 200});
+        peer->emplace(slot(stoi(readch(pipes[5zu], '_')[1]), 200));
         inventory_visuals(event);
     }
     else if ((pipes[3zu] == "door_edit" && pipes[10zu] == "door_name") || 
@@ -152,7 +152,7 @@ void dialog_return(ENetEvent event, const std::string& header)
         if (pipes[10] == "checkbox_public" && pipes[11] == "1"/*true*/ || pipes[11] == "0"/*false*/)
         {
             world &world = worlds[peer->recent_worlds.back()];
-            world._public = static_cast<bool>(stoi(pipes[11]));
+            world._public = stoi(pipes[11]);
 
             // @todo add public lock visuals
         }

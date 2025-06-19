@@ -7,6 +7,7 @@
     /* id, count */
     class slot {
     public:
+        slot(short _id, short _count) : id(_id), count(_count) {}
         short id{0};
         short count{0}; // @note total amount of that item
     };

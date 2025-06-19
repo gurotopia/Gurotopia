@@ -289,7 +289,7 @@ void tile_change(ENetEvent event, state state)
                     (not peer->facing_left && collision)) return;
             }
             (item.type == std::byte{ type::BACKGROUND }) ? block.bg = state.id : block.fg = state.id;
-            peer->emplace(slot{ static_cast<short>(state.id), -1 });
+            peer->emplace(slot(state.id, -1));
             inventory_visuals(event);
         }
         if (state.netid != world.owner) state.netid = peer->netid;

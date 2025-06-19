@@ -114,7 +114,7 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
         world &world = worlds[_peer[event.peer]->recent_worlds.back()];
         auto it = world.ifloats.emplace(++world.ifloat_uid, ifloat{im[0], im[1], pos}); // @note a iterator ahead of time
         state.netid = -1;
-        state.uid = static_cast<int>(it.first->first);
+        state.uid = it.first->first;
         state.count = static_cast<float>(im[1]);
         state.id = it.first->second.id;
         state.pos = {it.first->second.pos[0] * 32, it.first->second.pos[1] * 32};
@@ -157,12 +157,12 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         case std::byte{ type::DOOR }:
         {
             data[pos - 2zu] = std::byte{ 01 };
-            std::size_t len = block.label.length();
+            short len = block.label.length();
             data.resize(pos + 1zu + 2zu + len + 1zu); // @note 01 {2} {} 0 0
 
             data[pos] = std::byte{ 01 }; pos += sizeof(std::byte);
             
-            *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
+            *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
             for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
             pos += sizeof(std::byte); // @note '\0'
             break;
@@ -170,12 +170,12 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         case std::byte{ type::SIGN }:
         {
             data[pos - 2zu] = std::byte{ 0x19 };
-            std::size_t len = block.label.length();
+            short len = block.label.length();
             data.resize(pos + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
 
             data[pos] = std::byte{ 02 }; pos += sizeof(std::byte);
 
-            *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
+            *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
             for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
             *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
             break;

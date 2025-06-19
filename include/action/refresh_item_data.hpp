@@ -1,3 +1,4 @@
+#pragma once
 #ifndef REFRESH_ITEM_DATA_HPP
 #define REFRESH_ITEM_DATA_HPP
 

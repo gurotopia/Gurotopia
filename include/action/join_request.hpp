@@ -1,3 +1,4 @@
+#pragma once
 #ifndef JOIN_REQUEST_HPP
 #define JOIN_REQUEST_HPP
 

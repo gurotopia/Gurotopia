@@ -3,7 +3,7 @@
 #include "peer.hpp"
 #include "world.hpp"
 
-#if defined(_WIN32) && defined(_MSC_VER)
+#if defined(_MSC_VER)
     using namespace std::chrono;
 #else
     using namespace std::chrono::_V2;
@@ -76,12 +76,12 @@ peer::~peer()
 
 std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 
-bool create_rt(ENetEvent& event, std::size_t pos, int64_t length) 
+bool create_rt(ENetEvent &event, std::size_t pos, int length) 
 {
     auto &rt = _peer[event.peer]->rate_limit[pos];
     auto now = steady_clock::now();
 
-    if (duration_cast<std::chrono::milliseconds>(now - rt).count() <= length)
+    if ((now - rt) <= std::chrono::milliseconds(length))
         return false;
 
     rt = now;
@@ -94,14 +94,16 @@ std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::fun
 {
     std::vector<ENetPeer*> _peers{};
     _peers.reserve(server->peerCount);
-    auto &peer_worlds = _peer[event.peer]->recent_worlds;
+
+    auto &recent_worlds = _peer[event.peer]->recent_worlds;
+
     for (ENetPeer &peer : std::span(server->peers, server->peerCount))
         if (peer.state == ENET_PEER_STATE_CONNECTED) 
         {
             if (condition == PEER_SAME_WORLD)
             {
-                if ((_peer[&peer]->recent_worlds.empty() && peer_worlds.empty()) || 
-                    (_peer[&peer]->recent_worlds.back() != peer_worlds.back())) continue;
+                if ((_peer[&peer]->recent_worlds.empty() && recent_worlds.empty()) || 
+                    (_peer[&peer]->recent_worlds.back() != recent_worlds.back())) continue;
             }
             fun(peer);
             _peers.push_back(&peer);
@@ -110,7 +112,7 @@ std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::fun
     return _peers;
 }
 
-state get_state(const std::vector<std::byte>& packet) 
+state get_state(const std::vector<std::byte> &&packet) 
 {
     const int *_4bit = reinterpret_cast<const int*>(packet.data());
     const float *_4bit_f = reinterpret_cast<const float*>(packet.data());
@@ -126,7 +128,7 @@ state get_state(const std::vector<std::byte>& packet)
     };
 }
 
-std::vector<std::byte> compress_state(const state& s) 
+std::vector<std::byte> compress_state(const state &&s) 
 {
     std::vector<std::byte> data(56, std::byte{ 00 });
     int *_4bit = reinterpret_cast<int*>(data.data());

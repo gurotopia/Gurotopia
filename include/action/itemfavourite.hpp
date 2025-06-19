@@ -1,3 +1,4 @@
+#pragma once
 #ifndef ITEMFAVOURITE_HPP
 #define ITEMFAVOURITE_HPP
 

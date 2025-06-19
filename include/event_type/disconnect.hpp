@@ -1,3 +1,4 @@
+#pragma once
 #ifndef DISCONNECT_HPP
 #define DISCONNECT_HPP
 

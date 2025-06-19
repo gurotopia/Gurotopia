@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WARP_HPP
 #define WARP_HPP
 

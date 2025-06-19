@@ -1,3 +1,4 @@
+#pragma once
 #ifndef ME_HPP
 #define ME_HPP
 

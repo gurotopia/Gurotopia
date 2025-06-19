@@ -1,19 +1,21 @@
+#pragma once
 #ifndef WORLD_HPP
 #define WORLD_HPP
 
-    /* fg, bg, tick, label, hits */
     class block 
     {
     public:
         short fg{0}, bg{0};
+        
         bool toggled{}; // @note save toggle state
         std::chrono::steady_clock::time_point tick{}; // @note record a point in time for the tile e.g. tree growth, providers, ect.
         std::string label{}; // @note sign/door label
+
+
         std::array<int, 2zu> hits{0, 0}; // @note fg, bg
     };
     #define cord(x,y) (y * 100 + x)
 
-    /* uid, id, count, pos*/
     class ifloat 
     {
     public:
@@ -28,9 +30,13 @@
     public:
         world(const std::string& name = "");
         std::string name{};
+
         int owner{ 00 }; // @note owner of world using peer's user id.
         std::array<int, 6zu> admin{}; // @note admins (by user id). excluding owner. (6 is a experimental amount, if increase update me if any issue occur -leeendl)
+        bool _public{}; // @note checks if world is public to break/place
+
         short visitors{0}; // @note the current number of peers in a world, excluding invisable peers
+
         std::vector<block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
         std::size_t ifloat_uid{0zu}; // @note floating item UID
         std::vector<ifloat> ifloats{}; // @note (i)tem floating
@@ -38,9 +44,9 @@
     };
     extern std::unordered_map<std::string, world> worlds;
 
-    extern void send_data(ENetPeer& peer, const std::vector<std::byte>& data);
+    extern void send_data(ENetPeer& peer, const std::vector<std::byte> &&data);
 
-    extern void state_visuals(ENetEvent& event, state s);
+    extern void state_visuals(ENetEvent& event, state &&s);
 
     extern void block_punched(ENetEvent& event, state s, block& b);
 

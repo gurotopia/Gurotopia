@@ -1,3 +1,4 @@
+#pragma once
 #ifndef TRASH_HPP
 #define TRASH_HPP
 

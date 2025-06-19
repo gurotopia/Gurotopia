@@ -12,9 +12,9 @@ void OnRequestWorldSelectMenu(ENetEvent event)
             if (not name.empty()) 
             {
                 auto it = worlds.find(name);
-                result += (it != worlds.end()) ? 
+                result.append((it != worlds.end()) ? 
                     std::format("add_floater|{}|{}|0.5|{}\n", name, it->second.visitors, color) :
-                    std::format("add_floater|{}|0|0.5|{}\n", name, color);
+                    std::format("add_floater|{}|0|0.5|{}\n", name, color));
             }
         return result;
     };

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef WHO_HPP
 #define WHO_HPP
 

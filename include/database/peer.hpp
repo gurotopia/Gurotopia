@@ -1,3 +1,4 @@
+#pragma once
 #ifndef PEER_HPP
 #define PEER_HPP
 
@@ -27,7 +28,7 @@
     
     #include <deque>
     #include <array>
-    #if defined(_WIN32) && defined(_MSC_VER)
+    #if defined(_MSC_VER)
         #undef max
         #undef min
     #endif
@@ -83,7 +84,7 @@
     * @param pos please resize peer::rate_limit to fit the pos provided, understand the rules! if pos is 5, then size should be 6. 
     * @return false if ratelimited
     */
-    extern bool create_rt(ENetEvent& event, std::size_t pos, int64_t length);
+    extern bool create_rt(ENetEvent& event, std::size_t pos, int length);
 
     extern ENetHost* server;
 
@@ -106,14 +107,14 @@
         float count{}; // @todo understand this better
         int id{}; // @note peer's active hand, so 18 (fist) = punching, 32 (wrench) interacting, ect...
         std::array<float, 2zu> pos{}; // @note position 1D {x, y}
-        std::array<float, 2zu> speed{}; // @note player movement effect (gravity, speed, ect) 1D {x, y}
+        std::array<float, 2zu> speed{}; // @note player movement (velocity(x), gravity(y)), higher gravity = smaller jumps
         std::array<int, 2zu> punch{}; // @note punching/placing position 2D {x, y}
     };
 
-    extern state get_state(const std::vector<std::byte>& packet);
+    extern state get_state(const std::vector<std::byte> &&packet);
 
     /* put it back into it's original form */
-    extern std::vector<std::byte> compress_state(const state& s);
+    extern std::vector<std::byte> compress_state(const state &&s);
 
     extern void inventory_visuals(ENetEvent &event);
 

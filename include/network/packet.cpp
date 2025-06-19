@@ -18,17 +18,16 @@ void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any
         if (param.type() == typeid(const char*)) 
         {
             std::string_view param_view{ std::any_cast<const char*>(param) };
-            data.resize(size + 2zu + param_view.length() + sizeof(int));
+            data.resize(size + 2zu + sizeof(int) + param_view.length());
             data[size] = index; // @note element counter e.g. "OnConsoleMessage" -> 00, "hello" -> 01
             data[size + 1zu] = std::byte{ 02 };
-            data[size + 2zu] = static_cast<std::byte>(param_view.length() & 0xff);
-            data[size + 3zu] = static_cast<std::byte>(( param_view.length() >> 8 ) & 0xff);
+            *reinterpret_cast<int*>(&data[size + 2zu]) = param_view.length();
 
             const std::byte *_1bit = reinterpret_cast<const std::byte*>(param_view.data());
             for (std::size_t i = 0zu; i < param_view.length(); ++i)
                 data[size + 6zu + i] = _1bit[i]; // @note e.g. 'a' -> 0x61. 'z' = 0x7A, hex tabel: https://en.cppreference.com/w/cpp/language/ascii
-            
-            size += 2zu + param_view.length() + sizeof(int);
+
+            size += 2zu + sizeof(int) + param_view.length();
         }
         else if (param.type() == typeid(int) || param.type() == typeid(unsigned)) 
         {
@@ -63,7 +62,7 @@ void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any
         }
         else return; // @note this will never pass unless you include a param that Growtopia does not recognize
 
-        index = static_cast<std::byte>(std::to_integer<int>(index) + 1);
+        index = static_cast<std::byte>(std::to_integer<char>(index) + 1);
         data[60zu] = index;
     }
 

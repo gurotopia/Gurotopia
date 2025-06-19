@@ -27,7 +27,7 @@ jobs:
 
         
       - if: matrix.os == 'windows-latest'
-        run: make -j${env:NUMBER_OF_PROCESSORS}
+        run: make -j$(nproc)
         shell: msys2 {0}
       
       - if: matrix.os == 'ubuntu-latest'

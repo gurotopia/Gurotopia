@@ -9,12 +9,12 @@
 
 #include <cmath>
 
-#if defined(_WIN32) && defined(_MSC_VER)
+#if defined(_MSC_VER)
     using namespace std::chrono;
 #else
     using namespace std::chrono::_V2;
 #endif
-using namespace std::literals::chrono_literals; // @note for 'ms', 's', ect.
+using namespace std::literals::chrono_literals;
 
 void tile_change(ENetEvent event, state state) 
 {
@@ -24,12 +24,11 @@ void tile_change(ENetEvent event, state state)
         auto &peer = _peer[event.peer];
         world &world = worlds[peer->recent_worlds.back()];
 
-        if ((world.owner != 0 && peer->role == role::PLAYER) && 
+        if ((world.owner != 0 && !world._public && peer->role == role::PLAYER) &&
             (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
 
         block &block = world.blocks[cord(state.punch[0], state.punch[1])];
         item &item_state = items[state.id];
-
         item &item = (block.fg != 0) ? items[block.fg] : items[block.bg];
         if (state.id == 18) // @note punching a block
         {
@@ -37,11 +36,14 @@ void tile_change(ENetEvent event, state state)
             if (item.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
             if (item.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
 
-            printf("dragon gate type: %d", item.type);
-
             std::vector<std::pair<short, short>> im{}; // @note list of dropped items
             switch (item.type)
             {
+                case std::byte{ type::LOCK }: // @todo add message saying who owns the lock.
+                {
+                    if (peer->user_id != world.owner) return;
+                    break;
+                }
                 case std::byte{ type::SEED }:
                 {
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick)
@@ -65,7 +67,9 @@ void tile_change(ENetEvent event, state state)
                         gt_packet(p, false, 0, { "OnSetCurrentWeather", remember_weather });
                     });
                     for (auto &b : world.blocks)
-                        if (item.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
+                        if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
+                    
+                    break;
                 }
                 case std::byte{ type::TOGGLEABLE_BLOCK }:
                 case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
@@ -80,33 +84,43 @@ void tile_change(ENetEvent event, state state)
                                 "Signal jammer enabled. This world is now `4hidden`` from the universe."
                             });
                         }
-                    } else block.toggled = false;
+                    } 
+                    else block.toggled = false;
                     break;
                 }
             }
-            block_punched(event, state, block);
+            block_punched(event, std::move(state), block);
             
             short remember_id = item.id;
             if (block.hits[0] >= item.hits) block.fg = 0;
             else if (block.hits[1] >= item.hits) block.bg = 0;
             else return;
-            block.hits = {0, 0};
+            block.hits = {0, 0}; // @todo
             block.label = ""; // @todo
             block.toggled = false; // @todo
 
-            if (!randomizer(0, 7)) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
-            if (item.type != std::byte{ type::SEED })
+            if (item.cat == std::byte{ 02 }) // pick up (item goes back in your inventory)
             {
-                if (!randomizer(0, 13)) im.emplace_back(remember_id, 1);
-                if (!randomizer(0, 9)) im.emplace_back(remember_id + 1, 1);
+                peer->emplace(slot{remember_id, 1});
+                inventory_visuals(event);
             }
-            for (auto & i : im)
-                drop_visuals(event, {i.first, i.second},
-                    {
-                        static_cast<float>(state.punch[0]) + randomizer(0.05f, 0.1f), 
-                        static_cast<float>(state.punch[1]) + randomizer(0.05f, 0.1f)
-                    });
-            peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
+            else // normal break (drop gem, seed, block & give XP)
+            {
+                if (!randomizer(0, 7)) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
+                if (item.type != std::byte{ type::SEED })
+                {
+                    if (!randomizer(0, 13)) im.emplace_back(remember_id, 1);
+                    if (!randomizer(0, 9)) im.emplace_back(remember_id + 1, 1);
+                }
+                for (auto & i : im)
+                    drop_visuals(event, {i.first, i.second},
+                        {
+                            static_cast<float>(state.punch[0]) + randomizer(0.05f, 0.1f), 
+                            static_cast<float>(state.punch[1]) + randomizer(0.05f, 0.1f)
+                        });
+                        
+                peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
+            }
         } // @note delete im, id
         else if (item_state.cloth_type != clothing::none) 
         {
@@ -118,7 +132,7 @@ void tile_change(ENetEvent event, state state)
         {
             switch (item.type)
             {
-                case std::byte{ type::LOCK }:
+                case std::byte{ type::LOCK }: // @todo handle sl, bl, hl, builder lock, ect.
                 {
                     if (peer->user_id == world.owner)
                     {
@@ -134,7 +148,7 @@ void tile_change(ENetEvent event, state state)
                                 "add_label|small|Currently, you're the only one with access.``|left\n"
                                 "add_spacer|small|\n"
                                 "add_player_picker|playerNetID|`wAdd``|\n"
-                                "add_checkbox|checkbox_public|Allow anyone to Build and Break|0\n"
+                                "add_checkbox|checkbox_public|Allow anyone to Build and Break|{}\n"
                                 "add_checkbox|checkbox_disable_music|Disable Custom Music Blocks|0\n"
                                 "add_text_input|tempo|Music BPM|100|3|\n"
                                 "add_checkbox|checkbox_disable_music_render|Make Custom Music Blocks invisible|0\n"
@@ -146,7 +160,7 @@ void tile_change(ENetEvent event, state state)
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item.raw_name, item.id, state.punch[0], state.punch[1]
+                                item.raw_name, item.id, state.punch[0], state.punch[1], signed{world._public}
                             ).c_str()
                         });
                     }
@@ -256,7 +270,7 @@ void tile_change(ENetEvent event, state state)
                         gt_packet(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
                     });
                     for (auto &b : world.blocks)
-                        if (item.type == std::byte{ type::WEATHER_MACHINE } && b.fg != state.id) b.toggled = false;
+                        if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != state.id) b.toggled = false;
                     break;
                 }
             }

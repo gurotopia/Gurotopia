@@ -1,3 +1,4 @@
+#pragma once
 #ifndef LOGGING_IN_HPP
 #define LOGGING_IN_HPP
 

@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __COMMAND_HPP
 #define __COMMAND_HPP
 

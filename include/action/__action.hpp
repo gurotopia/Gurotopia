@@ -1,3 +1,4 @@
+#pragma once
 #ifndef __ACTION_HPP
 #define __ACTION_HPP
 

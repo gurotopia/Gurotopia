@@ -147,4 +147,14 @@ void dialog_return(ENetEvent event, const std::string& header)
             signed{peer->billboard.perItem}
         });
     }
+    else if (pipes[3zu] == "lock_edit")
+    {
+        if (pipes[10] == "checkbox_public" && pipes[11] == "1"/*true*/ || pipes[11] == "0"/*false*/)
+        {
+            world &world = worlds[peer->recent_worlds.back()];
+            world._public = static_cast<bool>(stoi(pipes[11]));
+
+            // @todo add public lock visuals
+        }
+    }
 }

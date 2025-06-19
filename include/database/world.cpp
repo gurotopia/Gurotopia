@@ -19,7 +19,6 @@ world::world(const std::string& name)
         file >> j;
         this->name = name;
         this->owner = j.contains("owner") && !j["owner"].is_null() ? j["owner"].get<int>() : 00;
-        this->ifloat_uid = j.contains("fs_uid") && !j["fs_uid"].is_null() ? j["fs_uid"].get<std::size_t>() : 0zu;
         
         for (const nlohmann::json &jj : j["bs"]) 
             if (jj.contains("f") && jj.contains("b"))
@@ -41,6 +40,7 @@ world::world(const std::string& name)
                     { jj["p"][0], jj["p"][1] } 
                 });
             }
+        this->ifloat_uid = index;
     }
 }
 
@@ -50,7 +50,6 @@ world::~world()
     {
         nlohmann::json j;
         if (this->owner != 0) j["owner"] = this->owner;
-        if (this->ifloat_uid != 0) j["fs_uid"] = this->ifloat_uid;
         for (const block &block : this->blocks) 
         {
             nlohmann::json list = {{"f", block.fg}, {"b", block.bg}};

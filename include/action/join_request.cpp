@@ -56,7 +56,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             world.name = std::move(big_name);
         }
         {
-            std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 8/*total drop uid*/ + 100, std::byte{ 00 });
+            std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12 + 8/*total drop uid*/, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };
             data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
             data[16zu] = std::byte{ 0x8 };

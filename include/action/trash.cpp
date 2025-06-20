@@ -7,11 +7,12 @@
 void trash(ENetEvent event, const std::string& header)
 {
     std::string itemID = readch(std::move(header), '|')[4];
-
     if (itemID.empty()) return;
+
     short id = stoi(itemID);
-    
-    if (id == 32 || id == 18) // @todo add untradable items too
+    item &item = items[id];
+
+    if (item.cat == std::byte{ 0x80 })
     {
         gt_packet(*event.peer, false, 0, { "OnTextOverlay", "You'd be sorry if you lost that!" });
         return;
@@ -30,7 +31,7 @@ void trash(ENetEvent event, const std::string& header)
                     "add_text_input|count||0|5|\n"
                     "embed_data|itemID|{1}\n"
                     "end_dialog|trash_item|Cancel|OK|\n",
-                    items[slot.id].raw_name, slot.id, slot.count
+                    item.raw_name, slot.id, slot.count
                 ).c_str()
             });
             return;

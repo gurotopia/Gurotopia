@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 25-6-2024
-    @version beta-340
+    @version beta-345
 
     looking for:
     - Indonesian translator

@@ -15,7 +15,7 @@ void input(ENetEvent event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
     if (not create_rt(event, 1, 400)) return;
-    std::string text{readch(std::string{header}, '|')[4]};
+    std::string text{readch(std::move(header), '|')[4]};
 
     if (text.front() == '\r' || std::ranges::all_of(text, ::isspace)) return;
     text.erase(text.begin(), std::find_if_not(text.begin(), text.end(), ::isspace));

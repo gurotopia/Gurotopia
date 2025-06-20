@@ -6,7 +6,7 @@
 
 void drop(ENetEvent event, const std::string& header)
 {
-    std::string id{readch(std::string{header}, '|')[4]};
+    std::string id{readch(std::move(header), '|')[4]};
     if (id.empty()) return;
     
     for (const slot &slot : _peer[event.peer]->slots)

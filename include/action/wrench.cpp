@@ -8,7 +8,7 @@
 
 void wrench(ENetEvent event, const std::string& header) 
 {
-    std::vector<std::string> pipes = readch(header, '|');
+    std::vector<std::string> pipes = readch(std::move(header), '|');
     if ((pipes[3zu] == "netid" && !pipes[4zu].empty()/*empty netid*/))
     {
         const short netid = stoi(pipes[4zu]);

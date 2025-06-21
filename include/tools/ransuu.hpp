@@ -1,6 +1,6 @@
 // repo:  https://github.com/leeendl/ransuu
 
-#include <pthread_time.h>
+#include <time.h>
 
 #define l_max 2147483647l
 #define l_min -l_max+1

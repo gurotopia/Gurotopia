@@ -1,11 +1,11 @@
 #include "pch.hpp"
 #include "network/packet.hpp"
 #include "on/EmoticonDataChanged.hpp"
-#include "tools/randomizer.hpp"
 #include "commands/weather.hpp"
 #include "join_request.hpp"
 
 #include "tools/string_view.hpp"
+#include "tools/ransuu.hpp"
 
 #if defined(_MSC_VER)
     using namespace std::chrono;
@@ -37,7 +37,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         std::vector<std::string> buffs{};
         if (world.name.empty())
         {
-            const unsigned main_door = randomizer(2, 100 * 60 / 100 - 4);
+            ransuu ransuu;
+            const unsigned main_door = ransuu[{2, 100 * 60 / 100 - 4}];
             std::vector<block> blocks(100 * 60, block{0, 0});
             
             for (auto &&[i, block] : blocks | std::views::enumerate)
@@ -45,8 +46,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 if (i >= cord(0, 37))
                 {
                     block.bg = 14; // cave background
-                    if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && !randomizer(0, 38)) block.fg = 10 /* rock */;
-                    else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && randomizer(0, 8) < 3) block.fg = 4 /* lava */;
+                    if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && ransuu[{0, 38}] <= 1) block.fg = 10 /* rock */;
+                    else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && ransuu[{0, 8}] < 3) block.fg = 4 /* lava */;
                     else block.fg = (i >= cord(0, 54)) ? 8 : 2 /* dirt */;
                 }
                 if (i == cord(main_door, 36)) block.fg = 6; // main door

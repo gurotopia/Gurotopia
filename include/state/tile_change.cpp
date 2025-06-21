@@ -5,7 +5,7 @@
 #include "equip.hpp"
 #include "tile_change.hpp"
 
-#include "tools/randomizer.hpp"
+#include "tools/ransuu.hpp"
 
 #include <cmath>
 
@@ -36,6 +36,7 @@ void tile_change(ENetEvent event, state state)
             if (item.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
 
             std::vector<std::pair<short, short>> im{}; // @note list of dropped items
+            ransuu ransuu;
             switch (item.type)
             {
                 case std::byte{ type::LOCK }: // @todo add message saying who owns the lock.
@@ -48,7 +49,7 @@ void tile_change(ENetEvent event, state state)
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick)
                     {
                         block.hits[0] = 999;
-                        im.emplace_back(item.id - 1, randomizer(1, 8)); // @note fruit (from tree)
+                        im.emplace_back(item.id - 1, ransuu[{0, 8}]); // @note fruit (from tree)
                     }
                     break;
                 }
@@ -105,17 +106,18 @@ void tile_change(ENetEvent event, state state)
             }
             else // normal break (drop gem, seed, block & give XP)
             {
-                if (!randomizer(0, 7)) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
+
+                if (ransuu[{0, 9}] <= 1) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
                 if (item.type != std::byte{ type::SEED })
                 {
-                    if (!randomizer(0, 13)) im.emplace_back(remember_id, 1);
-                    if (!randomizer(0, 9)) im.emplace_back(remember_id + 1, 1);
+                    if (ransuu[{0, 17}] <= 1) im.emplace_back(remember_id, 1);
+                    if (ransuu[{0, 11}] <= 1) im.emplace_back(remember_id + 1, 1);
                 }
                 for (auto & i : im)
                     drop_visuals(event, {i.first, i.second},
                         {
-                            static_cast<float>(state.punch[0]) + randomizer(0.05f, 0.1f), 
-                            static_cast<float>(state.punch[1]) + randomizer(0.05f, 0.1f)
+                            static_cast<float>(state.punch[0]) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
+                            static_cast<float>(state.punch[1]) + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
                         });
                         
                 peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
@@ -258,6 +260,7 @@ void tile_change(ENetEvent event, state state)
                 case std::byte{ type::SEED }:
                 case std::byte{ type::PROVIDER }:
                 {
+                    if (block.fg != 0) return; // @todo add splicing
                     block.tick = steady_clock::now();
                     break;
                 }

@@ -25,11 +25,6 @@ void cache_items()
     unsigned pos{60};
     short version{};
     shift_pos(im_data, pos, version);
-#if defined(_MSC_VER)
-    printf("items.dat %d\n", version);
-#else
-    printf("\e[38;5;248mitems.dat \e[1;37m%d\e[0m\n", version);
-#endif
     short count{};
     shift_pos(im_data, pos, count); pos += 2; // @note downside count to 2 bit (short)
     static constexpr std::string_view token{"PBG892FXX982ABC*"};
@@ -50,10 +45,11 @@ void cache_items()
             im.raw_name[i] = std::to_integer<char>(im_data[pos] ^ std::byte(token[(i + im.id) % token.length()])), 
             ++pos;
 
-        len = *(reinterpret_cast<short*>(&im_data[pos]));
-        pos += sizeof(short) + len;
+        pos += *(reinterpret_cast<short*>(&im_data[pos]));
+        pos += sizeof(short);
 
         pos += 13;
+
         shift_pos(im_data, pos, im.collision);
         {
             std::byte raw_hits{};
@@ -88,17 +84,17 @@ void cache_items()
 
         pos += 4;
 
-        len = *(reinterpret_cast<short*>(&im_data[pos]));
-        pos += sizeof(short) + len;
+        pos += *(reinterpret_cast<short*>(&im_data[pos]));
+        pos += sizeof(short);
 
-        len = *(reinterpret_cast<short*>(&im_data[pos]));
-        pos += sizeof(short) + len;
+        pos += *(reinterpret_cast<short*>(&im_data[pos]));
+        pos += sizeof(short);
 
-        len = *(reinterpret_cast<short*>(&im_data[pos]));
-        pos += sizeof(short) + len;
+        pos += *(reinterpret_cast<short*>(&im_data[pos]));
+        pos += sizeof(short);
 
-        len = *(reinterpret_cast<short*>(&im_data[pos]));
-        pos += sizeof(short) + len;
+        pos += *(reinterpret_cast<short*>(&im_data[pos]));
+        pos += sizeof(short);
 
         pos += 16;
 
@@ -107,14 +103,14 @@ void cache_items()
         shift_pos(im_data, pos, im.mod);
         shift_pos(im_data, pos, im.mod1);
 
-        len = *(reinterpret_cast<short*>(&im_data[pos]));
-        pos += sizeof(short) + len;
+        pos += *(reinterpret_cast<short*>(&im_data[pos]));
+        pos += sizeof(short);
 
-        len = *(reinterpret_cast<short*>(&im_data[pos]));
-        pos += sizeof(short) + len;
+        pos += *(reinterpret_cast<short*>(&im_data[pos]));
+        pos += sizeof(short);
 
-        len = *(reinterpret_cast<short*>(&im_data[pos]));
-        pos += sizeof(short) + len;
+        pos += *(reinterpret_cast<short*>(&im_data[pos]));
+        pos += sizeof(short);
 
         pos += sizeof(std::array<std::byte, 80zu>);
         if (version >= 11)

@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "network/packet.hpp"
+#include "on/BillboardChange.hpp"
 #include "action/dialog_return.hpp"
 
 #include "tools/string_view.hpp"
@@ -143,14 +144,7 @@ void dialog_return(ENetEvent& event, const std::string& header)
                 .perItem = stoi(pipes[11zu]) != 0,
             };
         }
-        gt_packet(*event.peer, true, 0, {
-            "OnBillboardChange",
-            peer->netid,
-            signed{peer->billboard.id},
-            std::format("{},{}", to_char(peer->billboard.show), to_char(peer->billboard.isBuying)).c_str(),
-            peer->billboard.price,
-            signed{peer->billboard.perItem}
-        });
+        BillboardChange(event);
     }
     else if (pipes[3zu] == "lock_edit")
     {

@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "network/packet.hpp"
 #include "on/EmoticonDataChanged.hpp"
+#include "on/BillboardChange.hpp"
 #include "commands/weather.hpp"
 #include "join_request.hpp"
 
@@ -266,6 +267,7 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
                 world.name, section(buffs), world.visitors - 1, peers(event).size()
             ).c_str()
         });
+        if (peer->billboard.id != 0) BillboardChange(event); // @note don't waste memory if billboard is empty.
         inventory_visuals(event);
         peer->ready_exit = true;
         worlds.emplace(world.name, world); // @todo possible race-condition..

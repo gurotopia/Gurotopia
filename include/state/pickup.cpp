@@ -4,7 +4,7 @@
 
 #include <cmath>
 
-void pickup(ENetEvent event, state state) 
+void pickup(ENetEvent& event, state state) 
 {
     auto &peer = _peer[event.peer];
     auto &ifloats = worlds[peer->recent_worlds.back()].ifloats;

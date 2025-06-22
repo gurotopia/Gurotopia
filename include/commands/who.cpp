@@ -7,7 +7,7 @@ void who(ENetEvent& event, const std::string_view text)
     auto &peer = _peer[event.peer];
     std::string list;
 
-    peers(event, PEER_SAME_WORLD, [&peer, &event, &list](ENetPeer& p)
+    peers(event, PEER_SAME_WORLD, [&peer, event, &list](ENetPeer& p)
     {
         auto &w_peer = _peer[&p]; // @note 'w' is just short for world. so world_peer
         std::string full_name = std::format("`{}{}", w_peer->prefix, w_peer->ltoken[0]);

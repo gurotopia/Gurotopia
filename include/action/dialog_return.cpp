@@ -4,7 +4,7 @@
 
 #include "tools/string_view.hpp"
 
-void dialog_return(ENetEvent event, const std::string& header) 
+void dialog_return(ENetEvent& event, const std::string& header) 
 {
     auto &peer = _peer[event.peer];
     std::vector<std::string> pipes = readch(std::move(header), '|');

@@ -5,7 +5,7 @@
 
 #include "tools/string_view.hpp"
 
-void receive(ENetEvent event) 
+void receive(ENetEvent& event) 
 {
     std::span<enet_uint8> data{event.packet->data, event.packet->dataLength};
     switch (data[0zu]) 
@@ -23,7 +23,7 @@ void receive(ENetEvent event)
             
             const std::string action = (pipes[0zu] == "protocol") ? pipes[0zu] : std::format("{}|{}", pipes[0zu], pipes[1zu]);
             if (const auto i = action_pool.find(action); i != action_pool.end())
-                i->second(std::move(event), header);
+                i->second(event, header);
             break;
         }
         case 4: 
@@ -45,7 +45,7 @@ void receive(ENetEvent event)
                 state = get_state(std::move(raw_state));
             } // @note deletes raw_state
             if (const auto i = state_pool.find(state.type); i != state_pool.end())
-                i->second(std::move(event), std::move(state));
+                i->second(event, std::move(state));
             break;
         }
     }

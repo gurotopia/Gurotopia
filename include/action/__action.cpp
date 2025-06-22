@@ -21,7 +21,7 @@
 
 #include "__action.hpp"
 
-std::unordered_map<std::string, std::function<void(ENetEvent, const std::string&)>> action_pool
+std::unordered_map<std::string, std::function<void(ENetEvent&, const std::string&)>> action_pool
 {
     {"protocol", std::bind(&logging_in, std::placeholders::_1, std::placeholders::_2)},
     {"action|refresh_item_data", std::bind(&refresh_item_data, std::placeholders::_1, std::placeholders::_2)}, 

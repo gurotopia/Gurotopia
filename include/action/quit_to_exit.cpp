@@ -3,7 +3,7 @@
 #include "on/RequestWorldSelectMenu.hpp"
 #include "quit_to_exit.hpp"
 
-void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selection = false) 
+void quit_to_exit(ENetEvent& event, const std::string& header, bool skip_selection = false) 
 {
     auto &peer = _peer[event.peer];
     if (!peer->ready_exit) return; // @todo investigating action|quit_to_exit being called 2-3 times in a row...?
@@ -11,7 +11,7 @@ void quit_to_exit(ENetEvent event, const std::string& header, bool skip_selectio
     world &world = worlds[peer->recent_worlds.back()];
     --world.visitors;
     std::string& prefix = peer->prefix;
-    peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
+    peers(event, PEER_SAME_WORLD, [&peer, &world, prefix](ENetPeer& p) 
     {
         gt_packet(p, false, 0, {
             "OnConsoleMessage", 

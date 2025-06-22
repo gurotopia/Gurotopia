@@ -21,7 +21,7 @@ constexpr std::array<std::byte, 4zu> EXIT{
     std::byte{ 0x54 }  // @note 'T'
 };
 
-void join_request(ENetEvent event, const std::string& header, const std::string_view world_name = "") 
+void join_request(ENetEvent& event, const std::string& header, const std::string_view world_name = "") 
 {
     try 
     {
@@ -217,7 +217,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         else if (role == role::DEVELOPER) peer->prefix = "6@";
         EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
-        peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
+        peers(event, PEER_SAME_WORLD, [event, &peer, &world, role](ENetPeer& p) 
         {
             if (_peer[&p]->user_id != peer->user_id) 
             {

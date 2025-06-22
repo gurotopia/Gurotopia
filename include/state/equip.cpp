@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "equip.hpp"
 
-void equip(ENetEvent event, state state)
+void equip(ENetEvent& event, state state)
 {
     item &item = items[state.id];
     float &type = _peer[event.peer]->clothing[item.cloth_type];

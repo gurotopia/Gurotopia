@@ -6,13 +6,13 @@
 
 #include <cmath>
 
-void wrench(ENetEvent event, const std::string& header) 
+void wrench(ENetEvent& event, const std::string& header) 
 {
     std::vector<std::string> pipes = readch(std::move(header), '|');
     if ((pipes[3zu] == "netid" && !pipes[4zu].empty()/*empty netid*/))
     {
         const short netid = stoi(pipes[4zu]);
-        peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
+        peers(event, PEER_SAME_WORLD, [event, netid](ENetPeer& p) 
         {
             if (_peer[&p]->netid == netid)
             {

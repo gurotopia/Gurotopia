@@ -11,7 +11,7 @@
     using namespace std::chrono::_V2;
 #endif
 
-void input(ENetEvent event, const std::string& header)
+void input(ENetEvent& event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
     if (not create_rt(event, 1, 400)) return;
@@ -40,7 +40,7 @@ void input(ENetEvent event, const std::string& header)
         else 
             action(*event.peer, "log", "msg|`4Unknown command.`` Enter `$/?`` for a list of valid commands.");
     }
-    else peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
+    else peers(event, PEER_SAME_WORLD, [&peer, text](ENetPeer& p) 
     {
         gt_packet(p, false, 0, {
             "OnTalkBubble", 

@@ -15,7 +15,7 @@ void sb(ENetEvent& event, const std::string_view text)
             break; // @note we don't care if other signals are toggled.
         }
 
-    peers(event, PEER_ALL, [&](ENetPeer& p) 
+    peers(event, PEER_ALL, [&peer, message, display](ENetPeer& p) 
     {
         gt_packet(p, false, 0, {
             "OnConsoleMessage",

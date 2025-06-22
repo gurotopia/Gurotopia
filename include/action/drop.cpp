@@ -4,7 +4,7 @@
 
 #include "tools/string_view.hpp"
 
-void drop(ENetEvent event, const std::string& header)
+void drop(ENetEvent& event, const std::string& header)
 {
     std::string itemID = readch(std::move(header), '|')[4];
     if (itemID.empty()) return;

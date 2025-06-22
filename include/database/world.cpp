@@ -92,7 +92,7 @@ void state_visuals(ENetEvent& event, state &&state)
 
 void block_punched(ENetEvent& event, state state, block &block)
 {
-    (block.fg == 0) ? ++block.hits[1] : ++block.hits[0];
+    (block.fg == 0) ? ++block.hits.back() : ++block.hits.front();
     state.type = 0x8; // @note PACKET_TILE_APPLY_DAMAGE
     state.id = 6; // @note idk exactly
     state.netid = _peer[event.peer]->netid;

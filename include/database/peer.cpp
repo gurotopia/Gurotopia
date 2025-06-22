@@ -93,6 +93,7 @@ ENetHost *server;
 std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::function<void(ENetPeer&)> fun)
 {
     std::vector<ENetPeer*> _peers{};
+
     _peers.reserve(server->peerCount);
 
     auto &recent_worlds = _peer[event.peer]->recent_worlds;
@@ -100,7 +101,7 @@ std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::fun
     for (ENetPeer &peer : std::span(server->peers, server->peerCount))
         if (peer.state == ENET_PEER_STATE_CONNECTED) 
         {
-            if (condition == PEER_SAME_WORLD)
+            if (condition == peer_condition::PEER_SAME_WORLD)
             {
                 if ((_peer[&peer]->recent_worlds.empty() && recent_worlds.empty()) || 
                     (_peer[&peer]->recent_worlds.back() != recent_worlds.back())) continue;

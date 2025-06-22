@@ -16,7 +16,7 @@
 #endif
 using namespace std::literals::chrono_literals;
 
-void tile_change(ENetEvent event, state state) 
+void tile_change(ENetEvent& event, state state) 
 {
     try
     {
@@ -92,10 +92,9 @@ void tile_change(ENetEvent event, state state)
             block_punched(event, std::move(state), block);
             
             short remember_id = item.id;
-            if (block.hits[0] >= item.hits) block.fg = 0;
-            else if (block.hits[1] >= item.hits) block.bg = 0;
+            if (block.hits.front() >= item.hits) block.fg = 0, block.hits.front() = 0;
+            else if (block.hits.back() >= item.hits) block.bg = 0, block.hits.back() = 0;
             else return;
-            block.hits = {0, 0}; // @todo
             block.label = ""; // @todo
             block.toggled = false; // @todo
 
@@ -283,13 +282,7 @@ void tile_change(ENetEvent event, state state)
                 // 으 (up, down)
                 bool y = state.punch.back() == std::lround(state.pos.back() / 32);
 
-                // @note because floats are rounded weirdly in Growtopia...
-                bool x_nabor = state.punch.front() == std::lround(state.pos.front() / 32) + 1;
-                bool y_nabor = state.punch.back() == std::lround(state.pos.back() / 32) + 1;
-
-                bool collision = (x && y) || (x_nabor && y_nabor);
-                if ((peer->facing_left && collision) || 
-                    (not peer->facing_left && collision)) return;
+                if ((x && y)) return; // @todo when moving avoid collision.
             }
             (item.type == std::byte{ type::BACKGROUND }) ? block.bg = state.id : block.fg = state.id;
             peer->emplace(slot(state.id, -1));

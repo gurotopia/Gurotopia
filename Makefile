@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++2b -g -Iinclude -MMD -MP
 
-LIBS := -L./include
+LIBS := -L./include/mimalloc/lib
 TARGET := main.exe
 ifeq ($(OS),Windows_NT)
     LIBS += -lws2_32 -lwinmm -lmimalloc_32

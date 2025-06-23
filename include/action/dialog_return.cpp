@@ -119,7 +119,6 @@ void dialog_return(ENetEvent& event, const std::string& header)
         };
         tile_update(event, s, block, world);
     }
-    /* @todo this ended up very sloppy, I will clean up later*/
     else if (pipes[3zu] == "billboard_edit" && !pipes[5zu].empty())
     {
         if (pipes[4zu] == "billboard_item") 

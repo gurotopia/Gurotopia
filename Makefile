@@ -1,12 +1,12 @@
 CXX = g++
 CXXFLAGS = -std=c++2b -g -Iinclude -MMD -MP
 
-LIBS := -L./include/mimalloc/lib
+LIBS := -L./include/mimalloc/lib -L./include/sqlite/lib
 TARGET := main.exe
 ifeq ($(OS),Windows_NT)
-    LIBS += -lws2_32 -lwinmm -lmimalloc_32
+    LIBS += -lws2_32 -lwinmm -lmimalloc_32 -lsqlite3_32
 else
-    LIBS += -lmimalloc
+    LIBS += -lmimalloc -lsqlite3
     TARGET := main.out
 endif
 

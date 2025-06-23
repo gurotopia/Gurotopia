@@ -7,6 +7,7 @@
     /* id, count */
     class slot {
     public:
+        slot(short _id, short _count) : id(_id), count(_count) {}
         short id{0};
         short count{0}; // @note total amount of that item
     };
@@ -102,7 +103,7 @@
     public:
         int type{};
         int netid{};
-        // @todo unknown data
+        int uid{}; // @todo understand this better @note so far I think this holds uid value
         int peer_state{};
         float count{}; // @todo understand this better
         int id{}; // @note peer's active hand, so 18 (fist) = punching, 32 (wrench) interacting, ect...

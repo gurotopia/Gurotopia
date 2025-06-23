@@ -5,7 +5,7 @@
 #include "equip.hpp"
 #include "tile_change.hpp"
 
-#include "tools/randomizer.hpp"
+#include "tools/ransuu.hpp"
 
 #include <cmath>
 
@@ -16,7 +16,7 @@
 #endif
 using namespace std::literals::chrono_literals;
 
-void tile_change(ENetEvent event, state state) 
+void tile_change(ENetEvent& event, state state) 
 {
     try
     {
@@ -28,8 +28,7 @@ void tile_change(ENetEvent event, state state)
             (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
 
         block &block = world.blocks[cord(state.punch[0], state.punch[1])];
-        item &item_state = items[state.id];
-        item &item = (block.fg != 0) ? items[block.fg] : items[block.bg];
+        item &item = (state.id != 32 && state.id != 18) ? items[state.id] : (block.fg != 0) ? items[block.fg] : items[block.bg];
         if (state.id == 18) // @note punching a block
         {
             if (item.id == 0) return;
@@ -37,6 +36,7 @@ void tile_change(ENetEvent event, state state)
             if (item.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
 
             std::vector<std::pair<short, short>> im{}; // @note list of dropped items
+            ransuu ransuu;
             switch (item.type)
             {
                 case std::byte{ type::LOCK }: // @todo add message saying who owns the lock.
@@ -49,7 +49,7 @@ void tile_change(ENetEvent event, state state)
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick)
                     {
                         block.hits[0] = 999;
-                        im.emplace_back(item.id - 1, randomizer(1, 8)); // @note fruit (from tree)
+                        im.emplace_back(item.id - 1, ransuu[{0, 8}]); // @note fruit (from tree)
                     }
                     break;
                 }
@@ -92,42 +92,42 @@ void tile_change(ENetEvent event, state state)
             block_punched(event, std::move(state), block);
             
             short remember_id = item.id;
-            if (block.hits[0] >= item.hits) block.fg = 0;
-            else if (block.hits[1] >= item.hits) block.bg = 0;
+            if (block.hits.front() >= item.hits) block.fg = 0, block.hits.front() = 0;
+            else if (block.hits.back() >= item.hits) block.bg = 0, block.hits.back() = 0;
             else return;
-            block.hits = {0, 0}; // @todo
             block.label = ""; // @todo
             block.toggled = false; // @todo
 
             if (item.cat == std::byte{ 02 }) // pick up (item goes back in your inventory)
             {
-                peer->emplace(slot{remember_id, 1});
+                drop_visuals(event, {remember_id, 1}, {state.pos[0] / 32, state.pos[1] / 32}); // @todo
                 inventory_visuals(event);
             }
             else // normal break (drop gem, seed, block & give XP)
             {
-                if (!randomizer(0, 7)) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
+
+                if (ransuu[{0, 9}] <= 1) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
                 if (item.type != std::byte{ type::SEED })
                 {
-                    if (!randomizer(0, 13)) im.emplace_back(remember_id, 1);
-                    if (!randomizer(0, 9)) im.emplace_back(remember_id + 1, 1);
+                    if (ransuu[{0, 17}] <= 1) im.emplace_back(remember_id, 1);
+                    if (ransuu[{0, 11}] <= 1) im.emplace_back(remember_id + 1, 1);
                 }
                 for (auto & i : im)
                     drop_visuals(event, {i.first, i.second},
                         {
-                            static_cast<float>(state.punch[0]) + randomizer(0.05f, 0.1f), 
-                            static_cast<float>(state.punch[1]) + randomizer(0.05f, 0.1f)
+                            static_cast<float>(state.punch[0]) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
+                            static_cast<float>(state.punch[1]) + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
                         });
                         
                 peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
             }
         } // @note delete im, id
-        else if (item_state.cloth_type != clothing::none) 
+        else if (item.cloth_type != clothing::none) 
         {
             equip(event, state); // @note imitate equip
             return; 
         }
-        else if (item_state.type == std::byte{ type::CONSUMEABLE }) return;
+        else if (item.type == std::byte{ type::CONSUMEABLE }) return;
         else if (state.id == 32)
         {
             switch (item.type)
@@ -220,7 +220,7 @@ void tile_change(ENetEvent event, state state)
         }
         else // @note placing a block
         {
-            switch (item_state.type)
+            switch (item.type)
             {
                 case std::byte{ type::LOCK }:
                 {
@@ -259,6 +259,7 @@ void tile_change(ENetEvent event, state state)
                 case std::byte{ type::SEED }:
                 case std::byte{ type::PROVIDER }:
                 {
+                    if (block.fg != 0) return; // @todo add splicing
                     block.tick = steady_clock::now();
                     break;
                 }
@@ -274,23 +275,17 @@ void tile_change(ENetEvent event, state state)
                     break;
                 }
             }
-            if (item_state.collision == collision::full)
+            if (item.collision == collision::full)
             {
                 // 이 (left, right)
                 bool x = state.punch.front() == std::lround(state.pos.front() / 32);
                 // 으 (up, down)
                 bool y = state.punch.back() == std::lround(state.pos.back() / 32);
 
-                // @note because floats are rounded weirdly in Growtopia...
-                bool x_nabor = state.punch.front() == std::lround(state.pos.front() / 32) + 1;
-                bool y_nabor = state.punch.back() == std::lround(state.pos.back() / 32) + 1;
-
-                bool collision = (x && y) || (x_nabor && y_nabor);
-                if ((peer->facing_left && collision) || 
-                    (not peer->facing_left && collision)) return;
+                if ((x && y)) return; // @todo when moving avoid collision.
             }
-            (item_state.type == std::byte{ type::BACKGROUND }) ? block.bg = state.id : block.fg = state.id;
-            peer->emplace(slot{ static_cast<short>(state.id), -1 });
+            (item.type == std::byte{ type::BACKGROUND }) ? block.bg = state.id : block.fg = state.id;
+            peer->emplace(slot(state.id, -1));
             inventory_visuals(event);
         }
         if (state.netid != world.owner) state.netid = peer->netid;

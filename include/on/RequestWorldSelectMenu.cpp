@@ -2,7 +2,7 @@
 #include "network/packet.hpp"
 #include "RequestWorldSelectMenu.hpp"
 
-void OnRequestWorldSelectMenu(ENetEvent event) 
+void OnRequestWorldSelectMenu(ENetEvent& event) 
 {
     auto &peer = _peer[event.peer];
     auto section = [&peer](const auto& range, const char* color) 

@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "quit.hpp"
 
-void quit(ENetEvent event, const std::string& header) 
+void quit(ENetEvent& event, const std::string& header) 
 {
     if (event.peer == nullptr) return;
     if (event.peer->data != nullptr) 

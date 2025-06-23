@@ -5,7 +5,7 @@
 
 #include "tools/string_view.hpp"
 
-void enter_game(ENetEvent event, const std::string& header) 
+void enter_game(ENetEvent& event, const std::string& header) 
 {
     auto &peer = _peer[event.peer];
     peer->user_id = fnv1a(peer->ltoken[0]); // @note FNV-1A is to proeprly downgrade std::hash to integer (Growtopia Standards)

@@ -2,7 +2,7 @@
 #include "network/packet.hpp"
 #include "inventoryfavuitrigger.hpp"
 
-void inventoryfavuitrigger(ENetEvent event, const std::string& header)
+void inventoryfavuitrigger(ENetEvent& event, const std::string& header)
 {
     gt_packet(*event.peer, false, 0,  {
         "OnDialogRequest",

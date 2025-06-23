@@ -2,7 +2,7 @@
 #include "network/packet.hpp"
 #include "respawn.hpp"
 
-void respawn(ENetEvent event, const std::string& header) 
+void respawn(ENetEvent& event, const std::string& header) 
 {
     gt_packet(*event.peer, true, 0, { 
         "OnSetFreezeState", 

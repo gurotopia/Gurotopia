@@ -5,7 +5,7 @@
 #include "pickup.hpp"
 #include "__states.hpp"
 
-std::unordered_map<int, std::function<void(ENetEvent, state)>> state_pool
+std::unordered_map<int, std::function<void(ENetEvent&, state)>> state_pool
 {
     {0, std::bind(&movement, std::placeholders::_1, std::placeholders::_2)},
     {3, std::bind(&tile_change, std::placeholders::_1, std::placeholders::_2)},

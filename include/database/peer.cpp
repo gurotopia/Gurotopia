@@ -93,6 +93,7 @@ ENetHost *server;
 std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::function<void(ENetPeer&)> fun)
 {
     std::vector<ENetPeer*> _peers{};
+
     _peers.reserve(server->peerCount);
 
     auto &recent_worlds = _peer[event.peer]->recent_worlds;
@@ -100,7 +101,7 @@ std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::fun
     for (ENetPeer &peer : std::span(server->peers, server->peerCount))
         if (peer.state == ENET_PEER_STATE_CONNECTED) 
         {
-            if (condition == PEER_SAME_WORLD)
+            if (condition == peer_condition::PEER_SAME_WORLD)
             {
                 if ((_peer[&peer]->recent_worlds.empty() && recent_worlds.empty()) || 
                     (_peer[&peer]->recent_worlds.back() != recent_worlds.back())) continue;
@@ -119,6 +120,7 @@ state get_state(const std::vector<std::byte> &&packet)
     return state{
         .type = _4bit[0],
         .netid = _4bit[1],
+        .uid = _4bit[2],
         .peer_state = _4bit[3],
         .count = _4bit_f[4],
         .id = _4bit[5],
@@ -135,6 +137,7 @@ std::vector<std::byte> compress_state(const state &&s)
     float *_4bit_f = reinterpret_cast<float*>(data.data());
     _4bit[0] = s.type;
     _4bit[1] = s.netid;
+    _4bit[2] = s.uid;
     _4bit[3] = s.peer_state;
     _4bit_f[4] = s.count;
     _4bit[5] = s.id;

@@ -2,7 +2,7 @@
 #include "network/packet.hpp"
 #include "NameChanged.hpp"
 
-void OnNameChanged(ENetEvent event) {
+void OnNameChanged(ENetEvent& event) {
     auto &peer = _peer[event.peer];
     gt_packet(*event.peer, true, 0, {
         "OnNameChanged",

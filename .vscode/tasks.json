@@ -1,5 +1,4 @@
 {
-    "version": "2.0.0",
     "tasks": [
         {
             "label": "Build Gurotopia",
@@ -20,7 +19,7 @@
             "command": "c:/msys64/usr/bin/bash.exe",
             "args": [
                 "-c",
-                "export PATH=\"$PATH:/c/msys64/ucrt64/bin:/c/msys64/usr/bin\" && make clean"
+                "export PATH=\"$PATH:/c/msys64/usr/bin\" && make clean"
             ]
         }
     ]

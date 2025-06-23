@@ -19,8 +19,7 @@ world::world(const std::string& name)
         file >> j;
         this->name = name;
         this->owner = j.contains("owner") && !j["owner"].is_null() ? j["owner"].get<int>() : 00;
-        this->ifloat_uid = j.contains("fs_uid") && !j["fs_uid"].is_null() ? j["fs_uid"].get<std::size_t>() : 0zu;
-        
+
         for (const nlohmann::json &jj : j["bs"]) 
             if (jj.contains("f") && jj.contains("b"))
             {    this->blocks.emplace_back(block{ 
@@ -32,13 +31,16 @@ world::world(const std::string& name)
                     jj.contains("l") && !jj["l"].is_null() ? jj["l"] : "" 
                 });
             }
+        int index = 0;
         for (const nlohmann::json &jj : j["fs"]) 
-            if (jj.contains("u") && jj.contains("i") && jj.contains("c") && jj.contains("p") && jj["p"].is_array() && jj["p"].size() == 2)
-            {    this->ifloats.emplace_back(ifloat{ 
-                    jj["u"], jj["i"], jj["c"], 
+            if (jj.contains("i") && jj.contains("c") && jj.contains("p") && jj["p"].is_array() && jj["p"].size() == 2)
+            {
+                this->ifloats.emplace(++index, ifloat{ 
+                    jj["i"], jj["c"], 
                     { jj["p"][0], jj["p"][1] } 
                 });
             }
+        this->ifloat_uid = index;
     }
 }
 
@@ -48,7 +50,6 @@ world::~world()
     {
         nlohmann::json j;
         if (this->owner != 0) j["owner"] = this->owner;
-        if (this->ifloat_uid != 0) j["fs_uid"] = this->ifloat_uid;
         for (const block &block : this->blocks) 
         {
             nlohmann::json list = {{"f", block.fg}, {"b", block.bg}};
@@ -58,10 +59,10 @@ world::~world()
             if (!block.label.empty()) list["l"] = block.label;
             j["bs"].push_back(list);
         }
-        for (const ifloat &ifloat : this->ifloats) 
+        for (const auto &ifloat : this->ifloats) 
         {
-            if (ifloat.id == 0 || ifloat.count == 0) continue;
-            j["fs"].push_back({{"u", ifloat.uid}, {"i", ifloat.id}, {"c", ifloat.count}, {"p", ifloat.pos}});
+            if (ifloat.second.id == 0 || ifloat.second.count == 0) continue;
+            j["fs"].push_back({{"i", ifloat.second.id}, {"c", ifloat.second.count}, {"p", ifloat.second.pos}});
         }
 
         std::ofstream(std::format("worlds\\{}.json", this->name), std::ios::trunc) << j;
@@ -91,7 +92,7 @@ void state_visuals(ENetEvent& event, state &&state)
 
 void block_punched(ENetEvent& event, state state, block &block)
 {
-    (block.fg == 0) ? ++block.hits[1] : ++block.hits[0];
+    (block.fg == 0) ? ++block.hits.back() : ++block.hits.front();
     state.type = 0x8; // @note PACKET_TILE_APPLY_DAMAGE
     state.id = 6; // @note idk exactly
     state.netid = _peer[event.peer]->netid;
@@ -105,20 +106,18 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
     if (im[1] == 0 || im[0] == 0)
     {
         state.netid = _peer[event.peer]->netid;
-        state.peer_state = -1;
+        state.uid = -1;
         state.id = uid;
     }
     else
     {
         world &world = worlds[_peer[event.peer]->recent_worlds.back()];
-        std::size_t uid = world.ifloat_uid++;
-        std::vector<ifloat> &ifloats{world.ifloats};
-        ifloat it = ifloats.emplace_back(ifloat{uid, im[0], im[1], pos}); // @note a iterator ahead of time
+        auto it = world.ifloats.emplace(++world.ifloat_uid, ifloat{im[0], im[1], pos}); // @note a iterator ahead of time
         state.netid = -1;
-        state.peer_state = static_cast<int>(it.uid);
+        state.uid = it.first->first;
         state.count = static_cast<float>(im[1]);
-        state.id = it.id;
-        state.pos = {it.pos[0] * 32, it.pos[1] * 32};
+        state.id = it.first->second.id;
+        state.pos = {it.first->second.pos[0] * 32, it.first->second.pos[1] * 32};
     }
     compress = compress_state(std::move(state));
     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p)  
@@ -158,12 +157,12 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         case std::byte{ type::DOOR }:
         {
             data[pos - 2zu] = std::byte{ 01 };
-            std::size_t len = block.label.length();
+            short len = block.label.length();
             data.resize(pos + 1zu + 2zu + len + 1zu); // @note 01 {2} {} 0 0
 
             data[pos] = std::byte{ 01 }; pos += sizeof(std::byte);
             
-            *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
+            *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
             for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
             pos += sizeof(std::byte); // @note '\0'
             break;
@@ -171,12 +170,12 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         case std::byte{ type::SIGN }:
         {
             data[pos - 2zu] = std::byte{ 0x19 };
-            std::size_t len = block.label.length();
+            short len = block.label.length();
             data.resize(pos + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
 
             data[pos] = std::byte{ 02 }; pos += sizeof(std::byte);
 
-            *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
+            *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
             for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
             *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
             break;

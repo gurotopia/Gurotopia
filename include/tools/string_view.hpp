@@ -3,21 +3,24 @@
 #define STRING_VIEW_HPP
 
     /*
-    @param str the whole string
-    @param c the char to search for and split
-    @return std::vector<std::string> storing each split off from c found in the str.
+     @param str the whole string
+     @param c the char to search for and split
+     @return std::vector<std::string> storing each split off from c found in the str.
     */
-    inline/* todo */ std::vector<std::string> readch(const std::string& str, const char& c) 
-    {
-        std::vector<std::string> separations;
-        separations.reserve(std::count(str.begin(), str.end(), c) + 1); 
-        for (auto&& part : str | std::views::split(c))
-            separations.emplace_back(std::string(std::ranges::begin(part), std::ranges::end(part)));
-        return separations;
+    inline std::vector<std::string> readch(const std::string &&str, char c) {
+        std::vector<std::string> result;
+        result.reserve(std::ranges::count(str, c) + 1);
+
+        for (auto &&part : std::views::split(str, c))
+            result.emplace_back(std::ranges::begin(part), std::ranges::end(part));
+
+        return result;
     }
 
-    /* @return true if string contains ONLY alpha [a, b, c] or num [1, 2, 3] */
-    inline/* todo */ bool alpha(const std::string& str) 
+    /*
+     @return true if string contains ONLY alpha [a, b, c] or num [1, 2, 3] 
+    */
+    inline bool alpha(const std::string& str) 
     {
         return std::ranges::all_of(str, [](unsigned char c) { return std::isalnum(c); });
     }
@@ -37,25 +40,22 @@
         return table;
     }
 
-    inline/* todo */ std::string base64Decode(std::string_view encoded) 
-    {
-        constexpr auto lookupTable = createLookupTable();
+    inline std::string base64Decode(std::string_view encoded) {
+        static constexpr auto lookup = createLookupTable();
         std::string decoded;
-        decoded.reserve((encoded.size() * 3) / 4);
+        decoded.reserve((encoded.size() * 3zu) / 4zu);
 
-        int val{};
-        int valb{-8};
+        int val = 0, valb = -8;
         for (unsigned char c : encoded) 
         {
-            if (int idx = lookupTable[c]; idx != -1) 
+            int idx = lookup[c];
+            if (idx == -1) continue;
+            val = (val << 6) | idx;
+            valb += 6;
+            if (valb >= 0) 
             {
-                val = (val << 6) + idx;
-                valb += 6;
-                if (valb >= 0) 
-                {
-                    decoded.push_back(static_cast<char>((val >> valb) & 0xFF));
-                    valb -= 8;
-                }
+                decoded.push_back(static_cast<char>((val >> valb) & 0xFF));
+                valb -= 8;
             }
         }
         return decoded;
@@ -74,5 +74,10 @@
         }
         return fnv1a;
     }
+
+    /* 
+     @return '1' (true) || '0' (false) 
+    */
+    constexpr auto to_char = [](bool b) { return b ? '1' : '0'; };
     
 #endif

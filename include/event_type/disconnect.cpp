@@ -2,7 +2,7 @@
 #include "action/quit.hpp"
 #include "disconnect.hpp"
 
-void disconnect(ENetEvent event)
+void disconnect(ENetEvent& event)
 {
     quit(event, "");
 }

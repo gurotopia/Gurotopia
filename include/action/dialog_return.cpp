@@ -1,22 +1,23 @@
 #include "pch.hpp"
 #include "network/packet.hpp"
+#include "on/BillboardChange.hpp"
 #include "action/dialog_return.hpp"
 
 #include "tools/string_view.hpp"
 
-void dialog_return(ENetEvent event, const std::string& header) 
+void dialog_return(ENetEvent& event, const std::string& header) 
 {
     auto &peer = _peer[event.peer];
-    std::vector<std::string> pipes = readch(header, '|');
+    std::vector<std::string> pipes = readch(std::move(header), '|');
 
-    if (pipes.size() < 3) return; // if button has no name.
+    if (pipes.size() <= 3) return; // if button has no name or has no field.
     
     if (((pipes[3zu] == "drop_item" || pipes[3zu] == "trash_item") && pipes[4zu] == "itemID" && pipes[7zu] == "count") && 
         (!pipes[5zu].empty() && !pipes[8zu].empty()))
     {
         const short id = stoi(pipes[5zu]);
         const short count = stoi(pipes[8zu]);
-        peer->emplace(slot{id, static_cast<short>(count * -1)}); // @note take away
+        peer->emplace(slot(id, -count)); // @note take away
         inventory_visuals(event);
         if (pipes[3zu] == "drop_item") 
         {
@@ -71,29 +72,34 @@ void dialog_return(ENetEvent event, const std::string& header)
                 std::format("set_default_color|`o\n"
                 "add_label_with_icon|big|`wTrade Billboard``|left|8282|\n"
                 "add_spacer|small|\n"
-                "{0}"
+                "{}"
                 "add_item_picker|billboard_item|`wSelect Billboard Item``|Choose an item to put on your billboard!|\n"
                 "add_spacer|small|\n"
-                "add_checkbox|billboard_toggle|`$Show Billboard``|{1}\n"
-                "add_checkbox|billboard_buying_toggle|`$Is Buying``|{2}\n"
-                "add_text_input|setprice|Price of item:|{3}|5|\n"
-                "add_checkbox|chk_peritem|World Locks per Item|{4}\n"
-                "add_checkbox|chk_perlock|Items per World Lock|{5}\n"
+                "add_checkbox|billboard_toggle|`$Show Billboard``|{}\n"
+                "add_checkbox|billboard_buying_toggle|`$Is Buying``|{}\n"
+                "add_text_input|setprice|Price of item:|{}|5|\n"
+                "add_checkbox|chk_peritem|World Locks per Item|{}\n"
+                "add_checkbox|chk_perlock|Items per World Lock|{}\n"
                 "add_spacer|small|\n"
                 "end_dialog|billboard_edit|Close|Update|\n",
-                (peer->billboard.id == 0) ? "" : std::format(
-                    "add_label_with_icon|small|`w{}``|left|{}|\n", 
-                    items[peer->billboard.id].raw_name, peer->billboard.id),
-                signed{peer->billboard.show}, signed{peer->billboard.isBuying}, peer->billboard.price, 
-                signed{peer->billboard.perItem}, signed{!peer->billboard.perItem}
+                (peer->billboard.id == 0) ? 
+                    "" : 
+                    std::format("add_label_with_icon|small|`w{}``|left|{}|\n", items[peer->billboard.id].raw_name, peer->billboard.id),
+                to_char(peer->billboard.show),
+                to_char(peer->billboard.isBuying),
+                peer->billboard.price,
+                to_char(peer->billboard.perItem),
+                to_char(!peer->billboard.perItem)
                 ).c_str()
             });
         }
     }
-    else if ((pipes[3zu] == "find" && pipes[4zu] == "buttonClicked" && pipes[5zu].starts_with("searchableItemListButton")) && 
-             !readch(pipes[5zu], '_')[1].empty())
+    else if (pipes[3zu] == "find" && pipes[4zu] == "buttonClicked" && pipes[5zu].starts_with("searchableItemListButton"))
     {
-        peer->emplace(slot{static_cast<short>(stoi(readch(pipes[5zu], '_')[1])), 200});
+        std::string id = readch(std::move(pipes[5zu]), '_')[1];
+        if (id.empty()) return;
+        
+        peer->emplace(slot(stoi(id), 200));
         inventory_visuals(event);
     }
     else if ((pipes[3zu] == "door_edit" && pipes[10zu] == "door_name") || 
@@ -138,13 +144,16 @@ void dialog_return(ENetEvent event, const std::string& header)
                 .perItem = stoi(pipes[11zu]) != 0,
             };
         }
-        gt_packet(*event.peer, true, 0, {
-            "OnBillboardChange",
-            peer->netid,
-            signed{peer->billboard.id},
-            std::format("{},{}", signed{peer->billboard.show}, signed{peer->billboard.isBuying}).c_str(),
-            peer->billboard.price,
-            signed{peer->billboard.perItem}
-        });
+        BillboardChange(event);
+    }
+    else if (pipes[3zu] == "lock_edit")
+    {
+        if (pipes[10] == "checkbox_public" && pipes[11] == "1"/*true*/ || pipes[11] == "0"/*false*/)
+        {
+            world &world = worlds[peer->recent_worlds.back()];
+            world._public = stoi(pipes[11]);
+
+            // @todo add public lock visuals
+        }
     }
 }

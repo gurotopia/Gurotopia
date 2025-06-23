@@ -1,11 +1,12 @@
 #include "pch.hpp"
 #include "network/packet.hpp"
 #include "on/EmoticonDataChanged.hpp"
-#include "tools/randomizer.hpp"
+#include "on/BillboardChange.hpp"
 #include "commands/weather.hpp"
 #include "join_request.hpp"
 
 #include "tools/string_view.hpp"
+#include "tools/ransuu.hpp"
 
 #if defined(_MSC_VER)
     using namespace std::chrono;
@@ -21,14 +22,14 @@ constexpr std::array<std::byte, 4zu> EXIT{
     std::byte{ 0x54 }  // @note 'T'
 };
 
-void join_request(ENetEvent event, const std::string& header, const std::string_view world_name = "") 
+void join_request(ENetEvent& event, const std::string& header, const std::string_view world_name = "") 
 {
     try 
     {
         if (not create_rt(event, 2, 900)) throw std::runtime_error("");
 
         auto &peer = _peer[event.peer];
-        std::string big_name{world_name.empty() ? readch(std::string{header}, '|')[3] : world_name};
+        std::string big_name{world_name.empty() ? readch(std::move(header), '|')[3] : world_name};
 
         if (not alpha(big_name) || big_name.empty()) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
@@ -37,7 +38,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         std::vector<std::string> buffs{};
         if (world.name.empty())
         {
-            const unsigned main_door = randomizer(2, 100 * 60 / 100 - 4);
+            ransuu ransuu;
+            const unsigned main_door = ransuu[{2, 100 * 60 / 100 - 4}];
             std::vector<block> blocks(100 * 60, block{0, 0});
             
             for (auto &&[i, block] : blocks | std::views::enumerate)
@@ -45,8 +47,8 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 if (i >= cord(0, 37))
                 {
                     block.bg = 14; // cave background
-                    if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && !randomizer(0, 38)) block.fg = 10 /* rock */;
-                    else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && randomizer(0, 8) < 3) block.fg = 4 /* lava */;
+                    if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && ransuu[{0, 38}] <= 1) block.fg = 10 /* rock */;
+                    else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && ransuu[{0, 8}] < 3) block.fg = 4 /* lava */;
                     else block.fg = (i >= cord(0, 54)) ? 8 : 2 /* dirt */;
                 }
                 if (i == cord(main_door, 36)) block.fg = 6; // main door
@@ -56,7 +58,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
             world.name = std::move(big_name);
         }
         {
-            std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12/*initial drop*/, std::byte{ 00 });
+            std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12 + 8/*total drop uid*/, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };
             data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
             data[16zu] = std::byte{ 0x8 };
@@ -116,12 +118,12 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     case std::byte{ type::DOOR }:
                     {
                         data[pos - 2zu] = std::byte{ 01 };
-                        std::size_t len = block.label.length();
+                        short len = block.label.length();
                         data.resize(data.size() + 4zu + len); // @note 01 {2} {} 0 0
 
                         data[pos++] = std::byte{ 01 };
 
-                        *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
+                        *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
                         for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
                         data[pos++] = std::byte{ 00 }; // @note '\0'
                         break;
@@ -129,12 +131,12 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                     case std::byte{ type::SIGN }:
                     {
                         data[pos - 2zu] = std::byte{ 0x19 };
-                        std::size_t len = block.label.length();
+                        short len = block.label.length();
                         data.resize(data.size() + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
 
                         data[pos++] = std::byte{ 02 };
 
-                        *reinterpret_cast<short*>(&data[pos]) = static_cast<short>(len); pos += sizeof(short);
+                        *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
                         for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
                         *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
                         break;
@@ -188,21 +190,21 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 }
                 ++i;
             }
+            pos += 12; // @note rgt has it as: bb 7f 06 00 00 00 00 00 5b 0d 0a 00
+
+            *reinterpret_cast<int*>(&data[pos]) = world.ifloat_uid; pos += sizeof(int);
+            *reinterpret_cast<int*>(&data[pos]) = world.ifloat_uid; pos += sizeof(int);
+            for (const auto& ifloat : world.ifloats) 
+            {
+                data.resize(data.size() + 16zu);
+                *reinterpret_cast<short*>(&data[pos]) = ifloat.second.id; pos += sizeof(short);
+                *reinterpret_cast<float*>(&data[pos]) = ifloat.second.pos[0] * 32.0f; pos += sizeof(float);
+                *reinterpret_cast<float*>(&data[pos]) = ifloat.second.pos[1] * 32.0f; pos += sizeof(float);
+                *reinterpret_cast<short*>(&data[pos]) = ifloat.second.count; pos += sizeof(short);
+                *reinterpret_cast<int*>(&data[pos]) = ifloat.first; pos += sizeof(int);
+            }
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data
-
-        for (const auto& ifloat : world.ifloats)
-        {
-            std::vector<std::byte> compress = compress_state({
-                .type = 0x0e, 
-                .netid = -1,
-                .peer_state = static_cast<int>(ifloat.uid),
-                .count = static_cast<float>(ifloat.count),
-                .id = ifloat.id, 
-                .pos = {ifloat.pos[0] * 32, ifloat.pos[1] * 32}
-            });
-            send_data(*event.peer, std::move(compress));
-        } // @note delete compress
         if (std::ranges::find(peer->recent_worlds, world.name) == peer->recent_worlds.end()) 
         {
             std::ranges::rotate(peer->recent_worlds, peer->recent_worlds.begin() + 1);
@@ -216,7 +218,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
         else if (role == role::DEVELOPER) peer->prefix = "6@";
         EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
-        peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
+        peers(event, PEER_SAME_WORLD, [event, &peer, &world, role](ENetPeer& p) 
         {
             if (_peer[&p]->user_id != peer->user_id) 
             {
@@ -265,6 +267,7 @@ void join_request(ENetEvent event, const std::string& header, const std::string_
                 world.name, section(buffs), world.visitors - 1, peers(event).size()
             ).c_str()
         });
+        if (peer->billboard.id != 0) BillboardChange(event); // @note don't waste memory if billboard is empty.
         inventory_visuals(event);
         peer->ready_exit = true;
         worlds.emplace(world.name, world); // @todo possible race-condition..

@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "movement.hpp"
 
-void movement(ENetEvent event, state state) 
+void movement(ENetEvent& event, state state) 
 {
     auto &peer = _peer[event.peer];
     

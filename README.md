@@ -14,7 +14,8 @@
 #### ![](https://github.com/microsoft/vscode-icons/blob/main/icons/dark/checklist.svg) Download:
    - **Visual Studio Code**:  **https://code.visualstudio.com/**
    - **MSYS2**:  **https://www.msys2.org/**
-   - **C/C++ extension for VSC**: https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
+   - **C/C++ extension (VSC)**: https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
+   - *(optional)* **SQLite Viewer extension (VSC)**: https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer
 
 #### ![](https://github.com/microsoft/vscode-icons/blob/main/icons/dark/archive.svg) Installing MSYS packages:
    - Locate MSYS folder (`C:\msys64`).

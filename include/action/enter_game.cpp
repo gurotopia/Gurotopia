@@ -32,7 +32,7 @@ void enter_game(ENetEvent& event, const std::string& header)
         1,
         1
     });
-    gt_packet(*event.peer, false, 0, {"SetHasGrowID", 1, peer->ltoken[0], ""}); 
+    gt_packet(*event.peer, false, 0, {"SetHasGrowID", 1, peer->ltoken[0].c_str(), ""}); 
 
     {
         std::time_t now = std::time(nullptr);

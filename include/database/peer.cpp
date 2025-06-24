@@ -94,7 +94,7 @@ peer::~peer()
     sqlite3_stmt *stmt = nullptr;
     if (sqlite3_prepare_v2(db, "REPLACE INTO peers (name, role, gems, level0, level1) VALUES (?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
     {
-        sqlite3_bind_text(stmt, 1, this->ltoken[0], -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
         sqlite3_bind_int(stmt, 2, this->role);
         sqlite3_bind_int(stmt, 3, this->gems);
         sqlite3_bind_int(stmt, 4, this->level[0]);
@@ -104,7 +104,7 @@ peer::~peer()
 
     if (sqlite3_prepare_v2(db, "DELETE FROM slots WHERE name = ?;", -1, &stmt, nullptr) == SQLITE_OK) // @todo
     {
-        sqlite3_bind_text(stmt, 1, this->ltoken[0], -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
         sqlite3_step(stmt);
     } sqlite3_finalize(stmt);
 
@@ -113,7 +113,7 @@ peer::~peer()
         for (const slot &slot : this->slots) 
         {
             if ((slot.id == 18 || slot.id == 32) || slot.count <= 0) continue;
-            sqlite3_bind_text(stmt, 1, this->ltoken[0], -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
             sqlite3_bind_int(stmt, 2, slot.id);
             sqlite3_bind_int(stmt, 3, slot.count);
             sqlite3_step(stmt);

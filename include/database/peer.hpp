@@ -35,8 +35,6 @@
     class peer {
     public:
         peer& read(const std::string& name);
-        
-        bool ready_exit{}; // @note peer can safely exit a world if true.
 
         signed netid{ -1 }; // @note peer's netid is world identity. this will be useful for many packet sending
         int user_id{}; // @note unqiue user id.

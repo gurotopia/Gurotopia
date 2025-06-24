@@ -7,9 +7,6 @@ void quit_to_exit(ENetEvent& event, const std::string& header, bool skip_selecti
 {
     auto &peer = _peer[event.peer];
 
-    if (!peer->ready_exit) return; // @todo investigating action|quit_to_exit being called 2-3 times in a row...?
-    peer->ready_exit = false;
-
     auto it = worlds.find(peer->recent_worlds.back());
     if (it == worlds.end()) return; // @note peer was not in a world, therefore nothing to exit from.
 

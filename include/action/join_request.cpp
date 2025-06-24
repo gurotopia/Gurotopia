@@ -272,7 +272,6 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
         });
         if (peer->billboard.id != 0) BillboardChange(event); // @note don't waste memory if billboard is empty.
         inventory_visuals(event);
-        peer->ready_exit = true;
         worlds.emplace(world.name, world); // @todo possible race-condition..
     }
     catch (const std::exception& exc)

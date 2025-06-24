@@ -14,17 +14,26 @@ world::world(const std::string& name)
 {
     sqlite3* db;
     if (sqlite3_open("db/worlds.db", &db) != SQLITE_OK) return;
-
-    sqlite3_stmt* stmt;
-    if (sqlite3_prepare_v2(db, "SELECT owner FROM worlds WHERE name = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
+    struct DBCloser {
+        sqlite3* db;
+        ~DBCloser() { if (db) sqlite3_close(db); }
+    } db_guard{db};
     {
-        sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-        if (sqlite3_step(stmt) == SQLITE_ROW) 
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, "SELECT owner FROM worlds WHERE name = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
         {
-            this->owner = sqlite3_column_int(stmt, 0);
-            this->name = name;
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+            if (sqlite3_step(stmt) == SQLITE_ROW) 
+            {
+                this->owner = sqlite3_column_int(stmt, 0);
+                this->name = name;
+            }
         }
-    } sqlite3_finalize(stmt);
+    }
     {
         std::string create_table =
             "CREATE TABLE IF NOT EXISTS worlds ("
@@ -41,41 +50,51 @@ world::world(const std::string& name)
         char* errmsg = nullptr;
         if (sqlite3_exec(db, create_table.c_str(), nullptr, nullptr, &errmsg) != SQLITE_OK) sqlite3_free(errmsg);
     } // @note delete create_table
-
-    if (sqlite3_prepare_v2(db, "SELECT fg, bg, toggled, tick, label FROM blocks WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
     {
-        sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-        while (sqlite3_step(stmt) == SQLITE_ROW) 
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, "SELECT fg, bg, toggled, tick, label FROM blocks WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
         {
-            this->blocks.emplace_back(block(
-                sqlite3_column_int(stmt, 0),
-                sqlite3_column_int(stmt, 1),
-                sqlite3_column_int(stmt, 2),
-                steady_clock::time_point(std::chrono::seconds(sqlite3_column_int(stmt, 3))),
-                reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4))
-            ));
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+            while (sqlite3_step(stmt) == SQLITE_ROW) 
+            {
+                this->blocks.emplace_back(block(
+                    sqlite3_column_int(stmt, 0),
+                    sqlite3_column_int(stmt, 1),
+                    sqlite3_column_int(stmt, 2),
+                    steady_clock::time_point(std::chrono::seconds(sqlite3_column_int(stmt, 3))),
+                    reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4))
+                ));
+            }
         }
-    } sqlite3_finalize(stmt);
-
-    int max_uid = 0;
-    if (sqlite3_prepare_v2(db, "SELECT uid, id, count, x, y FROM ifloats WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
+    }
     {
-        sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-        while (sqlite3_step(stmt) == SQLITE_ROW) 
+        sqlite3_stmt* stmt;
+        int max_uid = 0;
+        if (sqlite3_prepare_v2(db, "SELECT uid, id, count, x, y FROM ifloats WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
         {
-            int uid = sqlite3_column_int(stmt, 0);
-            max_uid = std::max(max_uid, uid);
-            this->ifloats.emplace(uid, ifloat(
-                sqlite3_column_int(stmt, 1),
-                sqlite3_column_int(stmt, 2),
-                { static_cast<float>(sqlite3_column_double(stmt, 3)),
-                static_cast<float>(sqlite3_column_double(stmt, 4)) }
-            ));
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+            while (sqlite3_step(stmt) == SQLITE_ROW) 
+            {
+                int uid = sqlite3_column_int(stmt, 0);
+                max_uid = std::max(max_uid, uid);
+                this->ifloats.emplace(uid, ifloat(
+                    sqlite3_column_int(stmt, 1),
+                    sqlite3_column_int(stmt, 2),
+                    { static_cast<float>(sqlite3_column_double(stmt, 3)),
+                    static_cast<float>(sqlite3_column_double(stmt, 4)) }
+                ));
+            }
         }
-    } sqlite3_finalize(stmt);
-    this->ifloat_uid = max_uid;
-
-    sqlite3_close(db);
+        this->ifloat_uid = max_uid;
+    }
 }
 
 world::~world()
@@ -84,56 +103,92 @@ world::~world()
 
     sqlite3* db;
     if (sqlite3_open("db/worlds.db", &db) != SQLITE_OK) return;
+    struct DBCloser {
+        sqlite3* db;
+        ~DBCloser() { if (db) sqlite3_close(db); }
+    } db_guard{db};
 
     sqlite3_exec(db, "BEGIN;", nullptr, nullptr, nullptr);
 
-    sqlite3_stmt* stmt;
-    if (sqlite3_prepare_v2(db, "REPLACE INTO worlds (name, owner) VALUES (?, ?);", -1, &stmt, nullptr) == SQLITE_OK) {
-        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
-        sqlite3_bind_int(stmt, 2, this->owner);
-        sqlite3_step(stmt);
-    } sqlite3_finalize(stmt);
-
-    if (sqlite3_prepare_v2(db, "DELETE FROM blocks WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) // @todo
     {
-        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
-        sqlite3_step(stmt);
-    } sqlite3_finalize(stmt);
-
-    if (sqlite3_prepare_v2(db, "INSERT INTO blocks (world, fg, bg, toggled, tick, label) VALUES (?, ?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) {
-        for (const block& b : this->blocks) {
-            sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt, 2, b.fg);
-            sqlite3_bind_int(stmt, 3, b.bg);
-            sqlite3_bind_int(stmt, 4, b.toggled);
-            sqlite3_bind_int(stmt, 5, static_cast<int>(duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count()));
-            sqlite3_bind_text(stmt, 6, b.label.c_str(), -1, SQLITE_STATIC);
-            sqlite3_step(stmt);
-            sqlite3_reset(stmt);
-        }
-    } sqlite3_finalize(stmt);
-
-    sqlite3_prepare_v2(db, "DELETE FROM ifloats WHERE world = ?;", -1, &stmt, nullptr); // @todo
-    sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
-    sqlite3_step(stmt);
-    sqlite3_finalize(stmt);
-
-    if (sqlite3_prepare_v2(db, "INSERT INTO ifloats (world, uid, id, count, x, y) VALUES (?, ?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) {
-        for (const auto& ifloat : this->ifloats) {
-            if (ifloat.second.id == 0 || ifloat.second.count == 0) continue;
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, "REPLACE INTO worlds (name, owner) VALUES (?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
+        {
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
             sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt, 2, ifloat.first);
-            sqlite3_bind_int(stmt, 3, ifloat.second.id);
-            sqlite3_bind_int(stmt, 4, ifloat.second.count);
-            sqlite3_bind_double(stmt, 5, ifloat.second.pos[0]);
-            sqlite3_bind_double(stmt, 6, ifloat.second.pos[1]);
+            sqlite3_bind_int(stmt, 2, this->owner);
             sqlite3_step(stmt);
-            sqlite3_reset(stmt);
         }
-    } sqlite3_finalize(stmt);
-
+    }
+    {
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, "DELETE FROM blocks WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) // @todo
+        {
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_step(stmt);
+        }
+    }
+    {
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, "INSERT INTO blocks (world, fg, bg, toggled, tick, label) VALUES (?, ?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
+        {
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            for (const block& b : this->blocks) {
+                sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_int(stmt, 2, b.fg);
+                sqlite3_bind_int(stmt, 3, b.bg);
+                sqlite3_bind_int(stmt, 4, b.toggled);
+                sqlite3_bind_int(stmt, 5, static_cast<int>(duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count()));
+                sqlite3_bind_text(stmt, 6, b.label.c_str(), -1, SQLITE_STATIC);
+                sqlite3_step(stmt);
+                sqlite3_reset(stmt);
+            }
+        }
+    }
+    {
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, "DELETE FROM ifloats WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) // @todo
+        {
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_step(stmt);
+        }
+    }
+    {
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, "INSERT INTO ifloats (world, uid, id, count, x, y) VALUES (?, ?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
+        {
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            for (const auto& ifloat : this->ifloats) {
+                if (ifloat.second.id == 0 || ifloat.second.count == 0) continue;
+                sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_int(stmt, 2, ifloat.first);
+                sqlite3_bind_int(stmt, 3, ifloat.second.id);
+                sqlite3_bind_int(stmt, 4, ifloat.second.count);
+                sqlite3_bind_double(stmt, 5, ifloat.second.pos[0]);
+                sqlite3_bind_double(stmt, 6, ifloat.second.pos[1]);
+                sqlite3_step(stmt);
+                sqlite3_reset(stmt);
+            }
+        }
+    }
     sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
-    sqlite3_close(db);
 }
 
 std::unordered_map<std::string, world> worlds;

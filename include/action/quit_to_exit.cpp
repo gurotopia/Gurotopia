@@ -21,10 +21,7 @@ void quit_to_exit(ENetEvent& event, const std::string& header, bool skip_selecti
             "OnConsoleMessage", 
             std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, peer->ltoken[0], it->second.visitors).c_str()
         });
-        gt_packet(p, true, 0, {
-            "OnRemove", 
-            std::format("netID|{}\npId|\n", peer->netid).c_str()
-        });
+        gt_packet(p, true, 0, { "OnRemove", std::format("netID|{}\npId|\n", peer->netid).c_str() });
     });
     if (it->second.visitors <= 0) worlds.erase(it);
     if (prefix == "2" || prefix == "c") prefix = "w";

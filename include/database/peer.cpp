@@ -38,40 +38,91 @@ void peer::add_xp(unsigned short value)
     this->level.back() -= level_up * xp_formula;
 }
 
-peer& peer::read(const std::string& name)
+peer& peer::read(const std::string& name) 
 {
-    std::ifstream file(std::format("players\\{}.json", name));
-    if (file.is_open()) 
+    sqlite3 *db;
+    if (sqlite3_open("db/peers.db", &db) != SQLITE_OK) return *this;
+
     {
-        nlohmann::json j;
-        file >> j;
-        this->role = j.contains("role") && !j["role"].is_null() ? j["role"].get<char>() : this->role;
-        this->gems = j.contains("gems") && !j["gems"].is_null() ? j["gems"].get<int>() : this->gems;
-        this->level = j.contains("level") && !j["level"].is_null() ? j["level"].get<std::array<unsigned short, 2zu>>() : this->level;
-        this->recent_worlds = j.contains("r_worlds") && !j["r_worlds"].is_null() ? j["r_worlds"].get<std::array<std::string, 6zu>>() : this->recent_worlds;
-        this->my_worlds = j.contains("my_worlds") && !j["my_worlds"].is_null() ? j["my_worlds"].get<std::array<std::string, 200zu>>() : this->my_worlds;
-        this->fav = j.contains("fav") && !j["fav"].is_null() ? j["fav"].get<std::vector<short>>() : this->fav;
-        for (const auto& i : j["slots"]) this->slots.emplace_back(slot{ i["i"], i["c"] });
-    }
+        std::string create_tables =
+            "CREATE TABLE IF NOT EXISTS peers ("
+            "name TEXT PRIMARY KEY, role INTEGER, gems INTEGER, level0 INTEGER, level1 INTEGER);"
+
+            "CREATE TABLE IF NOT EXISTS slots ("
+            "name TEXT, id INTEGER, count INTEGER, FOREIGN KEY(name) REFERENCES peers(name));";
+
+        char *errmsg = nullptr;
+        if (sqlite3_exec(db, create_tables.c_str(), nullptr, nullptr, &errmsg) != SQLITE_OK) sqlite3_free(errmsg);
+    } // @note delete create_tables
+
+    sqlite3_stmt *stmt = nullptr;
+    if (sqlite3_prepare_v2(db, "SELECT role, gems, level0, level1 FROM peers WHERE name = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+        if (sqlite3_step(stmt) == SQLITE_ROW) 
+        {
+            this->role = static_cast<char>(sqlite3_column_int(stmt, 0));
+            this->gems = sqlite3_column_int(stmt, 1);
+            this->level[0] = static_cast<unsigned short>(sqlite3_column_int(stmt, 2));
+            this->level[1] = static_cast<unsigned short>(sqlite3_column_int(stmt, 3));
+        }
+    } sqlite3_finalize(stmt);
+
+    if (sqlite3_prepare_v2(db, "SELECT id, count FROM slots WHERE name = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+        while (sqlite3_step(stmt) == SQLITE_ROW) 
+        {
+            slots.emplace_back(slot(
+                sqlite3_column_int(stmt, 0),
+                sqlite3_column_int(stmt, 1)
+            ));
+        }
+    } sqlite3_finalize(stmt);
+
+    sqlite3_close(db);
     return *this;
 }
 
-peer::~peer()
+peer::~peer() 
 {
-    nlohmann::json j;
-    j["role"] = this->role;
-    j["gems"] = this->gems;
-    j["level"] = this->level;
-    j["r_worlds"] = this->recent_worlds;
-    j["my_worlds"] = this->my_worlds;
-    j["fav"] = this->fav;
-    for (const slot &slot : this->slots)
-    {
-        if ((slot.id == 18 || slot.id == 32) || slot.count <= 0) continue;
-        j["slots"].emplace_back(nlohmann::json{{"i", slot.id}, {"c", slot.count}});
-    }
+    sqlite3 *db;
+    if (sqlite3_open("db/peers.db", &db) != SQLITE_OK) return;
 
-    std::ofstream(std::format("players\\{}.json", this->ltoken[0]), std::ios::trunc) << j.dump();
+    sqlite3_exec(db, "BEGIN;", nullptr, nullptr, nullptr);
+
+    sqlite3_stmt *stmt = nullptr;
+    if (sqlite3_prepare_v2(db, "REPLACE INTO peers (name, role, gems, level0, level1) VALUES (?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 2, this->role);
+        sqlite3_bind_int(stmt, 3, this->gems);
+        sqlite3_bind_int(stmt, 4, this->level[0]);
+        sqlite3_bind_int(stmt, 5, this->level[1]);
+        sqlite3_step(stmt);
+    } sqlite3_finalize(stmt);
+
+    if (sqlite3_prepare_v2(db, "DELETE FROM slots WHERE name = ?;", -1, &stmt, nullptr) == SQLITE_OK) // @todo
+    {
+        sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
+        sqlite3_step(stmt);
+    } sqlite3_finalize(stmt);
+
+    if (sqlite3_prepare_v2(db, "INSERT INTO slots (name, id, count) VALUES (?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
+    {
+        for (const slot &slot : this->slots) 
+        {
+            if ((slot.id == 18 || slot.id == 32) || slot.count <= 0) continue;
+            sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt, 2, slot.id);
+            sqlite3_bind_int(stmt, 3, slot.count);
+            sqlite3_step(stmt);
+            sqlite3_reset(stmt);
+        }
+    } sqlite3_finalize(stmt);
+
+    sqlite3_exec(db, "COMMIT;", nullptr, nullptr, nullptr);
+    sqlite3_close(db);
 }
 
 std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;

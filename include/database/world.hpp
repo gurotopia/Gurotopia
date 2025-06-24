@@ -5,6 +5,11 @@
     class block 
     {
     public:
+        block(
+            short _fg = 0, short _bg = 0, 
+            bool _toggled = false, std::chrono::steady_clock::time_point _tick = std::chrono::steady_clock::time_point(),
+            std::string _label = ""
+        ) : fg(_fg), bg(_bg), toggled(_toggled), tick(_tick), label(_label) {}
         short fg{0}, bg{0};
         
         bool toggled{}; // @note save toggle state
@@ -18,6 +23,7 @@
     class ifloat 
     {
     public:
+        ifloat(short _id, short _count, std::array<float, 2zu> _pos) : id(_id), count(_count), pos(_pos) {}
         short id{0};
         short count{0};
         std::array<float, 2zu> pos;

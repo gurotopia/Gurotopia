@@ -4,6 +4,7 @@
 
     #include "mimalloc/mimalloc-new-delete.h" // @note https://github.com/microsoft/mimalloc
 
+    #include <string.h> // @todo
     #include <unordered_map>
     #include <vector>
     #include <algorithm>
@@ -12,7 +13,8 @@
     #include <thread>
     #include <fstream>
     #include <format>
-    #include "nlohmann/json.hpp" // @note https://github.com/nlohmann/json
+    #include "sqlite/sqlite3.h" // @note https://sqlite.org/index.html
+    #include "enet/enet.h"
 
     #include "database/items.hpp"
     #include "database/peer.hpp"

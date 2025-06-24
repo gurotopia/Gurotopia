@@ -2,8 +2,6 @@
 #ifndef PEER_HPP
 #define PEER_HPP
 
-    #include "network/enet.hpp" // @note ENet supporting AF_INET6
-
     /* id, count */
     class slot {
     public:
@@ -42,7 +40,7 @@
 
         signed netid{ -1 }; // @note peer's netid is world identity. this will be useful for many packet sending
         int user_id{}; // @note unqiue user id.
-        std::array<const char*, 2zu> ltoken{}; // @note peer's ltoken e.g. {growid, password}
+        std::array<std::string, 2zu> ltoken{}; // @note peer's ltoken e.g. {growid, password}
         std::string prefix{ "w" }; // @note display name color, default: "w" (White)
         char role{role::PLAYER};
         std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}

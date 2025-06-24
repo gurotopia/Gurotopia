@@ -14,7 +14,8 @@
 #### ![](https://github.com/microsoft/vscode-icons/blob/main/icons/dark/checklist.svg) Download:
    - **Visual Studio Code**:  **https://code.visualstudio.com/**
    - **MSYS2**:  **https://www.msys2.org/**
-   - **C/C++ extension for VSC**: https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
+   - **C/C++ extension (VSC)**: https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
+   - **SQLite Viewer extension (VSC)**: https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer
 
 #### ![](https://github.com/microsoft/vscode-icons/blob/main/icons/dark/archive.svg) Installing MSYS packages:
    - Locate MSYS folder (`C:\msys64`).
@@ -24,9 +25,7 @@
    - After downloading *Gurotopia*, open it in Visual Studio Code, and press **Ctrl + Shift + B**, and let it compile...
 
 #### ![](https://github.com/microsoft/vscode-icons/blob/main/icons/dark/debug-alt-small.svg) Run/Debug:
-   - after compile press **F5** key- this will run and debug.
-   - *(optional)* how to stop the server? press **Shift + F5**, or simply close VSC.
-   - *(optional)* how to restart the server? press **Ctrl + Shift + F5**.
+   - after compile press **F5** or **Fn + 5** key, this will run and debug.
 ***
 
 > [!NOTE]

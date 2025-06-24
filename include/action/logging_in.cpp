@@ -15,13 +15,13 @@ void logging_in(ENetEvent& event, const std::string& header)
         {
             pos += sizeof("growId=")-1zu;
             const std::size_t ampersand = decoded.find('&', pos);
-            peer->ltoken[0] = strdup(decoded.substr(pos, ampersand - pos).c_str());
+            peer->ltoken[0] = decoded.substr(pos, ampersand - pos);
         }
 
         if (std::size_t pos = decoded.find("password="); pos != std::string::npos) 
         {
             pos += sizeof("password=")-1zu;
-            peer->ltoken[1] = strdup(decoded.substr(pos).c_str());
+            peer->ltoken[1] = decoded.substr(pos);
         }
     }
     peer->read(peer->ltoken[0]);

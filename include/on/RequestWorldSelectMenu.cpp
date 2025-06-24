@@ -9,7 +9,7 @@ void OnRequestWorldSelectMenu(ENetEvent& event)
     {
         std::string result;
         for (const auto& name : range) 
-            if (not name.empty()) 
+            if (!name.empty()) 
             {
                 auto it = worlds.find(name);
                 result.append((it != worlds.end()) ? 

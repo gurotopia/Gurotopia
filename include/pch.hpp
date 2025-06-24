@@ -13,8 +13,8 @@
     #include <thread>
     #include <fstream>
     #include <format>
-    #include "sqlite/sqlite3.h" // @note https://sqlite.org/index.html
-    #include "enet/enet.h"
+    #include "sqlite/sqlite3.h" // @version SHA: a67c71224f5821547040b637aad7cddf4ef0778a (24/6/25)
+    #include "enet/enet.h" // @version SHA: 657eaf97d9d335917c58484a4a4b5e03838ebd8e (13/11/24)
 
     #include "database/items.hpp"
     #include "database/peer.hpp"

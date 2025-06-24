@@ -6,7 +6,7 @@ void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any
     std::vector<std::byte> data(61, std::byte{ 00 });
     data[0zu] = std::byte{ 04 };
     data[4zu] = std::byte{ 01 };
-    *reinterpret_cast<signed*>(&data[8zu]) = (not netid) ? -1 : _peer[&p]->netid;
+    *reinterpret_cast<signed*>(&data[8zu]) = (!netid) ? -1 : _peer[&p]->netid;
     data[16zu] = std::byte{ 0x08 };
     *reinterpret_cast<signed*>(&data[24zu]) = delay;
     // @note 04 00 00 00 01 00 00 00 {netid} {...8} 08 00 00 00 {...8} {delay}

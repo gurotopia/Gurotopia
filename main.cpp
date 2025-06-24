@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 25-5-2024
-    @version beta-363
+    @version beta-367
 
     looking for:
     - Indonesian translator
@@ -23,8 +23,8 @@ int main()
     printf("\e[38;5;248mlsalzman/enet \e[1;37m%d.%d.%d\e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
     printf("\e[38;5;248msqlite/sqlite3 \e[1;37m%s\e[0m\n", SQLITE_VERSION);
 #endif
-
     if (!std::filesystem::exists("db")) std::filesystem::create_directory("db");
+
     {
         ENetCallbacks callbacks{
             .malloc = &mi_malloc,

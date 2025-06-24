@@ -20,7 +20,7 @@ void tile_change(ENetEvent& event, state state)
 {
     try
     {
-        if (not create_rt(event, 0, 160)) return;
+        if (!create_rt(event, 0, 160)) return;
         auto &peer = _peer[event.peer];
         auto w = worlds.find(peer->recent_worlds.back());
         if (w == worlds.end()) return;

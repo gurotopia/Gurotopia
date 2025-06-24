@@ -40,7 +40,7 @@ void dialog_return(ENetEvent& event, const std::string& header)
             {
                 std::string result;
                 for (const auto& name : range)
-                    if (not name.empty())
+                    if (!name.empty())
                         result.append(std::format("add_button|{0}|{0}|noflags|0|0|\n", name));
                 return result;
             };

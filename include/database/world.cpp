@@ -144,7 +144,7 @@ void send_data(ENetPeer& peer, const std::vector<std::byte> &&data)
     ENetPacket *packet = enet_packet_create(nullptr, size + 5zu, ENET_PACKET_FLAG_RELIABLE);
 
     *reinterpret_cast<int*>(&packet->data[0]) = 4;
-    memcpy(packet->data + 4, data.data(), size);
+    std::memcpy(packet->data + 4, data.data(), size);
     
     enet_peer_send(&peer, 1, packet);
 }
@@ -178,8 +178,10 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
     }
     else
     {
-        world &world = worlds[_peer[event.peer]->recent_worlds.back()];
-        auto it = world.ifloats.emplace(++world.ifloat_uid, ifloat{im[0], im[1], pos}); // @note a iterator ahead of time
+        auto w = worlds.find(_peer[event.peer]->recent_worlds.back());
+        if (w == worlds.end()) return;
+
+        auto it = w->second.ifloats.emplace(++w->second.ifloat_uid, ifloat{im[0], im[1], pos}); // @note a iterator ahead of time
         state.netid = -1;
         state.uid = it.first->first;
         state.count = static_cast<float>(im[1]);

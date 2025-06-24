@@ -7,8 +7,11 @@ void sb(ENetEvent& event, const std::string_view text)
     std::string message{ text.substr(sizeof("sb ")-1) };
     auto &peer = _peer[event.peer];
 
+    auto it = worlds.find(peer->recent_worlds.back());
+    if (it == worlds.end()) return;
+
     std::string display = peer->recent_worlds.back();
-    for (block &b : worlds[peer->recent_worlds.back()].blocks)
+    for (block &b : it->second.blocks)
         if (b.fg == 226 && b.toggled) 
         {
             display = "`4JAMMED``";

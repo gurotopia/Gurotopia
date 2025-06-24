@@ -177,6 +177,7 @@ state get_state(const std::vector<std::byte> &&packet)
         .id = _4bit[5],
         .pos = {_4bit_f[6], _4bit_f[7]},
         .speed = {_4bit_f[8], _4bit_f[9]},
+
         .punch = {_4bit[11], _4bit[12]}
     };
 }
@@ -196,6 +197,7 @@ std::vector<std::byte> compress_state(const state &&s)
     _4bit_f[7] = s.pos[1];
     _4bit_f[8] = s.speed[0];
     _4bit_f[9] = s.speed[1];
+    
     _4bit[11] = s.punch[0];
     _4bit[12] = s.punch[1];
     return data;

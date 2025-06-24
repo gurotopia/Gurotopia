@@ -39,7 +39,7 @@
         std::array<int, 6zu> admin{}; // @note admins (by user id). excluding owner. (6 is a experimental amount, if increase update me if any issue occur -leeendl)
         bool _public{}; // @note checks if world is public to break/place
 
-        short visitors{0}; // @note the current number of peers in a world, excluding invisable peers
+        unsigned char visitors{0}; // @note the current number of peers in a world, excluding invisable peers
 
         std::vector<block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
         int ifloat_uid{0}; // @note floating item UID

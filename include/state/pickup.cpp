@@ -7,7 +7,11 @@
 void pickup(ENetEvent& event, state state) 
 {
     auto &peer = _peer[event.peer];
-    auto &ifloats = worlds[peer->recent_worlds.back()].ifloats;
+
+    auto w = worlds.find(peer->recent_worlds.back());
+    if (w == worlds.end()) return;
+
+    auto &ifloats = w->second.ifloats;
 
     auto it = ifloats.find(state.id);
     if (it != ifloats.end()) 

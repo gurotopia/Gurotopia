@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 25-6-2024
-    @version beta-361
+    @version beta-362
 
     looking for:
     - Indonesian translator
@@ -51,7 +51,7 @@ int main()
 
         std::ifstream("items.dat", std::ios::binary)
             .read(reinterpret_cast<char*>(&im_data[60zu]), size);
-    } // @note delete size and close file
+    } // @note delete size
     cache_items();
 
     ENetEvent event{};

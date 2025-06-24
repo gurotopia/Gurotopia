@@ -8,7 +8,7 @@ jobs:
     name: "${{ matrix.msvc_version }}"
     strategy:
       matrix:
-        msvc_version: ['15.0', '16.0', '17.0', '17.14'] # vs2017, vs2019, vs2022, vs2022 (latest)
+        msvc_version: ['15.0', '16.0', '17.0'] # vs2017, vs2019, vs2022
     steps:
       - uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2 # updated on Jan 16
       

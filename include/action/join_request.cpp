@@ -61,7 +61,7 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
             std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12 + 8/*total drop uid*/, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };
             data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
-            data[16zu] = std::byte{ 0x8 };
+            data[16zu] = std::byte{ 0x08 };
             unsigned char len = static_cast<unsigned char>(world.name.length());
             data[66zu] = std::byte{ len };
 
@@ -205,11 +205,14 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
             }
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data
-        if (std::ranges::find(peer->recent_worlds, world.name) == peer->recent_worlds.end()) 
-        {
-            std::ranges::rotate(peer->recent_worlds, peer->recent_worlds.begin() + 1);
-            peer->recent_worlds.back() = world.name;
-        }
+
+        auto &recent_worlds = peer->recent_worlds;
+        if (auto it = std::ranges::find(recent_worlds, world.name); it != recent_worlds.end()) 
+            std::rotate(it, it + 1, recent_worlds.end());
+        else 
+            std::rotate(recent_worlds.begin(), recent_worlds.begin() + 1, recent_worlds.end());
+        recent_worlds.back() = world.name;
+
         if (peer->user_id == world.owner) peer->prefix = "2";
         else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix = "c";
 

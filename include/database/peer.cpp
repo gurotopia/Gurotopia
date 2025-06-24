@@ -162,8 +162,8 @@ std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 
 bool create_rt(ENetEvent &event, std::size_t pos, int length) 
 {
-    auto &rt = _peer[event.peer]->rate_limit[pos];
-    auto now = steady_clock::now();
+    steady_clock::time_point &rt = _peer[event.peer]->rate_limit[pos];
+    steady_clock::time_point now = steady_clock::now();
 
     if ((now - rt) <= std::chrono::milliseconds(length))
         return false;

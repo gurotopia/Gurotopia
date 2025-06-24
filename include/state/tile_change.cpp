@@ -67,7 +67,7 @@ void tile_change(ENetEvent& event, state state)
                     {
                         gt_packet(p, false, 0, { "OnSetCurrentWeather", remember_weather });
                     });
-                    for (auto &b : w->second.blocks)
+                    for (::block &b : w->second.blocks)
                         if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
                     
                     break;
@@ -113,7 +113,7 @@ void tile_change(ENetEvent& event, state state)
                     if (ransuu[{0, 17}] <= 1) im.emplace_back(remember_id, 1);
                     if (ransuu[{0, 11}] <= 1) im.emplace_back(remember_id + 1, 1);
                 }
-                for (auto & i : im)
+                for (std::pair<short, short> &i : im)
                     drop_visuals(event, {i.first, i.second},
                         {
                             static_cast<float>(state.punch[0]) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
@@ -271,7 +271,7 @@ void tile_change(ENetEvent& event, state state)
                     {
                         gt_packet(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
                     });
-                    for (auto &b : w->second.blocks)
+                    for (::block &b : w->second.blocks)
                         if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != state.id) b.toggled = false;
                     break;
                 }

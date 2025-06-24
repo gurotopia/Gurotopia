@@ -1,13 +1,12 @@
 /*
     @copyright gurotopia (c) 25-6-2024
-    @version beta-356
+    @version beta-359
 
     looking for:
     - Indonesian translator
     - reverse engineer
 */
 #include "include/pch.hpp"
-#include "include/network/compress.hpp" // @note isalzman's compressor
 #include "include/event_type/__event_type.hpp"
 
 #include <filesystem>
@@ -17,11 +16,11 @@ int main()
     /* libary version checker */
 #if defined(_MSC_VER)
     printf("microsoft/mimalloc beta-%d\n", MI_MALLOC_VERSION);
-    printf("zpl-c/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
+    printf("lsalzman/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
     printf("sqlite/sqlite3 %s\n", SQLITE_VERSION);
 #else
     printf("\e[38;5;248mmicrosoft/mimalloc \e[1;37mbeta-%d\e[0m\n", MI_MALLOC_VERSION);
-    printf("\e[38;5;248mzpl-c/enet \e[1;37m%d.%d.%d\e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
+    printf("\e[38;5;248mlsalzman/enet \e[1;37m%d.%d.%d\e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
     printf("\e[38;5;248msqlite/sqlite3 \e[1;37m%s\e[0m\n", SQLITE_VERSION);
 #endif
 
@@ -34,11 +33,10 @@ int main()
         };
         enet_initialize_with_callbacks(ENET_VERSION, &callbacks);
     } // @note delete callbacks
-    server = enet_host_create({
-        .host = in6addr_any,
-        .port = 17091u
-    },
-    50zu/*@note less to allocate than setting to MAX*/, 2zu);
+    {
+        ENetAddress address{.host = ENET_HOST_ANY, .port = 17091};
+        server = enet_host_create (&address, 50zu, 2zu, 0, 0);
+    } // @note delete address
     
     server->checksum = enet_crc32;
     enet_host_compress_with_range_coder(server);
@@ -58,7 +56,7 @@ int main()
 
     ENetEvent event{};
     while (true)
-        while (enet_host_service(server, &event, 1u/*ms*/) > 0)
+        while (enet_host_service(server, &event, 1/*ms*/) > 0)
             if (const auto i = event_pool.find(event.type); i != event_pool.end())
                 i->second(event);
     return 0;

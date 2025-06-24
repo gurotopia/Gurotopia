@@ -2,8 +2,6 @@
 #ifndef PEER_HPP
 #define PEER_HPP
 
-    #include "network/enet.hpp" // @note ENet supporting AF_INET6
-
     /* id, count */
     class slot {
     public:

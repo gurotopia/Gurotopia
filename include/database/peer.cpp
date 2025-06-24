@@ -47,6 +47,7 @@ peer& peer::read(const std::string& name)
         std::string create_tables =
             "CREATE TABLE IF NOT EXISTS peers ("
             "name TEXT PRIMARY KEY, role INTEGER, gems INTEGER, level0 INTEGER, level1 INTEGER);"
+
             "CREATE TABLE IF NOT EXISTS slots ("
             "name TEXT, id INTEGER, count INTEGER, FOREIGN KEY(name) REFERENCES peers(name));";
 
@@ -60,10 +61,10 @@ peer& peer::read(const std::string& name)
         sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
         if (sqlite3_step(stmt) == SQLITE_ROW) 
         {
-            role = static_cast<char>(sqlite3_column_int(stmt, 0));
-            gems = sqlite3_column_int(stmt, 1);
-            level[0] = static_cast<unsigned short>(sqlite3_column_int(stmt, 2));
-            level[1] = static_cast<unsigned short>(sqlite3_column_int(stmt, 3));
+            this->role = static_cast<char>(sqlite3_column_int(stmt, 0));
+            this->gems = sqlite3_column_int(stmt, 1);
+            this->level[0] = static_cast<unsigned short>(sqlite3_column_int(stmt, 2));
+            this->level[1] = static_cast<unsigned short>(sqlite3_column_int(stmt, 3));
         }
     } sqlite3_finalize(stmt);
 
@@ -93,26 +94,26 @@ peer::~peer()
     sqlite3_stmt *stmt = nullptr;
     if (sqlite3_prepare_v2(db, "REPLACE INTO peers (name, role, gems, level0, level1) VALUES (?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
     {
-        sqlite3_bind_text(stmt, 1, ltoken[0], -1, SQLITE_STATIC);
-        sqlite3_bind_int(stmt, 2, role);
-        sqlite3_bind_int(stmt, 3, gems);
-        sqlite3_bind_int(stmt, 4, level[0]);
-        sqlite3_bind_int(stmt, 5, level[1]);
+        sqlite3_bind_text(stmt, 1, this->ltoken[0], -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt, 2, this->role);
+        sqlite3_bind_int(stmt, 3, this->gems);
+        sqlite3_bind_int(stmt, 4, this->level[0]);
+        sqlite3_bind_int(stmt, 5, this->level[1]);
         sqlite3_step(stmt);
     } sqlite3_finalize(stmt);
 
     if (sqlite3_prepare_v2(db, "DELETE FROM slots WHERE name = ?;", -1, &stmt, nullptr) == SQLITE_OK) // @todo
     {
-        sqlite3_bind_text(stmt, 1, ltoken[0], -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 1, this->ltoken[0], -1, SQLITE_STATIC);
         sqlite3_step(stmt);
     } sqlite3_finalize(stmt);
 
     if (sqlite3_prepare_v2(db, "INSERT INTO slots (name, id, count) VALUES (?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
     {
-        for (const slot &slot : slots) 
+        for (const slot &slot : this->slots) 
         {
             if ((slot.id == 18 || slot.id == 32) || slot.count <= 0) continue;
-            sqlite3_bind_text(stmt, 1, ltoken[0], -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 1, this->ltoken[0], -1, SQLITE_STATIC);
             sqlite3_bind_int(stmt, 2, slot.id);
             sqlite3_bind_int(stmt, 3, slot.count);
             sqlite3_step(stmt);

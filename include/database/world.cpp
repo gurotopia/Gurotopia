@@ -26,18 +26,20 @@ world::world(const std::string& name)
         }
     } sqlite3_finalize(stmt);
     {
-        const char* create_table =
+        std::string create_table =
             "CREATE TABLE IF NOT EXISTS worlds ("
             "name TEXT PRIMARY KEY, owner INTEGER);"
+
             "CREATE TABLE IF NOT EXISTS blocks ("
             "world TEXT, fg INTEGER, bg INTEGER, toggled INTEGER, tick INTEGER, label TEXT, "
             "FOREIGN KEY(world) REFERENCES worlds(name));"
+
             "CREATE TABLE IF NOT EXISTS ifloats ("
             "world TEXT, uid INTEGER, id INTEGER, count INTEGER, x REAL, y REAL, "
             "PRIMARY KEY(world, uid), FOREIGN KEY(world) REFERENCES worlds(name));";
 
         char* errmsg = nullptr;
-        if (sqlite3_exec(db, create_table, nullptr, nullptr, &errmsg) != SQLITE_OK) sqlite3_free(errmsg);
+        if (sqlite3_exec(db, create_table.c_str(), nullptr, nullptr, &errmsg) != SQLITE_OK) sqlite3_free(errmsg);
     } // @note delete create_table
 
     if (sqlite3_prepare_v2(db, "SELECT fg, bg, toggled, tick, label FROM blocks WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
@@ -141,7 +143,7 @@ void send_data(ENetPeer& peer, const std::vector<std::byte> &&data)
     std::size_t size = data.size();
     ENetPacket *packet = enet_packet_create(nullptr, size + 5zu, ENET_PACKET_FLAG_RELIABLE);
 
-    packet->data[0zu] = { 04 };
+    *reinterpret_cast<int*>(&packet->data[0]) = 4;
     memcpy(packet->data + 4, data.data(), size);
     
     enet_peer_send(&peer, 1, packet);

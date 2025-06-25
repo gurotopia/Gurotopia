@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "action/join_request.hpp"
 #include "action/quit_to_exit.hpp"
 #include "tile_activate.hpp"
 
@@ -16,6 +17,21 @@ void tile_activate(ENetEvent& event, state state)
         case std::byte{ type::MAIN_DOOR }:
         {
             quit_to_exit(event, "", false);
+            break;
+        }
+        case std::byte{ type::DOOR }: // @todo add door-to-door with door::id
+        {
+            for (::door &door : w->second.doors)
+            {
+                if (door.pos == state.punch) 
+                {
+                    if (door.dest.empty()) break;
+                    const std::string_view world_name{ door.dest };
+                    
+                    quit_to_exit(event, "", true);
+                    join_request(event, "", world_name);
+                }
+            }
             break;
         }
     }

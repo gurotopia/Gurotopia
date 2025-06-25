@@ -119,6 +119,25 @@ void dialog_return(ENetEvent& event, const std::string& header)
             .punch = { tilex, tiley }
         };
         tile_update(event, s, block, it->second);
+
+        if (pipes[10zu] == "door_name" && pipes.size() > 12zu)
+        {
+            for (::door& door : it->second.doors)
+            {
+                if (door.pos == std::array<int, 2ULL>{ tilex, tiley }) 
+                {
+                    door.dest = pipes[13];
+                    door.id = pipes[15];
+                    return;
+                }
+            }
+            it->second.doors.emplace_back(door(
+                pipes[13],
+                pipes[15],
+                "", // @todo add password door
+                { tilex, tiley }
+            ));
+        }
     }
     else if (pipes[3zu] == "billboard_edit" && !pipes[5zu].empty())
     {

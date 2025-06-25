@@ -20,6 +20,18 @@
     };
     #define cord(x,y) (y * 100 + x)
 
+    class door 
+    {
+    public:
+        door(std::string _dest, std::string _id, std::string _password, std::array<int, 2zu> _pos) : 
+            dest(_dest), id(_id), password(_password), pos(_pos) {}
+
+        std::string dest{};
+        std::string id{};
+        std::string password{};
+        std::array<int, 2zu> pos;
+    };
+
     class ifloat 
     {
     public:
@@ -42,6 +54,7 @@
         unsigned char visitors{0}; // @note the current number of peers in a world, excluding invisable peers
 
         std::vector<block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
+        std::vector<door> doors;
         int ifloat_uid{0}; // @note floating item UID
         std::unordered_map<int, ifloat> ifloats{}; // @note (i)tem floating
         ~world();

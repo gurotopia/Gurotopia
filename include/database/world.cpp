@@ -43,6 +43,10 @@ world::world(const std::string& name)
             "world TEXT, fg INTEGER, bg INTEGER, toggled INTEGER, tick INTEGER, label TEXT, "
             "FOREIGN KEY(world) REFERENCES worlds(name));"
 
+            "CREATE TABLE IF NOT EXISTS doors ("
+            "world TEXT, dest INTEGER, id INTEGER, password INTEGER, x REAL, y REAL, "
+            "FOREIGN KEY(world) REFERENCES worlds(name));"
+
             "CREATE TABLE IF NOT EXISTS ifloats ("
             "world TEXT, uid INTEGER, id INTEGER, count INTEGER, x REAL, y REAL, "
             "PRIMARY KEY(world, uid), FOREIGN KEY(world) REFERENCES worlds(name));";
@@ -67,6 +71,26 @@ world::world(const std::string& name)
                     sqlite3_column_int(stmt, 2),
                     steady_clock::time_point(std::chrono::seconds(sqlite3_column_int(stmt, 3))),
                     reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4))
+                ));
+            }
+        }
+    }
+    {
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, "SELECT dest, id, password, x, y FROM doors WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
+        {
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+            while (sqlite3_step(stmt) == SQLITE_ROW) 
+            {
+                this->doors.emplace_back(door(
+                    reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0)),
+                    reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1)),
+                    reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2)),
+                    { sqlite3_column_int(stmt, 3), sqlite3_column_int(stmt, 4) }
                 ));
             }
         }
@@ -150,6 +174,38 @@ world::~world()
                 sqlite3_bind_int(stmt, 4, b.toggled);
                 sqlite3_bind_int(stmt, 5, static_cast<int>(duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count()));
                 sqlite3_bind_text(stmt, 6, b.label.c_str(), -1, SQLITE_STATIC);
+                sqlite3_step(stmt);
+                sqlite3_reset(stmt);
+            }
+        }
+    }
+    {
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, "DELETE FROM doors WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) // @todo
+        {
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_step(stmt);
+        }
+    }
+    {
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, "INSERT INTO doors (world, dest, id, password, x, y) VALUES (?, ?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
+        {
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            for (door &door : this->doors) {
+                sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_text(stmt, 2, door.dest.c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_text(stmt, 3, door.id.c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_text(stmt, 4, door.password.c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_int(stmt, 5, door.pos[0]);
+                sqlite3_bind_int(stmt, 6, door.pos[1]);
                 sqlite3_step(stmt);
                 sqlite3_reset(stmt);
             }

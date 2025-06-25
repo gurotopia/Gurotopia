@@ -168,25 +168,31 @@ void tile_change(ENetEvent& event, state state)
                     break;
                 }
                 case std::byte{ type::DOOR }:
-                        gt_packet(*event.peer, false, 0, {
+                {
+                    std::string dest, id{};
+                    for (::door& door : w->second.doors)
+                        if (door.pos == state.punch) dest = door.dest, id = door.id;
+                        
+                    gt_packet(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
                             "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
                             "add_text_input|door_name|Label|{}|100|\n"
                             "add_popup_name|DoorEdit|\n"
-                            "add_text_input|door_target|Destination||24|\n"
+                            "add_text_input|door_target|Destination|{}|24|\n"
                             "add_smalltext|Enter a Destination in this format: `2WORLDNAME:ID``|left|\n"
                             "add_smalltext|Leave `2WORLDNAME`` blank (:ID) to go to the door with `2ID`` in the `2Current World``.|left|\n"
-                            "add_text_input|door_id|ID||11|\n"
+                            "add_text_input|door_id|ID|{}|11|\n"
                             "add_smalltext|Set a unique `2ID`` to target this door as a Destination from another!|left|\n"
                             "add_checkbox|checkbox_locked|Is open to public|1\n"
                             "embed_data|tilex|{}\n"
                             "embed_data|tiley|{}\n"
                             "end_dialog|door_edit|Cancel|OK|", 
-                            item.raw_name, item.id, block.label, state.punch[0], state.punch[1]
+                            item.raw_name, item.id, block.label, dest, id, state.punch[0], state.punch[1]
                         ).c_str()
                     });
                     break;
+                }
                 case std::byte{ type::SIGN }:
                         gt_packet(*event.peer, false, 0, {
                         "OnDialogRequest",

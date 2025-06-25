@@ -335,6 +335,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     switch (items[block.fg].type)
     {
         case std::byte{ type::DOOR }:
+        case std::byte{ type::PORTAL }:
         {
             data[pos - 2zu] = std::byte{ 01 };
             short len = block.label.length();

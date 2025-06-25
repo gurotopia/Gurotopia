@@ -168,6 +168,7 @@ void tile_change(ENetEvent& event, state state)
                     break;
                 }
                 case std::byte{ type::DOOR }:
+                case std::byte{ type::PORTAL }:
                 {
                     std::string dest, id{};
                     for (::door& door : w->second.doors)

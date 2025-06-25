@@ -116,6 +116,7 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
                         break;
                     }
                     case std::byte{ type::DOOR }:
+                    case std::byte{ type::PORTAL }:
                     {
                         data[pos - 2zu] = std::byte{ 01 };
                         short len = block.label.length();

@@ -20,6 +20,7 @@ void tile_activate(ENetEvent& event, state state)
             break;
         }
         case std::byte{ type::DOOR }: // @todo add door-to-door with door::id
+        case std::byte{ type::PORTAL }:
         {
             for (::door &door : w->second.doors)
             {

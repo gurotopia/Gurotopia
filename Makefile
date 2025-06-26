@@ -1,12 +1,12 @@
 CXX = g++
-CXXFLAGS = -std=c++2b -g -Iinclude -MMD -MP
+CXXFLAGS = -std=c++2b -g -Iinclude -Iinclude/ssl -MMD -MP
 
 LIBS := -L./include/enet/lib -L./include/mimalloc/lib -L./include/sqlite/lib -L./include/ssl/openssl/lib -L./include/ssl/crypto/lib
 TARGET := main.exe
 ifeq ($(OS),Windows_NT)
     LIBS += -lssl_32 -lcrypto_32 -lenet_32 -lws2_32 -ladvapi32 -lcrypt32 -lwinmm -lmimalloc_32 -lsqlite3_32
 else
-    LIBS += -lenet -lmimalloc -lsqlite3
+    LIBS += -lssl -lcrypto -lenet -lmimalloc -lsqlite3
     TARGET := main.out
 endif
 

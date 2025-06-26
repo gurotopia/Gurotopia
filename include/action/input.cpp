@@ -14,14 +14,14 @@
 void input(ENetEvent& event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
-    if (not create_rt(event, 1, 400)) return;
+    if (!create_rt(event, 1, 400)) return;
     std::string text{readch(std::move(header), '|')[4]};
 
     if (text.front() == '\r' || std::ranges::all_of(text, ::isspace)) return;
     text.erase(text.begin(), std::find_if_not(text.begin(), text.end(), ::isspace));
     text.erase(std::find_if_not(text.rbegin(), text.rend(), ::isspace).base(), text.end());
     
-    auto now = steady_clock::now();
+    steady_clock::time_point now = steady_clock::now();
     peer->messages.push_back(now);
     if (peer->messages.size() > 5) peer->messages.pop_front();
     if (peer->messages.size() == 5 && duration_cast<std::chrono::seconds>(now - peer->messages.front()).count() < 6)

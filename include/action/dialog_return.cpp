@@ -40,7 +40,7 @@ void dialog_return(ENetEvent& event, const std::string& header)
             {
                 std::string result;
                 for (const auto& name : range)
-                    if (not name.empty())
+                    if (!name.empty())
                         result.append(std::format("add_button|{0}|{0}|noflags|0|0|\n", name));
                 return result;
             };
@@ -108,8 +108,9 @@ void dialog_return(ENetEvent& event, const std::string& header)
     {
         const short tilex = stoi(pipes[5zu]);
         const short tiley = stoi(pipes[8zu]);
-        world &world = worlds[peer->recent_worlds.back()];
-        block &block = world.blocks[cord(tilex, tiley)];
+        auto it = worlds.find(peer->recent_worlds.back());
+        if (it == worlds.end()) return;
+        block &block = it->second.blocks[cord(tilex, tiley)];
         block.label = pipes[11zu];
 
         state s{
@@ -117,7 +118,26 @@ void dialog_return(ENetEvent& event, const std::string& header)
             .pos = { tilex * 32.0f, tiley * 32.0f },
             .punch = { tilex, tiley }
         };
-        tile_update(event, s, block, world);
+        tile_update(event, s, block, it->second);
+
+        if (pipes[10zu] == "door_name" && pipes.size() > 12zu)
+        {
+            for (::door& door : it->second.doors)
+            {
+                if (door.pos == std::array<int, 2ULL>{ tilex, tiley }) 
+                {
+                    door.dest = pipes[13];
+                    door.id = pipes[15];
+                    return;
+                }
+            }
+            it->second.doors.emplace_back(door(
+                pipes[13],
+                pipes[15],
+                "", // @todo add password door
+                { tilex, tiley }
+            ));
+        }
     }
     else if (pipes[3zu] == "billboard_edit" && !pipes[5zu].empty())
     {
@@ -149,8 +169,9 @@ void dialog_return(ENetEvent& event, const std::string& header)
     {
         if (pipes[10] == "checkbox_public" && pipes[11] == "1"/*true*/ || pipes[11] == "0"/*false*/)
         {
-            world &world = worlds[peer->recent_worlds.back()];
-            world._public = stoi(pipes[11]);
+            auto it = worlds.find(peer->recent_worlds.back());
+            if (it == worlds.end()) return;
+            it->second._public = stoi(pipes[11]);
 
             // @todo add public lock visuals
         }

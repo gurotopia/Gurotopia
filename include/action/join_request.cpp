@@ -26,12 +26,12 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
 {
     try 
     {
-        if (not create_rt(event, 2, 900)) throw std::runtime_error("");
+        if (!create_rt(event, 2, 900)) throw std::runtime_error("");
 
         auto &peer = _peer[event.peer];
         std::string big_name{world_name.empty() ? readch(std::move(header), '|')[3] : world_name};
 
-        if (not alpha(big_name) || big_name.empty()) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
+        if (!alpha(big_name) || big_name.empty()) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
         
         world world(big_name);
@@ -61,7 +61,7 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
             std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12 + 8/*total drop uid*/, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };
             data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
-            data[16zu] = std::byte{ 0x8 };
+            data[16zu] = std::byte{ 0x08 };
             unsigned char len = static_cast<unsigned char>(world.name.length());
             data[66zu] = std::byte{ len };
 
@@ -116,6 +116,7 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
                         break;
                     }
                     case std::byte{ type::DOOR }:
+                    case std::byte{ type::PORTAL }:
                     {
                         data[pos - 2zu] = std::byte{ 01 };
                         short len = block.label.length();
@@ -205,11 +206,14 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
             }
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data
-        if (std::ranges::find(peer->recent_worlds, world.name) == peer->recent_worlds.end()) 
-        {
-            std::ranges::rotate(peer->recent_worlds, peer->recent_worlds.begin() + 1);
-            peer->recent_worlds.back() = world.name;
-        }
+
+        auto &recent_worlds = peer->recent_worlds;
+        if (auto it = std::ranges::find(recent_worlds, world.name); it != recent_worlds.end()) 
+            std::rotate(it, it + 1, recent_worlds.end());
+        else 
+            std::rotate(recent_worlds.begin(), recent_worlds.begin() + 1, recent_worlds.end());
+        recent_worlds.back() = world.name;
+
         if (peer->user_id == world.owner) peer->prefix = "2";
         else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix = "c";
 
@@ -269,7 +273,6 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
         });
         if (peer->billboard.id != 0) BillboardChange(event); // @note don't waste memory if billboard is empty.
         inventory_visuals(event);
-        peer->ready_exit = true;
         worlds.emplace(world.name, world); // @todo possible race-condition..
     }
     catch (const std::exception& exc)

@@ -20,14 +20,15 @@ void tile_change(ENetEvent& event, state state)
 {
     try
     {
-        if (not create_rt(event, 0, 160)) return;
+        if (!create_rt(event, 0, 160)) return;
         auto &peer = _peer[event.peer];
-        world &world = worlds[peer->recent_worlds.back()];
+        auto w = worlds.find(peer->recent_worlds.back());
+        if (w == worlds.end()) return;
 
-        if ((world.owner != 0 && !world._public && peer->role == role::PLAYER) &&
-            (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
+        if ((w->second.owner != 0 && !w->second._public && peer->role == role::PLAYER) &&
+            (peer->user_id != w->second.owner && !std::ranges::contains(w->second.admin, peer->user_id))) return;
 
-        block &block = world.blocks[cord(state.punch[0], state.punch[1])];
+        block &block = w->second.blocks[cord(state.punch[0], state.punch[1])];
         item &item = (state.id != 32 && state.id != 18) ? items[state.id] : (block.fg != 0) ? items[block.fg] : items[block.bg];
         if (state.id == 18) // @note punching a block
         {
@@ -41,7 +42,7 @@ void tile_change(ENetEvent& event, state state)
             {
                 case std::byte{ type::LOCK }: // @todo add message saying who owns the lock.
                 {
-                    if (peer->user_id != world.owner) return;
+                    if (peer->user_id != w->second.owner) return;
                     break;
                 }
                 case std::byte{ type::SEED }:
@@ -66,7 +67,7 @@ void tile_change(ENetEvent& event, state state)
                     {
                         gt_packet(p, false, 0, { "OnSetCurrentWeather", remember_weather });
                     });
-                    for (auto &b : world.blocks)
+                    for (::block &b : w->second.blocks)
                         if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
                     
                     break;
@@ -112,7 +113,7 @@ void tile_change(ENetEvent& event, state state)
                     if (ransuu[{0, 17}] <= 1) im.emplace_back(remember_id, 1);
                     if (ransuu[{0, 11}] <= 1) im.emplace_back(remember_id + 1, 1);
                 }
-                for (auto & i : im)
+                for (std::pair<short, short> &i : im)
                     drop_visuals(event, {i.first, i.second},
                         {
                             static_cast<float>(state.punch[0]) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
@@ -134,7 +135,7 @@ void tile_change(ENetEvent& event, state state)
             {
                 case std::byte{ type::LOCK }: // @todo handle sl, bl, hl, builder lock, ect.
                 {
-                    if (peer->user_id == world.owner)
+                    if (peer->user_id == w->second.owner)
                     {
                         gt_packet(*event.peer, false, 0, {
                             "OnDialogRequest",
@@ -160,32 +161,39 @@ void tile_change(ENetEvent& event, state state)
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item.raw_name, item.id, state.punch[0], state.punch[1], signed{world._public}
+                                item.raw_name, item.id, state.punch[0], state.punch[1], signed{w->second._public}
                             ).c_str()
                         });
                     }
                     break;
                 }
                 case std::byte{ type::DOOR }:
-                        gt_packet(*event.peer, false, 0, {
+                case std::byte{ type::PORTAL }:
+                {
+                    std::string dest, id{};
+                    for (::door& door : w->second.doors)
+                        if (door.pos == state.punch) dest = door.dest, id = door.id;
+                        
+                    gt_packet(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
                             "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
                             "add_text_input|door_name|Label|{}|100|\n"
                             "add_popup_name|DoorEdit|\n"
-                            "add_text_input|door_target|Destination||24|\n"
+                            "add_text_input|door_target|Destination|{}|24|\n"
                             "add_smalltext|Enter a Destination in this format: `2WORLDNAME:ID``|left|\n"
                             "add_smalltext|Leave `2WORLDNAME`` blank (:ID) to go to the door with `2ID`` in the `2Current World``.|left|\n"
-                            "add_text_input|door_id|ID||11|\n"
+                            "add_text_input|door_id|ID|{}|11|\n"
                             "add_smalltext|Set a unique `2ID`` to target this door as a Destination from another!|left|\n"
                             "add_checkbox|checkbox_locked|Is open to public|1\n"
                             "embed_data|tilex|{}\n"
                             "embed_data|tiley|{}\n"
                             "end_dialog|door_edit|Cancel|OK|", 
-                            item.raw_name, item.id, block.label, state.punch[0], state.punch[1]
+                            item.raw_name, item.id, block.label, dest, id, state.punch[0], state.punch[1]
                         ).c_str()
                     });
                     break;
+                }
                 case std::byte{ type::SIGN }:
                         gt_packet(*event.peer, false, 0, {
                         "OnDialogRequest",
@@ -224,22 +232,22 @@ void tile_change(ENetEvent& event, state state)
             {
                 case std::byte{ type::LOCK }:
                 {
-                    if (world.owner == 00)
+                    if (w->second.owner == 00)
                     {
-                        world.owner = peer->user_id;
+                        w->second.owner = peer->user_id;
                         if (peer->role == role::PLAYER) peer->prefix = "2";
                         state.type = 0x0f;
-                        state.netid = world.owner;
+                        state.netid = w->second.owner;
                         state.peer_state = 0x08;
                         state.id = state.id;
-                        if (std::ranges::find(peer->my_worlds, world.name) == peer->my_worlds.end()) 
+                        if (std::ranges::find(peer->my_worlds, w->second.name) == peer->my_worlds.end()) 
                         {
                             std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
-                            peer->my_worlds.back() = world.name;
+                            peer->my_worlds.back() = w->second.name;
                         }
                         peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
                         {
-                            std::string placed_message{ std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, peer->ltoken[0]) };
+                            std::string placed_message{ std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", w->first, peer->ltoken[0]) };
                             gt_packet(p, false, 0, {
                                 "OnTalkBubble", 
                                 peer->netid,
@@ -270,7 +278,7 @@ void tile_change(ENetEvent& event, state state)
                     {
                         gt_packet(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
                     });
-                    for (auto &b : world.blocks)
+                    for (::block &b : w->second.blocks)
                         if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != state.id) b.toggled = false;
                     break;
                 }
@@ -288,7 +296,7 @@ void tile_change(ENetEvent& event, state state)
             peer->emplace(slot(state.id, -1));
             inventory_visuals(event);
         }
-        if (state.netid != world.owner) state.netid = peer->netid;
+        if (state.netid != w->second.owner) state.netid = peer->netid;
         state_visuals(event, std::move(state)); // finished.
     }
     catch (const std::exception& exc)

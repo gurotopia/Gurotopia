@@ -16,7 +16,7 @@ void wrench(ENetEvent& event, const std::string& header)
         {
             if (_peer[&p]->netid == netid)
             {
-                auto& peer = _peer[&p];
+                auto &peer = _peer[&p];
                 unsigned short lvl = peer->level.front();
                 /* wrench yourself */
                 if (peer->user_id == _peer[event.peer]->user_id)

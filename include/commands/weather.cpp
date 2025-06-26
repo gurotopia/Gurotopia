@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "weather.hpp"
 
 int get_weather_id(unsigned item_id)

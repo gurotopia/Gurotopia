@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "refresh_item_data.hpp"
 
 void refresh_item_data(ENetEvent& event, const std::string& header) 

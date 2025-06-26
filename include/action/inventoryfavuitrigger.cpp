@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "inventoryfavuitrigger.hpp"
 
 void inventoryfavuitrigger(ENetEvent& event, const std::string& header)

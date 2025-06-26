@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "on/NameChanged.hpp"
 #include "commands/weather.hpp"
 #include "equip.hpp"

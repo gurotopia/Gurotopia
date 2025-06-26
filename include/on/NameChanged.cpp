@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "NameChanged.hpp"
 
 void OnNameChanged(ENetEvent& event) {

@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "RequestWorldSelectMenu.hpp"
 
 void OnRequestWorldSelectMenu(ENetEvent& event) 

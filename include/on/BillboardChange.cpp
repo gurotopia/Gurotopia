@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "BillboardChange.hpp"
 
 #include "tools/string_view.hpp"

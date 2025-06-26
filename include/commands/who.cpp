@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "who.hpp"
 
 void who(ENetEvent& event, const std::string_view text) 

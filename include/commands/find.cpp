@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "find.hpp"
 
 void find(ENetEvent& event, const std::string_view text)

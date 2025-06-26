@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "me.hpp"
 
 void me(ENetEvent& event, const std::string_view text)

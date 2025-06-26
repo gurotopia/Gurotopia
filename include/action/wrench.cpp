@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "wrench.hpp"
 
 #include "tools/string_view.hpp"

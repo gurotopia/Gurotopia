@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 25-5-2024
-    @version beta-367
+    @version beta-371
 
     looking for:
     - Indonesian translator
@@ -18,10 +18,12 @@ int main()
     printf("microsoft/mimalloc beta-%d\n", MI_MALLOC_VERSION);
     printf("lsalzman/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
     printf("sqlite/sqlite3 %s\n", SQLITE_VERSION);
+    printf("openssl/openssl %s\n", OpenSSL_version(OPENSSL_VERSION));
 #else
     printf("\e[38;5;248mmicrosoft/mimalloc \e[1;37mbeta-%d\e[0m\n", MI_MALLOC_VERSION);
     printf("\e[38;5;248mlsalzman/enet \e[1;37m%d.%d.%d\e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
     printf("\e[38;5;248msqlite/sqlite3 \e[1;37m%s\e[0m\n", SQLITE_VERSION);
+    printf("\e[38;5;248mopenssl/openssl \e[1;37m%s\e[0m\n", OpenSSL_version(OPENSSL_VERSION));
 #endif
     if (!std::filesystem::exists("db")) std::filesystem::create_directory("db");
 

@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "respawn.hpp"
 
 void respawn(ENetEvent& event, const std::string& header) 

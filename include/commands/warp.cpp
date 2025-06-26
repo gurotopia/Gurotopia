@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "action/join_request.hpp"
 #include "action/quit_to_exit.hpp"
 #include "warp.hpp"

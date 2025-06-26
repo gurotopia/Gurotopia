@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "on/BillboardChange.hpp"
 #include "action/dialog_return.hpp"
 

@@ -1,7 +1,6 @@
 #include "pch.hpp"
 #include "items.hpp"
 #include "peer.hpp"
-#include "network/packet.hpp"
 #include "world.hpp"
 
 #if defined(_MSC_VER)

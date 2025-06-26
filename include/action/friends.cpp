@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "friends.hpp"
 
 void friends(ENetEvent& event, const std::string& header) 

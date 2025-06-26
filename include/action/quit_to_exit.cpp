@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "on/RequestWorldSelectMenu.hpp"
 #include "quit_to_exit.hpp"
 

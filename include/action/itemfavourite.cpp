@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "itemfavourite.hpp"
 
 #include "tools/string_view.hpp"

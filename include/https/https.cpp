@@ -34,9 +34,11 @@ void https::listener(std::string ip, short enet_port)
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(443);
-    bind(socket, (struct sockaddr*)&addr, sizeof(addr));
+    if (!bind(socket, (struct sockaddr*)&addr, sizeof(addr)))
+        ERR_print_errors_fp(stderr);
 
-    listen(socket, 10);
+    if (!listen(socket, 10))
+        ERR_print_errors_fp(stderr);
 
     const std::string server_data =
         std::format(

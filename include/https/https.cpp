@@ -16,6 +16,15 @@
     #define SOCKET int
 #endif
 
+#if defined(_MSC_VER)
+    using namespace std::chrono;
+#else
+    using namespace std::chrono::_V2;
+#endif
+using namespace std::literals::chrono_literals;
+
+std::unordered_map<const char*, https::client> clients{};
+
 void https::listener(std::string ip, short enet_port)
 {
     OpenSSL_add_all_algorithms();
@@ -34,11 +43,9 @@ void https::listener(std::string ip, short enet_port)
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
     addr.sin_port = htons(443);
-    if (!bind(socket, (struct sockaddr*)&addr, sizeof(addr)))
-        ERR_print_errors_fp(stderr);
-
-    if (!listen(socket, 10))
-        ERR_print_errors_fp(stderr);
+    socklen_t addrlen = sizeof(addr);
+    if (bind(socket, (struct sockaddr*)&addr, addrlen) < 0)
+        printf("could not bind port 443.\n");
 
     const std::string server_data =
         std::format(
@@ -58,34 +65,44 @@ void https::listener(std::string ip, short enet_port)
             "Connection: close\r\n"
             "\r\n{}",
             server_data.size(), server_data).c_str();
+
+    listen(socket, 10);
     while (true)
     {
-        socklen_t addrlen = sizeof(addr);
         SOCKET fd = accept(socket, (struct sockaddr*)&addr, &addrlen);
-        
-        SSL *ssl = SSL_new(ctx);
-        SSL_set_fd(ssl, fd);
-        if (SSL_accept(ssl) > 0) 
-        {
-            char buf[214]; // @note size of growtopia's request.
-            int bytes = SSL_read(ssl, buf, sizeof(buf) - 1);
-            if (bytes > 0)
-            {
-                buf[bytes] = '\0';
-                std::string request(buf);
+        if (fd == INVALID_SOCKET) continue;
 
-                if (request.contains("POST /growtopia/server_data.php HTTP/1.1"))
-                    SSL_write(ssl, response.c_str(), response.size());
+        char ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &addr.sin_addr, ip, INET_ADDRSTRLEN);
+
+        https::client &client = clients[ip];
+
+        if (steady_clock::now() - client.last_connect >= 4s)
+        {
+            SSL *ssl = SSL_new(ctx);
+            SSL_set_fd(ssl, fd);
+            if (SSL_accept(ssl) > 0) 
+            {
+                char buf[214]; // @note size of growtopia's request.
+                int bytes = SSL_read(ssl, buf, sizeof(buf) - 1);
+                if (bytes > 0)
+                {
+                    buf[bytes] = '\0';
+                    std::string request(buf);
+
+                    if (request.contains("POST /growtopia/server_data.php HTTP/1.1"))
+                        SSL_write(ssl, response.c_str(), response.size());
+                } 
+                else ERR_print_errors_fp(stderr);
             } 
             else ERR_print_errors_fp(stderr);
-        } 
-        else ERR_print_errors_fp(stderr);
+            SSL_free(ssl);
+        }
 #ifdef _WIN32
-        closesocket(fd);
+            closesocket(fd);
 #else
-        close(fd);
+            close(fd);
 #endif
-        SSL_free(ssl);
     }
 }
 

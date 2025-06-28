@@ -33,7 +33,8 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
         if (!alpha(big_name) || big_name.empty()) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
         
-        world world(big_name);
+        auto [it, inserted] = worlds.try_emplace(big_name, big_name);
+        world &world = it->second;
         std::vector<std::string> buffs{};
         if (world.name.empty())
         {
@@ -272,7 +273,6 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
         });
         if (peer->billboard.id != 0) BillboardChange(event); // @note don't waste memory if billboard is empty.
         inventory_visuals(event);
-        worlds.emplace(world.name, world); // @todo possible race-condition..
     }
     catch (const std::exception& exc)
     {

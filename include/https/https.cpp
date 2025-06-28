@@ -23,7 +23,7 @@
 #endif
 using namespace std::literals::chrono_literals;
 
-std::unordered_map<const char*, https::client> clients{};
+std::unordered_map<const char*, https::client> https::clients{};
 
 void https::listener(std::string ip, short enet_port)
 {
@@ -70,7 +70,7 @@ void https::listener(std::string ip, short enet_port)
     while (true)
     {
         SOCKET fd = accept(socket, (struct sockaddr*)&addr, &addrlen);
-        if (fd == INVALID_SOCKET) continue;
+        if (fd < 0) continue;
 
         char ip[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &addr.sin_addr, ip, INET_ADDRSTRLEN);

@@ -4,7 +4,7 @@
 
 namespace https
 {
-    extern void listener();
+    extern void listener(std::string ip, short enet_port);
 }
 
 #endif

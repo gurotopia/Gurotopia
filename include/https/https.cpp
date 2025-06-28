@@ -63,23 +63,21 @@ void https::listener(std::string ip, short enet_port)
         
         SSL *ssl = SSL_new(ctx);
         SSL_set_fd(ssl, fd);
-        if (SSL_accept(ssl) <= 0) 
+        if (SSL_accept(ssl) > 0) 
         {
-            ERR_print_errors_fp(stderr);
-        }
-        else 
-        {
-            char buf[8192];
+            char buf[214]; // @note size of growtopia's request.
             int bytes = SSL_read(ssl, buf, sizeof(buf) - 1);
-            if (bytes > 0) 
+            if (bytes > 0)
             {
                 buf[bytes] = '\0';
                 std::string request(buf);
 
                 if (request.contains("POST /growtopia/server_data.php HTTP/1.1"))
                     SSL_write(ssl, response.c_str(), response.size());
-            }
-        }
+            } 
+            else ERR_print_errors_fp(stderr);
+        } 
+        else ERR_print_errors_fp(stderr);
 #ifdef _WIN32
         closesocket(fd);
 #else

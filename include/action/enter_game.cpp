@@ -10,6 +10,16 @@ void enter_game(ENetEvent& event, const std::string& header)
     if (peer->role == role::MODERATOR) peer->prefix = "8@";
     else if (peer->role == role::DEVELOPER) peer->prefix = "6@";
 
+    std::string fav_list{};
+    for (short &fav : peer->fav)
+        fav_list.append(std::format("{},", fav));
+
+    gt_packet(*event.peer, false, 0, {
+        "OnSendFavItemsList",
+        fav_list,
+        peer->fav.size()
+    });
+
     OnRequestWorldSelectMenu(event);
     gt_packet(*event.peer, false, 0, {
         "OnConsoleMessage", 

@@ -14,7 +14,7 @@ namespace https
     public:
         std::chrono::steady_clock::time_point last_connect{};
     };
-    extern std::unordered_map<const char*, client> clients;
+    extern std::unordered_map<std::string, client> clients;
 }
 
 #endif

@@ -6,7 +6,6 @@
 #ifdef _WIN32
     #include <winsock2.h>
     #include <ws2tcpip.h>
-    #include <io.h>
 #else
     #include <unistd.h>
     #include <arpa/inet.h>
@@ -23,7 +22,7 @@
 #endif
 using namespace std::literals::chrono_literals;
 
-std::unordered_map<const char*, https::client> https::clients{};
+std::unordered_map<std::string, https::client> https::clients{};
 
 void https::listener(std::string ip, short enet_port)
 {
@@ -66,35 +65,33 @@ void https::listener(std::string ip, short enet_port)
             "\r\n{}",
             server_data.size(), server_data).c_str();
 
-    listen(socket, 10);
+    listen(socket, 6);
     while (true)
     {
         SOCKET fd = accept(socket, (struct sockaddr*)&addr, &addrlen);
         if (fd < 0) continue;
 
-        char ip[INET_ADDRSTRLEN];
+        char ip[INET_ADDRSTRLEN]; // @note allocated LPSTR 
         inet_ntop(AF_INET, &addr.sin_addr, ip, INET_ADDRSTRLEN);
 
-        https::client &client = clients[ip];
+        https::client &client = clients[std::string{ip}];
 
         if (steady_clock::now() - client.last_connect >= 4s)
         {
             SSL *ssl = SSL_new(ctx);
             SSL_set_fd(ssl, fd);
-            if (SSL_accept(ssl) > 0) 
+            if (SSL_accept(ssl) > 0)
             {
-                char buf[214]; // @note size of growtopia's request.
-                int bytes = SSL_read(ssl, buf, sizeof(buf) - 1);
-                if (bytes > 0)
-                {
-                    buf[bytes] = '\0';
-                    std::string request(buf);
+                char buf[213]; // @note size of growtopia's request.
+                int length{ sizeof(buf ) }; // @note openssl is written in C so this will act as std::string::length()
 
-                    if (request.contains("POST /growtopia/server_data.php HTTP/1.1"))
+                if (SSL_read(ssl, buf, length) == length)
+                {
+                    if (std::string_view{buf, sizeof(buf )}.contains("POST /growtopia/server_data.php HTTP/1.1"))
                         SSL_write(ssl, response.c_str(), response.size());
-                } 
+                }
                 else ERR_print_errors_fp(stderr);
-            } 
+            }
             else ERR_print_errors_fp(stderr);
             SSL_free(ssl);
         }

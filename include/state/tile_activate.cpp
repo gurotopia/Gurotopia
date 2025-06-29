@@ -22,16 +22,32 @@ void tile_activate(ENetEvent& event, state state)
         case std::byte{ type::DOOR }: // @todo add door-to-door with door::id
         case std::byte{ type::PORTAL }:
         {
+            bool has_dest{ false };
             for (::door &door : w->second.doors)
             {
                 if (door.pos == state.punch) 
                 {
-                    if (door.dest.empty()) break;
+                    has_dest = true;
                     const std::string_view world_name{ door.dest };
                     
                     quit_to_exit(event, "", true);
                     join_request(event, "", world_name);
+                    break;
                 }
+            }
+            if (!has_dest)
+            {
+                gt_packet(*event.peer, true, 0, {
+                    "OnSetPos", 
+                    std::vector<float>{peer->rest_pos.front(), peer->rest_pos.back()}
+                });
+                gt_packet(*event.peer, false, 0, {
+                    "OnZoomCamera", 
+                    std::vector<float>{10000.0f}, // @todo
+                    1000u
+                });
+                gt_packet(*event.peer, true, 0, { "OnSetFreezeState", 0u });
+                gt_packet(*event.peer, true, 0, { "OnPlayPositioned", "audio/teleport.wav" });
             }
             break;
         }

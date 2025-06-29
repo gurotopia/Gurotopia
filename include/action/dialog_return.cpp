@@ -1,8 +1,8 @@
 #include "pch.hpp"
 #include "on/BillboardChange.hpp"
+#include "tools/string.hpp"
 #include "action/dialog_return.hpp"
 
-#include "tools/string_view.hpp"
 
 void dialog_return(ENetEvent& event, const std::string& header) 
 {

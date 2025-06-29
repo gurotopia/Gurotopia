@@ -1,13 +1,12 @@
 #include "pch.hpp"
 #include "on/RequestWorldSelectMenu.hpp"
+#include "tools/string.hpp"
 #include "enter_game.hpp"
-
-#include "tools/string_view.hpp"
 
 void enter_game(ENetEvent& event, const std::string& header) 
 {
     auto &peer = _peer[event.peer];
-    peer->user_id = fnv1a(peer->ltoken[0]); // @note FNV-1A is to proeprly downgrade std::hash to integer (Growtopia Standards)
+    peer->user_id = fnv1a(peer->ltoken[0]); // @note this is to proeprly downgrade std::hash to integer size hash (Growtopia Standards)
     if (peer->role == role::MODERATOR) peer->prefix = "8@";
     else if (peer->role == role::DEVELOPER) peer->prefix = "6@";
 

@@ -1,8 +1,7 @@
 #include "pch.hpp"
 #include "commands/__command.hpp"
+#include "tools/string.hpp"
 #include "input.hpp"
-
-#include "tools/string_view.hpp"
 
 #if defined(_MSC_VER)
     using namespace std::chrono;

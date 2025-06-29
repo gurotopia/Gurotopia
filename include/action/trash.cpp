@@ -1,7 +1,6 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include "trash.hpp"
-
-#include "tools/string_view.hpp"
 
 void trash(ENetEvent& event, const std::string& header)
 {

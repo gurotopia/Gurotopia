@@ -1,7 +1,6 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include "itemfavourite.hpp"
-
-#include "tools/string_view.hpp"
 
 void itemfavourite(ENetEvent& event, const std::string& header)
 {

@@ -1,7 +1,6 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include "BillboardChange.hpp"
-
-#include "tools/string_view.hpp"
 
 void BillboardChange(ENetEvent& event)
 {

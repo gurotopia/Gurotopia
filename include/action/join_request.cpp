@@ -2,10 +2,9 @@
 #include "on/EmoticonDataChanged.hpp"
 #include "on/BillboardChange.hpp"
 #include "commands/weather.hpp"
-#include "join_request.hpp"
-
-#include "tools/string_view.hpp"
 #include "tools/ransuu.hpp"
+#include "tools/string.hpp"
+#include "join_request.hpp"
 
 #if defined(_MSC_VER)
     using namespace std::chrono;

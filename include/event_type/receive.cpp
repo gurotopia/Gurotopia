@@ -1,9 +1,8 @@
 #include "pch.hpp"
 #include "action/__action.hpp"
 #include "state/__states.hpp"
+#include "tools/string.hpp"
 #include "receive.hpp"
-
-#include "tools/string_view.hpp"
 
 void receive(ENetEvent& event) 
 {

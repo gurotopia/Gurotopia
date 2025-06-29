@@ -1,7 +1,6 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include "join_request.hpp"
-
-#include "tools/string_view.hpp"
 
 void logging_in(ENetEvent& event, const std::string& header)
 {
@@ -9,7 +8,7 @@ void logging_in(ENetEvent& event, const std::string& header)
     std::vector<std::string> pipes = readch(std::move(header), '|');
     if (pipes[2zu] == "ltoken")
     {
-        const std::string decoded = base64Decode(pipes[3zu]);
+        const std::string decoded = base64_decode(pipes[3zu]);
         if (std::size_t pos = decoded.find("growId="); pos != std::string::npos) 
         {
             pos += sizeof("growId=")-1zu;

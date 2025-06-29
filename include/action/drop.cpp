@@ -1,7 +1,6 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include "drop.hpp"
-
-#include "tools/string_view.hpp"
 
 void drop(ENetEvent& event, const std::string& header)
 {

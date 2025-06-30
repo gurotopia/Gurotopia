@@ -2,7 +2,7 @@
 #include "tools/string.hpp"
 #include "BillboardChange.hpp"
 
-void BillboardChange(ENetEvent& event)
+void on::BillboardChange(ENetEvent& event)
 {
     auto &peer = _peer[event.peer];
     gt_packet(*event.peer, true, 0, {

@@ -2,7 +2,7 @@
 #include "tools/string.hpp"
 #include "trash.hpp"
 
-void trash(ENetEvent& event, const std::string& header)
+void action::trash(ENetEvent& event, const std::string& header)
 {
     std::string itemID = readch(std::move(header), '|')[4];
     if (itemID.empty()) return;

@@ -15,7 +15,7 @@ std::unordered_map<std::string_view, std::string_view> emoticon =
     {"ill", "\u0137"}, {"eyes", "\u0138"}, {"weary", "\u0139"}, {"moyai", "\u013A"}, {"plead", "\u013B"}
 };
 
-void EmoticonDataChanged(ENetEvent& event)
+void on::EmoticonDataChanged(ENetEvent& event)
 {
     std::string EmoticonData;
     EmoticonData.reserve(emoticon.size() * 23/* emoticon data + ()||1/0& */);

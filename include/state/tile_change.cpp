@@ -258,7 +258,7 @@ void tile_change(ENetEvent& event, state state)
                                 placed_message.c_str()
                             });
                         });
-                        OnNameChanged(event);
+                        on::NameChanged(event);
                     }
                     else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
                     break;

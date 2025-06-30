@@ -16,7 +16,7 @@ void tile_activate(ENetEvent& event, state state)
     {
         case std::byte{ type::MAIN_DOOR }:
         {
-            quit_to_exit(event, "", false);
+            action::quit_to_exit(event, "", false);
             break;
         }
         case std::byte{ type::DOOR }: // @todo add door-to-door with door::id
@@ -30,8 +30,8 @@ void tile_activate(ENetEvent& event, state state)
                     has_dest = true;
                     const std::string_view world_name{ door.dest };
                     
-                    quit_to_exit(event, "", true);
-                    join_request(event, "", world_name);
+                    action::quit_to_exit(event, "", true);
+                    action::join_request(event, "", world_name);
                     break;
                 }
             }

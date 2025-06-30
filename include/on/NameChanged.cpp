@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "NameChanged.hpp"
 
-void OnNameChanged(ENetEvent& event) {
+void on::NameChanged(ENetEvent& event) {
     auto &peer = _peer[event.peer];
     gt_packet(*event.peer, true, 0, {
         "OnNameChanged",

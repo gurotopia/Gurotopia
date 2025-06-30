@@ -2,6 +2,9 @@
 #ifndef ONREQUESTWORLDSELECTMENU_HPP
 #define ONREQUESTWORLDSELECTMENU_HPP
 
-    extern void OnRequestWorldSelectMenu(ENetEvent& event);
+    namespace on
+    {
+        extern void RequestWorldSelectMenu(ENetEvent& event);
+    }
 
 #endif

@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "friends.hpp"
 
-void friends(ENetEvent& event, const std::string& header) 
+void action::friends(ENetEvent& event, const std::string& header) 
 {
     gt_packet(*event.peer, false, 0, {
         "OnDialogRequest", 

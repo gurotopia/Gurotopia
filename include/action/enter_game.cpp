@@ -3,7 +3,7 @@
 #include "tools/string.hpp"
 #include "enter_game.hpp"
 
-void enter_game(ENetEvent& event, const std::string& header) 
+void action::enter_game(ENetEvent& event, const std::string& header) 
 {
     auto &peer = _peer[event.peer];
     peer->user_id = fnv1a(peer->ltoken[0]); // @note this is to proeprly downgrade std::hash to integer size hash (Growtopia Standards)
@@ -20,7 +20,7 @@ void enter_game(ENetEvent& event, const std::string& header)
         peer->fav.size()
     });
 
-    OnRequestWorldSelectMenu(event);
+    on::RequestWorldSelectMenu(event);
     gt_packet(*event.peer, false, 0, {
         "OnConsoleMessage", 
         std::format("Welcome back, `{}{}````. No friends are online.", 

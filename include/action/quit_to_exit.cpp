@@ -2,7 +2,7 @@
 #include "on/RequestWorldSelectMenu.hpp"
 #include "quit_to_exit.hpp"
 
-void quit_to_exit(ENetEvent& event, const std::string& header, bool skip_selection = false) 
+void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip_selection = false) 
 {
     auto &peer = _peer[event.peer];
 
@@ -22,5 +22,5 @@ void quit_to_exit(ENetEvent& event, const std::string& header, bool skip_selecti
     if (it->second.visitors <= 0) worlds.erase(it);
     if (prefix == "2" || prefix == "c") prefix = "w";
     peer->netid = -1; // this will fix any packets being sent outside of world
-    if (!skip_selection) OnRequestWorldSelectMenu(event);
+    if (!skip_selection) on::RequestWorldSelectMenu(event);
 }

@@ -69,7 +69,7 @@ void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any
     enet_peer_send(&p, 0, enet_packet_create(data.data(), size, ENET_PACKET_FLAG_RELIABLE));
 }
 
-void action(ENetPeer& p, const std::string& action, const std::string& str) 
+void _action(ENetPeer& p, const std::string& action, const std::string& str) 
 {
     std::string_view action_view = std::format("action|{}\n", action);
     std::vector<std::byte> data(4 + action_view.length() + str.length(), std::byte{ 00 });

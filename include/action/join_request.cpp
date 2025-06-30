@@ -20,7 +20,7 @@ constexpr std::array<std::byte, 4zu> EXIT{
     std::byte{ 0x54 }  // @note 'T'
 };
 
-void join_request(ENetEvent& event, const std::string& header, const std::string_view world_name = "") 
+void action::join_request(ENetEvent& event, const std::string& header, const std::string_view world_name = "") 
 {
     try 
     {
@@ -219,7 +219,7 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
         char& role = peer->role;
         if (role == role::MODERATOR) peer->prefix = "8@";
         else if (role == role::DEVELOPER) peer->prefix = "6@";
-        EmoticonDataChanged(event);
+        on::EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
         peers(event, PEER_SAME_WORLD, [event, &peer, &world, role](ENetPeer& p) 
         {
@@ -270,7 +270,7 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
                 world.name, section(buffs), world.visitors - 1, peers(event).size()
             ).c_str()
         });
-        if (peer->billboard.id != 0) BillboardChange(event); // @note don't waste memory if billboard is empty.
+        if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
         inventory_visuals(event);
     }
     catch (const std::exception& exc)

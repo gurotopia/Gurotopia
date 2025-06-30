@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "respawn.hpp"
 
-void respawn(ENetEvent& event, const std::string& header) 
+void action::respawn(ENetEvent& event, const std::string& header) 
 {
     gt_packet(*event.peer, true, 0, { 
         "OnSetFreezeState", 

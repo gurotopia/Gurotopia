@@ -22,7 +22,7 @@ void who(ENetEvent& event, const std::string_view text)
         if (!list.empty()) list += ", ";
         list.append(std::move(full_name));
     });
-    action(*event.peer, "log", std::format(
+    _action(*event.peer, "log", std::format(
         "msg|`wWho's in `${}``:`` {}``",
         peer->recent_worlds.back(), list
     ));

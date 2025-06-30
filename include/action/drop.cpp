@@ -2,7 +2,7 @@
 #include "tools/string.hpp"
 #include "drop.hpp"
 
-void drop(ENetEvent& event, const std::string& header)
+void action::drop(ENetEvent& event, const std::string& header)
 {
     std::string itemID = readch(std::move(header), '|')[4];
     if (itemID.empty()) return;

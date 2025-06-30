@@ -12,6 +12,6 @@
     */
     extern void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any>& params);
 
-    extern void action(ENetPeer& p, const std::string& action, const std::string& str);
+    extern void _action(ENetPeer& p, const std::string& action, const std::string& str);
 
 #endif

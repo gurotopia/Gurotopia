@@ -2,7 +2,7 @@
 #include "tools/string.hpp"
 #include "itemfavourite.hpp"
 
-void itemfavourite(ENetEvent& event, const std::string& header)
+void action::itemfavourite(ENetEvent& event, const std::string& header)
 {
     std::string id{readch(std::move(header), '|')[4]};
     if (id.empty()) return;

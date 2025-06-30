@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "refresh_item_data.hpp"
 
-void refresh_item_data(ENetEvent& event, const std::string& header) 
+void action::refresh_item_data(ENetEvent& event, const std::string& header) 
 {
     gt_packet(*event.peer, false, 0, {
         "OnConsoleMessage",

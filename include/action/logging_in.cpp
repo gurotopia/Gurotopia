@@ -1,8 +1,9 @@
 #include "pch.hpp"
 #include "tools/string.hpp"
 #include "join_request.hpp"
+#include "logging_in.hpp"
 
-void logging_in(ENetEvent& event, const std::string& header)
+void action::logging_in(ENetEvent& event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
     std::vector<std::string> pipes = readch(std::move(header), '|');

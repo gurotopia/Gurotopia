@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "inventoryfavuitrigger.hpp"
 
-void inventoryfavuitrigger(ENetEvent& event, const std::string& header)
+void action::inventoryfavuitrigger(ENetEvent& event, const std::string& header)
 {
     gt_packet(*event.peer, false, 0,  {
         "OnDialogRequest",

@@ -64,7 +64,7 @@ void tile_change(ENetEvent& event, state state)
                     else block.toggled = false;
                     peers(event, PEER_SAME_WORLD, [remember_weather](ENetPeer& p)
                     {
-                        gt_packet(p, false, 0, { "OnSetCurrentWeather", remember_weather });
+                        packet::create(p, false, 0, { "OnSetCurrentWeather", remember_weather });
                     });
                     for (::block &b : w->second.blocks)
                         if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
@@ -79,7 +79,7 @@ void tile_change(ENetEvent& event, state state)
                         block.toggled = true;
                         if (item.id == 226)
                         {
-                            gt_packet(*event.peer, false, 0, {
+                            packet::create(*event.peer, false, 0, {
                                 "OnConsoleMessage",
                                 "Signal jammer enabled. This world is now `4hidden`` from the universe."
                             });
@@ -136,7 +136,7 @@ void tile_change(ENetEvent& event, state state)
                 {
                     if (peer->user_id == w->second.owner)
                     {
-                        gt_packet(*event.peer, false, 0, {
+                        packet::create(*event.peer, false, 0, {
                             "OnDialogRequest",
                             std::format("set_default_color|`o\n"
                                 "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
@@ -173,7 +173,7 @@ void tile_change(ENetEvent& event, state state)
                     for (::door& door : w->second.doors)
                         if (door.pos == state.punch) dest = door.dest, id = door.id;
                         
-                    gt_packet(*event.peer, false, 0, {
+                    packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
                             "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
@@ -194,7 +194,7 @@ void tile_change(ENetEvent& event, state state)
                     break;
                 }
                 case std::byte{ type::SIGN }:
-                        gt_packet(*event.peer, false, 0, {
+                        packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
                             "add_popup_name|SignEdit|\n"
@@ -209,7 +209,7 @@ void tile_change(ENetEvent& event, state state)
                     });
                     break;
                 case std::byte{ type::ENTRANCE }:
-                    gt_packet(*event.peer, false, 0, {
+                    packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
                             "set_default_color|`o"
@@ -247,13 +247,13 @@ void tile_change(ENetEvent& event, state state)
                         peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
                         {
                             std::string placed_message{ std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", w->first, peer->ltoken[0]) };
-                            gt_packet(p, false, 0, {
+                            packet::create(p, false, 0, {
                                 "OnTalkBubble", 
                                 peer->netid,
                                 placed_message.c_str(),
                                 0u
                             });
-                            gt_packet(p, false, 0, {
+                            packet::create(p, false, 0, {
                                 "OnConsoleMessage",
                                 placed_message.c_str()
                             });
@@ -275,7 +275,7 @@ void tile_change(ENetEvent& event, state state)
                     block.toggled = true;
                     peers(event, PEER_SAME_WORLD, [state](ENetPeer& p)
                     {
-                        gt_packet(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
+                        packet::create(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
                     });
                     for (::block &b : w->second.blocks)
                         if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != state.id) b.toggled = false;
@@ -301,7 +301,7 @@ void tile_change(ENetEvent& event, state state)
     catch (const std::exception& exc)
     {
         if (exc.what() && *exc.what()) 
-            gt_packet(*event.peer, false, 0, {
+            packet::create(*event.peer, false, 0, {
                 "OnTalkBubble", 
                 _peer[event.peer]->netid, // @note we are not using 'peer' ref cause of ratelimit and waste of memory.
                 exc.what()

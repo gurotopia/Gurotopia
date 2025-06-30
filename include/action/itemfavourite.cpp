@@ -13,12 +13,12 @@ void action::itemfavourite(ENetEvent& event, const std::string& header)
     if (peer->fav.size() >= 20 && !fav)
     {
         constexpr std::string_view message = "You cannot favorite any more items. Remove some from your list and try again.";
-        gt_packet(*event.peer, false, 0, { "OnTalkBubble", peer->netid, message.data(), 0u, 1u });
-        gt_packet(*event.peer, false, 0, { "OnConsoleMessage", message.data() });
+        packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, message.data(), 0u, 1u });
+        packet::create(*event.peer, false, 0, { "OnConsoleMessage", message.data() });
         return;
     }
 
-    gt_packet(*event.peer, false, 0, {
+    packet::create(*event.peer, false, 0, {
         "OnFavItemUpdated",
         stoi(id),
         (fav) ? 0 : 1

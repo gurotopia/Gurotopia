@@ -13,11 +13,11 @@ void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip
     std::string& prefix = peer->prefix;
     peers(event, PEER_SAME_WORLD, [&peer, &it, prefix](ENetPeer& p) 
     {
-        gt_packet(p, false, 0, {
+        packet::create(p, false, 0, {
             "OnConsoleMessage", 
             std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, peer->ltoken[0], it->second.visitors).c_str()
         });
-        gt_packet(p, true, 0, { "OnRemove", std::format("netID|{}\npId|\n", peer->netid).c_str() });
+        packet::create(p, true, 0, { "OnRemove", std::format("netID|{}\npId|\n", peer->netid).c_str() });
     });
     if (it->second.visitors <= 0) worlds.erase(it);
     if (prefix == "2" || prefix == "c") prefix = "w";

@@ -25,7 +25,7 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
         } 
         else if (pipes[3zu] == "trash_item")
         {
-            gt_packet(*event.peer, false, 0, {
+            packet::create(*event.peer, false, 0, {
                 "OnConsoleMessage",
                 std::format("{} `w{}`` recycled, `w0`` gems earned.", count, items[id].raw_name).c_str()
             });
@@ -43,7 +43,7 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
                         result.append(std::format("add_button|{0}|{0}|noflags|0|0|\n", name));
                 return result;
             };
-            gt_packet(*event.peer, false, 0, {
+            packet::create(*event.peer, false, 0, {
                 "OnDialogRequest",
                 std::format(
                     "set_default_color|`o\n"
@@ -66,7 +66,7 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
         }
         else if (pipes[11zu] == "billboard_edit")
         {
-            gt_packet(*event.peer, false, 0, {
+            packet::create(*event.peer, false, 0, {
                 "OnDialogRequest",
                 std::format("set_default_color|`o\n"
                 "add_label_with_icon|big|`wTrade Billboard``|left|8282|\n"

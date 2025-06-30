@@ -163,7 +163,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     case std::byte{ type::WEATHER_MACHINE }: // @note there are no added bytes (I think)
                     {
                         if (block.toggled)
-                            gt_packet(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
+                            packet::create(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
                         break;
                     }
                     case std::byte{ type::TOGGLEABLE_BLOCK }:
@@ -225,7 +225,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         {
             if (_peer[&p]->user_id != peer->user_id) 
             {
-                gt_packet(*event.peer, false, -1/* ff ff ff ff */, {
+                packet::create(*event.peer, false, -1/* ff ff ff ff */, {
                     "OnSpawn", 
                     std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n",
                         _peer[&p]->netid, _peer[&p]->user_id, static_cast<int>(_peer[&p]->pos.front()), static_cast<int>(_peer[&p]->pos.back()), 
@@ -233,11 +233,11 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     ).c_str()
                 });
                 std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors) };
-                gt_packet(p, false, 0, {
+                packet::create(p, false, 0, {
                     "OnConsoleMessage", 
                     enter_message.c_str()
                 });
-                gt_packet(p, false, 0, {
+                packet::create(p, false, 0, {
                     "OnTalkBubble", 
                     peer->netid, 
                     enter_message.c_str()
@@ -245,7 +245,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             }
         }); // @note delete enter_message
         /* @todo send this packet to everyone exept event.peer, and remove type|local */
-        gt_packet(*event.peer, false, -1/* ff ff ff ff */, {
+        packet::create(*event.peer, false, -1/* ff ff ff ff */, {
             "OnSpawn", 
             std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\ntype|local\n",
                 peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), 
@@ -263,7 +263,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
             return std::format(" `0[``{}`0]``", list);
         };
-        gt_packet(*event.peer, false, 0, {
+        packet::create(*event.peer, false, 0, {
             "OnConsoleMessage", 
             std::format(
                 "World `w{}{}`` entered.  There are `w{}`` other people here, `w{}`` online.", 
@@ -275,7 +275,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
     }
     catch (const std::exception& exc)
     {
-        if (exc.what() && *exc.what()) gt_packet(*event.peer, false, 0, { "OnConsoleMessage", exc.what() });
-        gt_packet(*event.peer, false, 0, { "OnFailedToEnterWorld" });
+        if (exc.what() && *exc.what()) packet::create(*event.peer, false, 0, { "OnConsoleMessage", exc.what() });
+        packet::create(*event.peer, false, 0, { "OnFailedToEnterWorld" });
     }
 }

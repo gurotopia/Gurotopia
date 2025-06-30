@@ -18,7 +18,7 @@ void pickup(ENetEvent& event, state state)
         item &item = items[it->second.id];
         if (item.type != std::byte{ GEM })
         {
-            gt_packet(*event.peer, false, 0, {
+            packet::create(*event.peer, false, 0, {
                 "OnConsoleMessage",
                 (item.rarity >= 999) ?
                     std::format("Collected `w{} {}``.", it->second.count, item.raw_name).c_str() :
@@ -31,7 +31,7 @@ void pickup(ENetEvent& event, state state)
         {
             peer->gems += it->second.count;
             it->second.count = 0;
-            gt_packet(*event.peer, false, 0, {
+            packet::create(*event.peer, false, 0, {
                 "OnSetBux",
                 peer->gems,
                 1,

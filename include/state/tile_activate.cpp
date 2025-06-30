@@ -37,17 +37,17 @@ void tile_activate(ENetEvent& event, state state)
             }
             if (!has_dest)
             {
-                gt_packet(*event.peer, true, 0, {
+                packet::create(*event.peer, true, 0, {
                     "OnSetPos", 
                     std::vector<float>{peer->rest_pos.front(), peer->rest_pos.back()}
                 });
-                gt_packet(*event.peer, false, 0, {
+                packet::create(*event.peer, false, 0, {
                     "OnZoomCamera", 
                     std::vector<float>{10000.0f}, // @todo
                     1000u
                 });
-                gt_packet(*event.peer, true, 0, { "OnSetFreezeState", 0u });
-                gt_packet(*event.peer, true, 0, { "OnPlayPositioned", "audio/teleport.wav" });
+                packet::create(*event.peer, true, 0, { "OnSetFreezeState", 0u });
+                packet::create(*event.peer, true, 0, { "OnPlayPositioned", "audio/teleport.wav" });
             }
             break;
         }

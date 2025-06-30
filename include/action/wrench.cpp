@@ -19,7 +19,7 @@ void action::wrench(ENetEvent& event, const std::string& header)
                 /* wrench yourself */
                 if (peer->user_id == _peer[event.peer]->user_id)
                 {
-                    gt_packet(p, false, 0, {
+                    packet::create(p, false, 0, {
                         "OnDialogRequest",
                         std::format(
                             "embed_data|netID|{0}\n"
@@ -73,7 +73,7 @@ void action::wrench(ENetEvent& event, const std::string& header)
                 /* wrench someone else */
                 else
                 {
-                     gt_packet(p, false, 0, {
+                     packet::create(p, false, 0, {
                         "OnDialogRequest",
                         std::format(
                             "embed_data|netID|{0}\n"

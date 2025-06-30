@@ -24,7 +24,7 @@ void action::logging_in(ENetEvent& event, const std::string& header)
         }
     } // @note delete decoded
     peer->read(peer->ltoken[0]);
-    gt_packet(*event.peer, false, 0, {
+    packet::create(*event.peer, false, 0, {
         "OnSuperMainStartAcceptLogonHrdxs47254722215a",
         160478374u, // @note items.dat
         "ubistatic-a.akamaihd.net",

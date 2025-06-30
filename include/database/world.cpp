@@ -308,7 +308,7 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
 void clothing_visuals(ENetEvent &event) 
 {
     auto &peer = _peer[event.peer];
-    gt_packet(*event.peer, true, 0, {
+    packet::create(*event.peer, true, 0, {
         "OnSetClothing", 
         std::vector<float>{peer->clothing[hair], peer->clothing[shirt], peer->clothing[legs]}, 
         std::vector<float>{peer->clothing[feet], peer->clothing[face], peer->clothing[hand]}, 

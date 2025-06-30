@@ -3,7 +3,7 @@
 
 void action::refresh_item_data(ENetEvent& event, const std::string& header) 
 {
-    gt_packet(*event.peer, false, 0, {
+    packet::create(*event.peer, false, 0, {
         "OnConsoleMessage",
         "One moment, updating item data..."
     });

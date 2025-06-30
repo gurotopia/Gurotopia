@@ -17,7 +17,7 @@ void on::RequestWorldSelectMenu(ENetEvent& event)
             }
         return result;
     };
-    gt_packet(*event.peer, false, 0, {
+    packet::create(*event.peer, false, 0, {
         "OnRequestWorldSelectMenu", 
             std::format(
                 "add_filter|\n"
@@ -30,7 +30,7 @@ void on::RequestWorldSelectMenu(ENetEvent& event)
         ).c_str(), 
         0
     });
-    gt_packet(*event.peer, false, 0, {
+    packet::create(*event.peer, false, 0, {
         "OnConsoleMessage", 
         std::format("Where would you like to go? (`w{}`` online)", peers(event).size()).c_str()
     });

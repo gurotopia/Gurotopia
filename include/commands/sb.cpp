@@ -19,7 +19,7 @@ void sb(ENetEvent& event, const std::string_view text)
 
     peers(event, PEER_ALL, [&peer, message, display](ENetPeer& p) 
     {
-        gt_packet(p, false, 0, {
+        packet::create(p, false, 0, {
             "OnConsoleMessage",
             std::format(
                 "CP:0_PL:0_OID:_CT:[SB]_ `5** from (`{}{}`````5) in [```${}```5] ** : ```${}``",

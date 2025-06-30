@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "packet.hpp"
 
-void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any>& params) 
+void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std::any>& params) 
 {
     std::vector<std::byte> data(61, std::byte{ 00 });
     data[0zu] = std::byte{ 04 };
@@ -69,7 +69,7 @@ void gt_packet(ENetPeer& p, bool netid, signed delay, const std::vector<std::any
     enet_peer_send(&p, 0, enet_packet_create(data.data(), size, ENET_PACKET_FLAG_RELIABLE));
 }
 
-void _action(ENetPeer& p, const std::string& action, const std::string& str) 
+void packet::action(ENetPeer& p, const std::string& action, const std::string& str) 
 {
     std::string_view action_view = std::format("action|{}\n", action);
     std::vector<std::byte> data(4 + action_view.length() + str.length(), std::byte{ 00 });

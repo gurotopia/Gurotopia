@@ -3,7 +3,7 @@
 
 void find(ENetEvent& event, const std::string_view text)
 {
-    gt_packet(*event.peer, false, 0, {
+    packet::create(*event.peer, false, 0, {
         "OnDialogRequest", 
         "set_default_color|`o\n"
         "add_text_input|n|Search: ||26|\n"

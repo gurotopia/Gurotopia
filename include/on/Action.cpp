@@ -8,7 +8,7 @@ void on::Action(ENetEvent& event, const std::string_view text)
     // @todo does this need be sent to everyone?
     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
-        gt_packet(p, true, 0, {
+        packet::create(p, true, 0, {
             "OnAction", 
             formatted_action.c_str()
         });

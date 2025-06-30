@@ -36,7 +36,7 @@
     public:
         peer& read(const std::string& name);
 
-        signed netid{ -1 }; // @note peer's netid is world identity. this will be useful for many packet sending
+        signed netid{ 0 }; // @note peer's netid is world identity. this will be useful for many packet sending
         int user_id{}; // @note unqiue user id.
         std::array<std::string, 2zu> ltoken{}; // @note peer's ltoken e.g. {growid, password}
         std::string prefix{ "w" }; // @note display name color, default: "w" (White)

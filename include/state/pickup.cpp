@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "on/SetBux.hpp"
 #include "pickup.hpp"
 
 #include <cmath>
@@ -31,12 +32,7 @@ void pickup(ENetEvent& event, state state)
         {
             peer->gems += it->second.count;
             it->second.count = 0;
-            packet::create(*event.peer, false, 0, {
-                "OnSetBux",
-                peer->gems,
-                1,
-                1
-            });
+            on::SetBux(event);
         }
         drop_visuals(event, {it->second.id, it->second.count}, it->second.pos, state.id/*@todo*/);
         inventory_visuals(event); // @todo confused here... (if I put this higher it duplicates the item.)

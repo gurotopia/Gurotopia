@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "on/RequestWorldSelectMenu.hpp"
 #include "tools/string.hpp"
+#include "on/SetBux.hpp"
 #include "enter_game.hpp"
 
 void action::enter_game(ENetEvent& event, const std::string& header) 
@@ -33,13 +34,8 @@ void action::enter_game(ENetEvent& event, const std::string& header)
         4226000383u,
         4226000383u,
         "4226000383|4226000383|80543231|80543231|1554912511|1554912511"
-    }); 
-    packet::create(*event.peer, false, 0, {
-        "OnSetBux",
-        peer->gems,
-        1,
-        1
     });
+    on::SetBux(event);
     packet::create(*event.peer, false, 0, {"SetHasGrowID", 1, peer->ltoken[0].c_str(), ""}); 
 
     {

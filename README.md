@@ -79,6 +79,6 @@
 >
 > Add the following lines to the end of the file:
 > ```
-> 127.0.0.1 [www.growtopia1.com](https://www.growtopia1.com)
-> 127.0.0.1 [www.growtopia2.com](https://www.growtopia2.com)
+> 127.0.0.1 www.growtopia1.com
+> 127.0.0.1 www.growtopia2.com
 > ```

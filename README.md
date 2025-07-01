@@ -11,26 +11,74 @@
 </div>
 
 ***
-#### ![](https://github.com/microsoft/vscode-icons/blob/main/icons/dark/checklist.svg) Download:
-   - **Visual Studio Code**:  **https://code.visualstudio.com/**
-   - **MSYS2**:  **https://www.msys2.org/**
-   - **C/C++ extension (VSC)**: https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
-   - **SQLite Viewer extension (VSC)**: https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer
 
-#### ![](https://github.com/microsoft/vscode-icons/blob/main/icons/dark/archive.svg) Installing MSYS packages:
-   - Locate MSYS folder (`C:\msys64`).
-   - Open `ucrt64.exe` and paste **`pacman -S --needed mingw-w64-ucrt-x86_64-gcc make`** into the terminal.
+### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/checklist.svg) Prerequisites
 
-#### ![](https://github.com/microsoft/vscode-icons/blob/main/icons/dark/build.svg) Build:
-   - After downloading *Gurotopia*, open it in Visual Studio Code, and press **Ctrl + Shift + B**, and let it compile...
+- **Visual Studio Code**: **https://code.visualstudio.com/** (Recommended Editor)
+- **C/C++ extension (VSC)**: https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
+- **SQLite Viewer extension (VSC)**: https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer
 
-#### ![](https://github.com/microsoft/vscode-icons/blob/main/icons/dark/debug-alt-small.svg) Run/Debug:
-   - after compile press **F5** or **Fn + 5** key, this will run and debug.
-***
+---
+
+### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/platform-windows.svg) Building on Windows
+
+#### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/archive.svg) 1. Install Dependencies
+   - **MSYS2**: **https://www.msys2.org/**
+   - Locate your MSYS2 folder (e.g., `C:\msys64`), open `ucrt64.exe`, and run the following command:
+     ```bash
+     pacman -S --needed mingw-w64-ucrt-x86_64-gcc make
+     ```
+
+#### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/build.svg) 2. Compile
+   - Open the project folder in Visual Studio Code.
+   - Press **`Ctrl + Shift + B`** to start the build process.
+
+#### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/debug-alt-small.svg) 3. Run/Debug
+   - After compiling, press **`F5`** to run the server with the debugger attached.
+
+---
+
+### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/platform-linux.svg) Building on Linux
+
+#### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/archive.svg) 1. Install Dependencies
+   - Open a terminal and use your distribution's package manager to install the necessary build tools and libraries.
+
+   - **Debian / Ubuntu:**
+     ```bash
+     sudo apt-get update && sudo apt-get install build-essential libssl-dev libenet-dev libsqlite3-dev
+     ```
+   - **Fedora / CentOS / RHEL:**
+     ```bash
+     sudo dnf install gcc-c++ make openssl-devel enet-devel sqlite-devel
+     ```
+   - **Arch Linux:**
+     ```bash
+     sudo pacman -S base-devel openssl enet sqlite
+     ```
+
+#### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/build.svg) 2. Compile
+   - Navigate to the project's root directory in your terminal and run the `make` command:
+     ```bash
+     make
+     ```
+
+#### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/debug-alt-small.svg) 3. Run
+   - Execute the compiled binary located in the `build` directory:
+     ```bash
+     ./build/main.out
+     ```
+
+---
+
+### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/settings.svg) Local Server Configuration
 
 > [!NOTE]
-> Make sure 'hosts' file via `C:/Windows/System32/drivers/etc/` is set to:
+> To connect to your local server, you must modify your system's **hosts** file.
+> - **Windows**: `C:\Windows\System32\drivers\etc\hosts`
+> - **Linux/macOS**: `/etc/hosts`
+>
+> Add the following lines to the end of the file:
 > ```
-> 127.0.0.1 www.growtopia1.com
-> 127.0.0.1 www.growtopia2.com
+> 127.0.0.1 [www.growtopia1.com](https://www.growtopia1.com)
+> 127.0.0.1 [www.growtopia2.com](https://www.growtopia2.com)
 > ```

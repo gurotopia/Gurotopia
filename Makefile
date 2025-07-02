@@ -37,6 +37,7 @@ $(BUILD_DIR) :
 	@mkdir -p $(BUILD_DIR)/include/packet
 	@mkdir -p $(BUILD_DIR)/include/state
 	@mkdir -p $(BUILD_DIR)/include/tools
+	@cp -r ctx $(BUILD_DIR)/
 
 $(PCH): include/pch.hpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -x c++-header $< -o $@

@@ -51,7 +51,7 @@ void https::listener(std::string ip, short enet_port)
             "server|{}\n"
             "port|{}\n"
             "type|1\n"
-            "type|2\n" // @todo
+            "type2|1\n" // @todo
             "#maint|Server under maintenance. Please try again later.\n"
             "loginurl|login-web-sigma.vercel.app\n"
             "meta|gurotopia\n"

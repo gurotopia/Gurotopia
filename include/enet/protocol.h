@@ -68,6 +68,13 @@ typedef struct _ENetProtocolHeader
    enet_uint16 sentTime;
 } ENET_PACKED ENetProtocolHeader;
 
+typedef struct _ENetNewProtocolHeader
+{
+    enet_uint16 integrity[3];
+    enet_uint16 peerID;
+    enet_uint16 sentTime;
+} ENET_PACKED ENetNewProtocolHeader;
+
 typedef struct _ENetProtocolCommandHeader
 {
    enet_uint8 command;

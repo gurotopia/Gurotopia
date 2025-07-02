@@ -45,25 +45,21 @@
 
    - **Debian / Ubuntu:**
      ```bash
-     sudo apt-get update && sudo apt-get install build-essential libssl-dev libenet-dev libsqlite3-dev
+     sudo apt-get update && sudo apt-get install build-essential
      ```
    - **Fedora / CentOS / RHEL:**
      ```bash
-     sudo dnf install gcc-c++ make openssl-devel enet-devel sqlite-devel
+     sudo dnf install gcc-c++ make
      ```
    - **Arch Linux:**
      ```bash
-     sudo pacman -S base-devel openssl enet sqlite
+     sudo pacman -S base-devel
      ```
 
 #### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/build.svg) 2. Compile
    - Navigate to the project's root directory in your terminal and run the `make` command:
      ```bash
-     # Linux
-     make -j$(nproc) # will use all available CPU cores
-
-     # macOS
-     make -j$(sysctl -n hw.ncpu) # will use all available CPU cores
+     make -j$(nproc)
      ```
 
 #### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/debug-alt-small.svg) 3. Run

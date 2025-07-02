@@ -59,7 +59,11 @@
 #### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/build.svg) 2. Compile
    - Navigate to the project's root directory in your terminal and run the `make` command:
      ```bash
-     make
+     # Linux
+     make -j$(nproc) # will use all available CPU cores
+
+     # macOS
+     make -j$(sysctl -n hw.ncpu) # will use all available CPU cores
      ```
 
 #### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/debug-alt-small.svg) 3. Run

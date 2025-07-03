@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 25-5-2024
-    @version perent SHA: cd52024244eec9735d487149e22fd3551bf46aeb (1/7/25)
+    @version perent SHA: 50f72f0e1308524501b313edad18f942b2d2db71 (25/07/02)
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -34,9 +34,10 @@ int main()
         enet_initialize_with_callbacks(ENET_VERSION, &callbacks);
     } // @note delete callbacks
     {
-        ENetAddress address{};
-        address.type = ENET_ADDRESS_TYPE_IPV4;
-        address.port = 17091;
+        ENetAddress address{
+            .type = ENET_ADDRESS_TYPE_IPV4, 
+            .port = 17091
+        };
         enet_address_is_any(&address);
 
         server = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu, 2zu, 0, 0);

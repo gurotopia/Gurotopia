@@ -14,6 +14,16 @@
     */
     extern bool alpha(const std::string& str);
 
+    /*
+        @return true if string contains ONLY number [1, 2, 3] 
+    */
+    extern bool number(const std::string& str);
+
+    /*
+        @return true if string contains ONLY numbers or alphabet [1, 2, 3, a, b, c]
+    */
+    extern bool alnum(const std::string& str);
+
     extern std::string base64_decode(const std::string& encoded);
 
     // @todo downgrade to a int (4 bit)

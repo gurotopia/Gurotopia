@@ -29,7 +29,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         auto &peer = _peer[event.peer];
         std::string big_name{world_name.empty() ? readch(std::move(header), '|')[3] : world_name};
 
-        if (!alpha(big_name) || big_name.empty()) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
+        if (!alnum(big_name)) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
         
         auto [it, inserted] = worlds.try_emplace(big_name, big_name);

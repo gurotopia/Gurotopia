@@ -14,7 +14,7 @@ jobs:
       
       
       - if: matrix.os == 'windows-latest'
-        uses: msys2/setup-msys2@61f9e5e925871ba6c9e3e8da24ede83ea27fa91f # v2.27.0 
+        uses: msys2/setup-msys2@40677d36a502eb2cf0fb808cc9dec31bf6152638 # v2.28.0 
         with:
           msystem: UCRT64
           update: true
@@ -23,7 +23,7 @@ jobs:
             make
             
       - if: matrix.os == 'ubuntu-latest'
-        run: sudo apt update && sudo apt install -y build-essential gcc make
+        run: sudo apt-get update && sudo apt-get install build-essential
 
         
       - if: matrix.os == 'windows-latest'

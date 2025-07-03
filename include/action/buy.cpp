@@ -1,9 +1,10 @@
 #include "pch.hpp"
 #include "store.hpp"
 #include "on/SetBux.hpp"
-#include "buy.hpp"
-
 #include "tools/string.hpp"
+#include "database/store_packs.hpp"
+#include "tools/ransuu.hpp"
+#include "buy.hpp"
 
 void action::buy(ENetEvent& event, const std::string& header)
 {
@@ -88,8 +89,8 @@ void action::buy(ENetEvent& event, const std::string& header)
             "add_tab_button|weather_menu|Weather Machines|interface/large/btn_shop.rttex|Tired of the same sunny sky?  We offer alternatives within...|0|5|0|0||||-1|-1|||0|0|CustomParams:|\n"
             "add_tab_button|token_menu|Growtoken Items|interface/large/btn_shop.rttex||0|2|0|0||||-1|-1|||0|0|CustomParams:|\n"
 
-            "add_button|5seed|`oSmall Seed Pack``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 1 Small Seed Pack.<CR><CR>`5Description:`` Contains one Small Seed Pack. Open it for `$5`` randomly chosen seeds, including 1 rare seed! Who knows what you'll get?!|1|4|100|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|ssp_10_pack|`oSmall Seed Pack Collection``|interface/large/store_buttons/store_buttons18.rttex|`2You Get:`` 10 Small Seed Packs.<CR><CR>`5Description:`` Open each one for `$5`` randomly chosen seeds apiece, including 1 rare seed per pack! Who knows what you'll get?!|0|4|1000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
+            "add_button|5706_100_1|`oSmall Seed Pack``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 1 Small Seed Pack.<CR><CR>`5Description:`` Contains one Small Seed Pack. Open it for `$5`` randomly chosen seeds, including 1 rare seed! Who knows what you'll get?!|1|4|100|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
+            "add_button|5706_1000_10|`oSmall Seed Pack Collection``|interface/large/store_buttons/store_buttons18.rttex|`2You Get:`` 10 Small Seed Packs.<CR><CR>`5Description:`` Open each one for `$5`` randomly chosen seeds apiece, including 1 rare seed per pack! Who knows what you'll get?!|0|4|1000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
             "add_button|basic_splice|`oBasic Splicing Kit``|interface/large/store_buttons/store_buttons2.rttex|`2You Get:`` 10 Rock Seeds and 10 Random Seeds of Rarity 2.<CR><CR>`5Description:`` The basic seeds every farmer needs.|0|3|200|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
             "add_button|rare_seed|`oRare Seed Pack``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 5 Randomly Chosen Rare Seeds.<CR><CR>`5Description:`` Expect some wondrous crops with these!|1|7|1000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
             "add_button|bountiful_seed_pack|`oBountiful Seed Pack``|interface/large/store_buttons/store_buttons28.rttex|`2You Get:`` 1 Bountiful Seed Pack.<CR><CR>`5Description:`` Contains `$5`` randomly chosen bountiful seeds, including 1 rare seed! Who knows what you'll get?!|0|4|1000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
@@ -152,21 +153,59 @@ void action::buy(ENetEvent& event, const std::string& header)
                     backpack_cost - peer->gems
                 ).c_str()
             });
+            return;
         }
-        else 
+        packet::create(*event.peer, false, 0, 
+        {
+            "OnStorePurchaseResult",
+            std::format(
+                "You've purchased `0Upgrade Backpack (10 Slots)`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0Backpack Upgrade``",
+                backpack_cost, peer->gems -= backpack_cost
+            ).c_str()
+        });
+        on::SetBux(event);
+        peer->slot_size += 10;
+        inventory_visuals(event);
+    }
+    else if (pipes[3] == "basic_splice")
+    {
+        if (peer->gems < 200) 
         {
             packet::create(*event.peer, false, 0, 
             {
                 "OnStorePurchaseResult",
                 std::format(
-                    "You've purchased `0Upgrade Backpack (10 Slots)`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0Backpack Upgrade``",
-                    backpack_cost, peer->gems -= backpack_cost
+                    "You can't afford `0Basic Splicing Kit``!  You're `${}`` Gems short.",
+                    200 - peer->gems
                 ).c_str()
             });
-            on::SetBux(event);
-            peer->slot_size += 10;
-            inventory_visuals(event);
+            return;
         }
+        std::string received_list{};
+        peer->emplace(slot(11, 10)); received_list += "10 Rock Seeds, ";
+
+        ransuu ransuu;
+        std::vector<::item> seeds_r2{}; // @note rarity 2 seeds
+        for (auto &&[id, item] : items)
+            if (item.rarity == 2 && item.type == std::byte{ type::SEED })
+                seeds_r2.push_back(item);
+
+        for (char i = 0; i < 10 && !seeds_r2.empty(); ++i) 
+        {
+            ::item item = seeds_r2[ransuu[{0, static_cast<int>(seeds_r2.size() - 1)}]];
+            peer->emplace(slot(item.id, 1)); received_list += std::format("1 {}, ", item.raw_name);
+        }
+
+        packet::create(*event.peer, false, 0, 
+        {
+            "OnStorePurchaseResult",
+            std::format(
+                "You've purchased `0Basic Splicing Kit`` for `$200`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0{}``",
+                peer->gems -= 200, received_list.substr(0, received_list.length() - 2)
+            ).c_str()
+        });
+        on::SetBux(event);
+        inventory_visuals(event);
     }
     else 
     {
@@ -187,20 +226,18 @@ void action::buy(ENetEvent& event, const std::string& header)
                     item.raw_name, price - peer->gems
                 ).c_str()
             });
+            return;
         }
-        else 
+        packet::create(*event.peer, false, 0, 
         {
-            packet::create(*event.peer, false, 0, 
-            {
-                "OnStorePurchaseResult",
-                std::format(
-                    "You've purchased `0{0} {1}`` for `${2}`` Gems.\nYou have `${3}`` Gems left.\n\n`5Received: ```0{4} {1}``",
-                    (amount > 1) ? std::format("{}-pack", amount) : embed[2], item.raw_name, price, peer->gems -= price, amount
-                ).c_str()
-            });
-            on::SetBux(event);
-            peer->emplace(slot(item.id, amount));
-            inventory_visuals(event);
-        }
+            "OnStorePurchaseResult",
+            std::format(
+                "You've purchased `0{0} {1}`` for `${2}`` Gems.\nYou have `${3}`` Gems left.\n\n`5Received: ```0{4} {1}``",
+                (amount > 1) ? std::format("{}-pack", amount) : embed[2], item.raw_name, price, peer->gems -= price, amount
+            ).c_str()
+        });
+        on::SetBux(event);
+        peer->emplace(slot(item.id, amount));
+        inventory_visuals(event);
     }
 }

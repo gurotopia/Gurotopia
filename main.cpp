@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 25-5-2024
-    @version perent SHA: a7c1dd62de637cd037fa7f6eda6be9ba53d9d288 (25/07/03)
+    @version perent SHA: 2a8cddfc4ad092d909a6c4f8181584f6429cd180 (25/07/03)
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -60,6 +60,7 @@ int main()
     } // @note delete size
     cache_items();
 
+    std::srand(std::time(nullptr));
     ENetEvent event{};
     while (true)
         while (enet_host_service(server, &event, 1/*ms*/) > 0)

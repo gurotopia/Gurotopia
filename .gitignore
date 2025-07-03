@@ -7,3 +7,6 @@ build/
 # lingering files
 main.exe
 items.dat
+
+# user data
+.vscode/settings.json

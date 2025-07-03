@@ -5,7 +5,7 @@
 void action::drop(ENetEvent& event, const std::string& header)
 {
     std::string itemID = readch(std::move(header), '|')[4];
-    if (itemID.empty()) return;
+    if (!number(itemID)) return;
 
     short id = stoi(itemID);
     item &item = items[id];

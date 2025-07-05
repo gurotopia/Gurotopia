@@ -2,13 +2,11 @@
 #include "tools/string.hpp"
 #include "shouhin.hpp"
 
-#include <map>
+std::vector<std::pair<short, shouhin>> shouhin_tachi{};
 
-std::vector<std::pair<short, shouhin>> shouhin_list{};
-
-void read_shouhin_list()
+void init_shouhin_tachi()
 {
-    std::ifstream file("resources/shouhin_list.txt");
+    std::ifstream file("resources/store.txt");
     {
         std::string line;
         while (std::getline(file, line)) 

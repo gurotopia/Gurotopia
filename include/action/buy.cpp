@@ -35,7 +35,7 @@ void action::buy(ENetEvent& event, const std::string& header)
                 "add_tab_button|token_menu|Growtoken Items|interface/large/btn_shop.rttex||0|2|0|0||||-1|-1|||0|0|CustomParams:|\n",
                 (tab == 1) ? "1" : "0", (tab == 2) ? "1" : "0"
         ));
-        for (auto &&[_tab, shouhin] : shouhin_list)
+        for (auto &&[_tab, shouhin] : shouhin_tachi)
         {
             if (_tab == tab)
             {
@@ -48,22 +48,22 @@ void action::buy(ENetEvent& event, const std::string& header)
         packet::create(*event.peer, false, 0, { "OnStoreRequest", StoreRequest.c_str() });
         return;
     }
-    for (auto &shouhin : shouhin_list) // @todo only iterate if peer is actually buying a item.
+    for (auto &&[_tab, shouhin] : shouhin_tachi) // @todo only iterate if peer is actually buying a item.
     {
-        if (pipes[3] == shouhin.second.btn)
+        if (pipes[3] == shouhin.btn)
         {
-            if (peer->gems < shouhin.second.cost) 
+            if (peer->gems < shouhin.cost) 
             {
                 packet::create(*event.peer, false, 0, 
                 {
                     "OnStorePurchaseResult",
-                    std::format("You can't afford `0{}``!  You're `${}`` Gems short.", shouhin.second.name, shouhin.second.cost - peer->gems).c_str()
+                    std::format("You can't afford `0{}``!  You're `${}`` Gems short.", shouhin.name, shouhin.cost - peer->gems).c_str()
                 });
                 return;
             }
 
             std::string received{};
-            for (std::pair<short, short> &im : shouhin.second.im)
+            for (std::pair<short, short> &im : shouhin.im)
             {
                 peer->emplace(slot(im.first, im.second));
                 received.append(std::format("{}, ", items[im.first].raw_name)); // @todo add green text to rare items, or something cool.
@@ -75,7 +75,7 @@ void action::buy(ENetEvent& event, const std::string& header)
                 "OnStorePurchaseResult",
                 std::format(
                     "You've purchased `0{}`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0{}``",
-                    shouhin.second.name, shouhin.second.cost, peer->gems -= shouhin.second.cost, received
+                    shouhin.name, shouhin.cost, peer->gems -= shouhin.cost, received
                 ).c_str()
             });
             on::SetBux(event);

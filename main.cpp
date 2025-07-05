@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 25-5-2024
-    @version perent SHA: d76b250b45488190ca3db670ac7e2c0c1df00cc4 (25/07/05)
+    @version perent SHA: 02f0131af648668725817e9b924ac1143d213286 (25/07/05)
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -61,10 +61,8 @@ int main()
             .read(reinterpret_cast<char*>(&im_data[60zu]), size);
     } // @note delete size
     cache_items();
+    init_shouhin_tachi();
 
-    read_shouhin_list();
-
-    std::srand(std::time(nullptr));
     ENetEvent event{};
     while (true)
         while (enet_host_service(server, &event, 1/*ms*/) > 0)

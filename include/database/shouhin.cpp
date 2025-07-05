@@ -28,7 +28,7 @@ void init_shouhin_tachi()
                 std::vector<std::string> co = readch(std::move(im), ':');
                 shouhin.im.emplace_back(stoi(co[0]), stoi(co[1]));
             }
-            shouhin_list.emplace_back(stoi(pipes[0]), shouhin);
+            shouhin_tachi.emplace_back(stoi(pipes[0]), shouhin);
         }
     }
 }

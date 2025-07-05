@@ -11,7 +11,7 @@ void init_shouhin_tachi()
         std::string line;
         while (std::getline(file, line)) 
         {
-            if (line.empty() || line.contains("#")) continue; // @note checking if line has '#' for comments ^-^
+            if (line.empty() || line.starts_with("#")) continue; // @note '#' initiates a comment
             std::vector<std::string> pipes = readch(std::move(line), '|');
             ::shouhin shouhin{
                 .btn = pipes[1],

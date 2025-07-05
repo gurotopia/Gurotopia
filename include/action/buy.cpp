@@ -13,6 +13,9 @@ void action::buy(ENetEvent& event, const std::string& header)
 
     auto &peer = _peer[event.peer];
 
+    short No = (peer->slot_size - 16) / 10 + 1; // @note number of upgrades | credits: https://growtopia.fandom.com/wiki/Backpack_Upgrade
+    short backpack_cost = (100 * No * No - 200 * No + 200);
+
     short tab{};
     if (pipes[3] == "main") action::store(event, ""); // tab = 0
     else if (pipes[3] == "locks") tab = 1;
@@ -39,6 +42,7 @@ void action::buy(ENetEvent& event, const std::string& header)
         {
             if (_tab == tab)
             {
+                if (shouhin.btn == "upgrade_backpack") shouhin.cost = backpack_cost; // @todo race-condition for multiple people accessing store
                 StoreRequest.append(std::format(
                     "add_button|{}|{}|{}|{}|{}|{}|{}|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n",
                     shouhin.btn, shouhin.name, shouhin.rttx, shouhin.description, shouhin.tex1, shouhin.tex2, shouhin.cost
@@ -52,6 +56,7 @@ void action::buy(ENetEvent& event, const std::string& header)
     {
         if (pipes[3] == shouhin.btn)
         {
+            if (shouhin.btn == "upgrade_backpack") shouhin.cost = backpack_cost;
             if (peer->gems < shouhin.cost) 
             {
                 packet::create(*event.peer, false, 0, 
@@ -65,7 +70,8 @@ void action::buy(ENetEvent& event, const std::string& header)
             std::string received{};
             for (std::pair<short, short> &im : shouhin.im)
             {
-                peer->emplace(slot(im.first, im.second));
+                if (im.first == 9412) peer->slot_size += 10; // @note 9412 is the id for increase backpack sprite, but peer wont actually be given that item.
+                else peer->emplace(slot(im.first, im.second));
                 received.append(std::format("{}, ", items[im.first].raw_name)); // @todo add green text to rare items, or something cool.
             }
             inventory_visuals(event);

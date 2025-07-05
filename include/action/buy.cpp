@@ -2,220 +2,85 @@
 #include "store.hpp"
 #include "on/SetBux.hpp"
 #include "tools/string.hpp"
-#include "database/store_packs.hpp"
+#include "database/shouhin.hpp"
 #include "tools/ransuu.hpp"
 #include "buy.hpp"
 
-class shohin
-{
-public:
-    /* @todo add rttx image, description, and re-use OnStoreRequest for each tab */
-    std::string btn;
-    std::string name{};
-    int cost{};
-    std::vector<std::pair<short, short>> im; // @note {id, amount}
-}; 
-std::vector<shohin> pack // @todo should this be global?
-{
-    shohin{ .btn = "world_lock", .name = "`oWorld Lock``", .cost = 2000, .im = { {242, 1} } }
-};
 
 void action::buy(ENetEvent& event, const std::string& header)
 {
     std::vector<std::string> pipes = readch(std::move(header), '|');
-    if (pipes.size() < 4) return;
 
     auto &peer = _peer[event.peer];
 
-    /* credits: https://growtopia.fandom.com/wiki/Backpack_Upgrade */
-    unsigned short 
-        No = (peer->slot_size - 16) / 10 + 1, 
-        backpack_cost = (100 * No * No - 200 * No + 200);
-
-    if (pipes[3] == "main") action::store(event, "");
-    else if (pipes[3] == "locks") 
+    short tab{};
+    if (pipes[3] == "main") action::store(event, ""); // tab = 0
+    else if (pipes[3] == "locks") tab = 1;
+    else if (pipes[3] == "itempack") tab = 2;
+    if (tab != 0) 
     {
-        packet::create(*event.peer, false, 0, 
-        {
-            "OnStoreRequest",
-            std::format(
-                "set_description_text|`2Locks And Stuff!``  Select the item you'd like more info on, or BACK to go back.\n"
+        std::string StoreRequest{};
 
-                /* tabs */
-                "enable_tabs|1\n"
-                "add_tab_button|main_menu|Home|interface/large/btn_shop.rttex||0|0|0|0||||-1|-1|||0|0|CustomParams:|\n"
-                "add_tab_button|locks_menu|Locks And Stuff|interface/large/btn_shop.rttex||1|1|0|0||||-1|-1|||0|0|CustomParams:|\n"
-                "add_tab_button|itempack_menu|Item Packs|interface/large/btn_shop.rttex||0|3|0|0||||-1|-1|||0|0|CustomParams:|\n"
+        StoreRequest.append(
+            (tab == 1) ? "set_description_text|`2Locks And Stuff!``  Select the item you'd like more info on, or BACK to go back.\n" :
+            (tab == 2) ? "set_description_text|`2Item Packs!``  Select the item you'd like more info on, or BACK to go back.\n" : ""
+        );
+        StoreRequest.append("enable_tabs|1\nadd_tab_button|main_menu|Home|interface/large/btn_shop.rttex||0|0|0|0||||-1|-1|||0|0|CustomParams:|\n");
+        StoreRequest.append(
+            std::format(
+                "add_tab_button|locks_menu|Locks And Stuff|interface/large/btn_shop.rttex||{}|1|0|0||||-1|-1|||0|0|CustomParams:|\n"
+                "add_tab_button|itempack_menu|Item Packs|interface/large/btn_shop.rttex||{}|3|0|0||||-1|-1|||0|0|CustomParams:|\n"
                 "add_tab_button|bigitems_menu|Awesome Items|interface/large/btn_shop.rttex||0|4|0|0||||-1|-1|||0|0|CustomParams:|\n"
                 "add_tab_button|weather_menu|Weather Machines|interface/large/btn_shop.rttex|Tired of the same sunny sky?  We offer alternatives within...|0|5|0|0||||-1|-1|||0|0|CustomParams:|\n"
-                "add_tab_button|token_menu|Growtoken Items|interface/large/btn_shop.rttex||0|2|0|0||||-1|-1|||0|0|CustomParams:|\n"
-
-                "add_button|world_lock|`oWorld Lock``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 1 World Lock.<CR><CR>`5Description:`` Become the undisputed ruler of your domain with one of these babies.  It works like a normal lock except it locks the `$entire world``!  Won't work on worlds that other people already have locks on. You can even add additional normal locks to give access to certain areas to friends. `5It's a perma-item, is never lost when destroyed.``  `wRecycles for 200 Gems.``<CR><CR>Available: 100/100``<CR>Restock in: `59 Hours 9 Mins``|0|7|2000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_custom_button|limiterTimeBG_world_lock|image:interface/large/gui_store_button_overlays11.rttex;image_size:256,160;frame:0,0;state:disabled;color:255,255,255,255;border:none;width:0.31;iconAlignment:CENTER;anchor:world_lock;display:none;action:isduhfiudfghids;top:0.5;left:0.5;|\n"
-                "add_label|`w9 Hours``|target:world_lock;size:tiny;top:0.67;left:0.25|\n"
-                "add_button|world_lock_10_pack|`oWorld Lock Pack``|interface/large/store_buttons/store_buttons18.rttex|`2You Get:`` 10 World Locks.<CR><CR>`5Description:`` 10-pack of World Locks. Become the undisputed ruler of up to TEN kingdoms with these babies. Each works like a normal lock except it locks the `$entire world``!  Won't work on worlds that other people already have locks on. You can even add additional normal locks to give access to certain areas to friends. `5It's a perma-item, is never lost when destroyed.`` `wEach recycles for 200 Gems.``<CR><CR>Available: 100/100``<CR>Restock in: `59 Hours 9 Mins``|0|3|20000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_custom_button|limiterTimeBG_world_lock_10_pack|image:interface/large/gui_store_button_overlays11.rttex;image_size:256,160;frame:0,0;state:disabled;color:255,255,255,255;border:none;width:0.31;iconAlignment:CENTER;anchor:world_lock_10_pack;display:none;action:isduhfiudfghids;top:0.5;left:0.5;|\n"
-                "add_label|`w9 Hours``|target:world_lock_10_pack;size:tiny;top:0.67;left:0.25|\n"
-                "add_button|anzu_pack1|`oAdvertisers Pack``|interface/large/store_buttons/store_buttons36.rttex|`2You Get:`` 1 Ad Control Block and a selection of Ad blocks. <CR><CR>`5Description:`` With this pack you can build custom Ad billboards in your world. There are 3 sizes you can choose from, 2x3, 3x2 and 6x1. You need to arrange these in a grid to activate the Ad. Remember to check your Gem earnings each day using the Ad Control Block.|0|1|10000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|small_lock|`oSmall Lock``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 1 Small Lock.<CR><CR>`5Description:`` Protect up to `$10`` tiles.  Can add friends to the lock so others can edit that area as well. `5It's a perma-item, is never lost when destroyed.``<CR><CR>Available: 100/100``<CR>Restock in: `59 Hours 9 Mins``|1|3|50|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_custom_button|limiterTimeBG_small_lock|image:interface/large/gui_store_button_overlays11.rttex;image_size:256,160;frame:0,0;state:disabled;color:255,255,255,255;border:none;width:0.31;iconAlignment:CENTER;anchor:small_lock;display:none;action:isduhfiudfghids;top:0.5;left:0.5;|\n"
-                "add_label|`w9 Hours``|target:small_lock;size:tiny;top:0.67;left:0.25|\n"
-                "add_button|big_lock|`oBig Lock``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 1 Big Lock.<CR><CR>`5Description:`` Protect up to `$48`` tiles.  Can add friends to the lock so others can edit that area as well. `5It's a perma-item, is never lost when destroyed.``<CR><CR>Available: 100/100``<CR>Restock in: `59 Hours 9 Mins``|1|1|200|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_custom_button|limiterTimeBG_big_lock|image:interface/large/gui_store_button_overlays11.rttex;image_size:256,160;frame:0,0;state:disabled;color:255,255,255,255;border:none;width:0.31;iconAlignment:CENTER;anchor:big_lock;display:none;action:isduhfiudfghids;top:0.5;left:0.5;|\n"
-                "add_label|`w9 Hours``|target:big_lock;size:tiny;top:0.67;left:0.25|\n"
-                "add_button|huge_lock|`oHuge Lock``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 1 Huge Lock.<CR><CR>`5Description:`` Protect up to `$200`` tiles.  Can add friends to the lock so others can edit that area as well. `5It's a perma-item, is never lost when destroyed.``<CR><CR>Available: 100/100``<CR>Restock in: `59 Hours 9 Mins``|0|4|500|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_custom_button|limiterTimeBG_huge_lock|image:interface/large/gui_store_button_overlays11.rttex;image_size:256,160;frame:0,0;state:disabled;color:255,255,255,255;border:none;width:0.31;iconAlignment:CENTER;anchor:huge_lock;display:none;action:isduhfiudfghids;top:0.5;left:0.5;|\n"
-                "add_label|`w9 Hours``|target:huge_lock;size:tiny;top:0.67;left:0.25|\n"
-                "add_button|builders_lock|`oBuilder's Lock``|interface/large/store_buttons/store_buttons17.rttex|`2You Get:`` 1 Builders Lock.<CR><CR>`5Description:`` Protect up to `$200`` tiles. Wrench the lock to limit it - it can either only allow building, or only allow breaking! `5It's a perma-item, is never lost when destroyed.``|0|2|50000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|upgrade_backpack|`0Upgrade Backpack`` (`w10 Slots``)|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 10 Additional Backpack Slots.<CR><CR>`5Description:`` Sewing an extra pocket onto your backpack will allow you to store `$10`` additional item types.  How else are you going to fit all those toilets and doors?|0|1|{0}|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|ectojuicer|`oEctoJuicer``|interface/large/store_buttons/store_buttons20.rttex|`2You Get:`` 1 EctoJuicer.<CR><CR>`5Description:`` Infuse your muscles with the unearthly might of the Other Side! This spectral potion gives you the strength to wring every last drop of ectoplasm from a defeated Boss Ghost, granting you an EXTRA Boss Goo after a successful banishing!|0|0|30000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|grow_spray|`o5-pack of Grow Spray Fertilizer``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 5 Grow Spray Fertilizers.<CR><CR>`5Description:`` Why wait?!  Treat yourself to a `$5-pack`` of amazing `wGrow Spray Fertilizer`` by GrowTech Corp.  Each bottle instantly ages a tree by `$1 hour``.|0|6|200|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|deluxe_grow_spray|`oDeluxe Grow Spray``|interface/large/store_buttons/store_buttons11.rttex|`2You Get:`` 1 Deluxe Grow Spray.<CR><CR>`5Description:`` GrowTech's new `$Deluxe`` `wGrow Spray`` instantly ages a tree by `$24 hours`` per bottle! That's somewhere around 25 times as much as regular Grow Spray!|0|2|900|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|fish_flakes|`oFish Flakes``|interface/large/store_buttons/store_buttons18.rttex|`2You Get:`` 5 Fish Flakes.<CR><CR>`5Description:`` Every fish adores these tasty flakes! Give a pinch to your Training Fish and fill their scaly bellies with aquatic goodness! Take the guesswork out of finnicky feedings with a treat you know they'll love!|0|2|7500|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|fish_medicine|`oFish Medicine``|interface/large/store_buttons/store_buttons18.rttex|`2You Get:`` 1 Fish Medicine.<CR><CR>`5Description:`` Make a sick Training Fish bright and healthy with this healing potion. One dose is enough to make even the sickest fish all better!|0|0|1500|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|fish_reviver|`oFish Reviver``|interface/large/store_buttons/store_buttons18.rttex|`2You Get:`` 1 `#Rare Fish Reviver``.<CR><CR>`5Description:`` Resurrect a dead Training Fish with a revivifying zap from this `#Rare`` Fish Reviver! One dose is enough to reach beyond the veil and bring a fish back from the dead! Comes with a 100% zombie-free guarantee!|0|1|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|signal_jammer|`oSignal Jammer``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 1 Signal Jammer.<CR><CR>`5Description:`` Get off the grid! Install a `$Signal Jammer``! A single punch will cause it to whir to life, tireless hiding your world and its population from pesky snoopers - only those who know the world name will be able to enter. `5It's a perma-item, is never lost when destroyed.``|1|6|2000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|zombie_jammer|`oZombie Jammer``|interface/large/store_buttons/store_buttons7.rttex|`2You Get:`` 1 Zombie Jammer.<CR><CR>`5Description:`` Got a parkour or race that you don't want slowed down? Turn this on and nobody can be infected by zombie bites in your world. It does not prevent direct infection by the g-Virus itself though. `5It's a perma-item, is never lost when destroyed.``|0|5|15000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|punch_jammer|`oPunch Jammer``|interface/large/store_buttons/store_buttons7.rttex|`2You Get:`` 1 Punch Jammer.<CR><CR>`5Description:`` Tired of getting bashed around? Set up a Punch Jammer in your world, and people won't be able to punch each other! Can be turned on and off as needed. `5It's a perma-item, is never lost when destroyed.``|0|4|15000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|change_addr|`oChange of Address``|interface/large/store_buttons/store_buttons12.rttex|`2You Get:`` 1 Change of Address.<CR><CR>`5Description:`` Don't like the name of your world? You can use up one of these to trade your world's name with the name of any other world that you own. You must have a `2World Lock`` in both worlds. Go lock up that empty world with the new name you want and swap away!|0|6|20000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|door_mover|`oDoor Mover``|interface/large/store_buttons/store_buttons8.rttex|`2You Get:`` 1 Door Mover.<CR><CR>`5Description:`` Unsatisfied with your world's layout?  This one-use device can be used to move the White Door to any new location in your world, provided there are 2 empty spaces for it to fit in. Disappears when used. `2Only usable on a world you have World Locked.``|0|6|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|vending_machine|`oVending Machine``|interface/large/store_buttons/store_buttons13.rttex|`2You Get:`` 1 Vending Machine.<CR><CR>`5Description:`` Tired of interacting with human beings? Try a Vending Machine! You can put a stack of items inside it, set a price in World Locks, and people can buy from the machine while you sit back and rake in the profits! `5It's a perma-item, is never lost when destroyed, and it is not available any other way.``|0|6|8000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|digi_vend|`oDigiVend Machine``|interface/large/store_buttons/store_buttons29.rttex|`2You Get:`` 1 DigiVend Machine.<CR><CR>`5Description:`` Get with the times and go digital! This wired vending machine can connect its contents to Vending Hubs AND the multiversal economy, providing a unified shopping experience along with price checks to help you sell your goods! All that, and still no human-related hassle! Use your wrench on this to stock it with an item and set a price in World Locks. Other players will be able to buy from it! Only works in World-Locked worlds.|0|2|12000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                "add_button|checkout_counter|`oVending Hub - Checkout Counter``|interface/large/store_buttons/store_buttons29.rttex|`2You Get:`` 1 Vending Hub.<CR><CR>`5Description:`` Your one-stop shop! This vending hub will collect and display (and let shoppers buy) the contents of ALL DigiVends in its row or column (wrench it to set which the direction)! Wow! Now that's a shopping experience we can all enjoy! Note: Only works in World-Locked worlds.|0|3|50000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-                ,backpack_cost
-            ).c_str()
-        });
-    }
-    else if (pipes[3] == "itempack")
-    {
-        packet::create(*event.peer, false, 0, 
+                "add_tab_button|token_menu|Growtoken Items|interface/large/btn_shop.rttex||0|2|0|0||||-1|-1|||0|0|CustomParams:|\n",
+                (tab == 1) ? "1" : "0", (tab == 2) ? "1" : "0"
+        ));
+        for (auto &&[_tab, shouhin] : shouhin_list)
         {
-            "OnStoreRequest",
-            "set_description_text|`2Item Packs!``  Select the item you'd like more info on, or BACK to go back.\n"
-
-            /* tabs */
-            "enable_tabs|1\n"
-            "add_tab_button|main_menu|Home|interface/large/btn_shop.rttex||0|0|0|0||||-1|-1|||0|0|CustomParams:|\n"
-            "add_tab_button|locks_menu|Locks And Stuff|interface/large/btn_shop.rttex||0|1|0|0||||-1|-1|||0|0|CustomParams:|\n"
-            "add_tab_button|itempack_menu|Item Packs|interface/large/btn_shop.rttex||1|3|0|0||||-1|-1|||0|0|CustomParams:|\n"
-            "add_tab_button|bigitems_menu|Awesome Items|interface/large/btn_shop.rttex||0|4|0|0||||-1|-1|||0|0|CustomParams:|\n"
-            "add_tab_button|weather_menu|Weather Machines|interface/large/btn_shop.rttex|Tired of the same sunny sky?  We offer alternatives within...|0|5|0|0||||-1|-1|||0|0|CustomParams:|\n"
-            "add_tab_button|token_menu|Growtoken Items|interface/large/btn_shop.rttex||0|2|0|0||||-1|-1|||0|0|CustomParams:|\n"
-
-            "add_button|5seed|`oSmall Seed Pack``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 1 Small Seed Pack.<CR><CR>`5Description:`` Contains one Small Seed Pack. Open it for `$5`` randomly chosen seeds, including 1 rare seed! Who knows what you'll get?!|1|4|100|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|ssp_10_pack|`oSmall Seed Pack Collection``|interface/large/store_buttons/store_buttons18.rttex|`2You Get:`` 10 Small Seed Packs.<CR><CR>`5Description:`` Open each one for `$5`` randomly chosen seeds apiece, including 1 rare seed per pack! Who knows what you'll get?!|0|4|1000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|basic_splice|`oBasic Splicing Kit``|interface/large/store_buttons/store_buttons2.rttex|`2You Get:`` 10 Rock Seeds and 10 Random Seeds of Rarity 2.<CR><CR>`5Description:`` The basic seeds every farmer needs.|0|3|200|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|rare_seed|`oRare Seed Pack``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 5 Randomly Chosen Rare Seeds.<CR><CR>`5Description:`` Expect some wondrous crops with these!|1|7|1000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|bountiful_seed_pack|`oBountiful Seed Pack``|interface/large/store_buttons/store_buttons28.rttex|`2You Get:`` 1 Bountiful Seed Pack.<CR><CR>`5Description:`` Contains `$5`` randomly chosen bountiful seeds, including 1 rare seed! Who knows what you'll get?!|0|4|1000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|door_pack|`oDoor And Sign Hello Pack``|interface/large/store_buttons/store_buttons.rttex|`2You Get:`` 1 Door and 1 Sign.<CR><CR>`5Description:`` Own your very own door and sign! This pack comes with one of each. Leave cryptic messages and create a door that can open to, well, anywhere.|0|3|15|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|clothes|`oClothes Pack``|interface/large/store_buttons/store_buttons2.rttex|`2You Get:`` 3 Randomly Wearable Items.<CR><CR>`5Description:`` Why not look the part? Some may even have special powers...|0|0|50|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|rare_clothes|`oRare Clothes Pack``|interface/large/store_buttons/store_buttons2.rttex|`2You Get:`` 3 Randomly Chosen Wearable Items.<CR><CR>`5Description:`` Enjoy the garb of kings! Some may even have special powers...|0|1|500|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|gang_pack|`oGangland Style``|interface/large/store_buttons/store_buttons2.rttex|`2You Get:`` 1 Fedora, 1 Dames Fedora, 1 Pinstripe Suit with Pants, 1 Flapper Headband with Dress, 1 Cigar, 1 Tommy Gun, 1 Victola and 10 Art Deco Blocks .<CR><CR>`5Description:`` Step into the 1920's with a Complete Outfit, a Tommygun, a Victrola that plays jazz music, and 10 Art Deco Blocks. It's the whole package!|0|6|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|race_pack|`oRacing Action Pack``|interface/large/store_buttons/store_buttons2.rttex|`2You Get:`` 1 Racing Start Flag, 1 Racing End Flag, 2 Checkpoints, 2 Big Old Sideways Arrows, 1 Big Old Up Arrow, 1 Big Old Down Arrow, 1 WristBand, 1 HeadBand, 1 Sports Ball Jersey and 1 Air Robinsons.<CR><CR>`5Description:`` Get all you need to host races in your worlds! You'll win the races too, with new Air Robinsons that make you run faster!|0|7|3500|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|music_pack|`oComposer's Pack``|interface/large/store_buttons/store_buttons3.rttex|`2You Get:`` 20 Sheet Music: Blank, 20 Sheet Music: Piano Note, 20 Sheet Music: Bass Note, 20 Sheet Music Drums, 5 Sheet Music: Sharp Piano, 5 Sheet Music: Flat Piano, 5 Sheet Music: Flat Bass and 5 Sheet Music: Sharp Bass .<CR><CR>`5Description:`` With these handy blocks, you'll be able to compose your own music, using your World-Locked world as a sheet of music. Requires a World Lock (sold separately!).|0|0|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|fantasy_pack|`oFantasy Pack``|interface/large/store_buttons/store_buttons3.rttex|`2You Get:`` 1 Mystical Wizard Hat Seed, 1 Wizards Robe, 1 Golden Sword, 1 Elvish Longbow, 10 Barrels, 3 Tavern Signs, 3 Treasure Chests and 3 Dragon Gates.<CR><CR>`5Description:`` Hear ye, hear ye! It's a pack of magical wonders!|0|6|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|school_pack|`oEducation Pack``|interface/large/store_buttons/store_buttons4.rttex|`2You Get:`` 10 ChalkBoards, 3 School Desks, 20 Red Bricks, 1 Bulletin Board, 10 Pencils, 1 Growtopia Lunchbox, 1 Grey Hair Bun, 1 Apple and 1 Random School Uniform Item.<CR><CR>`5Description:`` If you want to build a school in Growtopia, here's what you need!|0|0|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|dungeon_pack|`oDungeon Pack``|interface/large/store_buttons/store_buttons4.rttex|`2You Get:`` 20 Grimstone, 20 Blackrock Wall, 20 Iron Bars, 3 Jail Doors, 3 Skeletons, 1 Headsman's Axe, 1 Worthless Rags. 5 Torches and a `#Rare Iron Mask!``.<CR><CR>`5Description:`` Lock up your enemies in a dank dungeon! Of course they can still leave whenever they want. But they won't want to, because it looks so cool! Iron Mask muffles your speech!|0|1|10000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|zombie_pack|`oZombie Defense Pack``|interface/large/store_buttons/store_buttons4.rttex|`2You Get:`` 1 `#Rare Sawed-Off Shotgun``, 1 Combat Vest, 1 Zombie Stompin' Boots, 3 Traffic Barricades, 1 Military Radio, 1 Antidote, 3 Toxic Waste Barrels, 3 Biohazard Signs, 3 Tombstones and 1 `#Rare Deadly G-Virus``!.<CR><CR>`5Description:`` The zombie invasion has come! Protect yourself with all the esential zombie fighting gear and best of all, you get an Antidote to cure yourself! Also includes the deadly g-Virus itself to infect your friends with!|0|4|10000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|vegas_pack|`oVegas Pack``|interface/large/store_buttons/store_buttons4.rttex|`2You Get:`` 10 Neon Lights, 1 Card Block Seed, 1 `#Rare Pink Cadillac`` 4 Flipping Coins, 1 Dice Block, 1 Gamblers Visor, 1 Slot Machine, 1 Roulette Wheel and 1 Showgirl Hat, 1 Showgirl top and 1 Showgirl Leggins.<CR><CR>`5Description:`` What happens in Growtopia stays in Growtopia!|0|5|20000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|farm_pack|`oFarm Pack``|interface/large/store_buttons/store_buttons5.rttex|`2You Get:`` 1 Cow, 1 Chicken, 10 Wheat, 10 Barn Block, 10 Red Wood Walls, 1 Barn Door, 1 Straw Hat, 1 Overalls, 1 Pitchfork, 1 Farmgirl Hair, 1 `#Rare`` `2Dear John Tractor``.<CR><CR>`5Description:`` Put the `2Grow`` in Growtopia with this pack, including a Cow you can milk, a Chicken that lays eggs and a farmer's outfit. Best of all? You get a `#Rare`` `2Dear John Tractor`` you can ride that will mow down trees!<CR><CR>`5BONUS:`` With every purchase there is a chance that you will receive a fancy `5Distinguished Straw Hat`` instead of a Straw Hat!|0|0|15000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|science_pack|`oMad Science Kit``|interface/large/store_buttons/store_buttons5.rttex|`2You Get:`` 1 Science Station, 1 Laboratory, 1 LabCoat, 1 Combover Hair, 1 Goggles, 5 Chemical R, 10 Chemical G, 5 Chemical Y, 5 Chemical B, 5 Chemical P and 1 `#Rare`` `2Death Ray``.<CR><CR>`5Description:`` It's SCIENCE! Defy the natural order with a Science Station that produces chemicals, a Laboratory in which to mix them and a full outfit to do so safely! You'll also get a starter pack of assorted chemicals. Mix them up! Special bonus: A `#Rare`` `2Death Ray`` to make your science truly mad!|0|3|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|city_pack|`oCity Pack``|interface/large/store_buttons/store_buttons6.rttex|`2You Get:`` 10 Sidewalks, 3 Street Signs, 3 Streetlamps, 10 Gothic Building tiles, 10 Tenement Building tiles, 10 Fire Escapes, 3 Gargoyles, 10 Hedges, 1 Blue Mailbox, 1 Fire Hydrant and A `#Rare`` `2ATM Machine``.<CR><CR>`5Description:`` Life in the big city is rough but a `#Rare`` `2ATM Machine`` that dishes out gems once a day is very nice!|0|0|8000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|west_pack|`oWild West Pack``|interface/large/store_buttons/store_buttons6.rttex|`2You Get:`` 1 Cowboy Hat, 1 Cowboy Boots, 1 War Paint, 1 Face Bandana, 1 Sheriff Vest, 1 Layer Cake Dress,  1 Corset, 1 Kansas Curls, 10 Western Building 1 Saloon Doors, 5 Western Banners, 1 Buffalo, 10 Rustic Fences, 1 Campfire and 1 Parasol.<CR><CR>`5Description:`` Yippee-kai-yay! This pack includes everything you need to have wild time in the wild west! The Campfire plays cowboy music, and the `#Parasol`` lets you drift down slowly. Special bonus: A `#Rare`` `2Six Shooter`` to blast criminals with!|0|2|8000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|astro_pack|`oAstro Pack``|interface/large/store_buttons/store_buttons6.rttex|`2You Get:`` 1 Astronaut Helmet, 1 Space Suit, 1 Space Pants, 1 Moon Boots, 1 Rocket Thruster, 1 Solar Panel, 6 Space Connectors, 1 Porthole, 1 Compu Panel, 1 Forcefield and 1 `#Rare`` `2Zorbnik DNA``.<CR><CR>`5Description:`` Boldly go where no Growtopian has gone before with an entire Astronaut outfit. As a special bonus, you can have this `#Rare`` `2Zorbnik DNA`` we found on a distant planet. It doesn't do anything by itself, but by trading with your friends, you can collect 10 of them, and then... well, who knows?|0|6|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|surg_starter_pack|`oSurgery Starter Pack``|interface/large/store_buttons/store_buttons39.rttex|`2You Get:`` 1 `#Rare Heart Monitor``, 1 Hospital Bed, 5 Train-E bots, 1 Scrub Cap, 1 Scrub Mask, 1 Scrub Top, and 1 Scrub Pants. <CR><CR>`5Description:`` Get all the furniture you need to start up your own private surgery practice! `#Rare`` Heart Monitor that lets people know when you are online, Hospital Bed that lets you perform surgery on anybody laying (or standing) on it, 5 Train-E bot to practice on, and a full set of scrubs to look the part.|1|0|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|surgical_kit|`oSurgical Kit``|interface/large/store_buttons/store_buttons7.rttex|`2You Get:`` 5 of each of the 13 different Surgical Tools and 1 Surg-E.<CR><CR>`5Description:`` Get all the tools you need to start up your own private surgical practice and 1 Surg-E bot to practice on. and 5 each of the thirteen different Surgical Tools you'll need to do that surgery!|0|2|12000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|surg_value_pack|`oSurgical Tools Value Pack``|interface/large/store_buttons/store_buttons39.rttex|`2You Get:`` 20 of each of the 13 different Surgical Tools and 5 Surg-E.<CR><CR>`5Description:`` Get all the tools you need and 5 Surg-E bots to perform surgery on at a discounted price! and 20 each of the thirteen different Surgical Tools you'll need to do that surgery!|0|0|45000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|prehistoric_pack|`oPrehistoric Pack``|interface/large/store_buttons/store_buttons8.rttex|`2You Get:`` 1 Caveman Club, 1 Cave Woman Hair, 1 Caveman Hair, 1 Sabertooth Toga, 1 Fuzzy Bikini Top, 1 Fuzzy Bikni Bottom, 1 Cavewoman Outfit, 10 Cliffside, 5 Rock Platforms, 1 Cave Entrance, 3 Prehistoric Palms and 1 `#Rare Sabertooth Growtopian``.<CR><CR>`5Description:`` Travel way back in time with this pack, including full Caveman and Cavewoman outfits and `#Rare Sabertooth Growtopian`` (that's a mask of sorts). Unleash your inner monster!|0|0|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|shop_pack|`oShop Pack``|interface/large/store_buttons/store_buttons8.rttex|`2You Get:`` 4 Display Boxes, 1 For Sale Sign, 1 Gem Sign, 1 Exclamation Sign, 1 Shop Sign, 1 Open Sign, 1 Cash Register, 1 Mannequin and 1 Security Camera.<CR><CR>`5Description:`` Run a fancy shop with these new items! Advertise your wares with an Open/Closed Sign you can switch with a punch, a Cash Register, a Mannequin you can dress up to show off clothing, and a `#Rare`` Security Camera, which reports when people enter and take items!|0|7|10000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|home_pack|`oHome Pack``|interface/large/store_buttons/store_buttons9.rttex|`2You Get:`` 1 Television, 4 Couches, 2 Curtains, 1 Wall Clock, 1 Microwave, 1 Meaty Apron, 1 Ducky Pants, 1 Ducky top and 1 Eggs Benedict.<CR><CR>`5Description:`` Welcome home to Growtopia! Decorate with a Television, Window Curtains, Couches, a `#Rare`` Wall Clock that actually tells time, and a Microwave to cook in. Then dress up in a Meaty Apron and Ducky Pajamas to sit down and eat Eggs Benedict, which increases the amount of XP you earn!|0|6|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|cinema_pack|`oCinema Pack``|interface/large/store_buttons/store_buttons10.rttex|`2You Get:`` 1 Clapboard, 1 Black Beret, 1 3D Glasses, 6 Theater Curtains, 6 Marquee Blocks, 1 Director's Chair, 4 Theater Seats, 6 Movie Screens, 1 Movie Camera and 1 `#Rare GHX Speaker``.<CR><CR>`5Description:`` It's movie time! Everything you need for the big screen experience including a `#Rare GHX Speaker`` that plays the score from Growtopia: The Movie.|0|2|6000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|adventure_pack|`oAdventure Pack``|interface/large/store_buttons/store_buttons10.rttex|`2You Get:`` 4 Gateways to Adventure, 4 Path Markers, 1 Lazy Cobra, 1 Adventure Brazier, 4 Adventure Barriers, 1 Rope, 1 Torch, 1 Key, 1 Golden Idol, 1 `#Rare Adventuring Mustache``, 1 Explorer's Ponytail and 1 Sling Bag .<CR><CR>`5Description:`` Join Dr. Exploro and her father (also technically Dr. Exploro) as they seek out adventure! You can make your own adventure maps with the tools in this pack.|0|7|20000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|rockin_pack|`oRockin' Pack``|interface/large/store_buttons/store_buttons11.rttex|`2You Get:`` 3 `#Rare Musical Instruments`` Including A Keytar, a Bass Guitar and Tambourine, 1 Starchild Make Up, 1 Rockin' Headband, 1 Leopard Leggings, 1 Shredded Ts-Shirt, 1 Drumkit, 6 Stage Supports, 6 Mega Rock Speakers and 6 Rock n' Roll Wallpaper.<CR><CR>`5Description:`` ROCK N' ROLL!!! Play live music in-game! We Formed a Band! Growtopia makes me want to rock out.|0|0|9999|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|game_pack|`oGame Pack``|interface/large/store_buttons/store_buttons10.rttex|`2You Get:`` 1 `#Rare Game Generator``,  4 Game Blocks, 4 Game Flags, 4 Game Graves and 4 Game Goals.<CR><CR>`5Description:`` Growtopia's not all trading and socializing! Create games for your friends with the Game Pack (and a lot of elbow grease).|0|6|50000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|superhero|`oSuperhero Pack``|interface/large/store_buttons/store_buttons12.rttex|`2You Get:`` 1 Mask, 1 Shirt, 1 Boots, 1 Tights, 1 Cape, `#Rare Super Logos`` or `#Rare Utility Belt`` and 1 `2Phone Booth``.<CR><CR>`5Description:`` Battle the criminal element in Growtopia with a complete random superhero outfit including a cape that lets you double jump. Each of these items comes in one of six random colors. You also get one of 5 `#Rare`` Super Logos, which automatically match the color of any shirt you wear or a `#Rare`` Utility Belt... of course use the `2Phone Booth`` to change into your secret identity!|0|0|10000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|crime_wave|`oCrime Wave``|interface/large/store_buttons/store_buttons12.rttex|`2You Get:`` 5 Random Superpower Cards and 1 `#Rare Crime Wave``.<CR><CR>`5Description:`` Get powered up with random Superpower Cards, and what good would that be without a `#Rare`` Crime Wave to use them on? A Crime Wave is a one-use item that calls four villains to your world for you to battle. `6Beware:`` Villains only stick around for 24 hours once they appear.|0|5|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|fashion_pack|`oFashion Pack``|interface/large/store_buttons/store_buttons13.rttex|`2You Get:`` 3 Random Clothing Items, 3 Jade Blocks and 1 `#Rare Spotlight``.<CR><CR>`5Description:`` The hottest new looks for the season are here now with 3 random Fashion Clothing (dress, shoes, or purse), Jade Blocks to pose on, and a `#Rare`` Spotlight to shine on your fabulousness.|0|0|6000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|sportsball_pack|`oSportsball Pack``|interface/large/store_buttons/store_buttons13.rttex|`2You Get:`` 2 Basketball Hoops, 2 Sporty Goals, 5 Stadiums, 5 Crowded Stadiums, 10 Field Grass, 1 Football Helmet, 1 Growies Cap, 1 Ref's Jersey, 1 World Cup Jersey, 1 `#Rare Sports Item`` or `#Rare Growmoji!``.<CR><CR>`5Description:`` We like sports and we don't care who knows! This pack includes everything you need to get sporty! Use the Sports Items to launch Sportsballs at each other.|0|1|20000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|fishin_pack|`oFishin' Pack``|interface/large/store_buttons/store_buttons14.rttex|`2You Get:`` 1 Fishing Rod, 5 Wiggly Worms, 1 Hand Drill, 1 Nuclear Detonator,  1 `#Rare Tackle Box``, 10 Fish Tanks, 5 Water Buckets and 1 `#Rare Fish Tank Port`` .<CR><CR>`5Description:`` Relax and sit by the shore... this pack includes a Fishing Rod, Wiggly Worms for bait, Hand Drill, Nuclear Detonator, and a `#Rare`` Tackle Box which provides you with more free bait every two days, Fish Tanks, and a `#Rare`` Fish Tank Port to put the fish you catch into your fish tank!|0|0|10000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|fish_training_pack|`oFish Trainin' Pack``|interface/large/store_buttons/store_buttons17.rttex|`2You Get:`` 2 Fish Flakes, 2 Fish Medicine, AND 1 `#Rare Training Port``.<CR><CR>`5Description:`` Get ready to train your favorite fish! Use the Training Port to put a perfect fish into your fish tank for training!|0|7|10000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|firefighter|`oFirefighter Pack``|interface/large/store_buttons/store_buttons14.rttex|`2You Get:`` 1 Yellow Helmet, 1 Yellow Jacket, 1 Yellow Pants, 1 Firemans Boots, 1 Fire Hose, and 1 `#Rare Firehouse`` .<CR><CR>`5Description:`` Rescue Growtopians from the fire! Includes a full Yellow Firefighter Outfit, Fire Hose and a `#Rare Firehouse``, which will protect your own world from fires.|0|1|10000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|steampack|`oSteampack``|interface/large/store_buttons/store_buttons14.rttex|`2You Get:`` 10 Steam Tubes, 2 Steam Stompers, 2 Steam Organs, 2 Steam Vents, 2 Steam Valves and 1 `#Rare Steampunk Top Hat``.<CR><CR>`5Description:`` Steam! It's a wondrous new technology that lets you create paths of Steam Blocks, then jump on a Steam Stomper to launch a jet of steam through the path, triggering steam-powered devices. Build puzzles, songs, parkour challenges, and more!|0|6|20000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|paintbrush|`oPainter's Pack``|interface/large/store_buttons/store_buttons15.rttex|`2You Get:`` 1 `#Rare Paintbrush`` and 20 Random Colored Paint Buckets.<CR><CR>`5Description:`` Want to paint your world? This pack includes 20 buckets of random paint colors (may include Varnish, to clean up your messes)! You can paint any block in your world different colors to personalize it.|0|1|30000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|boo_pack|`oB.O.O. Training Pack``|interface/large/store_buttons/store_buttons15.rttex|`2You Get:`` 1 `#Rare Spectral Goggles``, 1 Neutron Gun, 1 Neutron Pack and 10 Ghost Jars <CR><CR>`5Description:`` It looks like Growtopia is under siege by ghosts! Well, the `9Battlers Of the Otherworldly`` are hiring! You'll have to earn your uniform, but this pack includes all the tools you need to actually capture ghosts! Including `#Rare`` Spectral Goggles (all the better to see them with!)and a Neutron Pack to corral the ghosts, of course 10 Ghost Jars to catch them in.|0|4|10000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|ghost_hunting|`oGhost Hunter's Pack``|interface/large/store_buttons/store_buttons19.rttex|`2You Get:`` 1 Ghost Hunter's Crate``.<CR><CR>`5Description:`` A crate containing the essentials for Ghost Hunting! Guaranteed to have at least 5x Ghost Jars, plus one or more bonus items! Bonuses can include: Neutron Focus Cores, Containment Field Power Nodes, EXTRA Ghost Jars, Ghost Traps, Spirit Boards, and maybe even a Dark Spirit Board!|0|7|10000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|paleo_kit|`oPaleontologist's Kit``|interface/large/store_buttons/store_buttons16.rttex|`2You Get:`` 5 Fossil Brushes, 1 Rock Hammer, 1 Rock Chisel, 1 Blue Hardhat and 1 `#Rare Fossil Prep Station``.<CR><CR>`5Description:`` If you want to dig up fossils, this is the kit for you! Includes everything you need! Use the prepstation to get your fossils ready for display.|0|0|20000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|chemsynth|`oChemsynth Pack``|interface/large/store_buttons/store_buttons16.rttex|`2You Get:`` 1 `#Rare Chemsynth Processor``, 10 Chemsynth Tanks and 1 Chemsynth Replicator, 1 Chemsynth Catalyst, 1 Chemsynth Solvent, 1 Chemsynth Centrifuge, 1 Chemsynth Stirrer.<CR><CR>`5Description:`` Tired of the lousy chemicals nature has to offer? Create new synthetic ones! With a `#Rare`` Chemsynth Processor, Chemsynth Tanks, and one each of the five Chemsynth tools, you can be whipping up Synthetic Chemicals in no time. `6Warning:`` Chemsynth solving is a pretty tricky puzzle, and it costs a whole bunch of the five basic chemicals (R, G, B, P, and Y) to complete.|0|4|10000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|eye_drops|`oEye Drop Pack``|interface/large/store_buttons/store_buttons17.rttex|`2You Get:`` 1 `#Rare Bathroom Mirror`` and 10 random Eye Drop Colors.<CR><CR>`5Description:`` Need a fresh new look?  This pack includes a 10 random Eye Drop Colors (may include Eye Cleaning Solution, to leave your eyes sparkly clean)!|0|6|30000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|robot_starter_pack|`oCyBlocks Starter Pack``|interface/large/store_buttons/store_buttons18.rttex|`2You Get:`` 1 `5Rare ShockBot`` and 10 random movement commands.<CR><CR>`5Description:`` CyBlocks Starter Pack includes one `5Rare`` ShockBot and 10 random movement commands to use with it. `5ShockBot`` is a perma-item, is never lost when destroyed.|0|6|5000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|robot_command_pack|`oCyBlocks Command Pack``|interface/large/store_buttons/store_buttons19.rttex|`2You Get:`` 10 Random CyBlock Commands.<CR><CR>`5Description:`` Grants 10 random CyBlock Commands to help control your CyBots!|0|2|2000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|robot_pack|`oCyBot Pack``|interface/large/store_buttons/store_buttons19.rttex|`2You Get:`` 1 `5Rare CyBot``!<CR><CR>`5Description:`` Grants one random `5Rare`` CyBot! Use CyBlock Commands to send these mechanical monsters into action! `5Note: Each CyBot is a perma-item, and will never be lost when destroyed.``|0|3|15000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|star_supplies|`oGalactic Goodies``|interface/large/store_buttons/store_buttons21.rttex|`2You Get:`` 60 Star Tools and 25 Star Fuel.<CR><CR>`5Description:`` Get all the Star Tools you need to boldly go where no Growtopian has gone! Use these to help you command a starship and seek victory in the Galactic Nexus! You'll get 5 each of the 12 Star Tools you'll need to complete missions and some bonus Star Fuel to help power a Starship!|0|0|15000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-            "add_button|contact_lenses|`oContact Lens Pack``|interface/large/store_buttons/store_buttons22.rttex|`2You Get:`` 20 Random Contact Lens Colors.<CR><CR>`5Description:`` Need a colorful new look? This pack includes 20 random Contact Lens colors (and may include Contact Lens Cleaning Solution, to return to your natural eye color)!|0|7|15000|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
-        });
+            if (_tab == tab)
+            {
+                StoreRequest.append(std::format(
+                    "add_button|{}|{}|{}|{}|{}|{}|{}|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n",
+                    shouhin.btn, shouhin.name, shouhin.rttx, shouhin.description, shouhin.tex1, shouhin.tex2, shouhin.cost
+                ));
+            }
+        }
+        packet::create(*event.peer, false, 0, { "OnStoreRequest", StoreRequest.c_str() });
+        return;
     }
-    else if (pipes[3] == "upgrade_backpack") 
+    for (auto &shouhin : shouhin_list) // @todo only iterate if peer is actually buying a item.
     {
-        if (peer->gems < backpack_cost) 
+        if (pipes[3] == shouhin.second.btn)
         {
+            if (peer->gems < shouhin.second.cost) 
+            {
+                packet::create(*event.peer, false, 0, 
+                {
+                    "OnStorePurchaseResult",
+                    std::format("You can't afford `0{}``!  You're `${}`` Gems short.", shouhin.second.name, shouhin.second.cost - peer->gems).c_str()
+                });
+                return;
+            }
+
+            std::string received{};
+            for (std::pair<short, short> &im : shouhin.second.im)
+            {
+                peer->emplace(slot(im.first, im.second));
+                received.append(std::format("{}, ", items[im.first].raw_name)); // @todo add green text to rare items, or something cool.
+            }
+            inventory_visuals(event);
+
             packet::create(*event.peer, false, 0, 
             {
                 "OnStorePurchaseResult",
                 std::format(
-                    "You can't afford `0Upgrade Backpack`` (`w10 Slots``)!  You're `${}`` Gems short.",
-                    backpack_cost - peer->gems
+                    "You've purchased `0{}`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0{}``",
+                    shouhin.second.name, shouhin.second.cost, peer->gems -= shouhin.second.cost, received
                 ).c_str()
             });
-            return;
-        }
-        packet::create(*event.peer, false, 0, 
-        {
-            "OnStorePurchaseResult",
-            std::format(
-                "You've purchased `0Upgrade Backpack (10 Slots)`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0Backpack Upgrade``",
-                backpack_cost, peer->gems -= backpack_cost
-            ).c_str()
-        });
-        on::SetBux(event);
-        peer->slot_size += 10;
-        inventory_visuals(event);
-    }
-    else
-    {
-        for (::shohin &shohin : pack)
-        {
-            if (pipes[3] == shohin.btn)
-            {
-                if (peer->gems < shohin.cost) 
-                {
-                    packet::create(*event.peer, false, 0, 
-                    {
-                        "OnStorePurchaseResult",
-                        std::format("You can't afford `0{}``!  You're `${}`` Gems short.", shohin.name, shohin.cost - peer->gems).c_str()
-                    });
-                    return;
-                }
+            on::SetBux(event);
 
-                std::string received{};
-                for (std::pair<short, short> &im : shohin.im)
-                {
-                    peer->emplace(slot(im.first, im.second));
-                    received.append(std::format("{}, ", items[im.first].raw_name)); // @todo add green text to rare items, or something cool.
-                }
-                inventory_visuals(event);
-
-                packet::create(*event.peer, false, 0, 
-                {
-                    "OnStorePurchaseResult",
-                    std::format(
-                        "You've purchased `0{}`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0{}``",
-                        shohin.name, shohin.cost, peer->gems -= shohin.cost, received
-                    ).c_str()
-                });
-                on::SetBux(event);
-
-                break;
-            }
+            break;
         }
     }
 }

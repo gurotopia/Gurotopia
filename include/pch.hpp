@@ -2,7 +2,7 @@
 #ifndef PCH_HPP
 #define PCH_HPP
 
-    #include "mimalloc/mimalloc-new-delete.h" // @note https://github.com/microsoft/mimalloc
+    #include "mimalloc/mimalloc.h" // @note https://github.com/microsoft/mimalloc
 
     #include <cstring>
     #include <unordered_map>

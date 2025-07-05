@@ -33,8 +33,8 @@ void https::listener(std::string ip, short enet_port)
     if (ctx == nullptr)
         ERR_print_errors_fp(stderr);
 
-    if (SSL_CTX_use_certificate_file(ctx, "ctx/server.crt", SSL_FILETYPE_PEM) <= 0 ||
-        SSL_CTX_use_PrivateKey_file(ctx, "ctx/server.key", SSL_FILETYPE_PEM) <= 0)
+    if (SSL_CTX_use_certificate_file(ctx, "resources/ctx/server.crt", SSL_FILETYPE_PEM) <= 0 ||
+        SSL_CTX_use_PrivateKey_file(ctx, "resources/ctx/server.key", SSL_FILETYPE_PEM) <= 0)
             ERR_print_errors_fp(stderr);
 
     SOCKET socket = ::socket(AF_INET, SOCK_STREAM, 0);

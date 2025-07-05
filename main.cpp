@@ -1,10 +1,12 @@
 /*
     @copyright gurotopia (c) 25-5-2024
-    @version perent SHA: c4ce2d99105d4b8b76e33f2e2279f5b72541df23 (25/07/04)
+    @version perent SHA: d76b250b45488190ca3db670ac7e2c0c1df00cc4 (25/07/05)
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
 
+#include "include/database/shouhin.hpp"
+#include "include/tools/string.hpp"
 #include "include/https/https.hpp"
 #include <filesystem>
 
@@ -59,6 +61,8 @@ int main()
             .read(reinterpret_cast<char*>(&im_data[60zu]), size);
     } // @note delete size
     cache_items();
+
+    read_shouhin_list();
 
     std::srand(std::time(nullptr));
     ENetEvent event{};

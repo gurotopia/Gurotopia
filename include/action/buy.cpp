@@ -42,7 +42,11 @@ void action::buy(ENetEvent& event, const std::string& header)
         {
             if (_tab == tab)
             {
-                if (shouhin.btn == "upgrade_backpack") shouhin.cost = backpack_cost; // @todo race-condition for multiple people accessing store
+                if (shouhin.btn == "upgrade_backpack") 
+                {
+                    if (No > 38) continue; // don't show upgrade backpack if it's fully upgraded.
+                    shouhin.cost = backpack_cost;
+                }
                 StoreRequest.append(std::format(
                     "add_button|{}|{}|{}|{}|{}|{}|{}|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n",
                     shouhin.btn, shouhin.name, shouhin.rttx, shouhin.description, shouhin.tex1, shouhin.tex2, shouhin.cost

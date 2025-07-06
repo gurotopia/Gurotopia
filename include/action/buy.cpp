@@ -20,23 +20,27 @@ void action::buy(ENetEvent& event, const std::string& header)
     if (pipes[3] == "main") action::store(event, ""); // tab = 0
     else if (pipes[3] == "locks") tab = 1;
     else if (pipes[3] == "itempack") tab = 2;
+    else if (pipes[3] == "bigitems") tab = 3;
+    else if (pipes[3] == "weather") tab = 4;
     if (tab != 0) 
     {
         std::string StoreRequest{};
 
         StoreRequest.append(
             (tab == 1) ? "set_description_text|`2Locks And Stuff!``  Select the item you'd like more info on, or BACK to go back.\n" :
-            (tab == 2) ? "set_description_text|`2Item Packs!``  Select the item you'd like more info on, or BACK to go back.\n" : ""
+            (tab == 2) ? "set_description_text|`2Item Packs!``  Select the item you'd like more info on, or BACK to go back.\n" :
+            (tab == 3) ? "set_description_text|`2Awesome Items!``  Select the item you'd like more info on, or BACK to go back.\n" :
+            (tab == 4) ? "set_description_text|`2Weather Machines!``  Select the item you'd like more info on, or BACK to go back.\n" : ""
         );
         StoreRequest.append("enable_tabs|1\nadd_tab_button|main_menu|Home|interface/large/btn_shop.rttex||0|0|0|0||||-1|-1|||0|0|CustomParams:|\n");
         StoreRequest.append(
             std::format(
                 "add_tab_button|locks_menu|Locks And Stuff|interface/large/btn_shop.rttex||{}|1|0|0||||-1|-1|||0|0|CustomParams:|\n"
                 "add_tab_button|itempack_menu|Item Packs|interface/large/btn_shop.rttex||{}|3|0|0||||-1|-1|||0|0|CustomParams:|\n"
-                "add_tab_button|bigitems_menu|Awesome Items|interface/large/btn_shop.rttex||0|4|0|0||||-1|-1|||0|0|CustomParams:|\n"
-                "add_tab_button|weather_menu|Weather Machines|interface/large/btn_shop.rttex|Tired of the same sunny sky?  We offer alternatives within...|0|5|0|0||||-1|-1|||0|0|CustomParams:|\n"
+                "add_tab_button|bigitems_menu|Awesome Items|interface/large/btn_shop.rttex||{}|4|0|0||||-1|-1|||0|0|CustomParams:|\n"
+                "add_tab_button|weather_menu|Weather Machines|interface/large/btn_shop.rttex|Tired of the same sunny sky?  We offer alternatives within...|{}|5|0|0||||-1|-1|||0|0|CustomParams:|\n"
                 "add_tab_button|token_menu|Growtoken Items|interface/large/btn_shop.rttex||0|2|0|0||||-1|-1|||0|0|CustomParams:|\n",
-                (tab == 1) ? "1" : "0", (tab == 2) ? "1" : "0"
+                (tab == 1) ? "1" : "0", (tab == 2) ? "1" : "0", (tab == 3) ? "1" : "0", (tab == 4) ? "1" : "0"
         ));
         for (auto &&[_tab, shouhin] : shouhin_tachi)
         {

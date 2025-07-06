@@ -70,13 +70,20 @@ void action::buy(ENetEvent& event, const std::string& header)
     {
         if (pipes[3] == shouhin.btn)
         {
+            int growtoken_cost = std::abs(shouhin.cost);
             if (shouhin.btn == "upgrade_backpack") shouhin.cost = backpack_cost;
-            if ((_tab > 5) ? peer->gems < shouhin.cost : growtoken->count < std::abs(shouhin.cost))
+            if ((_tab == 5)
+                ? (growtoken == peer->slots.end() || growtoken->count < growtoken_cost)
+                : peer->gems < shouhin.cost)
             {
                 packet::create(*event.peer, false, 0, 
                 {
                     "OnStorePurchaseResult",
-                    std::format("You can't afford `0{}``!  You're `${}`` Gems short.", shouhin.name, shouhin.cost - peer->gems).c_str()
+                    (_tab < 5) ? 
+                        std::format("You can't afford `0{}``!  You're `${}`` Gems short.", 
+                            shouhin.name, shouhin.cost - peer->gems).c_str() :
+                        std::format("You can't afford `0{}``!  You're `${}`` `2Growtokens`` short.", 
+                            shouhin.name, (growtoken == peer->slots.end()) ? growtoken_cost : growtoken_cost - growtoken->count).c_str()
                 });
                 return;
             }
@@ -125,13 +132,13 @@ void action::buy(ENetEvent& event, const std::string& header)
             packet::create(*event.peer, false, 0, 
             {
                 "OnStorePurchaseResult",
-                (_tab > 5) ? 
+                (_tab < 5) ? 
                     std::format(
                         "You've purchased `0{}`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0{}``",
                         shouhin.name, shouhin.cost, peer->gems -= shouhin.cost, received).c_str() :
                     std::format(
                         "You've purchased `0{}`` for `${}`` `2Growtokens``.\nYou have `${}`` `2Growtokens`` left.\n\n`5Received: ```0{}``",
-                        shouhin.name, shouhin.cost, growtoken->count +=/*because cost is nagative*/ shouhin.cost, received).c_str()
+                        shouhin.name, growtoken_cost, growtoken->count -= growtoken_cost, received).c_str()
             });
             inventory_visuals(event);
             on::SetBux(event); // @todo wasteful if peer is buying with growtokens

@@ -1,11 +1,11 @@
 #include "pch.hpp"
 #include "items.hpp"
 
-std::unordered_map<unsigned short, item> items;
+std::unordered_map<u_short, item> items;
 std::vector<std::byte> im_data(61, std::byte{ 00 });
 
 template<typename T>
-void shift_pos(std::vector<std::byte>& data, unsigned& pos, T& value) 
+void shift_pos(std::vector<std::byte>& data, u_int& pos, T& value) 
 {
     for (std::size_t i = 0zu; i < sizeof(T); ++i) 
         reinterpret_cast<std::byte*>(&value)[i] = data[pos + i];
@@ -14,7 +14,7 @@ void shift_pos(std::vector<std::byte>& data, unsigned& pos, T& value)
 
 /* have not tested modifying string values... */
 template<typename T>
-void data_modify(std::vector<std::byte>& data, unsigned& pos, const T& value) 
+void data_modify(std::vector<std::byte>& data, u_int& pos, const T& value) 
 {
     for (std::size_t i = 0zu; i < sizeof(T); ++i) 
         data[pos + i] = reinterpret_cast<const std::byte*>(&value)[i];
@@ -22,13 +22,13 @@ void data_modify(std::vector<std::byte>& data, unsigned& pos, const T& value)
 
 void cache_items()
 {
-    unsigned pos{60};
+    u_int pos{60};
     short version{};
     shift_pos(im_data, pos, version);
     short count{};
     shift_pos(im_data, pos, count); pos += 2; // @note downside count to 2 bit (short)
     static constexpr std::string_view token{"PBG892FXX982ABC*"};
-    for (unsigned short i = 0; i < count; ++i)
+    for (u_short i = 0; i < count; ++i)
     {
         item im{};
         
@@ -63,7 +63,7 @@ void cache_items()
         {
             std::byte cloth_type{};
             shift_pos(im_data, pos, cloth_type);
-            im.cloth_type = std::to_integer<unsigned short>(cloth_type);
+            im.cloth_type = std::to_integer<u_short>(cloth_type);
         }
         else pos += 1; // @note assign nothing
         if (im.type == std::byte{type::AURA}) im.cloth_type = clothing::ances;

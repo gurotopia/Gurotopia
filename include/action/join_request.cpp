@@ -38,7 +38,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         if (world.name.empty())
         {
             ransuu ransuu;
-            const unsigned main_door = ransuu[{2, 100 * 60 / 100 - 4}];
+            const u_int main_door = ransuu[{2, 100 * 60 / 100 - 4}];
             std::vector<block> blocks(100 * 60, block{0, 0});
             
             for (auto &&[i, block] : blocks | std::views::enumerate)
@@ -61,17 +61,17 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             data[0zu] = std::byte{ 04 };
             data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
             data[16zu] = std::byte{ 0x08 };
-            unsigned char len = static_cast<unsigned char>(world.name.length());
+            u_char len = static_cast<u_char>(world.name.length());
             data[66zu] = std::byte{ len };
 
             const std::byte *_1bit = reinterpret_cast<const std::byte*>(world.name.data());
-            for (unsigned char i = 0; i < len; ++i)
+            for (u_char i = 0; i < len; ++i)
                 data[68zu + i] = _1bit[i];
 
-            unsigned y = world.blocks.size() / 100, x = world.blocks.size() / y;
-            *reinterpret_cast<unsigned*>(&data[68zu + len]) = x;
-            *reinterpret_cast<unsigned*>(&data[72zu + len]) = y;
-            *reinterpret_cast<unsigned short*>(&data[76zu + len]) = static_cast<unsigned short>(world.blocks.size());
+            u_int y = world.blocks.size() / 100, x = world.blocks.size() / y;
+            *reinterpret_cast<u_int*>(&data[68zu + len]) = x;
+            *reinterpret_cast<u_int*>(&data[72zu + len]) = y;
+            *reinterpret_cast<u_short*>(&data[76zu + len]) = static_cast<u_short>(world.blocks.size());
             std::size_t pos = 85 + len;
             short i = 0;
             for (const block &block : world.blocks)

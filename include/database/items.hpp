@@ -2,14 +2,14 @@
 #ifndef ITEMS_HPP
 #define ITEMS_HPP
 
-    enum clothing : unsigned short {
+    enum clothing : u_short {
         hair, shirt, legs, 
         feet, face, hand, 
         back, head, charm, 
         ances, none
     };
 
-    enum type : unsigned char {
+    enum type : u_char {
         FIST = 00,
         WRENCH = 01,
         DOOR = 02,
@@ -170,14 +170,14 @@
     class item 
     {
     public:
-        unsigned short id{}; /* item identity */
+        u_short id{}; /* item identity */
         std::byte cat{};
         std::byte type{};
         std::string raw_name{}; /* the exact name of the item including uppercases */
         std::byte collision{};
         short hits{}; // @todo make it unsigned.
         int hit_reset{}; // @note in seconds
-        unsigned short cloth_type{clothing::none}; /* use clothing:: if you are unsure of the order */
+        u_short cloth_type{clothing::none}; /* use clothing:: if you are unsure of the order */
         short rarity{};
         std::string audio_directory{}; // @note ../../audio.mp3
         int audioHash{};
@@ -192,7 +192,7 @@
         int mod6{}; // @note version 18 | no clue...
         short mod7{}; // @note version 21 | 2025 transformation items
     };
-    extern std::unordered_map<unsigned short, item> items;
+    extern std::unordered_map<u_short, item> items;
 
     extern std::vector<std::byte> im_data;
 

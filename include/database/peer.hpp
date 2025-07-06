@@ -59,11 +59,11 @@
         std::vector<short> fav{};
 
         signed gems{0};
-        std::array<unsigned short, 2zu> level{ 1, 0 }; // {level, xp} XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
+        std::array<u_short, 2zu> level{ 1, 0 }; // {level, xp} XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
         /*
         * @brief add XP safely, this function also handles level up.
         */
-        void add_xp(unsigned short value);
+        void add_xp(u_short value);
 
         std::array<std::string, 6zu> recent_worlds{}; // @note recent worlds, a list of 6 worlds, once it reaches 7 it'll be replaced by the oldest
         std::array<std::string, 200zu> my_worlds{}; // @note first 200 relevant worlds locked by peer.

@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "weather.hpp"
 
-int get_weather_id(unsigned item_id)
+int get_weather_id(u_int item_id)
 {
     switch (item_id)
     {

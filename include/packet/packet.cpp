@@ -29,10 +29,10 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
 
             size += 2zu + sizeof(int) + param_view.length();
         }
-        else if (param.type() == typeid(int) || param.type() == typeid(unsigned)) 
+        else if (param.type() == typeid(int) || param.type() == typeid(u_int)) 
         {
             bool is_signed = (param.type() == typeid(int));
-            auto value = is_signed ? std::any_cast<int>(param) : std::any_cast<unsigned>(param);
+            auto value = is_signed ? std::any_cast<int>(param) : std::any_cast<u_int>(param);
             data.resize(size + 2zu + sizeof(value));
             data[size] = index; // @note element counter e.g. "OnSetBux" -> 00, 43562/-43562 -> 01
             data[size + 1zu] = (is_signed) ? std::byte{ 0x09 } : std::byte{ 05 };

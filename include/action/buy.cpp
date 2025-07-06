@@ -66,7 +66,7 @@ void action::buy(ENetEvent& event, const std::string& header)
         packet::create(*event.peer, false, 0, { "OnStoreRequest", StoreRequest.c_str() });
         return;
     }
-    for (auto &&[_tab, shouhin] : shouhin_tachi) // @todo only iterate if peer is actually buying a item.
+    else for (auto &&[_tab, shouhin] : shouhin_tachi)
     {
         if (pipes[3] == shouhin.btn)
         {

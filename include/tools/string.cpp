@@ -50,7 +50,7 @@ std::size_t fnv1a(const std::string& value) noexcept {
     constexpr std::size_t prime = 1099511628211zu;
 
     std::size_t fnv1a = offset;
-    for (unsigned char c : value) 
+    for (u_char c : value) 
     {
         fnv1a ^= c;
         fnv1a *= prime;

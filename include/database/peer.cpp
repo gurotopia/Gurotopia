@@ -26,14 +26,14 @@ short peer::emplace(slot s)
     return 0;
 }
 
-void peer::add_xp(unsigned short value) 
+void peer::add_xp(u_short value) 
 {
     this->level.back() += value;
 
-    unsigned short lvl = this->level.front();
-    unsigned short xp_formula = 50 * (lvl * lvl + 2); // @note credits: https://www.growtopiagame.com/forums/member/553046-kasete
+    u_short lvl = this->level.front();
+    u_short xp_formula = 50 * (lvl * lvl + 2); // @note credits: https://www.growtopiagame.com/forums/member/553046-kasete
     
-    unsigned short level_up = std::min<unsigned short>(this->level.back() / xp_formula, 125 - lvl);
+    u_short level_up = std::min<u_short>(this->level.back() / xp_formula, 125 - lvl);
     this->level.front() += level_up;
     this->level.back() -= level_up * xp_formula;
 }
@@ -73,8 +73,8 @@ peer& peer::read(const std::string& name)
             {
                 this->role = static_cast<char>(sqlite3_column_int(stmt, 0));
                 this->gems = sqlite3_column_int(stmt, 1);
-                this->level[0] = static_cast<unsigned short>(sqlite3_column_int(stmt, 2));
-                this->level[1] = static_cast<unsigned short>(sqlite3_column_int(stmt, 3));
+                this->level[0] = static_cast<u_short>(sqlite3_column_int(stmt, 2));
+                this->level[1] = static_cast<u_short>(sqlite3_column_int(stmt, 3));
             }
         }
     }

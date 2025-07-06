@@ -44,7 +44,7 @@ void action::buy(ENetEvent& event, const std::string& header)
             {
                 if (shouhin.btn == "upgrade_backpack") 
                 {
-                    if (No > 38) continue; // don't show upgrade backpack if it's fully upgraded.
+                    if (No > 38) continue; // @note don't show upgrade backpack if it's fully upgraded.
                     shouhin.cost = backpack_cost;
                 }
                 StoreRequest.append(std::format(
@@ -69,6 +69,39 @@ void action::buy(ENetEvent& event, const std::string& header)
                     std::format("You can't afford `0{}``!  You're `${}`` Gems short.", shouhin.name, shouhin.cost - peer->gems).c_str()
                 });
                 return;
+            }
+            srand(std::time(0));
+            std::vector<short> ids{};
+            if (shouhin.btn == "basic_splice") // @note source: https://growtopia.fandom.com/wiki/Basic_Splicing_Kit
+            {
+                shouhin.im.emplace_back(11, 10);
+                ids = {3567, 2793, 57, 13, 17, 21, 101, 381, 1139}; // @note instead of iterating seeds with rarity 2 each time
+                for (std::size_t i = 0; i < 10; ++i)
+                    shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
+            }
+            else if (shouhin.btn == "rare_seed") // @note source: https://growtopia.fandom.com/wiki/Rare_Seed_Pack
+            {
+                for (auto &&[id, item] : items)
+                    if (item.type == std::byte{ SEED } && item.rarity >= 13 && item.rarity <= 60)
+                        ids.emplace_back(id);
+                for (std::size_t i = 0; i < 5; ++i)
+                    shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
+            }
+            else if (shouhin.btn == "clothes_pack") // @note source: https://growtopia.fandom.com/wiki/Clothes_Pack
+            {
+                for (auto &&[id, item] : items)
+                    if (item.type == std::byte{ CLOTHING } && item.rarity <= 10)
+                        ids.emplace_back(id);
+                for (std::size_t i = 0; i < 3; ++i)
+                    shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
+            }
+            else if (shouhin.btn == "rare_clothes_pack") // @note source: https://growtopia.fandom.com/wiki/Rare_Clothes_Pack
+            {
+                for (auto &&[id, item] : items)
+                    if (item.type == std::byte{ CLOTHING } && item.rarity >= 11 && item.rarity <= 60)
+                        ids.emplace_back(id);
+                for (std::size_t i = 0; i < 3; ++i)
+                    shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
             }
 
             std::string received{};

@@ -16,21 +16,27 @@ void action::buy(ENetEvent& event, const std::string& header)
     short No = (peer->slot_size - 16) / 10 + 1; // @note number of upgrades | credits: https://growtopia.fandom.com/wiki/Backpack_Upgrade
     short backpack_cost = (100 * No * No - 200 * No + 200);
 
+    auto growtoken = std::ranges::find_if(peer->slots, [](::slot &slot) { return slot.id == 1486; });
+
     short tab{};
     if (pipes[3] == "main") action::store(event, ""); // tab = 0
     else if (pipes[3] == "locks") tab = 1;
     else if (pipes[3] == "itempack") tab = 2;
     else if (pipes[3] == "bigitems") tab = 3;
     else if (pipes[3] == "weather") tab = 4;
+    else if (pipes[3] == "token") tab = 5;
     if (tab != 0) 
     {
         std::string StoreRequest{};
-
         StoreRequest.append(
             (tab == 1) ? "set_description_text|`2Locks And Stuff!``  Select the item you'd like more info on, or BACK to go back.\n" :
             (tab == 2) ? "set_description_text|`2Item Packs!``  Select the item you'd like more info on, or BACK to go back.\n" :
             (tab == 3) ? "set_description_text|`2Awesome Items!``  Select the item you'd like more info on, or BACK to go back.\n" :
-            (tab == 4) ? "set_description_text|`2Weather Machines!``  Select the item you'd like more info on, or BACK to go back.\n" : ""
+            (tab == 4) ? "set_description_text|`2Weather Machines!``  Select the item you'd like more info on, or BACK to go back.\n" :
+            (tab == 5) ? 
+                std::format(
+                    "set_description_text|`2Spend your Growtokens!`` (You have `5{}``) You earn Growtokens from Crazy Jim and Sales-Man. Select the item you'd like more info on, or BACK to go back.\n",
+                    (growtoken != peer->slots.end()) ? growtoken->count : 0) : ""
         );
         StoreRequest.append("enable_tabs|1\nadd_tab_button|main_menu|Home|interface/large/btn_shop.rttex||0|0|0|0||||-1|-1|||0|0|CustomParams:|\n");
         StoreRequest.append(
@@ -39,8 +45,8 @@ void action::buy(ENetEvent& event, const std::string& header)
                 "add_tab_button|itempack_menu|Item Packs|interface/large/btn_shop.rttex||{}|3|0|0||||-1|-1|||0|0|CustomParams:|\n"
                 "add_tab_button|bigitems_menu|Awesome Items|interface/large/btn_shop.rttex||{}|4|0|0||||-1|-1|||0|0|CustomParams:|\n"
                 "add_tab_button|weather_menu|Weather Machines|interface/large/btn_shop.rttex|Tired of the same sunny sky?  We offer alternatives within...|{}|5|0|0||||-1|-1|||0|0|CustomParams:|\n"
-                "add_tab_button|token_menu|Growtoken Items|interface/large/btn_shop.rttex||0|2|0|0||||-1|-1|||0|0|CustomParams:|\n",
-                (tab == 1) ? "1" : "0", (tab == 2) ? "1" : "0", (tab == 3) ? "1" : "0", (tab == 4) ? "1" : "0"
+                "add_tab_button|token_menu|Growtoken Items|interface/large/btn_shop.rttex||{}|2|0|0||||-1|-1|||0|0|CustomParams:|\n",
+                (tab == 1) ? "1" : "0", (tab == 2) ? "1" : "0", (tab == 3) ? "1" : "0", (tab == 4) ? "1" : "0", (tab == 5) ? "1" : "0"
         ));
         for (auto &&[_tab, shouhin] : shouhin_tachi)
         {
@@ -48,7 +54,7 @@ void action::buy(ENetEvent& event, const std::string& header)
             {
                 if (shouhin.btn == "upgrade_backpack") 
                 {
-                    if (No > 38) continue; // @note don't show upgrade backpack if it's fully upgraded.
+                    if (No > 38) continue; // @note hide upgrade_backpack in store if maxed out
                     shouhin.cost = backpack_cost;
                 }
                 StoreRequest.append(std::format(
@@ -65,7 +71,7 @@ void action::buy(ENetEvent& event, const std::string& header)
         if (pipes[3] == shouhin.btn)
         {
             if (shouhin.btn == "upgrade_backpack") shouhin.cost = backpack_cost;
-            if (peer->gems < shouhin.cost) 
+            if ((_tab > 5) ? peer->gems < shouhin.cost : growtoken->count < std::abs(shouhin.cost))
             {
                 packet::create(*event.peer, false, 0, 
                 {
@@ -115,17 +121,20 @@ void action::buy(ENetEvent& event, const std::string& header)
                 else peer->emplace(slot(im.first, im.second));
                 received.append(std::format("{}, ", items[im.first].raw_name)); // @todo add green text to rare items, or something cool.
             }
-            inventory_visuals(event);
 
             packet::create(*event.peer, false, 0, 
             {
                 "OnStorePurchaseResult",
-                std::format(
-                    "You've purchased `0{}`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0{}``",
-                    shouhin.name, shouhin.cost, peer->gems -= shouhin.cost, received
-                ).c_str()
+                (_tab > 5) ? 
+                    std::format(
+                        "You've purchased `0{}`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0{}``",
+                        shouhin.name, shouhin.cost, peer->gems -= shouhin.cost, received).c_str() :
+                    std::format(
+                        "You've purchased `0{}`` for `${}`` `2Growtokens``.\nYou have `${}`` `2Growtokens`` left.\n\n`5Received: ```0{}``",
+                        shouhin.name, shouhin.cost, growtoken->count +=/*because cost is nagative*/ shouhin.cost, received).c_str()
             });
-            on::SetBux(event);
+            inventory_visuals(event);
+            on::SetBux(event); // @todo wasteful if peer is buying with growtokens
 
             break;
         }

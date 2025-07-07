@@ -100,7 +100,7 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
         peer->emplace(slot(stoi(id), 200));
         inventory_visuals(event);
     }
-    else if ((pipes[3zu] == "door_edit" && pipes[10zu] == "door_name") || 
+    else if (pipes[3zu] == "gateway_edit" || (pipes[3zu] == "door_edit" && pipes[10zu] == "door_name") || 
              (pipes[3zu] == "sign_edit" && pipes[10zu] == "sign_text") && 
              (number(pipes[5zu]) && number(pipes[8zu])))
     {
@@ -109,7 +109,9 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
         auto it = worlds.find(peer->recent_worlds.back());
         if (it == worlds.end()) return;
         block &block = it->second.blocks[cord(tilex, tiley)];
-        block.label = pipes[11zu];
+
+        if (pipes[3zu] == "door_edit" || pipes[3zu] == "sign_edit") block.label = pipes[11zu];
+        else if (pipes[3zu] == "gateway_edit") block._public = stoi(pipes[11zu]);
 
         state s{
             .id = block.fg,

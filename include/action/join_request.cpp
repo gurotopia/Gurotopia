@@ -114,6 +114,11 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data[pos++] = std::byte{ 00 }; // @note '\0'
                         break;
                     }
+                    case std::byte { type::ENTRANCE }:
+                    {
+                        data[pos - 2zu] = (block._public) ? std::byte{ 0x90 } : std::byte{ 0x10 };
+                        break;
+                    }
                     case std::byte{ type::DOOR }:
                     case std::byte{ type::PORTAL }:
                     {

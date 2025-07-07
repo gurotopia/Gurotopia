@@ -39,7 +39,7 @@ world::world(const std::string& name)
             "name TEXT PRIMARY KEY, owner INTEGER);"
 
             "CREATE TABLE IF NOT EXISTS blocks ("
-            "world TEXT, fg INTEGER, bg INTEGER, toggled INTEGER, tick INTEGER, label TEXT, "
+            "world TEXT, fg INTEGER, bg INTEGER, public INTEGER, toggled INTEGER, tick INTEGER, label TEXT, "
             "FOREIGN KEY(world) REFERENCES worlds(name));"
 
             "CREATE TABLE IF NOT EXISTS doors ("
@@ -55,7 +55,7 @@ world::world(const std::string& name)
     } // @note delete create_table
     {
         sqlite3_stmt* stmt;
-        if (sqlite3_prepare_v2(db, "SELECT fg, bg, toggled, tick, label FROM blocks WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
+        if (sqlite3_prepare_v2(db, "SELECT fg, bg, public, toggled, tick, label FROM blocks WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
         {
             struct StmtFinalizer {
                 sqlite3_stmt* stmt;
@@ -68,8 +68,9 @@ world::world(const std::string& name)
                     sqlite3_column_int(stmt, 0),
                     sqlite3_column_int(stmt, 1),
                     sqlite3_column_int(stmt, 2),
-                    steady_clock::time_point(std::chrono::seconds(sqlite3_column_int(stmt, 3))),
-                    reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4))
+                    sqlite3_column_int(stmt, 3),
+                    steady_clock::time_point(std::chrono::seconds(sqlite3_column_int(stmt, 4))),
+                    reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5))
                 ));
             }
         }
@@ -160,7 +161,7 @@ world::~world()
     }
     {
         sqlite3_stmt* stmt;
-        if (sqlite3_prepare_v2(db, "INSERT INTO blocks (world, fg, bg, toggled, tick, label) VALUES (?, ?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
+        if (sqlite3_prepare_v2(db, "INSERT INTO blocks (world, fg, bg, public, toggled, tick, label) VALUES (?, ?, ?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
         {
             struct StmtFinalizer {
                 sqlite3_stmt* stmt;
@@ -170,9 +171,10 @@ world::~world()
                 sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
                 sqlite3_bind_int(stmt, 2, b.fg);
                 sqlite3_bind_int(stmt, 3, b.bg);
-                sqlite3_bind_int(stmt, 4, b.toggled);
-                sqlite3_bind_int(stmt, 5, static_cast<int>(duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count()));
-                sqlite3_bind_text(stmt, 6, b.label.c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_int(stmt, 4, b._public);
+                sqlite3_bind_int(stmt, 5, b.toggled);
+                sqlite3_bind_int(stmt, 6, static_cast<int>(duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count()));
+                sqlite3_bind_text(stmt, 7, b.label.c_str(), -1, SQLITE_STATIC);
                 sqlite3_step(stmt);
                 sqlite3_reset(stmt);
             }
@@ -333,6 +335,11 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     
     switch (items[block.fg].type)
     {
+        case std::byte{ type::ENTRANCE }:
+        {
+            data[pos - 2zu] = (block._public) ? std::byte{ 0x90 } : std::byte{ 0x10 };
+            break;
+        }
         case std::byte{ type::DOOR }:
         case std::byte{ type::PORTAL }:
         {

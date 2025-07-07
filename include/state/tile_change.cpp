@@ -2,9 +2,9 @@
 #include "on/NameChanged.hpp"
 #include "commands/weather.hpp"
 #include "equip.hpp"
-#include "tile_change.hpp"
-
 #include "tools/ransuu.hpp"
+#include "tools/string.hpp"
+#include "tile_change.hpp"
 
 #include <cmath>
 
@@ -160,7 +160,7 @@ void tile_change(ENetEvent& event, state state)
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item.raw_name, item.id, state.punch[0], state.punch[1], signed{w->second._public}
+                                item.raw_name, item.id, state.punch[0], state.punch[1], to_char(w->second._public)
                             ).c_str()
                         });
                     }
@@ -211,14 +211,14 @@ void tile_change(ENetEvent& event, state state)
                 case std::byte{ type::ENTRANCE }:
                     packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
-                        std::format("set_default_color|`o\n"
-                            "set_default_color|`o"
-                            "add_label_with_icon|big|`wEdit {}``|left|{}|"
-                            "add_checkbox|checkbox_public|Is open to public|1"
-                            "embed_data|tilex|{}"
-                            "embed_data|tiley|{}"
-                            "end_dialog|gateway_edit|Cancel|OK|", 
-                            item.raw_name, item.id, state.punch[0], state.punch[1]
+                        std::format(
+                            "set_default_color|`o\n"
+                            "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
+                            "add_checkbox|checkbox_public|Is open to public|{}\n"
+                            "embed_data|tilex|{}\n"
+                            "embed_data|tiley|{}\n"
+                            "end_dialog|gateway_edit|Cancel|OK|\n", 
+                            item.raw_name, item.id, to_char(block._public), state.punch[0], state.punch[1]
                         ).c_str()
                     });
                     break;

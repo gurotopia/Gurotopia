@@ -1,9 +1,8 @@
 #include "pch.hpp"
 #include "action/__action.hpp"
 #include "state/__states.hpp"
+#include "tools/string.hpp"
 #include "receive.hpp"
-
-#include "tools/string_view.hpp"
 
 void receive(ENetEvent& event) 
 {
@@ -33,9 +32,9 @@ void receive(ENetEvent& event)
                 std::vector<std::byte> raw_state{event.packet->dataLength - 4};
                 {
                     std::size_t size = raw_state.size();
-                    if ((size + 4zu) >= 60zu) 
+                    if ((size + 4zu) >= 61zu) // @note growtopia packets are 61 (::state), however most are greater than 61 (visuals, ect)
                     {
-                        std::byte *_1bit = reinterpret_cast<std::byte*>(event.packet->data) + 4;
+                        std::byte *_1bit = reinterpret_cast<std::byte*>(event.packet->data) + 4; // @note ignore 04 00 00 00
                         for (std::size_t i = 0zu; i < size; ++i)
                             raw_state[i] = _1bit[i];
                     }

@@ -2,6 +2,9 @@
 #ifndef TRASH_HPP
 #define TRASH_HPP
 
-    extern void trash(ENetEvent& event, const std::string& header);
+    namespace action
+    { 
+        extern void trash(ENetEvent& event, const std::string& header);
+    }
 
 #endif

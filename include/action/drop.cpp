@@ -1,27 +1,25 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
+#include "tools/string.hpp"
 #include "drop.hpp"
 
-#include "tools/string_view.hpp"
-
-void drop(ENetEvent& event, const std::string& header)
+void action::drop(ENetEvent& event, const std::string& header)
 {
     std::string itemID = readch(std::move(header), '|')[4];
-    if (itemID.empty()) return;
+    if (!number(itemID)) return;
 
     short id = stoi(itemID);
     item &item = items[id];
 
     if (item.cat == std::byte{ 0x80 })
     {
-        gt_packet(*event.peer, false, 0, { "OnTextOverlay", "You can't drop that." });
+        packet::create(*event.peer, false, 0, { "OnTextOverlay", "You can't drop that." });
         return;
     }
     
     for (const slot &slot : _peer[event.peer]->slots)
         if (slot.id == id) 
         {
-            gt_packet(*event.peer, false, 0, {
+            packet::create(*event.peer, false, 0, {
                 "OnDialogRequest", 
                 std::format(
                     "set_default_color|`o\n"

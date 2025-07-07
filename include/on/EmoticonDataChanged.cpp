@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "EmoticonDataChanged.hpp"
 
 std::unordered_map<std::string_view, std::string_view> emoticon = 
@@ -16,13 +15,13 @@ std::unordered_map<std::string_view, std::string_view> emoticon =
     {"ill", "\u0137"}, {"eyes", "\u0138"}, {"weary", "\u0139"}, {"moyai", "\u013A"}, {"plead", "\u013B"}
 };
 
-void EmoticonDataChanged(ENetEvent& event)
+void on::EmoticonDataChanged(ENetEvent& event)
 {
     std::string EmoticonData;
     EmoticonData.reserve(emoticon.size() * 23/* emoticon data + ()||1/0& */);
     for (const auto &[key, value] : emoticon) 
         EmoticonData.append(std::format("({})|{}|1&", key, value)); // @todo add requirements for unlocking emoticons
-    gt_packet(*event.peer, false, 0, {
+    packet::create(*event.peer, false, 0, {
         "OnEmoticonDataChanged", 
         201560520, 
         EmoticonData.c_str()

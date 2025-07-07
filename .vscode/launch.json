@@ -4,7 +4,7 @@
             "name": "Run Gurotopia",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/main.exe",
+            "program": "main.exe",
             "cwd": "${workspaceFolder}",
             "environment": [
                 {

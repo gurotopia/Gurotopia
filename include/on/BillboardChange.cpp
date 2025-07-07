@@ -1,13 +1,11 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
+#include "tools/string.hpp"
 #include "BillboardChange.hpp"
 
-#include "tools/string_view.hpp"
-
-void BillboardChange(ENetEvent& event)
+void on::BillboardChange(ENetEvent& event)
 {
     auto &peer = _peer[event.peer];
-    gt_packet(*event.peer, true, 0, {
+    packet::create(*event.peer, true, 0, {
         "OnBillboardChange",
         peer->netid,
         signed{peer->billboard.id},

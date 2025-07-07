@@ -1,12 +1,10 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "on/EmoticonDataChanged.hpp"
 #include "on/BillboardChange.hpp"
 #include "commands/weather.hpp"
-#include "join_request.hpp"
-
-#include "tools/string_view.hpp"
 #include "tools/ransuu.hpp"
+#include "tools/string.hpp"
+#include "join_request.hpp"
 
 #if defined(_MSC_VER)
     using namespace std::chrono;
@@ -22,7 +20,7 @@ constexpr std::array<std::byte, 4zu> EXIT{
     std::byte{ 0x54 }  // @note 'T'
 };
 
-void join_request(ENetEvent& event, const std::string& header, const std::string_view world_name = "") 
+void action::join_request(ENetEvent& event, const std::string& header, const std::string_view world_name = "") 
 {
     try 
     {
@@ -31,15 +29,16 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
         auto &peer = _peer[event.peer];
         std::string big_name{world_name.empty() ? readch(std::move(header), '|')[3] : world_name};
 
-        if (!alpha(big_name) || big_name.empty()) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
+        if (!alnum(big_name)) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
         
-        world world(big_name);
+        auto [it, inserted] = worlds.try_emplace(big_name, big_name);
+        world &world = it->second;
         std::vector<std::string> buffs{};
         if (world.name.empty())
         {
             ransuu ransuu;
-            const unsigned main_door = ransuu[{2, 100 * 60 / 100 - 4}];
+            const u_int main_door = ransuu[{2, 100 * 60 / 100 - 4}];
             std::vector<block> blocks(100 * 60, block{0, 0});
             
             for (auto &&[i, block] : blocks | std::views::enumerate)
@@ -62,17 +61,17 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
             data[0zu] = std::byte{ 04 };
             data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
             data[16zu] = std::byte{ 0x08 };
-            unsigned char len = static_cast<unsigned char>(world.name.length());
+            u_char len = static_cast<u_char>(world.name.length());
             data[66zu] = std::byte{ len };
 
             const std::byte *_1bit = reinterpret_cast<const std::byte*>(world.name.data());
-            for (unsigned char i = 0; i < len; ++i)
+            for (u_char i = 0; i < len; ++i)
                 data[68zu + i] = _1bit[i];
 
-            unsigned y = world.blocks.size() / 100, x = world.blocks.size() / y;
-            *reinterpret_cast<unsigned*>(&data[68zu + len]) = x;
-            *reinterpret_cast<unsigned*>(&data[72zu + len]) = y;
-            *reinterpret_cast<unsigned short*>(&data[76zu + len]) = static_cast<unsigned short>(world.blocks.size());
+            u_int y = world.blocks.size() / 100, x = world.blocks.size() / y;
+            *reinterpret_cast<u_int*>(&data[68zu + len]) = x;
+            *reinterpret_cast<u_int*>(&data[72zu + len]) = y;
+            *reinterpret_cast<u_short*>(&data[76zu + len]) = static_cast<u_short>(world.blocks.size());
             std::size_t pos = 85 + len;
             short i = 0;
             for (const block &block : world.blocks)
@@ -164,7 +163,7 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
                     case std::byte{ type::WEATHER_MACHINE }: // @note there are no added bytes (I think)
                     {
                         if (block.toggled)
-                            gt_packet(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
+                            packet::create(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
                         break;
                     }
                     case std::byte{ type::TOGGLEABLE_BLOCK }:
@@ -220,13 +219,13 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
         char& role = peer->role;
         if (role == role::MODERATOR) peer->prefix = "8@";
         else if (role == role::DEVELOPER) peer->prefix = "6@";
-        EmoticonDataChanged(event);
+        on::EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
         peers(event, PEER_SAME_WORLD, [event, &peer, &world, role](ENetPeer& p) 
         {
             if (_peer[&p]->user_id != peer->user_id) 
             {
-                gt_packet(*event.peer, false, -1/* ff ff ff ff */, {
+                packet::create(*event.peer, false, -1/* ff ff ff ff */, {
                     "OnSpawn", 
                     std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n",
                         _peer[&p]->netid, _peer[&p]->user_id, static_cast<int>(_peer[&p]->pos.front()), static_cast<int>(_peer[&p]->pos.back()), 
@@ -234,11 +233,11 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
                     ).c_str()
                 });
                 std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors) };
-                gt_packet(p, false, 0, {
+                packet::create(p, false, 0, {
                     "OnConsoleMessage", 
                     enter_message.c_str()
                 });
-                gt_packet(p, false, 0, {
+                packet::create(p, false, 0, {
                     "OnTalkBubble", 
                     peer->netid, 
                     enter_message.c_str()
@@ -246,7 +245,7 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
             }
         }); // @note delete enter_message
         /* @todo send this packet to everyone exept event.peer, and remove type|local */
-        gt_packet(*event.peer, false, -1/* ff ff ff ff */, {
+        packet::create(*event.peer, false, -1/* ff ff ff ff */, {
             "OnSpawn", 
             std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\ntype|local\n",
                 peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), 
@@ -264,20 +263,19 @@ void join_request(ENetEvent& event, const std::string& header, const std::string
 
             return std::format(" `0[``{}`0]``", list);
         };
-        gt_packet(*event.peer, false, 0, {
+        packet::create(*event.peer, false, 0, {
             "OnConsoleMessage", 
             std::format(
                 "World `w{}{}`` entered.  There are `w{}`` other people here, `w{}`` online.", 
                 world.name, section(buffs), world.visitors - 1, peers(event).size()
             ).c_str()
         });
-        if (peer->billboard.id != 0) BillboardChange(event); // @note don't waste memory if billboard is empty.
+        if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
         inventory_visuals(event);
-        worlds.emplace(world.name, world); // @todo possible race-condition..
     }
     catch (const std::exception& exc)
     {
-        if (exc.what() && *exc.what()) gt_packet(*event.peer, false, 0, { "OnConsoleMessage", exc.what() });
-        gt_packet(*event.peer, false, 0, { "OnFailedToEnterWorld" });
+        if (exc.what() && *exc.what()) packet::create(*event.peer, false, 0, { "OnConsoleMessage", exc.what() });
+        packet::create(*event.peer, false, 0, { "OnFailedToEnterWorld" });
     }
 }

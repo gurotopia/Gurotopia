@@ -1,12 +1,10 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
+#include "tools/string.hpp"
 #include "wrench.hpp"
-
-#include "tools/string_view.hpp"
 
 #include <cmath>
 
-void wrench(ENetEvent& event, const std::string& header) 
+void action::wrench(ENetEvent& event, const std::string& header) 
 {
     std::vector<std::string> pipes = readch(std::move(header), '|');
     if ((pipes[3zu] == "netid" && !pipes[4zu].empty()/*empty netid*/))
@@ -17,11 +15,11 @@ void wrench(ENetEvent& event, const std::string& header)
             if (_peer[&p]->netid == netid)
             {
                 auto &peer = _peer[&p];
-                unsigned short lvl = peer->level.front();
+                u_short lvl = peer->level.front();
                 /* wrench yourself */
                 if (peer->user_id == _peer[event.peer]->user_id)
                 {
-                    gt_packet(p, false, 0, {
+                    packet::create(p, false, 0, {
                         "OnDialogRequest",
                         std::format(
                             "embed_data|netID|{0}\n"
@@ -75,7 +73,7 @@ void wrench(ENetEvent& event, const std::string& header)
                 /* wrench someone else */
                 else
                 {
-                     gt_packet(p, false, 0, {
+                     packet::create(p, false, 0, {
                         "OnDialogRequest",
                         std::format(
                             "embed_data|netID|{0}\n"

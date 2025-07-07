@@ -1,10 +1,9 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "inventoryfavuitrigger.hpp"
 
-void inventoryfavuitrigger(ENetEvent& event, const std::string& header)
+void action::inventoryfavuitrigger(ENetEvent& event, const std::string& header)
 {
-    gt_packet(*event.peer, false, 0,  {
+    packet::create(*event.peer, false, 0,  {
         "OnDialogRequest",
         "set_default_color|`o\n"
         "add_label_with_icon|big|`wFavorited Items``|left|13814|\n"

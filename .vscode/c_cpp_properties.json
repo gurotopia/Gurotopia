@@ -6,10 +6,7 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/include/**"
             ],
-            "defines": [
-                "ENET_IMPLEMENTATION",
-                "ENET_DEBUG"
-            ],
+            "defines": [],
             "compilerPath": "c:/msys64/ucrt64/bin/g++.exe",
             "cStandard": "c23",
             "cppStandard": "c++23",

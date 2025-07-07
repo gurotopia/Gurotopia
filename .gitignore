@@ -1,0 +1,15 @@
+# Makefile
+build/
+
+# MSVC
+.msvc/
+
+# lingering files
+main.exe
+items.dat
+
+# VSC user settings
+.vscode/settings.json
+
+# SQL database
+db/

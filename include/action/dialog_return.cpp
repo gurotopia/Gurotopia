@@ -1,11 +1,9 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "on/BillboardChange.hpp"
+#include "tools/string.hpp"
 #include "action/dialog_return.hpp"
 
-#include "tools/string_view.hpp"
-
-void dialog_return(ENetEvent& event, const std::string& header) 
+void action::dialog_return(ENetEvent& event, const std::string& header) 
 {
     auto &peer = _peer[event.peer];
     std::vector<std::string> pipes = readch(std::move(header), '|');
@@ -13,7 +11,7 @@ void dialog_return(ENetEvent& event, const std::string& header)
     if (pipes.size() <= 3) return; // if button has no name or has no field.
     
     if (((pipes[3zu] == "drop_item" || pipes[3zu] == "trash_item") && pipes[4zu] == "itemID" && pipes[7zu] == "count") && 
-        (!pipes[5zu].empty() && !pipes[8zu].empty()))
+        (number(pipes[5zu]) && number(pipes[8zu])))
     {
         const short id = stoi(pipes[5zu]);
         const short count = stoi(pipes[8zu]);
@@ -26,7 +24,7 @@ void dialog_return(ENetEvent& event, const std::string& header)
         } 
         else if (pipes[3zu] == "trash_item")
         {
-            gt_packet(*event.peer, false, 0, {
+            packet::create(*event.peer, false, 0, {
                 "OnConsoleMessage",
                 std::format("{} `w{}`` recycled, `w0`` gems earned.", count, items[id].raw_name).c_str()
             });
@@ -44,7 +42,7 @@ void dialog_return(ENetEvent& event, const std::string& header)
                         result.append(std::format("add_button|{0}|{0}|noflags|0|0|\n", name));
                 return result;
             };
-            gt_packet(*event.peer, false, 0, {
+            packet::create(*event.peer, false, 0, {
                 "OnDialogRequest",
                 std::format(
                     "set_default_color|`o\n"
@@ -67,7 +65,7 @@ void dialog_return(ENetEvent& event, const std::string& header)
         }
         else if (pipes[11zu] == "billboard_edit")
         {
-            gt_packet(*event.peer, false, 0, {
+            packet::create(*event.peer, false, 0, {
                 "OnDialogRequest",
                 std::format("set_default_color|`o\n"
                 "add_label_with_icon|big|`wTrade Billboard``|left|8282|\n"
@@ -97,14 +95,14 @@ void dialog_return(ENetEvent& event, const std::string& header)
     else if (pipes[3zu] == "find" && pipes[4zu] == "buttonClicked" && pipes[5zu].starts_with("searchableItemListButton"))
     {
         std::string id = readch(std::move(pipes[5zu]), '_')[1];
-        if (id.empty()) return;
+        if (!number(id)) return;
         
         peer->emplace(slot(stoi(id), 200));
         inventory_visuals(event);
     }
     else if ((pipes[3zu] == "door_edit" && pipes[10zu] == "door_name") || 
              (pipes[3zu] == "sign_edit" && pipes[10zu] == "sign_text") && 
-             (!pipes[5zu].empty() || !pipes[8zu].empty()))
+             (number(pipes[5zu]) && number(pipes[8zu])))
     {
         const short tilex = stoi(pipes[5zu]);
         const short tiley = stoi(pipes[8zu]);
@@ -163,7 +161,7 @@ void dialog_return(ENetEvent& event, const std::string& header)
                 .perItem = stoi(pipes[11zu]) != 0,
             };
         }
-        BillboardChange(event);
+        on::BillboardChange(event);
     }
     else if (pipes[3zu] == "lock_edit")
     {

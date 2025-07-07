@@ -1,8 +1,7 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "weather.hpp"
 
-int get_weather_id(unsigned item_id)
+int get_weather_id(u_int item_id)
 {
     switch (item_id)
     {
@@ -77,7 +76,7 @@ void weather(ENetEvent& event, const std::string_view text)
     std::string id{ text.substr(sizeof("weather ")-1) };
     if (id.empty()) return;
 
-    gt_packet(*event.peer, false, 0, {
+    packet::create(*event.peer, false, 0, {
         "OnSetCurrentWeather",
         stoi(id)
     });

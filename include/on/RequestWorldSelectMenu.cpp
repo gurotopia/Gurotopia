@@ -1,8 +1,7 @@
 #include "pch.hpp"
-#include "network/packet.hpp"
 #include "RequestWorldSelectMenu.hpp"
 
-void OnRequestWorldSelectMenu(ENetEvent& event) 
+void on::RequestWorldSelectMenu(ENetEvent& event) 
 {
     auto &peer = _peer[event.peer];
     auto section = [&peer](const auto& range, const char* color) 
@@ -18,7 +17,7 @@ void OnRequestWorldSelectMenu(ENetEvent& event)
             }
         return result;
     };
-    gt_packet(*event.peer, false, 0, {
+    packet::create(*event.peer, false, 0, {
         "OnRequestWorldSelectMenu", 
             std::format(
                 "add_filter|\n"
@@ -31,7 +30,7 @@ void OnRequestWorldSelectMenu(ENetEvent& event)
         ).c_str(), 
         0
     });
-    gt_packet(*event.peer, false, 0, {
+    packet::create(*event.peer, false, 0, {
         "OnConsoleMessage", 
         std::format("Where would you like to go? (`w{}`` online)", peers(event).size()).c_str()
     });

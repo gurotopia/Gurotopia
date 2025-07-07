@@ -26,14 +26,14 @@ short peer::emplace(slot s)
     return 0;
 }
 
-void peer::add_xp(unsigned short value) 
+void peer::add_xp(u_short value) 
 {
     this->level.back() += value;
 
-    unsigned short lvl = this->level.front();
-    unsigned short xp_formula = 50 * (lvl * lvl + 2); // @note credits: https://www.growtopiagame.com/forums/member/553046-kasete
+    u_short lvl = this->level.front();
+    u_short xp_formula = 50 * (lvl * lvl + 2); // @note credits: https://www.growtopiagame.com/forums/member/553046-kasete
     
-    unsigned short level_up = std::min<unsigned short>(this->level.back() / xp_formula, 125 - lvl);
+    u_short level_up = std::min<u_short>(this->level.back() / xp_formula, 125 - lvl);
     this->level.front() += level_up;
     this->level.back() -= level_up * xp_formula;
 }
@@ -52,7 +52,10 @@ peer& peer::read(const std::string& name)
             "name TEXT PRIMARY KEY, role INTEGER, gems INTEGER, level0 INTEGER, level1 INTEGER);"
 
             "CREATE TABLE IF NOT EXISTS slots ("
-            "name TEXT, id INTEGER, count INTEGER, FOREIGN KEY(name) REFERENCES peers(name));";
+            "name TEXT, id INTEGER, count INTEGER, FOREIGN KEY(name) REFERENCES peers(name));"
+
+            "CREATE TABLE IF NOT EXISTS favs ("
+            "name TEXT, id INTEGER, FOREIGN KEY(name) REFERENCES peers(name));";
 
         char *errmsg = nullptr;
         if (sqlite3_exec(db, create_tables.c_str(), nullptr, nullptr, &errmsg) != SQLITE_OK) sqlite3_free(errmsg);
@@ -70,8 +73,8 @@ peer& peer::read(const std::string& name)
             {
                 this->role = static_cast<char>(sqlite3_column_int(stmt, 0));
                 this->gems = sqlite3_column_int(stmt, 1);
-                this->level[0] = static_cast<unsigned short>(sqlite3_column_int(stmt, 2));
-                this->level[1] = static_cast<unsigned short>(sqlite3_column_int(stmt, 3));
+                this->level[0] = static_cast<u_short>(sqlite3_column_int(stmt, 2));
+                this->level[1] = static_cast<u_short>(sqlite3_column_int(stmt, 3));
             }
         }
     }
@@ -86,10 +89,25 @@ peer& peer::read(const std::string& name)
             sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
             while (sqlite3_step(stmt) == SQLITE_ROW) 
             {
-                slots.emplace_back(slot(
+                this->slots.emplace_back(slot(
                     sqlite3_column_int(stmt, 0),
                     sqlite3_column_int(stmt, 1)
                 ));
+            }
+        }
+    }
+    {
+        sqlite3_stmt* stmt = nullptr;
+        if (sqlite3_prepare_v2(db, "SELECT id FROM favs WHERE name = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
+        {
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+            while (sqlite3_step(stmt) == SQLITE_ROW)
+            {
+                this->fav.push_back(sqlite3_column_int(stmt, 0));
             }
         }
     }
@@ -150,6 +168,35 @@ peer::~peer()
                 sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
                 sqlite3_bind_int(stmt, 2, slot.id);
                 sqlite3_bind_int(stmt, 3, slot.count);
+                sqlite3_step(stmt);
+                sqlite3_reset(stmt);
+            }
+        }
+    }
+    {
+        sqlite3_stmt *stmt = nullptr;
+        if (sqlite3_prepare_v2(db, "DELETE FROM favs WHERE name = ?;", -1, &stmt, nullptr) == SQLITE_OK) // @todo
+        {
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
+            sqlite3_step(stmt);
+        }
+    }
+    {
+        sqlite3_stmt *stmt = nullptr;
+        if (sqlite3_prepare_v2(db, "INSERT INTO favs (name, id) VALUES (?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
+        {
+            struct StmtFinalizer {
+                sqlite3_stmt* stmt;
+                ~StmtFinalizer() { sqlite3_finalize(stmt); }
+            } stmt_guard{stmt};
+            for (short &fav : this->fav) 
+            {
+                sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_int(stmt, 2, fav);
                 sqlite3_step(stmt);
                 sqlite3_reset(stmt);
             }

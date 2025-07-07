@@ -4,5 +4,5 @@
 
 void disconnect(ENetEvent& event)
 {
-    quit(event, "");
+    action::quit(event, "");
 }

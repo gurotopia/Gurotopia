@@ -1,14 +1,13 @@
 /*
     @copyright gurotopia (c) 25-5-2024
-    @version beta-367
-
-    looking for:
-    - Indonesian translator
-    - reverse engineer
+    @version perent SHA: 60f2fe693636335d31a63f7a63bae5ea9446e363 (25/07/07)
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
 
+#include "include/database/shouhin.hpp"
+#include "include/tools/string.hpp"
+#include "include/https/https.hpp"
 #include <filesystem>
 
 int main()
@@ -16,15 +15,18 @@ int main()
     /* libary version checker */
 #if defined(_MSC_VER)
     printf("microsoft/mimalloc beta-%d\n", MI_MALLOC_VERSION);
-    printf("lsalzman/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
-    printf("sqlite/sqlite3 %s\n", SQLITE_VERSION);
+    printf("ZTzTopia/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
+    printf("sqlite/sqlite3 %s\n", sqlite3_sourceid());
+    printf("openssl/openssl %s\n", OpenSSL_version(OPENSSL_VERSION_STRING));
 #else
     printf("\e[38;5;248mmicrosoft/mimalloc \e[1;37mbeta-%d\e[0m\n", MI_MALLOC_VERSION);
-    printf("\e[38;5;248mlsalzman/enet \e[1;37m%d.%d.%d\e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
-    printf("\e[38;5;248msqlite/sqlite3 \e[1;37m%s\e[0m\n", SQLITE_VERSION);
+    printf("\e[38;5;248mZTzTopia/enet \e[1;37m%d.%d.%d\e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
+    printf("\e[38;5;248msqlite/sqlite3 \e[1;37m%s\e[0m\n", sqlite3_sourceid());
+    printf("\e[38;5;248mopenssl/openssl \e[1;37m%s\e[0m\n", OpenSSL_version(OPENSSL_VERSION_STRING));
 #endif
     if (!std::filesystem::exists("db")) std::filesystem::create_directory("db");
 
+    std::thread(&https::listener, "127.0.0.1", 17091).detach();
     {
         ENetCallbacks callbacks{
             .malloc = &mi_malloc,
@@ -34,10 +36,16 @@ int main()
         enet_initialize_with_callbacks(ENET_VERSION, &callbacks);
     } // @note delete callbacks
     {
-        ENetAddress address{.host = ENET_HOST_ANY, .port = 17091};
-        server = enet_host_create (&address, 50zu, 2zu, 0, 0);
+        ENetAddress address{
+            .type = ENET_ADDRESS_TYPE_IPV4, 
+            .port = 17091
+        };
+        enet_address_is_any(&address);
+
+        server = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu, 2zu, 0, 0);
     } // @note delete address
     
+    server->usingNewPacketForServer = true;
     server->checksum = enet_crc32;
     enet_host_compress_with_range_coder(server);
     {
@@ -53,6 +61,7 @@ int main()
             .read(reinterpret_cast<char*>(&im_data[60zu]), size);
     } // @note delete size
     cache_items();
+    init_shouhin_tachi();
 
     ENetEvent event{};
     while (true)

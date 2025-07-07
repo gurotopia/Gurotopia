@@ -8,5 +8,8 @@ build/
 main.exe
 items.dat
 
-# user data
+# VSC user settings
 .vscode/settings.json
+
+# SQL database
+db/

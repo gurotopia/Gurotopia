@@ -14,7 +14,7 @@ else
     TARGET_NAME := main.out
 endif
 
-TARGET := $(BUILD_DIR)/$(TARGET_NAME)
+TARGET := $(TARGET_NAME)
 PCH := $(BUILD_DIR)/pch.gch
 
 all: $(BUILD_DIR) $(PCH) $(TARGET)
@@ -37,7 +37,6 @@ $(BUILD_DIR) :
 	@mkdir -p $(BUILD_DIR)/include/packet
 	@mkdir -p $(BUILD_DIR)/include/state
 	@mkdir -p $(BUILD_DIR)/include/tools
-	@cp -r resources $(BUILD_DIR)/
 
 $(PCH): include/pch.hpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -x c++-header $< -o $@

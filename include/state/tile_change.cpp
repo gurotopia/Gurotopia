@@ -149,7 +149,7 @@ void tile_change(ENetEvent& event, state state)
             {
                 case 1404: // @note Door Mover
                 {
-                    door_mover(w->second, state.punch);
+                    if (!door_mover(w->second, state.punch)) throw std::runtime_error("There's no room to put the door there! You need 2 empty spaces vertically.");
                     peer->emplace(slot(item.id, -1));
 
                     std::string remember_name = w->first;
@@ -336,8 +336,10 @@ void tile_change(ENetEvent& event, state state)
         if (exc.what() && *exc.what()) 
             packet::create(*event.peer, false, 0, {
                 "OnTalkBubble", 
-                _peer[event.peer]->netid, // @note we are not using 'peer' ref cause of ratelimit and waste of memory.
-                exc.what()
+                _peer[event.peer]->netid, 
+                exc.what(),
+                0u,
+                1u // @note message will be sent once instead of multiple times.
             });
     }
 }

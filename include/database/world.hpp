@@ -70,8 +70,6 @@
 
     extern void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid = 0);
 
-    extern void clothing_visuals(ENetEvent &event);
-
     extern void tile_update(ENetEvent &event, state s, block &b, world& w);
 
 #endif

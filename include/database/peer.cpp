@@ -2,6 +2,7 @@
 #include "items.hpp"
 #include "peer.hpp"
 #include "world.hpp"
+#include "on/SetClothing.hpp"
 
 #if defined(_MSC_VER)
     using namespace std::chrono;
@@ -301,5 +302,5 @@ void inventory_visuals(ENetEvent &event)
     }
 
 	enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
-    clothing_visuals(event); // @todo
+    on::SetClothing(event); // @todo
 }

@@ -12,30 +12,28 @@ void pickup(ENetEvent& event, state state)
     if (w == worlds.end()) return;
 
     auto &ifloats = w->second.ifloats;
+    auto f = ifloats.find(state.id);
+    if (f == ifloats.end()) return;
 
-    auto it = ifloats.find(state.id);
-    if (it != ifloats.end()) 
+    item &item = items[f->second.id];
+    if (item.type != std::byte{ GEM })
     {
-        item &item = items[it->second.id];
-        if (item.type != std::byte{ GEM })
-        {
-            packet::create(*event.peer, false, 0, {
-                "OnConsoleMessage",
-                (item.rarity >= 999) ?
-                    std::format("Collected `w{} {}``.", it->second.count, item.raw_name).c_str() :
-                    std::format("Collected `w{} {}``. Rarity: `w{}``", it->second.count, item.raw_name, item.rarity).c_str()
-            });
-            short excess = peer->emplace(slot{it->second.id, it->second.count});
-            it->second.count = excess;
-        }
-        else 
-        {
-            peer->gems += it->second.count;
-            it->second.count = 0;
-            on::SetBux(event);
-        }
-        drop_visuals(event, {it->second.id, it->second.count}, it->second.pos, state.id/*@todo*/);
-        inventory_visuals(event); // @todo confused here... (if I put this higher it duplicates the item.)
-        if (it->second.count == 0) ifloats.erase(it);
+        packet::create(*event.peer, false, 0, {
+            "OnConsoleMessage",
+            (item.rarity >= 999) ?
+                std::format("Collected `w{} {}``.", f->second.count, item.raw_name).c_str() :
+                std::format("Collected `w{} {}``. Rarity: `w{}``", f->second.count, item.raw_name, item.rarity).c_str()
+        });
+        short nokori = peer->emplace(slot{f->second.id, f->second.count});
+        f->second.count = nokori;
     }
+    else 
+    {
+        peer->gems += f->second.count;
+        f->second.count = 0;
+        on::SetBux(event);
+    }
+    drop_visuals(event, {f->second.id, f->second.count}, f->second.pos, state.id/*@todo*/);
+    inventory_visuals(event); // @todo confused here... (if I put this higher it duplicates the item.)
+    if (f->second.count == 0) ifloats.erase(f);
 }

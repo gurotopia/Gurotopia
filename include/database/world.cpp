@@ -255,7 +255,7 @@ void send_data(ENetPeer& peer, const std::vector<std::byte> &&data)
     std::size_t size = data.size();
     ENetPacket *packet = enet_packet_create(nullptr, size + 5zu, ENET_PACKET_FLAG_RELIABLE);
 
-    *reinterpret_cast<int*>(&packet->data[0]) = 4;
+    *reinterpret_cast<int*>(&packet->data[0]) = 04;
     std::memcpy(packet->data + 4, data.data(), size);
     
     enet_peer_send(&peer, 1, packet);
@@ -304,19 +304,6 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p)  
     {
         send_data(p, std::move(compress));
-    });
-}
-
-void clothing_visuals(ENetEvent &event) 
-{
-    auto &peer = _peer[event.peer];
-    packet::create(*event.peer, true, 0, {
-        "OnSetClothing", 
-        std::vector<float>{peer->clothing[hair], peer->clothing[shirt], peer->clothing[legs]}, 
-        std::vector<float>{peer->clothing[feet], peer->clothing[face], peer->clothing[hand]}, 
-        std::vector<float>{peer->clothing[back], peer->clothing[head], peer->clothing[charm]}, 
-        peer->skin_color,
-        std::vector<float>{peer->clothing[ances], 0.0f, 0.0f}
     });
 }
 

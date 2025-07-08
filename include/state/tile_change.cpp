@@ -4,6 +4,8 @@
 #include "equip.hpp"
 #include "tools/ransuu.hpp"
 #include "tools/string.hpp"
+#include "action/quit_to_exit.hpp"
+#include "action/join_request.hpp"
 #include "tile_change.hpp"
 
 #include <cmath>
@@ -19,7 +21,6 @@ void tile_change(ENetEvent& event, state state)
 {
     try
     {
-        if (!create_rt(event, 0, 160)) return;
         auto &peer = _peer[event.peer];
         auto w = worlds.find(peer->recent_worlds.back());
         if (w == worlds.end()) return;
@@ -143,6 +144,20 @@ void tile_change(ENetEvent& event, state state)
                         item.id, item.raw_name
                     ).c_str()
                 });
+            }
+            switch (item.id)
+            {
+                case 1404: // @note Door Mover
+                {
+                    door_mover(w->second, state.punch);
+                    peer->emplace(slot(item.id, -1));
+
+                    std::string remember_name = w->first;
+                    action::quit_to_exit(event, "", true); // @todo everyone in world exits
+                    action::join_request(event, "", remember_name); // @todo everyone in world re-joins
+                    
+                    break;
+                }
             }
             return;
         }

@@ -72,6 +72,8 @@
 
     void generate_world(world &world, const std::string& name);
 
+    void door_mover(world &world, const std::array<int, 2ULL> &pos);
+
     namespace blast
     {
         void thermonuclear(world &world, const std::string& name);

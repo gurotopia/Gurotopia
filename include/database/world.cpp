@@ -385,6 +385,22 @@ void generate_world(world &world, const std::string& name)
     world.name = std::move(name);
 }
 
+void door_mover(world &world, const std::array<int, 2ULL> &pos)
+{
+    for (std::size_t i = 0; i < world.blocks.size(); ++i)
+    {
+        block &block = world.blocks[i];
+        if (block.fg == 6)
+        {
+            block.fg = 0; // @note remove main door
+            world.blocks[cord(i % 100, (i / 100 + 1))].fg = 0; // @note remove bedrock (below main door)
+            break;
+        }
+    }
+    world.blocks[cord(pos[0], pos[1])].fg = 6;
+    world.blocks[cord(pos[0], (pos[1] + 1))].fg = 8;
+}
+
 void blast::thermonuclear(world &world, const std::string& name)
 {
     ransuu ransuu;

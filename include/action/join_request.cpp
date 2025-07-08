@@ -24,8 +24,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 {
     try 
     {
-        if (!create_rt(event, 2, 900)) throw std::runtime_error("");
-
         auto &peer = _peer[event.peer];
         std::string big_name{world_name.empty() ? readch(std::move(header), '|')[3] : world_name};
 

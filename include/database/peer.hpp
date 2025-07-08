@@ -68,7 +68,6 @@
         std::array<std::string, 6zu> recent_worlds{}; // @note recent worlds, a list of 6 worlds, once it reaches 7 it'll be replaced by the oldest
         std::array<std::string, 200zu> my_worlds{}; // @note first 200 relevant worlds locked by peer.
         
-        std::array<std::chrono::steady_clock::time_point, 3zu> rate_limit{}; // @note rate limit objects
         std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming
         
         ~peer();
@@ -76,12 +75,6 @@
     #include <memory>
 
     extern std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
-
-    /* 
-    * @param pos please resize peer::rate_limit to fit the pos provided, understand the rules! if pos is 5, then size should be 6. 
-    * @return false if ratelimited
-    */
-    extern bool create_rt(ENetEvent& event, std::size_t pos, int length);
 
     extern ENetHost* server;
 

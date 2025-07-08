@@ -208,18 +208,6 @@ peer::~peer()
 
 std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 
-bool create_rt(ENetEvent &event, std::size_t pos, int length) 
-{
-    steady_clock::time_point &rt = _peer[event.peer]->rate_limit[pos];
-    steady_clock::time_point now = steady_clock::now();
-
-    if ((now - rt) <= std::chrono::milliseconds(length))
-        return false;
-
-    rt = now;
-    return true;
-}
-
 ENetHost *server;
 
 std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::function<void(ENetPeer&)> fun)

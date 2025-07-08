@@ -62,14 +62,19 @@
     };
     extern std::unordered_map<std::string, world> worlds;
 
-    extern void send_data(ENetPeer& peer, const std::vector<std::byte> &&data);
-
     extern void state_visuals(ENetEvent& event, state &&s);
 
-    extern void block_punched(ENetEvent& event, state s, block& b);
+    extern void tile_apply_damage(ENetEvent& event, state s, block& b);
 
     extern void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid = 0);
 
     extern void tile_update(ENetEvent &event, state s, block &b, world& w);
+
+    void generate_world(world &world, const std::string& name);
+
+    namespace blast
+    {
+        void thermonuclear(world &world, const std::string& name);
+    }
 
 #endif

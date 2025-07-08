@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "items.hpp"
 #include "peer.hpp"
+#include "tools/ransuu.hpp"
 #include "world.hpp"
 
 #if defined(_MSC_VER)
@@ -269,7 +270,7 @@ void state_visuals(ENetEvent& event, state &&state)
     });
 }
 
-void block_punched(ENetEvent& event, state state, block &block)
+void tile_apply_damage(ENetEvent& event, state state, block &block)
 {
     (block.fg == 0) ? ++block.hits.back() : ++block.hits.front();
     state.type = 0x08; // @note PACKET_TILE_APPLY_DAMAGE
@@ -360,4 +361,43 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     {
         send_data(p, std::move(data));
     });
+}
+
+void generate_world(world &world, const std::string& name)
+{
+    ransuu ransuu;
+    u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
+    std::vector<block> blocks(100 * 60, block{0, 0});
+    
+    for (auto &&[i, block] : blocks | std::views::enumerate)
+    {
+        if (i >= cord(0, 37))
+        {
+            block.bg = 14; // @note cave background
+            if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && ransuu[{0, 38}] <= 1) block.fg = 10 /* rock */;
+            else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && ransuu[{0, 8}] < 3) block.fg = 4 /* lava */;
+            else block.fg = (i >= cord(0, 54)) ? 8 : 2;
+        }
+        if (i == cord(main_door, 36)) block.fg = 6; // @note main door
+        else if (i == cord(main_door, 37)) block.fg = 8; // @note bedrock (below main door)
+    }
+    world.blocks = std::move(blocks);
+    world.name = std::move(name);
+}
+
+void blast::thermonuclear(world &world, const std::string& name)
+{
+    ransuu ransuu;
+    u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
+    std::vector<block> blocks(100 * 60, block{0, 0});
+    
+    for (auto &&[i, block] : blocks | std::views::enumerate)
+    {
+        block.fg = (i >= cord(0, 54)) ? 8 : 0;
+
+        if (i == cord(main_door, 36)) block.fg = 6;
+        else if (i == cord(main_door, 37)) block.fg = 8;
+    }
+    world.blocks = std::move(blocks);
+    world.name = std::move(name);
 }

@@ -34,28 +34,11 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         
         auto [it, inserted] = worlds.try_emplace(big_name, big_name);
         world &world = it->second;
-        std::vector<std::string> buffs{};
         if (world.name.empty())
         {
-            ransuu ransuu;
-            const u_int main_door = ransuu[{2, 100 * 60 / 100 - 4}];
-            std::vector<block> blocks(100 * 60, block{0, 0});
-            
-            for (auto &&[i, block] : blocks | std::views::enumerate)
-            {
-                if (i >= cord(0, 37))
-                {
-                    block.bg = 14; // cave background
-                    if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && ransuu[{0, 38}] <= 1) block.fg = 10 /* rock */;
-                    else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && ransuu[{0, 8}] < 3) block.fg = 4 /* lava */;
-                    else block.fg = (i >= cord(0, 54)) ? 8 : 2 /* dirt */;
-                }
-                if (i == cord(main_door, 36)) block.fg = 6; // main door
-                else if (i == cord(main_door, 37)) block.fg = 8; // bedrock (below main door)
-            }
-            world.blocks = std::move(blocks);
-            world.name = std::move(big_name);
+            generate_world(world, big_name);
         }
+        std::vector<std::string> buffs{};
         {
             std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12 + 8/*total drop uid*/, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };

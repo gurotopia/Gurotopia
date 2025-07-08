@@ -89,7 +89,7 @@ void tile_change(ENetEvent& event, state state)
                     break;
                 }
             }
-            block_punched(event, std::move(state), block);
+            tile_apply_damage(event, std::move(state), block);
             
             short remember_id = item.id;
             if (block.hits.front() >= item.hits) block.fg = 0, block.hits.front() = 0;
@@ -127,7 +127,25 @@ void tile_change(ENetEvent& event, state state)
             equip(event, state); // @note imitate equip
             return; 
         }
-        else if (item.type == std::byte{ type::CONSUMEABLE }) return;
+        else if (item.type == std::byte{ type::CONSUMEABLE }) 
+        {
+            if (item.raw_name.contains(" Blast"))
+            {
+                packet::create(*event.peer, false, 0, {
+                    "OnDialogRequest",
+                    std::format(
+                        "set_default_color|`o\n"
+                        "embed_data|id|{0}\n"
+                        "add_label_with_icon|big|`w{1}``|left|{0}|\n"
+                        "add_label|small|This item creates a new world! Enter a unique name for it.|left\n"
+                        "add_text_input|name|New World Name||24|\n"
+                        "end_dialog|blast|Cancel|Create!|\n", // @todo rgt "Create!" is a purple-ish pink color
+                        item.id, item.raw_name
+                    ).c_str()
+                });
+            }
+            return;
+        }
         else if (state.id == 32)
         {
             switch (item.type)

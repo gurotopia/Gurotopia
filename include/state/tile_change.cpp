@@ -98,6 +98,7 @@ void tile_change(ENetEvent& event, state state)
             else return;
             block.label = ""; // @todo
             block.toggled = false; // @todo
+            if (item.type == std::byte{ LOCK }) w->second.owner = 0; // @todo handle sl, bl, hl
 
             if (item.cat == std::byte{ 02 }) // pick up (item goes back in your inventory)
             {

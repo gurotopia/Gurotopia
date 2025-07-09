@@ -16,6 +16,9 @@
         bool toggled{}; // @note save toggle state
         std::chrono::steady_clock::time_point tick{}; // @note record a point in time for the tile e.g. tree growth, providers, ect.
         std::string label{}; // @note sign/door label
+        bool water{};
+        bool glue{};
+        bool fire{};
 
         std::array<int, 2zu> hits{0, 0}; // @note fg, bg
     };

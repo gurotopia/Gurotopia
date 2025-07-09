@@ -59,8 +59,13 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             {
                 *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
                 *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
-                pos += sizeof(short); // @todo
-                pos += sizeof(short); // @todo water = 00 04, glue = 00 08, both = 00 0c, fire = 00 10, paint (red) = 00 20, pattern repeats...
+                pos += sizeof(short);
+                pos += sizeof(short);
+
+                if (block.water) data[pos - 1zu] |= std::byte{ 0x04 };
+                if (block.glue)  data[pos - 1zu] |= std::byte{ 0x08 };
+                if (block.fire)  data[pos - 1zu] |= std::byte{ 0x10 };
+                // @todo add paint...
                 switch (items[block.fg].type)
                 {
                     case std::byte{ type::FOREGROUND }: 
@@ -94,6 +99,18 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         *reinterpret_cast<std::array<std::byte, 4zu>*>(&data[pos]) = EXIT; pos += sizeof(std::array<std::byte, 4zu>);
                         data[pos++] = std::byte{ 00 }; // @note '\0'
                         break;
+                    }
+                    case std::byte{ type::SILKWORM }:
+                    {
+                        std::string dummy = "test";
+                        data[pos - 2zu] = std::byte{ 01 };
+                        short len = dummy.length();
+                        data.resize(data.size() + 50zu/*@todo*/ + dummy.length());
+                        data[pos++] = std::byte{ 0x1f };
+                        data[pos++] = std::byte{ 00 }; // @todo
+
+                        *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
+                        for (const char& c : dummy) data[pos++] = static_cast<std::byte>(c);
                     }
                     case std::byte { type::ENTRANCE }:
                     {

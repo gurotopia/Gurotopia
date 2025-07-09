@@ -318,9 +318,13 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     data.resize(pos + 8zu); // @note {2} {2} 00 00 00 00
     *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
     *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
-    pos += sizeof(short); // @todo
-    pos += sizeof(short); // @todo (water = 00 04)
+    pos += sizeof(short);
+    pos += sizeof(short);
     
+    if (block.water) data[pos - 1zu] |= std::byte{ 0x04 };
+    if (block.glue)  data[pos - 1zu] |= std::byte{ 0x08 };
+    if (block.fire)  data[pos - 1zu] |= std::byte{ 0x10 };
+    // @todo add paint...
     switch (items[block.fg].type)
     {
         case std::byte{ type::ENTRANCE }:

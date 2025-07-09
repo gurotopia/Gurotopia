@@ -150,7 +150,6 @@ void tile_change(ENetEvent& event, state state)
                 case 1404: // @note Door Mover
                 {
                     if (!door_mover(w->second, state.punch)) throw std::runtime_error("There's no room to put the door there! You need 2 empty spaces vertically.");
-                    peer->emplace(slot(item.id, -1));
 
                     std::string remember_name = w->first;
                     action::quit_to_exit(event, "", true); // @todo everyone in world exits
@@ -158,7 +157,27 @@ void tile_change(ENetEvent& event, state state)
                     
                     break;
                 }
+                case 822: // @note Water Bucket
+                {
+                    block.water = (block.water) ? false : true;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+                case 1866: // @note Block Glue
+                {
+                    block.glue = (block.glue) ? false : true;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+                case 3062: // @note Pocket Lighter
+                {
+                    block.fire = (block.fire) ? false : true;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
             }
+            peer->emplace(slot(item.id, -1));
+            inventory_visuals(event);
             return;
         }
         else if (state.id == 32)

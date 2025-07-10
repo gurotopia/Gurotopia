@@ -279,7 +279,7 @@ void tile_apply_damage(ENetEvent& event, state state, block &block)
 	state_visuals(event, std::move(state));
 }
 
-void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid) 
+int drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid) 
 {
     std::vector<std::byte> compress{};
     state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
@@ -292,7 +292,7 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
     else
     {
         auto w = worlds.find(_peer[event.peer]->recent_worlds.back());
-        if (w == worlds.end()) return;
+        if (w == worlds.end()) return -1;
 
         auto it = w->second.ifloats.emplace(++w->second.ifloat_uid, ifloat{im[0], im[1], pos}); // @note a iterator ahead of time
         state.netid = -1;
@@ -306,6 +306,7 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
     {
         send_data(p, std::move(compress));
     });
+    return state.uid;
 }
 
 void tile_update(ENetEvent &event, state state, block &block, world& w) 

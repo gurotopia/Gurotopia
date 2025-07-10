@@ -6,6 +6,7 @@
 #include "tools/string.hpp"
 #include "action/quit_to_exit.hpp"
 #include "action/join_request.hpp"
+#include "pickup.hpp"
 #include "tile_change.hpp"
 
 #include <cmath>
@@ -75,18 +76,15 @@ void tile_change(ENetEvent& event, state state)
                 case std::byte{ type::TOGGLEABLE_BLOCK }:
                 case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
                 {
-                    if (!block.toggled) 
+                    block.toggled = (block.toggled) ? false : true;
+                    if (item.id == 226) // @note Signal Jammer
                     {
-                        block.toggled = true;
-                        if (item.id == 226)
-                        {
-                            packet::create(*event.peer, false, 0, {
-                                "OnConsoleMessage",
-                                "Signal jammer enabled. This world is now `4hidden`` from the universe."
-                            });
-                        }
-                    } 
-                    else block.toggled = false;
+                        packet::create(*event.peer, false, 0, {
+                            "OnConsoleMessage",
+                            (block.toggled) ? "Signal jammer enabled. This world is now `4hidden`` from the universe." :
+                                              "Signal jammer disabled.  This world is `2visible`` to the universe."
+                        });
+                    }
                     break;
                 }
             }
@@ -98,12 +96,16 @@ void tile_change(ENetEvent& event, state state)
             else return;
             block.label = ""; // @todo
             block.toggled = false; // @todo
-            if (item.type == std::byte{ LOCK }) w->second.owner = 0; // @todo handle sl, bl, hl
+            if (item.type == std::byte{ LOCK }) 
+            {
+                peer->prefix.front() = 'w';
+                w->second.owner = 0; // @todo handle sl, bl, hl
+            }
 
             if (item.cat == std::byte{ 02 }) // pick up (item goes back in your inventory)
             {
-                drop_visuals(event, {remember_id, 1}, {state.pos[0] / 32, state.pos[1] / 32}); // @todo
-                inventory_visuals(event);
+                int uid = drop_visuals(event, {remember_id, 1}, state.pos);
+                pickup(event, ::state{.id = uid});
             }
             else // normal break (drop gem, seed, block & give XP)
             {
@@ -287,7 +289,7 @@ void tile_change(ENetEvent& event, state state)
                     if (w->second.owner == 00)
                     {
                         w->second.owner = peer->user_id;
-                        if (peer->role == role::PLAYER) peer->prefix = "2";
+                        if (peer->role == role::PLAYER) peer->prefix.front() = '2';
                         state.type = 0x0f;
                         state.netid = w->second.owner;
                         state.peer_state = 0x08;

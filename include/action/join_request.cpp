@@ -216,8 +216,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             std::rotate(recent_worlds.begin(), recent_worlds.begin() + 1, recent_worlds.end());
         recent_worlds.back() = world.name;
 
-        if (peer->user_id == world.owner) peer->prefix = "2";
-        else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix = "c";
+        if (peer->user_id == world.owner) peer->prefix.front() = '2';
+        else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix.front() = 'c';
 
         char& role = peer->role;
         if (role == role::MODERATOR) peer->prefix = "8@";

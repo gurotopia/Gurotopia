@@ -63,9 +63,9 @@
      ```
 
 #### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/debug-alt-small.svg) 3. Run
-   - Execute the compiled binary located in the `build` directory:
+   - Execute the compiled binary located in the `main` directory:
      ```bash
-     ./build/main.out
+     ./main.out
      ```
 
 ---

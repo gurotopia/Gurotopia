@@ -4,9 +4,14 @@ build/
 # MSVC
 .msvc/
 
+
 # lingering files
 main.exe
+main.pdb
 items.dat
+
+# MSVC linker
+main.ilk
 
 # VSC user settings
 .vscode/settings.json

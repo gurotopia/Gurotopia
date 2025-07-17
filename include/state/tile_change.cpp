@@ -2,9 +2,12 @@
 #include "on/NameChanged.hpp"
 #include "commands/weather.hpp"
 #include "equip.hpp"
-#include "tile_change.hpp"
-
 #include "tools/ransuu.hpp"
+#include "tools/string.hpp"
+#include "action/quit_to_exit.hpp"
+#include "action/join_request.hpp"
+#include "pickup.hpp"
+#include "tile_change.hpp"
 
 #include <cmath>
 
@@ -19,7 +22,6 @@ void tile_change(ENetEvent& event, state state)
 {
     try
     {
-        if (!create_rt(event, 0, 160)) return;
         auto &peer = _peer[event.peer];
         auto w = worlds.find(peer->recent_worlds.back());
         if (w == worlds.end()) return;
@@ -74,22 +76,19 @@ void tile_change(ENetEvent& event, state state)
                 case std::byte{ type::TOGGLEABLE_BLOCK }:
                 case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
                 {
-                    if (!block.toggled) 
+                    block.toggled = (block.toggled) ? false : true;
+                    if (item.id == 226) // @note Signal Jammer
                     {
-                        block.toggled = true;
-                        if (item.id == 226)
-                        {
-                            packet::create(*event.peer, false, 0, {
-                                "OnConsoleMessage",
-                                "Signal jammer enabled. This world is now `4hidden`` from the universe."
-                            });
-                        }
-                    } 
-                    else block.toggled = false;
+                        packet::create(*event.peer, false, 0, {
+                            "OnConsoleMessage",
+                            (block.toggled) ? "Signal jammer enabled. This world is now `4hidden`` from the universe." :
+                                              "Signal jammer disabled.  This world is `2visible`` to the universe."
+                        });
+                    }
                     break;
                 }
             }
-            block_punched(event, std::move(state), block);
+            tile_apply_damage(event, std::move(state), block);
             
             short remember_id = item.id;
             if (block.hits.front() >= item.hits) block.fg = 0, block.hits.front() = 0;
@@ -97,11 +96,16 @@ void tile_change(ENetEvent& event, state state)
             else return;
             block.label = ""; // @todo
             block.toggled = false; // @todo
+            if (item.type == std::byte{ LOCK }) 
+            {
+                peer->prefix.front() = 'w';
+                w->second.owner = 0; // @todo handle sl, bl, hl
+            }
 
             if (item.cat == std::byte{ 02 }) // pick up (item goes back in your inventory)
             {
-                drop_visuals(event, {remember_id, 1}, {state.pos[0] / 32, state.pos[1] / 32}); // @todo
-                inventory_visuals(event);
+                int uid = drop_visuals(event, {remember_id, 1}, state.pos);
+                pickup(event, ::state{.id = uid});
             }
             else // normal break (drop gem, seed, block & give XP)
             {
@@ -127,7 +131,58 @@ void tile_change(ENetEvent& event, state state)
             equip(event, state); // @note imitate equip
             return; 
         }
-        else if (item.type == std::byte{ type::CONSUMEABLE }) return;
+        else if (item.type == std::byte{ type::CONSUMEABLE }) 
+        {
+            if (item.raw_name.contains(" Blast"))
+            {
+                packet::create(*event.peer, false, 0, {
+                    "OnDialogRequest",
+                    std::format(
+                        "set_default_color|`o\n"
+                        "embed_data|id|{0}\n"
+                        "add_label_with_icon|big|`w{1}``|left|{0}|\n"
+                        "add_label|small|This item creates a new world! Enter a unique name for it.|left\n"
+                        "add_text_input|name|New World Name||24|\n"
+                        "end_dialog|blast|Cancel|Create!|\n", // @todo rgt "Create!" is a purple-ish pink color
+                        item.id, item.raw_name
+                    ).c_str()
+                });
+            }
+            switch (item.id)
+            {
+                case 1404: // @note Door Mover
+                {
+                    if (!door_mover(w->second, state.punch)) throw std::runtime_error("There's no room to put the door there! You need 2 empty spaces vertically.");
+
+                    std::string remember_name = w->first;
+                    action::quit_to_exit(event, "", true); // @todo everyone in world exits
+                    action::join_request(event, "", remember_name); // @todo everyone in world re-joins
+                    
+                    break;
+                }
+                case 822: // @note Water Bucket
+                {
+                    block.water = (block.water) ? false : true;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+                case 1866: // @note Block Glue
+                {
+                    block.glue = (block.glue) ? false : true;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+                case 3062: // @note Pocket Lighter
+                {
+                    block.fire = (block.fire) ? false : true;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+            }
+            peer->emplace(slot(item.id, -1));
+            inventory_visuals(event);
+            return;
+        }
         else if (state.id == 32)
         {
             switch (item.type)
@@ -160,7 +215,7 @@ void tile_change(ENetEvent& event, state state)
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item.raw_name, item.id, state.punch[0], state.punch[1], signed{w->second._public}
+                                item.raw_name, item.id, state.punch[0], state.punch[1], to_char(w->second._public)
                             ).c_str()
                         });
                     }
@@ -211,14 +266,14 @@ void tile_change(ENetEvent& event, state state)
                 case std::byte{ type::ENTRANCE }:
                     packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
-                        std::format("set_default_color|`o\n"
-                            "set_default_color|`o"
-                            "add_label_with_icon|big|`wEdit {}``|left|{}|"
-                            "add_checkbox|checkbox_public|Is open to public|1"
-                            "embed_data|tilex|{}"
-                            "embed_data|tiley|{}"
-                            "end_dialog|gateway_edit|Cancel|OK|", 
-                            item.raw_name, item.id, state.punch[0], state.punch[1]
+                        std::format(
+                            "set_default_color|`o\n"
+                            "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
+                            "add_checkbox|checkbox_public|Is open to public|{}\n"
+                            "embed_data|tilex|{}\n"
+                            "embed_data|tiley|{}\n"
+                            "end_dialog|gateway_edit|Cancel|OK|\n", 
+                            item.raw_name, item.id, to_char(block._public), state.punch[0], state.punch[1]
                         ).c_str()
                     });
                     break;
@@ -234,7 +289,7 @@ void tile_change(ENetEvent& event, state state)
                     if (w->second.owner == 00)
                     {
                         w->second.owner = peer->user_id;
-                        if (peer->role == role::PLAYER) peer->prefix = "2";
+                        if (peer->role == role::PLAYER) peer->prefix.front() = '2';
                         state.type = 0x0f;
                         state.netid = w->second.owner;
                         state.peer_state = 0x08;
@@ -303,8 +358,10 @@ void tile_change(ENetEvent& event, state state)
         if (exc.what() && *exc.what()) 
             packet::create(*event.peer, false, 0, {
                 "OnTalkBubble", 
-                _peer[event.peer]->netid, // @note we are not using 'peer' ref cause of ratelimit and waste of memory.
-                exc.what()
+                _peer[event.peer]->netid, 
+                exc.what(),
+                0u,
+                1u // @note message will be sent once instead of multiple times.
             });
     }
 }

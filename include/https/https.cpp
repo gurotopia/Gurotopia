@@ -65,7 +65,7 @@ void https::listener(std::string ip, short enet_port)
             "\r\n{}",
             server_data.size(), server_data).c_str();
 
-    listen(socket, 6);
+    listen(socket, 9);
     while (true)
     {
         SOCKET fd = accept(socket, (struct sockaddr*)&addr, &addrlen);
@@ -76,7 +76,7 @@ void https::listener(std::string ip, short enet_port)
 
         https::client &client = clients[std::string{ip}];
 
-        if (steady_clock::now() - client.last_connect >= 4s)
+        if (steady_clock::now() - client.last_connect >= 3s)
         {
             SSL *ssl = SSL_new(ctx);
             SSL_set_fd(ssl, fd);

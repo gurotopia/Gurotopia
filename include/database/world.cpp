@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "items.hpp"
 #include "peer.hpp"
+#include "tools/ransuu.hpp"
 #include "world.hpp"
 
 #if defined(_MSC_VER)
@@ -39,7 +40,7 @@ world::world(const std::string& name)
             "name TEXT PRIMARY KEY, owner INTEGER);"
 
             "CREATE TABLE IF NOT EXISTS blocks ("
-            "world TEXT, fg INTEGER, bg INTEGER, toggled INTEGER, tick INTEGER, label TEXT, "
+            "world TEXT, fg INTEGER, bg INTEGER, public INTEGER, toggled INTEGER, tick INTEGER, label TEXT, "
             "FOREIGN KEY(world) REFERENCES worlds(name));"
 
             "CREATE TABLE IF NOT EXISTS doors ("
@@ -55,7 +56,7 @@ world::world(const std::string& name)
     } // @note delete create_table
     {
         sqlite3_stmt* stmt;
-        if (sqlite3_prepare_v2(db, "SELECT fg, bg, toggled, tick, label FROM blocks WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
+        if (sqlite3_prepare_v2(db, "SELECT fg, bg, public, toggled, tick, label FROM blocks WHERE world = ?;", -1, &stmt, nullptr) == SQLITE_OK) 
         {
             struct StmtFinalizer {
                 sqlite3_stmt* stmt;
@@ -68,8 +69,9 @@ world::world(const std::string& name)
                     sqlite3_column_int(stmt, 0),
                     sqlite3_column_int(stmt, 1),
                     sqlite3_column_int(stmt, 2),
-                    steady_clock::time_point(std::chrono::seconds(sqlite3_column_int(stmt, 3))),
-                    reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4))
+                    sqlite3_column_int(stmt, 3),
+                    steady_clock::time_point(std::chrono::seconds(sqlite3_column_int(stmt, 4))),
+                    reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5))
                 ));
             }
         }
@@ -160,7 +162,7 @@ world::~world()
     }
     {
         sqlite3_stmt* stmt;
-        if (sqlite3_prepare_v2(db, "INSERT INTO blocks (world, fg, bg, toggled, tick, label) VALUES (?, ?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
+        if (sqlite3_prepare_v2(db, "INSERT INTO blocks (world, fg, bg, public, toggled, tick, label) VALUES (?, ?, ?, ?, ?, ?, ?);", -1, &stmt, nullptr) == SQLITE_OK) 
         {
             struct StmtFinalizer {
                 sqlite3_stmt* stmt;
@@ -170,9 +172,10 @@ world::~world()
                 sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
                 sqlite3_bind_int(stmt, 2, b.fg);
                 sqlite3_bind_int(stmt, 3, b.bg);
-                sqlite3_bind_int(stmt, 4, b.toggled);
-                sqlite3_bind_int(stmt, 5, static_cast<int>(duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count()));
-                sqlite3_bind_text(stmt, 6, b.label.c_str(), -1, SQLITE_STATIC);
+                sqlite3_bind_int(stmt, 4, b._public);
+                sqlite3_bind_int(stmt, 5, b.toggled);
+                sqlite3_bind_int(stmt, 6, static_cast<int>(duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count()));
+                sqlite3_bind_text(stmt, 7, b.label.c_str(), -1, SQLITE_STATIC);
                 sqlite3_step(stmt);
                 sqlite3_reset(stmt);
             }
@@ -253,7 +256,7 @@ void send_data(ENetPeer& peer, const std::vector<std::byte> &&data)
     std::size_t size = data.size();
     ENetPacket *packet = enet_packet_create(nullptr, size + 5zu, ENET_PACKET_FLAG_RELIABLE);
 
-    *reinterpret_cast<int*>(&packet->data[0]) = 4;
+    *reinterpret_cast<int*>(&packet->data[0]) = 04;
     std::memcpy(packet->data + 4, data.data(), size);
     
     enet_peer_send(&peer, 1, packet);
@@ -267,7 +270,7 @@ void state_visuals(ENetEvent& event, state &&state)
     });
 }
 
-void block_punched(ENetEvent& event, state state, block &block)
+void tile_apply_damage(ENetEvent& event, state state, block &block)
 {
     (block.fg == 0) ? ++block.hits.back() : ++block.hits.front();
     state.type = 0x08; // @note PACKET_TILE_APPLY_DAMAGE
@@ -276,7 +279,7 @@ void block_punched(ENetEvent& event, state state, block &block)
 	state_visuals(event, std::move(state));
 }
 
-void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid) 
+int drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid) 
 {
     std::vector<std::byte> compress{};
     state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
@@ -289,7 +292,7 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
     else
     {
         auto w = worlds.find(_peer[event.peer]->recent_worlds.back());
-        if (w == worlds.end()) return;
+        if (w == worlds.end()) return -1;
 
         auto it = w->second.ifloats.emplace(++w->second.ifloat_uid, ifloat{im[0], im[1], pos}); // @note a iterator ahead of time
         state.netid = -1;
@@ -303,19 +306,7 @@ void drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std:
     {
         send_data(p, std::move(compress));
     });
-}
-
-void clothing_visuals(ENetEvent &event) 
-{
-    auto &peer = _peer[event.peer];
-    packet::create(*event.peer, true, 0, {
-        "OnSetClothing", 
-        std::vector<float>{peer->clothing[hair], peer->clothing[shirt], peer->clothing[legs]}, 
-        std::vector<float>{peer->clothing[feet], peer->clothing[face], peer->clothing[hand]}, 
-        std::vector<float>{peer->clothing[back], peer->clothing[head], peer->clothing[charm]}, 
-        peer->skin_color,
-        std::vector<float>{peer->clothing[ances], 0.0f, 0.0f}
-    });
+    return state.uid;
 }
 
 void tile_update(ENetEvent &event, state state, block &block, world& w) 
@@ -328,11 +319,20 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     data.resize(pos + 8zu); // @note {2} {2} 00 00 00 00
     *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
     *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
-    pos += sizeof(short); // @todo
-    pos += sizeof(short); // @todo (water = 00 04)
+    pos += sizeof(short);
+    pos += sizeof(short);
     
+    if (block.water) data[pos - 1zu] |= std::byte{ 0x04 };
+    if (block.glue)  data[pos - 1zu] |= std::byte{ 0x08 };
+    if (block.fire)  data[pos - 1zu] |= std::byte{ 0x10 };
+    // @todo add paint...
     switch (items[block.fg].type)
     {
+        case std::byte{ type::ENTRANCE }:
+        {
+            data[pos - 2zu] = (block._public) ? std::byte{ 0x90 } : std::byte{ 0x10 };
+            break;
+        }
         case std::byte{ type::DOOR }:
         case std::byte{ type::PORTAL }:
         {
@@ -366,4 +366,63 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     {
         send_data(p, std::move(data));
     });
+}
+
+void generate_world(world &world, const std::string& name)
+{
+    ransuu ransuu;
+    u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
+    std::vector<block> blocks(100 * 60, block{0, 0});
+    
+    for (auto &&[i, block] : blocks | std::views::enumerate)
+    {
+        if (i >= cord(0, 37))
+        {
+            block.bg = 14; // @note cave background
+            if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && ransuu[{0, 38}] <= 1) block.fg = 10 /* rock */;
+            else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && ransuu[{0, 8}] < 3) block.fg = 4 /* lava */;
+            else block.fg = (i >= cord(0, 54)) ? 8 : 2;
+        }
+        if (i == cord(main_door, 36)) block.fg = 6; // @note main door
+        else if (i == cord(main_door, 37)) block.fg = 8; // @note bedrock (below main door)
+    }
+    world.blocks = std::move(blocks);
+    world.name = std::move(name);
+}
+
+bool door_mover(world &world, const std::array<int, 2ULL> &pos)
+{
+    if (world.blocks[cord(pos[0], pos[1])].fg != 0 ||
+        world.blocks[cord(pos[0], (pos[1] + 1))].fg != 0) return false;
+
+    for (std::size_t i = 0; i < world.blocks.size(); ++i)
+    {
+        block &block = world.blocks[i];
+        if (block.fg == 6)
+        {
+            block.fg = 0; // @note remove main door
+            world.blocks[cord(i % 100, (i / 100 + 1))].fg = 0; // @note remove bedrock (below main door)
+            break;
+        }
+    }
+    world.blocks[cord(pos[0], pos[1])].fg = 6;
+    world.blocks[cord(pos[0], (pos[1] + 1))].fg = 8;
+    return true;
+}
+
+void blast::thermonuclear(world &world, const std::string& name)
+{
+    ransuu ransuu;
+    u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
+    std::vector<block> blocks(100 * 60, block{0, 0});
+    
+    for (auto &&[i, block] : blocks | std::views::enumerate)
+    {
+        block.fg = (i >= cord(0, 54)) ? 8 : 0;
+
+        if (i == cord(main_door, 36)) block.fg = 6;
+        else if (i == cord(main_door, 37)) block.fg = 8;
+    }
+    world.blocks = std::move(blocks);
+    world.name = std::move(name);
 }

@@ -1,6 +1,8 @@
 #include "pch.hpp"
 #include "on/BillboardChange.hpp"
 #include "tools/string.hpp"
+#include "quit_to_exit.hpp"
+#include "join_request.hpp"
 #include "action/dialog_return.hpp"
 
 void action::dialog_return(ENetEvent& event, const std::string& header) 
@@ -100,7 +102,7 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
         peer->emplace(slot(stoi(id), 200));
         inventory_visuals(event);
     }
-    else if ((pipes[3zu] == "door_edit" && pipes[10zu] == "door_name") || 
+    else if (pipes[3zu] == "gateway_edit" || (pipes[3zu] == "door_edit" && pipes[10zu] == "door_name") || 
              (pipes[3zu] == "sign_edit" && pipes[10zu] == "sign_text") && 
              (number(pipes[5zu]) && number(pipes[8zu])))
     {
@@ -109,7 +111,9 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
         auto it = worlds.find(peer->recent_worlds.back());
         if (it == worlds.end()) return;
         block &block = it->second.blocks[cord(tilex, tiley)];
-        block.label = pipes[11zu];
+
+        if (pipes[3zu] == "door_edit" || pipes[3zu] == "sign_edit") block.label = pipes[11zu];
+        else if (pipes[3zu] == "gateway_edit") block._public = stoi(pipes[11zu]);
 
         state s{
             .id = block.fg,
@@ -172,6 +176,27 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
             it->second._public = stoi(pipes[11]);
 
             // @todo add public lock visuals
+        }
+    }
+    else if (pipes[3zu] == "blast")
+    {
+        const u_short id = stoi(pipes[5zu]);
+        std::string world_name = pipes[8zu];
+        std::for_each(world_name.begin(), world_name.end(), [](char& c) { c = std::toupper(c); });
+        switch (id)
+        {
+            case 1402: // @note Thermonuclear Blast
+            {
+                auto [it, inserted] = worlds.try_emplace(world_name, world_name);
+                world &world = it->second;
+                if (world.name.empty())
+                {
+                    action::quit_to_exit(event, "", true);
+                    blast::thermonuclear(world, world_name);
+                    action::join_request(event, "", world_name);
+                }
+                break;
+            }
         }
     }
 }

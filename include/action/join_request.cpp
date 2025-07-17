@@ -24,8 +24,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 {
     try 
     {
-        if (!create_rt(event, 2, 900)) throw std::runtime_error("");
-
         auto &peer = _peer[event.peer];
         std::string big_name{world_name.empty() ? readch(std::move(header), '|')[3] : world_name};
 
@@ -34,28 +32,11 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         
         auto [it, inserted] = worlds.try_emplace(big_name, big_name);
         world &world = it->second;
-        std::vector<std::string> buffs{};
         if (world.name.empty())
         {
-            ransuu ransuu;
-            const u_int main_door = ransuu[{2, 100 * 60 / 100 - 4}];
-            std::vector<block> blocks(100 * 60, block{0, 0});
-            
-            for (auto &&[i, block] : blocks | std::views::enumerate)
-            {
-                if (i >= cord(0, 37))
-                {
-                    block.bg = 14; // cave background
-                    if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && ransuu[{0, 38}] <= 1) block.fg = 10 /* rock */;
-                    else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && ransuu[{0, 8}] < 3) block.fg = 4 /* lava */;
-                    else block.fg = (i >= cord(0, 54)) ? 8 : 2 /* dirt */;
-                }
-                if (i == cord(main_door, 36)) block.fg = 6; // main door
-                else if (i == cord(main_door, 37)) block.fg = 8; // bedrock (below main door)
-            }
-            world.blocks = std::move(blocks);
-            world.name = std::move(big_name);
+            generate_world(world, big_name);
         }
+        std::vector<std::string> buffs{};
         {
             std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12 + 8/*total drop uid*/, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };
@@ -78,8 +59,13 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             {
                 *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
                 *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
-                pos += sizeof(short); // @todo
-                pos += sizeof(short); // @todo water = 00 04, glue = 00 08, both = 00 0c, fire = 00 10, paint (red) = 00 20, pattern repeats...
+                pos += sizeof(short);
+                pos += sizeof(short);
+
+                if (block.water) data[pos - 1zu] |= std::byte{ 0x04 };
+                if (block.glue)  data[pos - 1zu] |= std::byte{ 0x08 };
+                if (block.fire)  data[pos - 1zu] |= std::byte{ 0x10 };
+                // @todo add paint...
                 switch (items[block.fg].type)
                 {
                     case std::byte{ type::FOREGROUND }: 
@@ -112,6 +98,23 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         *reinterpret_cast<short*>(&data[pos]) = 4; pos += sizeof(short); // @note length of "EXIT"
                         *reinterpret_cast<std::array<std::byte, 4zu>*>(&data[pos]) = EXIT; pos += sizeof(std::array<std::byte, 4zu>);
                         data[pos++] = std::byte{ 00 }; // @note '\0'
+                        break;
+                    }
+                    case std::byte{ type::SILKWORM }:
+                    {
+                        std::string dummy = "test";
+                        data[pos - 2zu] = std::byte{ 01 };
+                        short len = dummy.length();
+                        data.resize(data.size() + 50zu/*@todo*/ + dummy.length());
+                        data[pos++] = std::byte{ 0x1f };
+                        data[pos++] = std::byte{ 00 }; // @todo
+
+                        *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
+                        for (const char& c : dummy) data[pos++] = static_cast<std::byte>(c);
+                    }
+                    case std::byte { type::ENTRANCE }:
+                    {
+                        data[pos - 2zu] = (block._public) ? std::byte{ 0x90 } : std::byte{ 0x10 };
                         break;
                     }
                     case std::byte{ type::DOOR }:
@@ -213,8 +216,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             std::rotate(recent_worlds.begin(), recent_worlds.begin() + 1, recent_worlds.end());
         recent_worlds.back() = world.name;
 
-        if (peer->user_id == world.owner) peer->prefix = "2";
-        else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix = "c";
+        if (peer->user_id == world.owner) peer->prefix.front() = '2';
+        else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix.front() = 'c';
 
         char& role = peer->role;
         if (role == role::MODERATOR) peer->prefix = "8@";

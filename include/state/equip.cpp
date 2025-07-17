@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "on/SetClothing.hpp"
 #include "equip.hpp"
 
 void equip(ENetEvent& event, state state)
@@ -13,7 +14,7 @@ void equip(ENetEvent& event, state state)
         /* checks if clothing is already equipped. if so unequip. else equip. */
         cloth_type = (cloth_type == state.id) ? 0 : state.id;
 
-        clothing_visuals(event);
+        on::SetClothing(event);
     }
     else 
     {

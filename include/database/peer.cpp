@@ -2,6 +2,7 @@
 #include "items.hpp"
 #include "peer.hpp"
 #include "world.hpp"
+#include "on/SetClothing.hpp"
 
 #if defined(_MSC_VER)
     using namespace std::chrono;
@@ -207,18 +208,6 @@ peer::~peer()
 
 std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 
-bool create_rt(ENetEvent &event, std::size_t pos, int length) 
-{
-    steady_clock::time_point &rt = _peer[event.peer]->rate_limit[pos];
-    steady_clock::time_point now = steady_clock::now();
-
-    if ((now - rt) <= std::chrono::milliseconds(length))
-        return false;
-
-    rt = now;
-    return true;
-}
-
 ENetHost *server;
 
 std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::function<void(ENetPeer&)> fun)
@@ -301,5 +290,5 @@ void inventory_visuals(ENetEvent &event)
     }
 
 	enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
-    clothing_visuals(event); // @todo
+    on::SetClothing(event); // @todo
 }

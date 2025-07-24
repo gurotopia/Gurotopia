@@ -1,6 +1,6 @@
 /*
-    @copyright gurotopia (c) 25-5-2024[y, m, d]
-    @version perent SHA: b3e834e27d025ab9f65b9fa1d89f504229a96517 25-07-23[y, m, d]
+    @copyright gurotopia (c) 24-05-25[y, m, d]
+    @version perent SHA: 3339966df39f425533772fd765e267f3920d5094 25-07-23[y, m, d]
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"

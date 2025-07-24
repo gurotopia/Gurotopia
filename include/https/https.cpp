@@ -53,7 +53,7 @@ void https::listener(std::string ip, short enet_port)
             "type|1\n"
             "type2|1\n"
             "#maint|Server under maintenance. Please try again later.\n"
-            "loginurl|login-web-sigma.vercel.app\n"
+            "loginurl|login-gurotopia.vercel.app\n"
             "meta|gurotopia\n"
             "RTENDMARKERBS1001", ip, enet_port);
     const std::string response =

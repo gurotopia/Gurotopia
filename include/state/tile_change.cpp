@@ -34,16 +34,36 @@ void tile_change(ENetEvent& event, state state)
         if (state.id == 18) // @note punching a block
         {
             if (item.id == 0) return;
-            if (item.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
-            if (item.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
 
             std::vector<std::pair<short, short>> im{}; // @note list of dropped items
             ransuu ransuu;
+
+            switch (item.id)
+            {
+                case 758: // @note Roulette Wheel
+                {
+                    u_short number = ransuu[{0, 36}];
+                    char color = (number == 0) ? '2' : (ransuu[{0, 3}] < 2) ? 'b' : '4';
+                    const char* message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", peer->prefix, peer->ltoken[0], color, number).c_str();
+                    peers(event, PEER_SAME_WORLD, [&peer, &message](ENetPeer& p)
+                    {
+                        packet::create(p, false, 0, { "OnTalkBubble", peer->netid, message });
+                        packet::create(p, false, 0, { "OnConsoleMessage", message });
+                    });
+                    break;
+                }
+            }
             switch (item.type)
             {
-                case std::byte{ type::LOCK }: // @todo add message saying who owns the lock.
+                case std::byte{ type::STRONG }: throw std::runtime_error("It's too strong to break."); break;
+                case std::byte{ type::MAIN_DOOR }: throw std::runtime_error("(stand over and punch to use)"); break;
+                case std::byte{ type::LOCK }:
                 {
-                    if (peer->user_id != w->second.owner) return;
+                    if (peer->user_id != w->second.owner) 
+                    {
+                        // @todo add message saying who owns the lock.
+                        return;
+                    }
                     break;
                 }
                 case std::byte{ type::SEED }:
@@ -57,16 +77,10 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case std::byte{ type::WEATHER_MACHINE }:
                 {
-                    int remember_weather{0};
-                    if (!block.toggled) 
+                    block.toggled = (block.toggled) ? false : true;
+                    peers(event, PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
-                        block.toggled = true;
-                        remember_weather = get_weather_id(item.id);
-                    }
-                    else block.toggled = false;
-                    peers(event, PEER_SAME_WORLD, [remember_weather](ENetPeer& p)
-                    {
-                        packet::create(p, false, 0, { "OnSetCurrentWeather", remember_weather });
+                        packet::create(p, false, 0, { "OnSetCurrentWeather", (block.toggled) ? get_weather_id(item.id) : 0 });
                     });
                     for (::block &b : w->second.blocks)
                         if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;

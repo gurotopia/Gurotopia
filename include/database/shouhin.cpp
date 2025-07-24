@@ -18,8 +18,8 @@ void init_shouhin_tachi()
                 .name = pipes[2],
                 .rttx = pipes[3],
                 .description = pipes[4],
-                .tex1 = pipes[5][0],
-                .tex2 = pipes[6][0], // @todo
+                .tex1 = pipes[5].front(),
+                .tex2 = pipes[6].front(), // @todo
                 .cost = stoi(pipes[7])
             };
             std::vector<std::string> tachi = readch(std::move(pipes[8]), ',');

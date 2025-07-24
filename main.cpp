@@ -1,6 +1,6 @@
 /*
-    @copyright gurotopia (c) 25-5-2024
-    @version perent SHA: e0943e86b3679dc3232efb82d5c137e85be88ba9 (25/07/09)
+    @copyright gurotopia (c) 25-5-2024[y, m, d]
+    @version perent SHA: a995f05d70c89907a6e57bb369d083957494bb96 25-07-23[y, m, d]
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -13,17 +13,11 @@
 int main()
 {
     /* libary version checker */
-#if defined(_MSC_VER)
     printf("microsoft/mimalloc beta-%d\n", MI_MALLOC_VERSION);
     printf("ZTzTopia/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
     printf("sqlite/sqlite3 %s\n", sqlite3_sourceid());
     printf("openssl/openssl %s\n", OpenSSL_version(OPENSSL_VERSION_STRING));
-#else
-    printf("\e[38;5;248mmicrosoft/mimalloc \e[1;37mbeta-%d\e[0m\n", MI_MALLOC_VERSION);
-    printf("\e[38;5;248mZTzTopia/enet \e[1;37m%d.%d.%d\e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
-    printf("\e[38;5;248msqlite/sqlite3 \e[1;37m%s\e[0m\n", sqlite3_sourceid());
-    printf("\e[38;5;248mopenssl/openssl \e[1;37m%s\e[0m\n", OpenSSL_version(OPENSSL_VERSION_STRING));
-#endif
+    
     if (!std::filesystem::exists("db")) std::filesystem::create_directory("db");
 
     std::thread(&https::listener, "127.0.0.1", 17091).detach();

@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "on/SetClothing.hpp"
+#include "commands/punch.hpp"
 #include "equip.hpp"
 
 void equip(ENetEvent& event, state state)
@@ -10,11 +11,12 @@ void equip(ENetEvent& event, state state)
     if (item.cloth_type != clothing::none) 
     {
         float &cloth_type = peer->clothing[item.cloth_type];
-        
-        /* checks if clothing is already equipped. if so unequip. else equip. */
-        cloth_type = (cloth_type == state.id) ? 0 : state.id;
 
-        on::SetClothing(event);
+        cloth_type = (cloth_type == state.id) ? 0 : state.id;
+        peer->punch_effect = get_punch_id(state.id); // @todo
+
+        packet::create(*event.peer, true, 0, { "OnEquipNewItem", state.id });
+        on::SetClothing(event); // @todo
     }
     else 
     {

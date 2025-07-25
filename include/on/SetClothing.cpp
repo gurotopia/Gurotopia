@@ -13,4 +13,15 @@ void on::SetClothing(ENetEvent& event)
         peer->skin_color,
         std::vector<float>{peer->clothing[ances], 0.0f, 0.0f}
     });
+
+    state_visuals(event, 
+    {
+        .type = 0x14 | ((0x808000 + peer->punch_effect) << 8), // @note 0x8080{}14
+        .netid = _peer[event.peer]->netid,
+        .count = 127.0f,
+        .id = 00, // @note playermod? double jump is 02
+        .pos = { peer->pos[0] * 32, peer->pos[1] * 32 },
+        .speed = { 248.0f, 992.0f },
+        .punch = { 0x1fffefff } // @note eye color
+    });
 }

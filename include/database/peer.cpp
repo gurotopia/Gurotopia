@@ -12,7 +12,7 @@
 
 short peer::emplace(slot s) 
 {
-    if (auto it = std::ranges::find_if(this->slots, [&s](const slot &found) { return found.id == s.id; }); it != this->slots.end()) 
+    if (auto it = std::ranges::find_if(this->slots, [s](const slot &found) { return found.id == s.id; }); it != this->slots.end()) 
     {
         short excess = std::max(0, (it->count + s.count) - 200);
         it->count = std::min(it->count + s.count, 200);
@@ -29,14 +29,14 @@ short peer::emplace(slot s)
 
 void peer::add_xp(u_short value) 
 {
-    this->level.back() += value;
+    u_short &lvl = this->level.front();
+    u_short &xp = this->level.back() += value; // @note factor the new xp amount
 
-    u_short lvl = this->level.front();
-    u_short xp_formula = 50 * (lvl * lvl + 2); // @note credits: https://www.growtopiagame.com/forums/member/553046-kasete
+    const u_short xp_formula = 50 * (lvl * lvl + 2); // @note credits: https://www.growtopiagame.com/forums/member/553046-kasete
+    const u_short level_up = std::min<u_short>(xp / xp_formula, 125 - lvl);
     
-    u_short level_up = std::min<u_short>(this->level.back() / xp_formula, 125 - lvl);
-    this->level.front() += level_up;
-    this->level.back() -= level_up * xp_formula;
+    lvl += level_up;
+    xp -= level_up * xp_formula;
 }
 
 peer& peer::read(const std::string& name) 

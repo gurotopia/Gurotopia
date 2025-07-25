@@ -22,7 +22,7 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
         if (pipes[3zu] == "drop_item") 
         {
             float x_nabor = (peer->facing_left ? peer->pos[0] - 1 : peer->pos[0] + 1); // @note peer's naboring tile (drop position)
-            drop_visuals(event, {id, count}, {x_nabor, peer->pos[1]});
+            item_change_object(event, {id, count}, {x_nabor, peer->pos[1]});
         } 
         else if (pipes[3zu] == "trash_item")
         {

@@ -42,6 +42,7 @@
         std::string prefix{ "w" }; // @note display name color, default: "w" (White)
         char role{role::PLAYER};
         std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
+        u_char punch_effect{}; // @note last equipped clothing that has a effect. supporting 0-255 effects.
         signed skin_color{ -1429995521 };
         Billboard billboard{};
 

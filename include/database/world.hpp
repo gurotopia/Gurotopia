@@ -79,7 +79,7 @@
 
     extern void tile_apply_damage(ENetEvent& event, state s, block& b);
 
-    extern int drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid = 0);
+    extern int item_change_object(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid = 0);
 
     extern void tile_update(ENetEvent &event, state s, block &b, world& w);
 

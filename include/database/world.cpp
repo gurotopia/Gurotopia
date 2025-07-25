@@ -279,7 +279,7 @@ void tile_apply_damage(ENetEvent& event, state state, block &block)
 	state_visuals(event, std::move(state));
 }
 
-int drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid) 
+int item_change_object(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid) 
 {
     std::vector<std::byte> compress{};
     state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT

@@ -118,7 +118,7 @@ void tile_change(ENetEvent& event, state state)
 
             if (item.cat == std::byte{ 02 }) // pick up (item goes back in your inventory)
             {
-                int uid = drop_visuals(event, {remember_id, 1}, state.pos);
+                int uid = item_change_object(event, {remember_id, 1}, state.pos);
                 pickup(event, ::state{.id = uid});
             }
             else // normal break (drop gem, seed, block & give XP)
@@ -131,7 +131,7 @@ void tile_change(ENetEvent& event, state state)
                     if (ransuu[{0, 11}] <= 1) im.emplace_back(remember_id + 1, 1);
                 }
                 for (std::pair<short, short> &i : im)
-                    drop_visuals(event, {i.first, i.second},
+                    item_change_object(event, {i.first, i.second},
                         {
                             static_cast<float>(state.punch[0]) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
                             static_cast<float>(state.punch[1]) + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)

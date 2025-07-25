@@ -44,11 +44,11 @@ void tile_change(ENetEvent& event, state state)
                 {
                     u_short number = ransuu[{0, 36}];
                     char color = (number == 0) ? '2' : (ransuu[{0, 3}] < 2) ? 'b' : '4';
-                    const char* message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", peer->prefix, peer->ltoken[0], color, number).c_str();
-                    peers(event, PEER_SAME_WORLD, [&peer, &message](ENetPeer& p)
+                    std::string message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", peer->prefix, peer->ltoken[0], color, number);
+                    peers(event, PEER_SAME_WORLD, [&peer, message](ENetPeer& p)
                     {
-                        packet::create(p, false, 0, { "OnTalkBubble", peer->netid, message });
-                        packet::create(p, false, 0, { "OnConsoleMessage", message });
+                        packet::create(p, false, 2000, { "OnTalkBubble", peer->netid, message.c_str() });
+                        packet::create(p, false, 2000, { "OnConsoleMessage", message.c_str() });
                     });
                     break;
                 }

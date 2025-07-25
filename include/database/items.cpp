@@ -71,12 +71,11 @@ void cache_items()
 
         pos += 1;
 
-        len = *(reinterpret_cast<short*>(&im_data[pos]));
+        len = *reinterpret_cast<short*>(&im_data[pos]);
         pos += sizeof(short);
-        im.audio_directory.resize(len);
-        for (short i = 0; i < len; ++i) 
-            im.audio_directory += std::to_integer<char>(im_data[pos]), 
-            ++pos;
+
+        im.audio_directory.assign(reinterpret_cast<char*>(&im_data[pos]), len);
+        pos += len;
 
         if (im.audio_directory.ends_with(".mp3"))
             data_modify(im_data, pos, 0); // @todo make it only for IOS
@@ -144,8 +143,19 @@ void cache_items()
             shift_pos(im_data, pos, im.mod6);
         if (version >= 19)
             pos += sizeof(std::array<std::byte, 9zu>);
-        if (version == 21)
+        if (version >= 21)
             shift_pos(im_data, pos, im.mod7);
+        if (version == 22)
+        {
+            short len = *reinterpret_cast<short*>(&im_data[pos]);
+            pos += sizeof(short);
+            std::string escapes(reinterpret_cast<char*>(&im_data[pos]), len);
+            pos += len;
+
+            for (char ch : escapes)
+                if (std::isprint(ch))
+                    im.info += ch;
+        }
         
         items.emplace(i, im);
     }

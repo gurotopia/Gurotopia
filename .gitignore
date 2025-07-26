@@ -2,6 +2,7 @@
 build/
 
 # MSVC
+.vs/
 .msvc/
 
 # lingering files

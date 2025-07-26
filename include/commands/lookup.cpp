@@ -1,10 +1,10 @@
 #include "pch.hpp"
 #include "action/wrench.hpp"
-#include "info.hpp"
+#include "lookup.hpp"
 
-void info(ENetEvent& event, const std::string_view text)
+void lookup(ENetEvent& event, const std::string_view text)
 {
-    std::string name{ text.substr(sizeof("info ")-1) };
+    std::string name{ text.substr(sizeof("lookup ")-1) };
     peers(event, PEER_ALL, [&event, name](ENetPeer& p) 
     {
         /* @todo handle peer's offline or not in a world (no netid) */

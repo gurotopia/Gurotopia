@@ -171,6 +171,7 @@
     {
     public:
         u_short id{}; /* item identity */
+        std::byte property{};
         std::byte cat{};
         std::byte type{};
         std::string raw_name{}; /* the exact name of the item including uppercases */

@@ -12,6 +12,7 @@
 #include "respawn.hpp"
 #include "input.hpp"
 #include "drop.hpp"
+#include "info.hpp"
 #include "trash.hpp"
 #include "wrench.hpp"
 #include "itemfavourite.hpp"
@@ -38,6 +39,7 @@ std::unordered_map<std::string, std::function<void(ENetEvent&, const std::string
     {"action|respawn_spike", std::bind(&action::respawn, std::placeholders::_1, std::placeholders::_2)},
     {"action|input", std::bind(&action::input, std::placeholders::_1, std::placeholders::_2)},
     {"action|drop", std::bind(&action::drop, std::placeholders::_1, std::placeholders::_2)},
+    {"action|info", std::bind(&action::info, std::placeholders::_1, std::placeholders::_2)},
     {"action|trash", std::bind(&action::trash, std::placeholders::_1, std::placeholders::_2)},
     {"action|wrench", std::bind(&action::wrench, std::placeholders::_1, std::placeholders::_2)},
     {"action|itemfavourite", std::bind(&action::itemfavourite, std::placeholders::_1, std::placeholders::_2)},

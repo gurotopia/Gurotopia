@@ -21,7 +21,7 @@ void on::SetClothing(ENetEvent& event)
         .count = 127.0f,
         .id = 00, // @note playermod? double jump is 02
         .pos = { peer->pos[0] * 32, peer->pos[1] * 32 },
-        .speed = { 248.0f, 992.0f },
+        .speed = { 250.0f, 1000.0f },
         .punch = { 0x1fffefff } // @note eye color
     });
 }

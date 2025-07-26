@@ -33,7 +33,7 @@ void cache_items()
         item im{};
         
         shift_pos(im_data, pos, im.id); pos += 2; // @note downside im.id to 2 bit (short)
-        pos += 1;
+        shift_pos(im_data, pos, im.property);
         shift_pos(im_data, pos, im.cat);
         shift_pos(im_data, pos, im.type);
         pos += 1;
@@ -149,12 +149,8 @@ void cache_items()
         {
             short len = *reinterpret_cast<short*>(&im_data[pos]);
             pos += sizeof(short);
-            std::string escapes(reinterpret_cast<char*>(&im_data[pos]), len);
+            im.info.assign(reinterpret_cast<char*>(&im_data[pos]), len);
             pos += len;
-
-            for (char ch : escapes)
-                if (std::isprint(ch))
-                    im.info += ch;
         }
         
         items.emplace(i, im);

@@ -242,26 +242,25 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
     }
     else if (pipes[3zu] == "peer_edit")
     {
-        std::string name = pipes[5zu];
-        bool status = stoi(pipes[8zu]);
+        const std::string name = pipes[5zu];
+        const bool status = stoi(pipes[8zu]);
 
-        u_char role = stoi(pipes[11zu]);
-        short level = stoi(pipes[13zu]);
-        signed gems = stoi(pipes[15zu]);
+        const u_char role = stoi(pipes[11zu]);
+        const short level = stoi(pipes[13zu]);
+        const signed gems = stoi(pipes[15zu]);
 
         if (status) // @note online
         {
             peers(event, PEER_ALL, [&event, name, role, level, gems](ENetPeer& p) 
             {
-                auto &_p = _peer[&p];
-                if (_p->ltoken[0] == name)
+                if (_peer[&p]->ltoken[0] == name)
                 {
+                    auto &_p = _peer[&p];
                     _p->role = role;
-                    on::NameChanged(event);
-                    
                     _p->level[0] = level;
-
                     _p->gems = gems;
+
+                    on::NameChanged(event);
                     on::SetBux(event);
                     return;
                 }

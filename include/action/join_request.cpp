@@ -252,9 +252,9 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         if (peer->user_id == world.owner) peer->prefix.front() = '2';
         else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix.front() = 'c';
 
-        char& role = peer->role;
-        if (role == role::MODERATOR) peer->prefix = "8@";
-        else if (role == role::DEVELOPER) peer->prefix = "6@";
+        u_char& role = peer->role;
+        if (peer->role == role::MODERATOR) peer->prefix = "#@";
+        else if (peer->role == role::DEVELOPER) peer->prefix = "8@";
         on::EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
         peers(event, PEER_SAME_WORLD, [event, &peer, &world, role](ENetPeer& p) 

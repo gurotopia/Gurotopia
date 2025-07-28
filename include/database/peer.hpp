@@ -27,7 +27,7 @@
         bool mute{};
     };
 
-    enum role : char {
+    enum role : u_char {
         PLAYER, 
         MODERATOR, 
         DEVELOPER
@@ -48,7 +48,7 @@
         int user_id{}; // @note unqiue user id.
         std::array<std::string, 2zu> ltoken{}; // @note peer's ltoken e.g. {growid, password}
         std::string prefix{ "w" }; // @note display name color, default: "w" (White)
-        char role{};
+        u_char role{};
         std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
         u_char punch_effect{}; // @note last equipped clothing that has a effect. supporting 0-255 effects.
         signed skin_color{ -1429995521 };

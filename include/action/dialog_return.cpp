@@ -1,5 +1,7 @@
 #include "pch.hpp"
 #include "on/BillboardChange.hpp"
+#include "on/SetBux.hpp"
+#include "on/NameChanged.hpp"
 #include "tools/string.hpp"
 #include "quit_to_exit.hpp"
 #include "join_request.hpp"
@@ -236,6 +238,41 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
                     __online
                 ).c_str()
             });
+        }
+    }
+    else if (pipes[3zu] == "peer_edit")
+    {
+        std::string name = pipes[5zu];
+        bool status = stoi(pipes[8zu]);
+
+        u_char role = stoi(pipes[11zu]);
+        short level = stoi(pipes[13zu]);
+        signed gems = stoi(pipes[15zu]);
+
+        if (status) // @note online
+        {
+            peers(event, PEER_ALL, [&event, name, role, level, gems](ENetPeer& p) 
+            {
+                auto &_p = _peer[&p];
+                if (_p->ltoken[0] == name)
+                {
+                    _p->role = role;
+                    on::NameChanged(event);
+                    
+                    _p->level[0] = level;
+
+                    _p->gems = gems;
+                    on::SetBux(event);
+                    return;
+                }
+            });
+        }
+        else // @note offline
+        {
+            ::peer &offline = ::peer().read(name);
+            offline.role = role;
+            offline.level[0] = level;
+            offline.gems = gems;
         }
     }
 }

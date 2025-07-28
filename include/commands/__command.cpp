@@ -2,7 +2,7 @@
 #include "on/Action.hpp"
 #include "find.hpp"
 #include "warp.hpp"
-#include "lookup.hpp"
+#include "edit.hpp"
 #include "punch.hpp"
 #include "sb.hpp"
 #include "who.hpp"
@@ -14,11 +14,11 @@ std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::s
 {
     {"help", [](ENetEvent& event, const std::string_view text) 
     {
-        packet::action(*event.peer, "log", "msg|>> Commands: /find /warp {world} /lookup {player} /sb {msg} /who /me {msg} /weather {id} /wave /dance /love /sleep /facepalm /fp /smh /yes /no /omg /idk /shrug /furious /rolleyes /foldarms /stubborn /fold /dab /sassy /dance2 /march /grumpy /shy");
+        packet::action(*event.peer, "log", "msg|>> Commands: /find /warp {world} /edit {player} /sb {msg} /who /me {msg} /weather {id} /wave /dance /love /sleep /facepalm /fp /smh /yes /no /omg /idk /shrug /furious /rolleyes /foldarms /stubborn /fold /dab /sassy /dance2 /march /grumpy /shy");
     }},
     {"find", &find},
     {"warp", &warp},
-    {"lookup", &lookup},
+    {"edit", &edit},
     {"punch", &punch},
     {"sb", &sb},
     {"who", &who},

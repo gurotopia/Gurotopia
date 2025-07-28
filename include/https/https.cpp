@@ -65,7 +65,7 @@ void https::listener(std::string ip, short enet_port)
             "\r\n{}",
             server_data.size(), server_data).c_str();
 
-    listen(socket, 9);
+    listen(socket, 18);
     while (true)
     {
         SOCKET fd = accept(socket, (struct sockaddr*)&addr, &addrlen);

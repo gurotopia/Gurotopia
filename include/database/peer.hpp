@@ -19,6 +19,14 @@
         bool perItem{}; // @note true if world locks per item, false if items per world lock
     };
 
+    class Friend {
+    public:
+        std::string name{};
+        bool ignore{};
+        bool block{};
+        bool mute{};
+    };
+
     enum role : char {
         PLAYER, 
         MODERATOR, 
@@ -40,7 +48,7 @@
         int user_id{}; // @note unqiue user id.
         std::array<std::string, 2zu> ltoken{}; // @note peer's ltoken e.g. {growid, password}
         std::string prefix{ "w" }; // @note display name color, default: "w" (White)
-        char role{role::PLAYER};
+        char role{};
         std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
         u_char punch_effect{}; // @note last equipped clothing that has a effect. supporting 0-255 effects.
         signed skin_color{ -1429995521 };
@@ -70,6 +78,8 @@
         std::array<std::string, 200zu> my_worlds{}; // @note first 200 relevant worlds locked by peer.
         
         std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming
+
+        std::array<Friend, 25> friends;
         
         ~peer();
     };

@@ -11,8 +11,6 @@ void action::enter_game(ENetEvent& event, const std::string& header)
     if (peer->role == role::MODERATOR) peer->prefix = "#@";
     else if (peer->role == role::DEVELOPER) peer->prefix = "8@";
 
-    peer->gems += 10000;
-
     std::string fav_list{};
     for (short &fav : peer->fav)
         fav_list.append(std::format("{},", fav));

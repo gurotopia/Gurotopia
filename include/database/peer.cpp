@@ -66,8 +66,8 @@ public:
         sqlite3_exec(db, sql, nullptr, nullptr, nullptr);
     }
     
-    template<typename F>
-    void execute(const char* sql, F binder) 
+    template<typename T>
+    void execute(const char* sql, T binder) 
     {
         sqlite3_stmt* stmt;
         if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) {
@@ -77,8 +77,8 @@ public:
         }
     }
     
-    template<typename F>
-    void query(const char* sql, F &&processor, const std::string &name) 
+    template<typename T>
+    void query(const char* sql, T &&fun, const std::string &name) 
     {
         sqlite3_stmt* stmt;
         if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
@@ -87,7 +87,7 @@ public:
             
             while (sqlite3_step(stmt) == SQLITE_ROW) 
             {
-                processor(stmt);
+                fun(stmt);
             }
             sqlite3_finalize(stmt);
         }

@@ -1,5 +1,5 @@
 #include "pch.hpp"
-#include <cctype> // isdigit
+#include "tools/string.hpp"
 #include "weather.hpp"
 
 int get_weather_id(u_int item_id)
@@ -74,40 +74,24 @@ int get_weather_id(u_int item_id)
 
 void weather(ENetEvent& event, const std::string_view text)
 {
-    std::string id_str;
+    if (text.length() <= sizeof("weather ") - 1) 
+    {
+        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "`^Usage: /weather {id}" });
+        return;
+    }
+    std::string id{ text.substr(sizeof("weather ") - 1) };
 
-    if (text.length() > sizeof("weather ") - 1)
-        id_str = std::string{ text.substr(sizeof("weather ") - 1) };
-
-    if (id_str.empty()) {
+    if (!number(id)) 
+    {
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage",
-            "`4Usage: /weather <weather_id> (e.g. /weather 1)"
+            "`4Invalid input. ``id must be a `wnumber``."
         });
         return;
     }
 
-    if (!std::all_of(id_str.begin(), id_str.end(), ::isdigit)) {
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage",
-            "`^Invalid input. Weather id must be a number."
-        });
-        return;
-    }
-
-    int id = std::stoi(id_str);
-
-    if (id < 0 || id > 80) {
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage",
-            "`^Invalid weather id. Must be between 0 and 80."
-        });
-        return;
-    }
-
-    // @note Send weather
     packet::create(*event.peer, false, 0, {
         "OnSetCurrentWeather",
-        id
+        stoi(id)
     });
 }

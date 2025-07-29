@@ -3,6 +3,11 @@
 
 void me(ENetEvent& event, const std::string_view text)
 {
+        if (text.length() <= sizeof("me ") - 1) 
+    {
+        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "Usage: /me `w{message}``" });
+        return;
+    }
     std::string message{ text.substr(sizeof("me ")-1) };
     auto &peer = _peer[event.peer];
 

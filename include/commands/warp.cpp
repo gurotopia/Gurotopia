@@ -5,14 +5,11 @@
 
 void warp(ENetEvent& event, const std::string_view text)
 {
-    if (text.length() <= sizeof("warp ") - 1) {
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage",
-            "`^Usage: /warp <world name>"
-        });
+    if (text.length() <= sizeof("warp ") - 1) 
+    {
+        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "Usage: /warp `w{world name}``" });
         return;
     }
-
     std::string world_name{ text.substr(sizeof("warp ") - 1) };
 
     packet::action(*event.peer, "log", std::format("msg| `6/warp {}``", world_name));

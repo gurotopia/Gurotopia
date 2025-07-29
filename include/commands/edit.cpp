@@ -4,6 +4,11 @@
 
 void edit(ENetEvent& event, const std::string_view text)
 {
+    if (text.length() <= sizeof("edit ") - 1) 
+    {
+        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "Usage: /edit `w{player name}``" });
+        return;
+    }
     std::string name{ text.substr(sizeof("edit ")-1) };
 
     u_char is_online{};

@@ -5,10 +5,8 @@
 void action::drop(ENetEvent& event, const std::string& header)
 {
     std::string itemID = readch(std::move(header), '|')[4];
-    if (!number(itemID)) return;
-
-    short id = stoi(itemID);
-    item &item = items[id];
+    
+    item &item = items[atoi(itemID.c_str())];
 
     if (item.cat == std::byte{ 0x80 })
     {
@@ -17,7 +15,7 @@ void action::drop(ENetEvent& event, const std::string& header)
     }
     
     for (const slot &slot : _peer[event.peer]->slots)
-        if (slot.id == id) 
+        if (slot.id == item.id) 
         {
             packet::create(*event.peer, false, 0, {
                 "OnDialogRequest", 
@@ -28,7 +26,7 @@ void action::drop(ENetEvent& event, const std::string& header)
                     "add_text_input|count||{2}|5|\n"
                     "embed_data|itemID|{1}\n"
                     "end_dialog|drop_item|Cancel|OK|\n", 
-                    item.raw_name, id, slot.count
+                    item.raw_name, item.id, slot.count
                 ).c_str()
             });
             return;

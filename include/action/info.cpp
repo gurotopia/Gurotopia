@@ -22,9 +22,8 @@ std::vector<std::string> properties(std::byte property)
 void action::info(ENetEvent& event, const std::string& header)
 {
     std::string itemID = readch(std::move(header), '|')[4];
-    if (!number(itemID)) return;
 
-    item &item = items[stoi(itemID)];
+    item &item = items[atoi(itemID.c_str())];
 
     auto section = [](const auto& range) 
     {

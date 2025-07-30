@@ -5,10 +5,8 @@
 void action::trash(ENetEvent& event, const std::string& header)
 {
     std::string itemID = readch(std::move(header), '|')[4];
-    if (!number(itemID)) return;
-
-    short id = stoi(itemID);
-    item &item = items[id];
+    
+    item &item = items[atoi(itemID.c_str())];
 
     if (item.cat == std::byte{ 0x80 })
     {
@@ -17,7 +15,7 @@ void action::trash(ENetEvent& event, const std::string& header)
     }
 
     for (const slot &slot : _peer[event.peer]->slots)
-        if (slot.id == id)
+        if (slot.id == item.id)
         {
             packet::create(*event.peer, false, 0, {
                 "OnDialogRequest",

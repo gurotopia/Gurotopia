@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: b55ffc450bb4f6b4b24b04f08f77f0538f069ed0 2025-07-29
+    @version perent SHA: b6a5246cbbffebfb2d489ff93c4412364854c22b 2025-07-30
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -43,19 +43,20 @@ int main()
     server->checksum = enet_crc32;
     enet_host_compress_with_range_coder(server);
     {
-        std::ifstream("items.dat", std::ios::binary);
-        if (!std::filesystem::exists("items.dat")) printf("items.dat not found\n");
-        
-        const uintmax_t size = std::filesystem::file_size("items.dat");
+        try // @note for people who don't use a debugger..
+        {
+            const uintmax_t size = std::filesystem::file_size("items.dat");
 
-        im_data.resize(im_data.size() + size + 1/*@todo*/); // @note state + items.dat
-        im_data[0zu] = std::byte{ 04 }; // @note 04 00 00 00
-        im_data[4zu] = std::byte{ 0x10 }; // @note 16 00 00 00
-        im_data[16zu] = std::byte{ 0x08 }; // @note 08 00 00 00
-        *reinterpret_cast<std::uintmax_t*>(&im_data[56zu]) = size;
+            im_data.resize(im_data.size() + size + 1/*@todo*/); // @note state + items.dat
+            im_data[0zu] = std::byte{ 04 }; // @note 04 00 00 00
+            im_data[4zu] = std::byte{ 0x10 }; // @note 16 00 00 00
+            im_data[16zu] = std::byte{ 0x08 }; // @note 08 00 00 00
+            *reinterpret_cast<std::uintmax_t*>(&im_data[56zu]) = size;
 
-        std::ifstream("items.dat", std::ios::binary)
-            .read(reinterpret_cast<char*>(&im_data[60zu]), size);
+            std::ifstream("items.dat", std::ios::binary)
+                .read(reinterpret_cast<char*>(&im_data[60zu]), size);
+        }
+        catch (std::filesystem::filesystem_error error) { printf("%s", error.what()); }
     } // @note delete size
     cache_items();
     init_shouhin_tachi();

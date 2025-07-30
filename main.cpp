@@ -43,6 +43,9 @@ int main()
     server->checksum = enet_crc32;
     enet_host_compress_with_range_coder(server);
     {
+        std::ifstream("items.dat", std::ios::binary);
+        if (!std::filesystem::exists("items.dat")) printf("items.dat not found\n");
+        
         const uintmax_t size = std::filesystem::file_size("items.dat");
 
         im_data.resize(im_data.size() + size + 1/*@todo*/); // @note state + items.dat

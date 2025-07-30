@@ -44,7 +44,7 @@ void https::listener(std::string ip, short enet_port)
     addr.sin_port = htons(443);
     socklen_t addrlen = sizeof(addr);
     if (bind(socket, (struct sockaddr*)&addr, addrlen) < 0)
-        printf("could not bind port 443.\n");
+        puts("could not bind port 443.");
 
     const std::string server_data =
         std::format(

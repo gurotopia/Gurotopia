@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: b6a5246cbbffebfb2d489ff93c4412364854c22b 2025-07-30
+    @version perent SHA: a17579989475483cde4b06bc3e6458b22482e158 2025-07-30
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -25,7 +25,7 @@ int main()
         ENetCallbacks callbacks{
             .malloc = &mi_malloc,
             .free = &mi_free,
-            .no_memory = []() { printf("ENet memory overflow\n"); }
+            .no_memory = []() { puts("ENet memory overflow"); }
         };
         enet_initialize_with_callbacks(ENET_VERSION, &callbacks);
     } // @note delete callbacks
@@ -56,7 +56,7 @@ int main()
             std::ifstream("items.dat", std::ios::binary)
                 .read(reinterpret_cast<char*>(&im_data[60zu]), size);
         }
-        catch (std::filesystem::filesystem_error error) { printf("%s", error.what()); }
+        catch (std::filesystem::filesystem_error error) { puts(error.what()); }
     } // @note delete size
     cache_items();
     init_shouhin_tachi();

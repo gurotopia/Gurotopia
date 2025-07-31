@@ -12,15 +12,15 @@
 
 ***
 
-### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/checklist.svg) Prerequisites
+#### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/checklist.svg) Requirements
 
-- **Visual Studio Code**: **https://code.visualstudio.com/** (Recommended Editor)
-- **C/C++ extension (VSC)**: https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools
-- **SQLite Viewer extension (VSC)**: https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer
+- **Visual Studio Code**: **https://code.visualstudio.com/** 
+- **C/C++ extension (VSC)**: **https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools**
+- **SQLite Viewer extension (VSC)**: **https://marketplace.visualstudio.com/items?itemName=qwtel.sqlite-viewer**
 
 ---
 
-### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/platform-windows.svg) Building on Windows
+## <img width="190" height="50" alt="Windows_logo_and_wordmark_-_2021 svg" src="https://github.com/user-attachments/assets/1385f762-2c56-465a-aa3b-901a431552bb" />
 
 #### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/archive.svg) 1. Install Dependencies
    - **MSYS2**: **https://www.msys2.org/**
@@ -36,25 +36,40 @@
 #### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/debug-alt-small.svg) 3. Run/Debug
    - After compiling, press **`F5`** to run the server with the debugger attached.
 
----
 
-### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/platform-linux.svg) Building on Linux
+# <a href="https://dotnet.microsoft.com/en-us/download"><img src="https://github.com/user-attachments/assets/fecde323-04c5-4b82-a08d-badcb184be6a" width="21" /></a> Linux
 
 #### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/archive.svg) 1. Install Dependencies
-   - Open a terminal and use your distribution's package manager to install the necessary build tools and libraries.
 
-   - **Debian / Ubuntu:**
-     ```bash
-     sudo apt-get update && sudo apt-get install build-essential
-     ```
-   - **Fedora / CentOS / RHEL:**
-     ```bash
-     sudo dnf install gcc-c++ make
-     ```
-   - **Arch Linux:**
-     ```bash
-     sudo pacman -S base-devel
-     ```
+- Open a terminal and use your distribution's package manager to install the necessary build tools and libraries.
+   <details><summary>Debian / Ubuntu</summary>
+   <p>
+      
+   ```bash
+   sudo apt-get update && sudo apt-get install build-essential
+   ```
+        
+   </p>
+   </details> 
+   
+   <details><summary>Fedora / CentOS / RHEL</summary>
+   <p>
+      
+   ```bash
+   sudo dnf install gcc-c++ make
+   ```
+        
+   </p>
+   </details> 
+   
+   <details><summary>Arch Linux</summary>
+   <p>
+      
+   ```bash
+   sudo pacman -S base-devel
+   ```
+   </p>
+   </details> 
 
 #### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/build.svg) 2. Compile
    - Navigate to the project's root directory in your terminal and run the `make` command:

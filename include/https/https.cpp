@@ -82,11 +82,12 @@ void https::listener(std::string ip, short enet_port)
             SSL_set_fd(ssl, fd);
             if (SSL_accept(ssl) > 0)
             {
-                char buf[213]; // @note size of growtopia's request.
+                char buf[600/*213*/]; // @note size of growtopia's request.
                 int length{ sizeof(buf ) }; // @note openssl is written in C so this will act as std::string::length()
 
-                if (SSL_read(ssl, buf, length) == length)
+                if (SSL_read(ssl, buf, length) > 0)
                 {
+                    printf("%s", buf);
                     if (std::string_view{buf, sizeof(buf )}.contains("POST /growtopia/server_data.php HTTP/1.1"))
                         SSL_write(ssl, response.c_str(), response.size());
                 }

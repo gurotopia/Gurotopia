@@ -24,6 +24,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="include\action\*.cpp" />
+    <ClCompile Include="include\action\dialog_return\*.cpp" />
     <ClCompile Include="include\commands\*.cpp" />
     <ClCompile Include="include\database\*.cpp" />
     <ClCompile Include="include\event_type\*.cpp" />

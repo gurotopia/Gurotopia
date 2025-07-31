@@ -3,11 +3,10 @@ CXXFLAGS = -std=c++2b -g -Iinclude -Iinclude/ssl -MMD -MP -MF $(BUILD_DIR)/$*.d
 
 LIBS := -L./include/enet/lib -L./include/mimalloc/lib -L./include/sqlite/lib -L./include/ssl/openssl/lib -L./include/ssl/crypto/lib
 
-# Build directory
 BUILD_DIR := build
 
 ifeq ($(OS),Windows_NT)
-    LIBS += -lssl_32 -lcrypto_32 -lenet_32 -lws2_32 -ladvapi32 -lcrypt32 -lwinmm -lmimalloc_32 -lsqlite3_32
+    LIBS += -lssl_32 -lcrypto_32 -lenet_32 -lws2_32 -lcrypt32 -lwinmm -lmimalloc_32 -lsqlite3_32
     TARGET_NAME := main.exe
 else
     LIBS += -lssl -lcrypto -lenet -lmimalloc -lsqlite3
@@ -19,8 +18,7 @@ PCH := $(BUILD_DIR)/pch.gch
 
 all: $(BUILD_DIR) $(PCH) $(TARGET)
 
-# Map source files to object files in build directory
-SOURCES := main.cpp $(wildcard include/**/*.cpp)
+SOURCES := main.cpp $(wildcard include/**/*.cpp) $(wildcard include/**/**/*.cpp) # todo
 OBJECTS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
 
 $(TARGET): $(OBJECTS)
@@ -29,6 +27,7 @@ $(TARGET): $(OBJECTS)
 $(BUILD_DIR) :
 	@mkdir -p $(BUILD_DIR)
 	@mkdir -p $(BUILD_DIR)/include/action
+	@mkdir -p $(BUILD_DIR)/include/action/dialog_return
 	@mkdir -p $(BUILD_DIR)/include/commands
 	@mkdir -p $(BUILD_DIR)/include/database
 	@mkdir -p $(BUILD_DIR)/include/event_type

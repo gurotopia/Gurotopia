@@ -157,7 +157,7 @@ void tile_change(ENetEvent& event, state state)
                         "add_label_with_icon|big|`w{1}``|left|{0}|\n"
                         "add_label|small|This item creates a new world! Enter a unique name for it.|left\n"
                         "add_text_input|name|New World Name||24|\n"
-                        "end_dialog|blast|Cancel|Create!|\n", // @todo rgt "Create!" is a purple-ish pink color
+                        "end_dialog|create_blast|Cancel|Create!|\n", // @todo rgt "Create!" is a purple-ish pink color
                         item.id, item.raw_name
                     ).c_str()
                 });

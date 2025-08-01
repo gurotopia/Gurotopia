@@ -247,47 +247,62 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             std::rotate(it, it + 1, recent_worlds.end());
         else 
             std::rotate(recent_worlds.begin(), recent_worlds.begin() + 1, recent_worlds.end());
+
         recent_worlds.back() = world.name;
 
         if (peer->user_id == world.owner) peer->prefix.front() = '2';
         else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix.front() = 'c';
 
-        u_char& role = peer->role;
-        if (peer->role == role::MODERATOR) peer->prefix = "#@";
-        else if (peer->role == role::DEVELOPER) peer->prefix = "8@";
         on::EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
-        peers(event, PEER_SAME_WORLD, [event, &peer, &world, role](ENetPeer& p) 
+
+        u_char& peer_role = peer->role;
+        if (peer->role == role::MODERATOR) peer->prefix = "#@";
+        else if (peer->role == role::DEVELOPER) peer->prefix = "8@";
+
+        peers(event, PEER_SAME_WORLD, [event, &peer, &world, peer_role](ENetPeer& p) 
         {
-            if (_peer[&p]->user_id != peer->user_id) 
+            auto &_p = _peer[&p];
+            printf("in world: %s\n", _p->ltoken[0].c_str());
+            if (_p->user_id != peer->user_id) 
             {
+                u_char& _p_role = _p->role;
+                if (_p->role == role::MODERATOR) _p->prefix = "#@";
+                else if (_p->role == role::DEVELOPER) _p->prefix = "8@";
+
                 packet::create(*event.peer, false, -1/* ff ff ff ff */, {
                     "OnSpawn", 
                     std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n",
-                        _peer[&p]->netid, _peer[&p]->user_id, static_cast<int>(_peer[&p]->pos.front()), static_cast<int>(_peer[&p]->pos.back()), 
-                        peer->prefix, _peer[&p]->ltoken[0], (role >= role::MODERATOR) ? "1" : "0", (role >= role::DEVELOPER) ? "1" : "0"
+                        _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), 
+                        peer->prefix, _p->ltoken[0], (_p_role >= role::MODERATOR) ? "1" : "0", (_p_role >= role::DEVELOPER) ? "1" : "0"
                     ).c_str()
                 });
-                std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors) };
-                packet::create(p, false, 0, {
-                    "OnConsoleMessage", 
-                    enter_message.c_str()
-                });
-                packet::create(p, false, 0, {
-                    "OnTalkBubble", 
-                    peer->netid, 
-                    enter_message.c_str()
+                /* removed type|local */
+                packet::create(p, false, -1/* ff ff ff ff */, {
+                    "OnSpawn", 
+                    std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n",
+                        peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), 
+                        peer->prefix, peer->ltoken[0], (peer_role >= role::MODERATOR) ? "1" : "0", (peer_role >= role::DEVELOPER) ? "1" : "0"
+                    ).c_str()
                 });
             }
-        }); // @note delete enter_message
-        /* @todo send this packet to everyone exept event.peer, and remove type|local */
+        });
         packet::create(*event.peer, false, -1/* ff ff ff ff */, {
             "OnSpawn", 
             std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\ntype|local\n",
                 peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), 
-                peer->prefix, peer->ltoken[0], (role >= role::MODERATOR) ? "1" : "0", (role >= role::DEVELOPER) ? "1" : "0"
+                peer->prefix, peer->ltoken[0], (peer_role >= role::MODERATOR) ? "1" : "0", (peer_role >= role::DEVELOPER) ? "1" : "0"
             ).c_str()
         });
+
+        inventory_visuals(event);
+        if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
+
+        packet::create(*event.peer, true, 0, {
+            "OnSetPos", 
+            std::vector<float>{peer->pos.front(), peer->pos.back()}
+         });
+
         auto section = [](const auto& range) 
         {
             if (range.empty()) return std::string{};
@@ -306,8 +321,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 world.name, section(buffs), world.visitors - 1, peers(event).size()
             ).c_str()
         });
-        if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
-        inventory_visuals(event);
     }
     catch (const std::exception& exc)
     {

@@ -256,52 +256,44 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         on::EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
 
-        u_char& peer_role = peer->role;
-        if (peer->role == role::MODERATOR) peer->prefix = "#@";
-        else if (peer->role == role::DEVELOPER) peer->prefix = "8@";
-
-        peers(event, PEER_SAME_WORLD, [event, &peer, &world, peer_role](ENetPeer& p) 
+        peers(event, PEER_SAME_WORLD, [event, &peer, &world](ENetPeer& p) 
         {
             auto &_p = _peer[&p];
-            printf("in world: %s\n", _p->ltoken[0].c_str());
+            _p->prefix = (_p->role == MODERATOR) ? "#@" : (_p->role == DEVELOPER) ? "8@" : _p->prefix;
+
+            constexpr std::string_view fmt = "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}";
+           
             if (_p->user_id != peer->user_id) 
             {
-                u_char& _p_role = _p->role;
-                if (_p->role == role::MODERATOR) _p->prefix = "#@";
-                else if (_p->role == role::DEVELOPER) _p->prefix = "8@";
-
                 packet::create(*event.peer, false, -1/* ff ff ff ff */, {
                     "OnSpawn", 
-                    std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n",
-                        _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), 
-                        peer->prefix, _p->ltoken[0], (_p_role >= role::MODERATOR) ? "1" : "0", (_p_role >= role::DEVELOPER) ? "1" : "0"
+                    std::format(fmt, 
+                        _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), peer->prefix, _p->ltoken[0], (_p->role >= MODERATOR) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", 
+                        ""
                     ).c_str()
                 });
-                /* removed type|local */
                 packet::create(p, false, -1/* ff ff ff ff */, {
                     "OnSpawn", 
-                    std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n",
-                        peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), 
-                        peer->prefix, peer->ltoken[0], (peer_role >= role::MODERATOR) ? "1" : "0", (peer_role >= role::DEVELOPER) ? "1" : "0"
+                    std::format(fmt,
+                        peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), peer->prefix, peer->ltoken[0], (peer->role >= MODERATOR) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
+                        ""
+                    ).c_str()
+                });
+            }
+            else 
+            {
+                packet::create(p, false, -1/* ff ff ff ff */, {
+                    "OnSpawn", 
+                    std::format(fmt, 
+                        _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), _p->prefix, _p->ltoken[0], (_p->role >= MODERATOR) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", 
+                        "type|local"
                     ).c_str()
                 });
             }
         });
-        packet::create(*event.peer, false, -1/* ff ff ff ff */, {
-            "OnSpawn", 
-            std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\ntype|local\n",
-                peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), 
-                peer->prefix, peer->ltoken[0], (peer_role >= role::MODERATOR) ? "1" : "0", (peer_role >= role::DEVELOPER) ? "1" : "0"
-            ).c_str()
-        });
 
         inventory_visuals(event);
         if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
-
-        packet::create(*event.peer, true, 0, {
-            "OnSetPos", 
-            std::vector<float>{peer->pos.front(), peer->pos.back()}
-         });
 
         auto section = [](const auto& range) 
         {

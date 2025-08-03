@@ -241,55 +241,40 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             }
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data
+        {
+            std::string *name = std::ranges::find(peer->recent_worlds, world.name);
+            std::string *first = name != peer->recent_worlds.end() ? name : peer->recent_worlds.begin();
 
-        auto &recent_worlds = peer->recent_worlds;
-        if (auto it = std::ranges::find(recent_worlds, world.name); it != recent_worlds.end()) 
-            std::rotate(it, it + 1, recent_worlds.end());
-        else 
-            std::rotate(recent_worlds.begin(), recent_worlds.begin() + 1, recent_worlds.end());
-
-        recent_worlds.back() = world.name;
+            std::rotate(first, first + 1, peer->recent_worlds.end());
+            peer->recent_worlds.back() = world.name;
+        } // @note delete name, first
 
         if (peer->user_id == world.owner) peer->prefix.front() = '2';
         else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix.front() = 'c';
 
         on::EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
+        peer->prefix = (peer->role == MODERATOR) ? "#@" : (peer->role == DEVELOPER) ? "8@" : peer->prefix;
 
         peers(event, PEER_SAME_WORLD, [event, &peer, &world](ENetPeer& p) 
         {
             auto &_p = _peer[&p];
-            _p->prefix = (_p->role == MODERATOR) ? "#@" : (_p->role == DEVELOPER) ? "8@" : _p->prefix;
 
             constexpr std::string_view fmt = "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}";
-           
-            if (_p->user_id != peer->user_id) 
-            {
-                packet::create(*event.peer, false, -1/* ff ff ff ff */, {
-                    "OnSpawn", 
-                    std::format(fmt, 
-                        _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), peer->prefix, _p->ltoken[0], (_p->role >= MODERATOR) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", 
-                        ""
-                    ).c_str()
-                });
-                packet::create(p, false, -1/* ff ff ff ff */, {
-                    "OnSpawn", 
-                    std::format(fmt,
-                        peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), peer->prefix, peer->ltoken[0], (peer->role >= MODERATOR) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
-                        ""
-                    ).c_str()
-                });
-            }
-            else 
-            {
-                packet::create(p, false, -1/* ff ff ff ff */, {
-                    "OnSpawn", 
-                    std::format(fmt, 
-                        _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), _p->prefix, _p->ltoken[0], (_p->role >= MODERATOR) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", 
-                        "type|local"
-                    ).c_str()
-                });
-            }
+            packet::create(*event.peer, false, -1/* ff ff ff ff */, {
+                "OnSpawn", 
+                std::format(fmt, 
+                    _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), _p->prefix, _p->ltoken[0], (_p->role >= MODERATOR) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", 
+                    ""
+                ).c_str()
+            });
+            packet::create(p, false, -1/* ff ff ff ff */, {
+                "OnSpawn", 
+                std::format(fmt,
+                    peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), peer->prefix, peer->ltoken[0], (peer->role >= MODERATOR) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
+                    (_p->user_id == peer->user_id) ? "type|local" : ""
+                ).c_str()
+            });
         });
 
         inventory_visuals(event);

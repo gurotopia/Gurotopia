@@ -52,7 +52,7 @@
         std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
         u_char punch_effect{}; // @note last equipped clothing that has a effect. supporting 0-255 effects.
 
-        signed skin_color{ -1429995521 };
+        unsigned skin_color{ 2864971775 };
 
         bool ghost{};
         bool double_jump{};

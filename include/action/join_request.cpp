@@ -242,8 +242,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data
         {
-            std::string *name = std::ranges::find(peer->recent_worlds, world.name);
-            std::string *first = name != peer->recent_worlds.end() ? name : peer->recent_worlds.begin();
+            auto name = std::ranges::find(peer->recent_worlds, world.name);
+            auto first = name != peer->recent_worlds.end() ? name : peer->recent_worlds.begin();
 
             std::rotate(first, first + 1, peer->recent_worlds.end());
             peer->recent_worlds.back() = world.name;

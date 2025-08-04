@@ -15,7 +15,7 @@ void drop_item(ENetEvent& event, const std::vector<std::string> &&pipes)
             else if (count < 0) count = 0;
 
     peer->emplace(slot(id, -count)); // @note take away
-    inventory_visuals(event);
+    modify_item_inventory(event, {id, count});
 
     float x_nabor = (peer->facing_left ? peer->pos[0] - 1 : peer->pos[0] + 1); // @note peer's naboring tile (drop position)
     item_change_object(event, {id, count}, {x_nabor, peer->pos[1]});

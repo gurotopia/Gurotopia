@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: f1fbcdfce9f4249da58f88c6a21fc543e5d6637a 2025-08-02
+    @version perent SHA: 711380c8333d46c678af51a0b13ea66e7fb0e8ad 2025-08-04
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -33,7 +33,6 @@ int main()
             .type = ENET_ADDRESS_TYPE_IPV4, 
             .port = server_data.port
         };
-        enet_address_is_any(&address);
 
         server = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu, 2zu, 0, 0);
         std::thread(&https::listener, server_data).detach();

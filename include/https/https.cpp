@@ -24,7 +24,7 @@ using namespace std::literals::chrono_literals;
 
 std::unordered_map<std::string, https::client> https::clients{};
 
-void https::listener(std::string ip, short enet_port)
+void https::listener(_server_data server_data)
 {
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
@@ -46,16 +46,20 @@ void https::listener(std::string ip, short enet_port)
     if (bind(socket, (struct sockaddr*)&addr, addrlen) < 0)
         puts("could not bind port 443.");
 
-    const std::string server_data =
+    printf("listening on %s:%d\n", server_data.server.c_str(), server_data.port);
+
+    const std::string Content =
         std::format(
             "server|{}\n"
             "port|{}\n"
-            "type|1\n"
-            "type2|1\n"
-            "#maint|Server under maintenance. Please try again later.\n"
-            "loginurl|login-gurotopia.vercel.app\n"
-            "meta|gurotopia\n"
-            "RTENDMARKERBS1001", ip, enet_port);
+            "type|{}\n"
+            "type2|{}\n"
+            "#maint|{}\n"
+            "loginurl|{}\n"
+            "meta|{}\n"
+            "RTENDMARKERBS1001", 
+            server_data.server, server_data.port, server_data.type, server_data.type2, server_data.maint, server_data.loginurl, server_data.meta
+        );
     const std::string response =
         std::format(
             "HTTP/1.1 200 OK\r\n"
@@ -63,7 +67,7 @@ void https::listener(std::string ip, short enet_port)
             "Content-Length: {}\r\n"
             "Connection: close\r\n"
             "\r\n{}",
-            server_data.size(), server_data).c_str();
+            Content.size(), Content).c_str();
 
     listen(socket, 18);
     while (true)

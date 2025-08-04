@@ -19,8 +19,6 @@ int main()
     printf("openssl/openssl %s\n", OpenSSL_version(OPENSSL_VERSION_STRING));
     
     if (!std::filesystem::exists("db")) std::filesystem::create_directory("db");
-
-    std::thread(&https::listener, "127.0.0.1", 17091).detach();
     {
         ENetCallbacks callbacks{
             .malloc = &mi_malloc,
@@ -30,14 +28,16 @@ int main()
         enet_initialize_with_callbacks(ENET_VERSION, &callbacks);
     } // @note delete callbacks
     {
+        ::_server_data server_data = init_server_data();
         ENetAddress address{
             .type = ENET_ADDRESS_TYPE_IPV4, 
-            .port = 17091
+            .port = server_data.port
         };
         enet_address_is_any(&address);
 
         server = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu, 2zu, 0, 0);
-    } // @note delete address
+        std::thread(&https::listener, server_data).detach();
+    } // @note delete server_data, address
     
     server->usingNewPacketForServer = true;
     server->checksum = enet_crc32;

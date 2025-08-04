@@ -205,7 +205,7 @@ state get_state(const std::vector<std::byte> &&packet)
     };
 }
 
-std::vector<std::byte> compress_state(const state &&s) 
+std::vector<std::byte> compress_state(const state &s) 
 {
     std::vector<std::byte> data(56, std::byte{ 00 });
     int *_4bit = reinterpret_cast<int*>(data.data());
@@ -244,5 +244,4 @@ void inventory_visuals(ENetEvent &event)
     }
 
 	enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
-    on::SetClothing(event); // @todo
 }

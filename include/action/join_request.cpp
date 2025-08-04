@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "on/EmoticonDataChanged.hpp"
 #include "on/BillboardChange.hpp"
+#include "on/SetClothing.hpp"
 #include "commands/weather.hpp"
 #include "tools/ransuu.hpp"
 #include "tools/string.hpp"
@@ -255,19 +256,27 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         on::EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
         peer->prefix = (peer->role == MODERATOR) ? "#@" : (peer->role == DEVELOPER) ? "8@" : peer->prefix;
-
+        
         peers(event, PEER_SAME_WORLD, [event, &peer, &world](ENetPeer& p) 
         {
             auto &_p = _peer[&p];
 
             constexpr std::string_view fmt = "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}";
-            packet::create(*event.peer, false, -1/* ff ff ff ff */, {
-                "OnSpawn", 
-                std::format(fmt, 
-                    _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), _p->prefix, _p->ltoken[0], (_p->role >= MODERATOR) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", 
-                    ""
-                ).c_str()
-            });
+            
+            if (_p->user_id != peer->user_id)
+            {
+                ENetEvent fake_event = ENetEvent{.peer = &p}; // @note this only houses peer data, not the actual event data.
+                on::SetClothing(fake_event);
+
+                packet::create(*event.peer, false, -1/* ff ff ff ff */, {
+                    "OnSpawn", 
+                    std::format(fmt, 
+                        _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), _p->prefix, _p->ltoken[0], (_p->role >= MODERATOR) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", 
+                        ""
+                    ).c_str()
+                });
+            }
+
             packet::create(p, false, -1/* ff ff ff ff */, {
                 "OnSpawn", 
                 std::format(fmt,
@@ -278,6 +287,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         });
 
         inventory_visuals(event);
+        on::SetClothing(event);
+        
         if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
 
         auto section = [](const auto& range) 

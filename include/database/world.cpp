@@ -202,7 +202,7 @@ void state_visuals(ENetEvent& event, state &&state)
 {
     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
-        send_data(p, compress_state(std::move(state)));
+        send_data(p, compress_state(state));
     });
 }
 
@@ -237,7 +237,7 @@ int item_change_object(ENetEvent& event, const std::array<short, 2zu>& im, const
         state.id = it.first->second.id;
         state.pos = {it.first->second.pos[0] * 32, it.first->second.pos[1] * 32};
     }
-    compress = compress_state(std::move(state));
+    compress = compress_state(state);
     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p)  
     {
         send_data(p, std::move(compress));
@@ -249,7 +249,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
 {
     state.type = 05; // @note PACKET_SEND_TILE_UPDATE_DATA
     state.peer_state = 0x08;
-    std::vector<std::byte> data = compress_state(std::move(state));
+    std::vector<std::byte> data = compress_state(state);
 
     short pos = 56;
     data.resize(pos + 8zu); // @note {2} {2} 00 00 00 00

@@ -1,9 +1,9 @@
 #include "pch.hpp"
 #include "on/SetClothing.hpp"
 #include "commands/punch.hpp"
-#include "equip.hpp"
+#include "item_activate.hpp"
 
-void equip(ENetEvent& event, state state)
+void item_activate(ENetEvent& event, state state)
 {
     auto &peer = _peer[event.peer];
     item &item = items[state.id];

@@ -1,12 +1,12 @@
 #include "pch.hpp"
 #include "on/NameChanged.hpp"
 #include "commands/weather.hpp"
-#include "equip.hpp"
+#include "item_activate.hpp"
 #include "tools/ransuu.hpp"
 #include "tools/string.hpp"
 #include "action/quit_to_exit.hpp"
 #include "action/join_request.hpp"
-#include "pickup.hpp"
+#include "item_activate_object.hpp"
 #include "tile_change.hpp"
 
 #include <cmath>
@@ -119,7 +119,7 @@ void tile_change(ENetEvent& event, state state)
             if (item.cat == std::byte{ 02 }) // pick up (item goes back in your inventory)
             {
                 int uid = item_change_object(event, {remember_id, 1}, state.pos);
-                pickup(event, ::state{.id = uid});
+                item_activate_object(event, ::state{.id = uid});
             }
             else // normal break (drop gem, seed, block & give XP)
             {
@@ -142,7 +142,7 @@ void tile_change(ENetEvent& event, state state)
         } // @note delete im, id
         else if (item.cloth_type != clothing::none) 
         {
-            equip(event, state); // @note imitate equip
+            item_activate(event, state);
             return; 
         }
         else if (item.type == std::byte{ type::CONSUMEABLE }) 

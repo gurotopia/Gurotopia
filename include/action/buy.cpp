@@ -9,7 +9,7 @@
 
 void action::buy(ENetEvent& event, const std::string& header)
 {
-    std::vector<std::string> pipes = readch(std::move(header), '|');
+    std::vector<std::string> pipes = readch(header, '|');
 
     auto &peer = _peer[event.peer];
 

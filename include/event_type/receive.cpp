@@ -15,7 +15,7 @@ void receive(ENetEvent& event)
             puts(header.c_str());
             
             std::ranges::replace(header, '\n', '|');
-            std::vector<std::string> pipes = readch(std::move(header), '|');
+            std::vector<std::string> pipes = readch(header, '|');
             
             const std::string action = (pipes[0zu] == "protocol") ? pipes[0zu] : std::format("{}|{}", pipes[0zu], pipes[1zu]);
             if (const auto i = action_pool.find(action); i != action_pool.end())

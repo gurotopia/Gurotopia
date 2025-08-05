@@ -6,7 +6,7 @@
 void action::logging_in(ENetEvent& event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
-    std::vector<std::string> pipes = readch(std::move(header), '|');
+    std::vector<std::string> pipes = readch(header, '|');
     if (pipes[2zu] == "ltoken")
     {
         const std::string decoded = base64_decode(pipes[3zu]);

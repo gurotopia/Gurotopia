@@ -12,23 +12,27 @@
             std::ofstream write("server_data.php");
             write << 
                 std::format(
-                    "server|{}|\n"
-                    "port|{}|\n"
-                    "type|{}|\n"
-                    "type2|{}|\n"
-                    "#maint|{}|\n"
-                    "loginurl|{}|\n"
-                    "meta|{}|\n"
+                    "server|{}\n"
+                    "port|{}\n"
+                    "type|{}\n"
+                    "type2|{}\n"
+                    "#maint|{}\n"
+                    "loginurl|{}\n"
+                    "meta|{}\n"
                     "RTENDMARKERBS1001", 
                     server_data.server, server_data.port, server_data.type, server_data.type2, server_data.maint, server_data.loginurl, server_data.meta
                 );
         } // @note close write
         else
         {
-            std::string str;
-            std::getline(file, str, '\0');
+            std::vector<std::string> pipes;
+            std::string line;
+            while (std::getline(file, line)) 
+            {
+                std::vector<std::string> pipe_pair = readch(line, '|'); // @note {}|{}
+                pipes.insert(pipes.end(), pipe_pair.begin(), pipe_pair.end());
+            }
 
-            std::vector<std::string> pipes = readch(std::move(str), '|');
             server_data.server = pipes[1];
             server_data.port = std::stoi(pipes[3]);
             server_data.type = std::stoi(pipes[5]);

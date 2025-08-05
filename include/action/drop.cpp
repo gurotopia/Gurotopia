@@ -4,7 +4,7 @@
 
 void action::drop(ENetEvent& event, const std::string& header)
 {
-    std::string itemID = readch(std::move(header), '|')[4];
+    std::string itemID = readch(header, '|')[4];
     
     item &item = items[atoi(itemID.c_str())];
 

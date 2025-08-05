@@ -171,6 +171,7 @@
     {
     public:
         u_short id{}; /* item identity */
+        std::byte property{};
         std::byte cat{};
         std::byte type{};
         std::string raw_name{}; /* the exact name of the item including uppercases */
@@ -191,6 +192,7 @@
         int mod5{}; // @note version 17 | Buster Brush {1815}
         int mod6{}; // @note version 18 | no clue...
         short mod7{}; // @note version 21 | 2025 transformation items
+        std::string info{}; // @note version 22 | item's info
     };
     extern std::unordered_map<u_short, item> items;
 

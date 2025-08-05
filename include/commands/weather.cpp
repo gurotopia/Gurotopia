@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include "weather.hpp"
 
 int get_weather_id(u_int item_id)
@@ -73,8 +74,21 @@ int get_weather_id(u_int item_id)
 
 void weather(ENetEvent& event, const std::string_view text)
 {
-    std::string id{ text.substr(sizeof("weather ")-1) };
-    if (id.empty()) return;
+    if (text.length() <= sizeof("weather ") - 1) 
+    {
+        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "`^Usage: /weather {id}" });
+        return;
+    }
+    std::string id{ text.substr(sizeof("weather ") - 1) };
+
+    if (!number(id)) 
+    {
+        packet::create(*event.peer, false, 0, {
+            "OnConsoleMessage",
+            "`4Invalid input. ``id must be a `wnumber``."
+        });
+        return;
+    }
 
     packet::create(*event.peer, false, 0, {
         "OnSetCurrentWeather",

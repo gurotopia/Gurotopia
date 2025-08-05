@@ -1,6 +1,6 @@
 /*
-    @copyright gurotopia (c) 25-5-2024
-    @version perent SHA: e0943e86b3679dc3232efb82d5c137e85be88ba9 (25/07/09)
+    @copyright gurotopia (c) 2024-05-25
+    @version perent SHA: c77f182282bb716d43b2b71b73734161e83a0a5c 2025-08-05
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -13,41 +13,37 @@
 int main()
 {
     /* libary version checker */
-#if defined(_MSC_VER)
     printf("microsoft/mimalloc beta-%d\n", MI_MALLOC_VERSION);
     printf("ZTzTopia/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
     printf("sqlite/sqlite3 %s\n", sqlite3_sourceid());
     printf("openssl/openssl %s\n", OpenSSL_version(OPENSSL_VERSION_STRING));
-#else
-    printf("\e[38;5;248mmicrosoft/mimalloc \e[1;37mbeta-%d\e[0m\n", MI_MALLOC_VERSION);
-    printf("\e[38;5;248mZTzTopia/enet \e[1;37m%d.%d.%d\e[0m\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
-    printf("\e[38;5;248msqlite/sqlite3 \e[1;37m%s\e[0m\n", sqlite3_sourceid());
-    printf("\e[38;5;248mopenssl/openssl \e[1;37m%s\e[0m\n", OpenSSL_version(OPENSSL_VERSION_STRING));
-#endif
-    if (!std::filesystem::exists("db")) std::filesystem::create_directory("db");
+    
+    std::filesystem::create_directory("db");
+    init_shouhin_tachi();
 
-    std::thread(&https::listener, "127.0.0.1", 17091).detach();
     {
         ENetCallbacks callbacks{
             .malloc = &mi_malloc,
             .free = &mi_free,
-            .no_memory = []() { printf("ENet memory overflow\n"); }
+            .no_memory = []() { puts("ENet memory overflow"); }
         };
         enet_initialize_with_callbacks(ENET_VERSION, &callbacks);
     } // @note delete callbacks
     {
+        ::_server_data server_data = init_server_data();
         ENetAddress address{
             .type = ENET_ADDRESS_TYPE_IPV4, 
-            .port = 17091
+            .port = server_data.port
         };
-        enet_address_is_any(&address);
 
         server = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu, 2zu, 0, 0);
-    } // @note delete address
-    
+        std::thread(&https::listener, server_data).detach();
+    } // @note delete server_data, address
     server->usingNewPacketForServer = true;
     server->checksum = enet_crc32;
     enet_host_compress_with_range_coder(server);
+
+    try // @note for people who don't use a debugger..
     {
         const uintmax_t size = std::filesystem::file_size("items.dat");
 
@@ -59,9 +55,11 @@ int main()
 
         std::ifstream("items.dat", std::ios::binary)
             .read(reinterpret_cast<char*>(&im_data[60zu]), size);
+
+        cache_items();
     } // @note delete size
-    cache_items();
-    init_shouhin_tachi();
+    catch (std::filesystem::filesystem_error error) { puts(error.what()); }
+    catch (...) { puts("unknown error occured during decoding items.dat"); } // @note if this appears, it's probably cache_items()...
 
     ENetEvent event{};
     while (true)

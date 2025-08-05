@@ -24,7 +24,7 @@ using namespace std::literals::chrono_literals;
 
 std::unordered_map<std::string, https::client> https::clients{};
 
-void https::listener(std::string ip, short enet_port)
+void https::listener(_server_data server_data)
 {
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
@@ -44,18 +44,22 @@ void https::listener(std::string ip, short enet_port)
     addr.sin_port = htons(443);
     socklen_t addrlen = sizeof(addr);
     if (bind(socket, (struct sockaddr*)&addr, addrlen) < 0)
-        printf("could not bind port 443.\n");
+        puts("could not bind port 443.");
 
-    const std::string server_data =
+    printf("listening on %s:%d\n", server_data.server.c_str(), server_data.port);
+
+    const std::string Content =
         std::format(
             "server|{}\n"
             "port|{}\n"
-            "type|1\n"
-            "type2|1\n"
-            "#maint|Server under maintenance. Please try again later.\n"
-            "loginurl|login-web-sigma.vercel.app\n"
-            "meta|gurotopia\n"
-            "RTENDMARKERBS1001", ip, enet_port);
+            "type|{}\n"
+            "type2|{}\n"
+            "#maint|{}\n"
+            "loginurl|{}\n"
+            "meta|{}\n"
+            "RTENDMARKERBS1001", 
+            server_data.server, server_data.port, server_data.type, server_data.type2, server_data.maint, server_data.loginurl, server_data.meta
+        );
     const std::string response =
         std::format(
             "HTTP/1.1 200 OK\r\n"
@@ -63,9 +67,9 @@ void https::listener(std::string ip, short enet_port)
             "Content-Length: {}\r\n"
             "Connection: close\r\n"
             "\r\n{}",
-            server_data.size(), server_data).c_str();
+            Content.size(), Content).c_str();
 
-    listen(socket, 9);
+    listen(socket, 18);
     while (true)
     {
         SOCKET fd = accept(socket, (struct sockaddr*)&addr, &addrlen);
@@ -82,11 +86,12 @@ void https::listener(std::string ip, short enet_port)
             SSL_set_fd(ssl, fd);
             if (SSL_accept(ssl) > 0)
             {
-                char buf[213]; // @note size of growtopia's request.
+                char buf[600/*213*/]; // @note size of growtopia's request.
                 int length{ sizeof(buf ) }; // @note openssl is written in C so this will act as std::string::length()
 
-                if (SSL_read(ssl, buf, length) == length)
+                if (SSL_read(ssl, buf, length) > 0)
                 {
+                    printf("%s", buf);
                     if (std::string_view{buf, sizeof(buf )}.contains("POST /growtopia/server_data.php HTTP/1.1"))
                         SSL_write(ssl, response.c_str(), response.size());
                 }

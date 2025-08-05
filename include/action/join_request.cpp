@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "on/EmoticonDataChanged.hpp"
 #include "on/BillboardChange.hpp"
+#include "on/SetClothing.hpp"
 #include "commands/weather.hpp"
 #include "tools/ransuu.hpp"
 #include "tools/string.hpp"
@@ -25,8 +26,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
     try 
     {
         auto &peer = _peer[event.peer];
-        std::string big_name{world_name.empty() ? readch(std::move(header), '|')[3] : world_name};
 
+        std::string big_name{world_name.empty() ? readch(header, '|')[3] : world_name};
         if (!alnum(big_name)) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
         
@@ -102,15 +103,48 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case std::byte{ type::SILKWORM }:
                     {
-                        std::string dummy = "test";
-                        data[pos - 2zu] = std::byte{ 01 };
-                        short len = dummy.length();
-                        data.resize(data.size() + 50zu/*@todo*/ + dummy.length());
+                        std::string dummy = "Lattish";
+                        data[pos - 2] = std::byte{ 0x01 };
+                        short len = static_cast<short>(dummy.length());
+                        data.resize(data.size() + 50zu/*@todo*/ + len);
+
                         data[pos++] = std::byte{ 0x1f };
-                        data[pos++] = std::byte{ 00 }; // @todo
+                        data[pos++] = std::byte{ 00 }; // @note died = 01
 
                         *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
                         for (const char& c : dummy) data[pos++] = static_cast<std::byte>(c);
+
+                        short *uVar1 = reinterpret_cast<short*>(&data[pos]);
+
+                        steady_clock::time_point dummy_1_day_age = steady_clock::now() + 24h;
+                        uVar1[0] = (steady_clock::now() - dummy_1_day_age) / 1s; pos += sizeof(short);
+                        uVar1[1] = (steady_clock::now() - dummy_1_day_age) / 24h; pos += sizeof(short);
+
+                        uVar1[2] = 0x0000; pos += sizeof(short);
+                        uVar1[3] = 0x0000; pos += sizeof(short); // @note silk ready to collect is 00 02
+
+                        *reinterpret_cast<int*>(&data[pos]) = 2; pos += sizeof(int); 
+                        data[pos++] = std::byte{ 01 };
+                        uVar1 = reinterpret_cast<short*>(&data[pos]);
+
+                        /* Hungry */
+                        steady_clock::time_point dummy_hunger = steady_clock::now() + 13h;
+                        uVar1[4] = (steady_clock::now() - dummy_hunger) / 1s; pos += sizeof(short);
+                        uVar1[5] = 1; pos += sizeof(short);
+
+                        /* Thirsty */
+                        steady_clock::time_point dummy_thirst = steady_clock::now() + 13h;
+                        uVar1[6] = (steady_clock::now() - dummy_thirst) / 1s; pos += sizeof(short);
+                        uVar1[7] = 1; pos += sizeof(short);
+
+                        /*                                      B G R A */
+                        *reinterpret_cast<int*>(&data[pos]) = 0x496628ff; pos += sizeof(int);
+                        uVar1 = reinterpret_cast<short*>(&data[pos]);
+
+                        /* ill */
+                        uVar1[8] = 0x0000; pos += sizeof(short);
+                        uVar1[9] = 0; pos += sizeof(short);
+                        break;
                     }
                     case std::byte { type::ENTRANCE }:
                     {
@@ -208,53 +242,55 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             }
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data
+        {
+            auto name = std::ranges::find(peer->recent_worlds, world.name);
+            auto first = name != peer->recent_worlds.end() ? name : peer->recent_worlds.begin();
 
-        auto &recent_worlds = peer->recent_worlds;
-        if (auto it = std::ranges::find(recent_worlds, world.name); it != recent_worlds.end()) 
-            std::rotate(it, it + 1, recent_worlds.end());
-        else 
-            std::rotate(recent_worlds.begin(), recent_worlds.begin() + 1, recent_worlds.end());
-        recent_worlds.back() = world.name;
+            std::rotate(first, first + 1, peer->recent_worlds.end());
+            peer->recent_worlds.back() = world.name;
+        } // @note delete name, first
 
         if (peer->user_id == world.owner) peer->prefix.front() = '2';
         else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix.front() = 'c';
 
-        char& role = peer->role;
-        if (role == role::MODERATOR) peer->prefix = "8@";
-        else if (role == role::DEVELOPER) peer->prefix = "6@";
         on::EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
-        peers(event, PEER_SAME_WORLD, [event, &peer, &world, role](ENetPeer& p) 
+        peer->prefix = (peer->role == MODERATOR) ? "#@" : (peer->role == DEVELOPER) ? "8@" : peer->prefix;
+        
+        peers(event, PEER_SAME_WORLD, [event, &peer, &world](ENetPeer& p) 
         {
-            if (_peer[&p]->user_id != peer->user_id) 
+            auto &_p = _peer[&p];
+
+            constexpr std::string_view fmt = "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}";
+            
+            if (_p->user_id != peer->user_id)
             {
+                ENetEvent fake_event = ENetEvent{.peer = &p}; // @note this only houses peer data, not the actual event data.
+                on::SetClothing(fake_event);
+
                 packet::create(*event.peer, false, -1/* ff ff ff ff */, {
                     "OnSpawn", 
-                    std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n",
-                        _peer[&p]->netid, _peer[&p]->user_id, static_cast<int>(_peer[&p]->pos.front()), static_cast<int>(_peer[&p]->pos.back()), 
-                        peer->prefix, _peer[&p]->ltoken[0], (role >= role::MODERATOR) ? "1" : "0", (role >= role::DEVELOPER) ? "1" : "0"
+                    std::format(fmt, 
+                        _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), _p->prefix, _p->ltoken[0], (_p->role >= MODERATOR) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", 
+                        ""
                     ).c_str()
                 });
-                std::string enter_message{ std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors) };
-                packet::create(p, false, 0, {
-                    "OnConsoleMessage", 
-                    enter_message.c_str()
-                });
-                packet::create(p, false, 0, {
-                    "OnTalkBubble", 
-                    peer->netid, 
-                    enter_message.c_str()
-                });
             }
-        }); // @note delete enter_message
-        /* @todo send this packet to everyone exept event.peer, and remove type|local */
-        packet::create(*event.peer, false, -1/* ff ff ff ff */, {
-            "OnSpawn", 
-            std::format("spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\ntype|local\n",
-                peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), 
-                peer->prefix, peer->ltoken[0], (role >= role::MODERATOR) ? "1" : "0", (role >= role::DEVELOPER) ? "1" : "0"
-            ).c_str()
+
+            packet::create(p, false, -1/* ff ff ff ff */, {
+                "OnSpawn", 
+                std::format(fmt,
+                    peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), peer->prefix, peer->ltoken[0], (peer->role >= MODERATOR) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
+                    (_p->user_id == peer->user_id) ? "type|local" : ""
+                ).c_str()
+            });
         });
+
+        inventory_visuals(event);
+        on::SetClothing(event);
+        
+        if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
+
         auto section = [](const auto& range) 
         {
             if (range.empty()) return std::string{};
@@ -273,8 +309,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 world.name, section(buffs), world.visitors - 1, peers(event).size()
             ).c_str()
         });
-        if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
-        inventory_visuals(event);
     }
     catch (const std::exception& exc)
     {

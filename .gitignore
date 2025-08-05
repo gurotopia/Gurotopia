@@ -2,13 +2,15 @@
 build/
 
 # MSVC
+.vs/
 .msvc/
 
-
 # lingering files
+main.out
 main.exe
 main.pdb
 items.dat
+server_data.php
 
 # MSVC linker
 main.ilk

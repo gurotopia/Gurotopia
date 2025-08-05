@@ -10,8 +10,10 @@
 #include "join_request.hpp"
 #include "quit_to_exit.hpp"
 #include "respawn.hpp"
+#include "setSkin.hpp"
 #include "input.hpp"
 #include "drop.hpp"
+#include "info.hpp"
 #include "trash.hpp"
 #include "wrench.hpp"
 #include "itemfavourite.hpp"
@@ -36,8 +38,10 @@ std::unordered_map<std::string, std::function<void(ENetEvent&, const std::string
     {"action|quit_to_exit", std::bind(&action::quit_to_exit, std::placeholders::_1, std::placeholders::_2, false)},
     {"action|respawn", std::bind(&action::respawn, std::placeholders::_1, std::placeholders::_2)},
     {"action|respawn_spike", std::bind(&action::respawn, std::placeholders::_1, std::placeholders::_2)},
+    {"action|setSkin", std::bind(&action::setSkin, std::placeholders::_1, std::placeholders::_2)},
     {"action|input", std::bind(&action::input, std::placeholders::_1, std::placeholders::_2)},
     {"action|drop", std::bind(&action::drop, std::placeholders::_1, std::placeholders::_2)},
+    {"action|info", std::bind(&action::info, std::placeholders::_1, std::placeholders::_2)},
     {"action|trash", std::bind(&action::trash, std::placeholders::_1, std::placeholders::_2)},
     {"action|wrench", std::bind(&action::wrench, std::placeholders::_1, std::placeholders::_2)},
     {"action|itemfavourite", std::bind(&action::itemfavourite, std::placeholders::_1, std::placeholders::_2)},

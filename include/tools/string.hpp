@@ -7,7 +7,7 @@
         @param c the char to search for and split
         @return std::vector<std::string> storing each split off from c found in the str.
     */
-    extern std::vector<std::string> readch(const std::string &&str, char c);
+    extern std::vector<std::string> readch(const std::string &str, char c);
 
     /*
         @return true if string contains ONLY alphabet [a, b, c] or number [1, 2, 3] 

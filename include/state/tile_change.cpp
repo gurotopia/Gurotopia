@@ -1,12 +1,12 @@
 #include "pch.hpp"
 #include "on/NameChanged.hpp"
 #include "commands/weather.hpp"
-#include "equip.hpp"
+#include "item_activate.hpp"
 #include "tools/ransuu.hpp"
 #include "tools/string.hpp"
 #include "action/quit_to_exit.hpp"
 #include "action/join_request.hpp"
-#include "pickup.hpp"
+#include "item_activate_object.hpp"
 #include "tile_change.hpp"
 
 #include <cmath>
@@ -34,16 +34,36 @@ void tile_change(ENetEvent& event, state state)
         if (state.id == 18) // @note punching a block
         {
             if (item.id == 0) return;
-            if (item.type == std::byte{ type::STRONG }) throw std::runtime_error("It's too strong to break.");
-            if (item.type == std::byte{ type::MAIN_DOOR }) throw std::runtime_error("(stand over and punch to use)");
 
             std::vector<std::pair<short, short>> im{}; // @note list of dropped items
             ransuu ransuu;
+
+            switch (item.id)
+            {
+                case 758: // @note Roulette Wheel
+                {
+                    u_short number = ransuu[{0, 36}];
+                    char color = (number == 0) ? '2' : (ransuu[{0, 3}] < 2) ? 'b' : '4';
+                    std::string message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", peer->prefix, peer->ltoken[0], color, number);
+                    peers(event, PEER_SAME_WORLD, [&peer, message](ENetPeer& p)
+                    {
+                        packet::create(p, false, 2000, { "OnTalkBubble", peer->netid, message.c_str() });
+                        packet::create(p, false, 2000, { "OnConsoleMessage", message.c_str() });
+                    });
+                    break;
+                }
+            }
             switch (item.type)
             {
-                case std::byte{ type::LOCK }: // @todo add message saying who owns the lock.
+                case std::byte{ type::STRONG }: throw std::runtime_error("It's too strong to break."); break;
+                case std::byte{ type::MAIN_DOOR }: throw std::runtime_error("(stand over and punch to use)"); break;
+                case std::byte{ type::LOCK }:
                 {
-                    if (peer->user_id != w->second.owner) return;
+                    if (peer->user_id != w->second.owner) 
+                    {
+                        // @todo add message saying who owns the lock.
+                        return;
+                    }
                     break;
                 }
                 case std::byte{ type::SEED }:
@@ -57,16 +77,10 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case std::byte{ type::WEATHER_MACHINE }:
                 {
-                    int remember_weather{0};
-                    if (!block.toggled) 
+                    block.toggled = (block.toggled) ? false : true;
+                    peers(event, PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
-                        block.toggled = true;
-                        remember_weather = get_weather_id(item.id);
-                    }
-                    else block.toggled = false;
-                    peers(event, PEER_SAME_WORLD, [remember_weather](ENetPeer& p)
-                    {
-                        packet::create(p, false, 0, { "OnSetCurrentWeather", remember_weather });
+                        packet::create(p, false, 0, { "OnSetCurrentWeather", (block.toggled) ? get_weather_id(item.id) : 0 });
                     });
                     for (::block &b : w->second.blocks)
                         if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
@@ -104,8 +118,8 @@ void tile_change(ENetEvent& event, state state)
 
             if (item.cat == std::byte{ 02 }) // pick up (item goes back in your inventory)
             {
-                int uid = drop_visuals(event, {remember_id, 1}, state.pos);
-                pickup(event, ::state{.id = uid});
+                int uid = item_change_object(event, {remember_id, 1}, state.pos);
+                item_activate_object(event, ::state{.id = uid});
             }
             else // normal break (drop gem, seed, block & give XP)
             {
@@ -117,7 +131,7 @@ void tile_change(ENetEvent& event, state state)
                     if (ransuu[{0, 11}] <= 1) im.emplace_back(remember_id + 1, 1);
                 }
                 for (std::pair<short, short> &i : im)
-                    drop_visuals(event, {i.first, i.second},
+                    item_change_object(event, {i.first, i.second},
                         {
                             static_cast<float>(state.punch[0]) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
                             static_cast<float>(state.punch[1]) + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
@@ -128,7 +142,9 @@ void tile_change(ENetEvent& event, state state)
         } // @note delete im, id
         else if (item.cloth_type != clothing::none) 
         {
-            equip(event, state); // @note imitate equip
+            if (state.punch != std::array<int, 2zu>{ std::lround(peer->pos[0]), std::lround(peer->pos[1]) }) return;
+
+            item_activate(event, state);
             return; 
         }
         else if (item.type == std::byte{ type::CONSUMEABLE }) 
@@ -143,7 +159,7 @@ void tile_change(ENetEvent& event, state state)
                         "add_label_with_icon|big|`w{1}``|left|{0}|\n"
                         "add_label|small|This item creates a new world! Enter a unique name for it.|left\n"
                         "add_text_input|name|New World Name||24|\n"
-                        "end_dialog|blast|Cancel|Create!|\n", // @todo rgt "Create!" is a purple-ish pink color
+                        "end_dialog|create_blast|Cancel|Create!|\n", // @todo rgt "Create!" is a purple-ish pink color
                         item.id, item.raw_name
                     ).c_str()
                 });

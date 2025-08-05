@@ -23,7 +23,16 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="include/**/*.cpp" />
+    <ClCompile Include="include\action\*.cpp" />
+    <ClCompile Include="include\action\dialog_return\*.cpp" />
+    <ClCompile Include="include\commands\*.cpp" />
+    <ClCompile Include="include\database\*.cpp" />
+    <ClCompile Include="include\event_type\*.cpp" />
+    <ClCompile Include="include\https\*.cpp" />
+    <ClCompile Include="include\on\*.cpp" />
+    <ClCompile Include="include\packet\*.cpp" />
+    <ClCompile Include="include\state\*.cpp" />
+    <ClCompile Include="include\tools\*.cpp" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

@@ -12,13 +12,10 @@ void receive(ENetEvent& event)
         case 2: case 3: 
         {
             std::string header{data.begin() + 4, data.end() - 1};
-#if defined(_MSC_VER)
-            printf("%s\n", header.c_str());
-#else
-            printf("\e[38;5;249m%s\e[0m\n", header.c_str());
-#endif
+            puts(header.c_str());
+            
             std::ranges::replace(header, '\n', '|');
-            std::vector<std::string> pipes = readch(std::move(header), '|');
+            std::vector<std::string> pipes = readch(header, '|');
             
             const std::string action = (pipes[0zu] == "protocol") ? pipes[0zu] : std::format("{}|{}", pipes[0zu], pipes[1zu]);
             if (const auto i = action_pool.find(action); i != action_pool.end())

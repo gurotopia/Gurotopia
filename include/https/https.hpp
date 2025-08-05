@@ -4,10 +4,11 @@
 
 #include <unordered_map>
 #include <chrono>
+#include "server_data.hpp" // @todo make this independent
 
 namespace https
 {
-    extern void listener(std::string ip, short enet_port);
+    extern void listener(_server_data server_data);
 
     class client
     {

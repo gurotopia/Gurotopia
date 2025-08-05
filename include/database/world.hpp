@@ -24,6 +24,13 @@
     };
     #define cord(x,y) (y * 100 + x)
 
+    class tamagotchi
+    {
+    public:
+        std::string name{};
+        std::array<int, 2zu> pos;
+    };
+
     class door 
     {
     public:
@@ -57,19 +64,24 @@
 
         u_char visitors{0}; // @note the current number of peers in a world, excluding invisable peers
 
-        std::vector<block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
-        std::vector<door> doors;
+        std::vector<::block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
+        std::vector<::tamagotchi> tamagotchi_tachi;
+        std::vector<::door> doors;
         int ifloat_uid{0}; // @note floating item UID
         std::unordered_map<int, ifloat> ifloats{}; // @note (i)tem floating
         ~world();
     };
     extern std::unordered_map<std::string, world> worlds;
 
+    extern void send_data(ENetPeer& peer, const std::vector<std::byte> &&data);
+
     extern void state_visuals(ENetEvent& event, state &&s);
 
     extern void tile_apply_damage(ENetEvent& event, state s, block& b);
 
-    extern int drop_visuals(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid = 0);
+    extern void modify_item_inventory(ENetEvent& event, const std::array<short, 2zu>& im);
+
+    extern int item_change_object(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid = 0);
 
     extern void tile_update(ENetEvent &event, state s, block &b, world& w);
 

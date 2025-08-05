@@ -1,5 +1,15 @@
 #include "pch.hpp"
+#include "on/SetClothing.hpp"
 #include "punch.hpp"
+
+u_char get_punch_id(u_int item_id)
+{
+    switch (item_id)
+    {
+        // @todo
+        default: return 0;
+    }
+}
 
 void punch(ENetEvent& event, const std::string_view text) 
 {
@@ -8,11 +18,6 @@ void punch(ENetEvent& event, const std::string_view text)
 
     auto &peer = _peer[event.peer];
 
-    state_visuals(event, 
-    {
-        .type = 0x14 | ((0x808000 + stoi(number)) << 8), // @note 0x8080{}14
-        .netid = _peer[event.peer]->netid,
-        .pos = { peer->pos[0] * 32, peer->pos[1] * 32 },
-        .speed = { 250, 800 } // @todo these are just random numbers I put. for my future-self/contributors please add the proper numbers.
-    });
+    peer->punch_effect = stoi(number);
+    on::SetClothing(event);
 }

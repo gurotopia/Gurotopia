@@ -19,7 +19,15 @@
         bool perItem{}; // @note true if world locks per item, false if items per world lock
     };
 
-    enum role : char {
+    class Friend {
+    public:
+        std::string name{};
+        bool ignore{};
+        bool block{};
+        bool mute{};
+    };
+
+    enum role : u_char {
         PLAYER, 
         MODERATOR, 
         DEVELOPER
@@ -38,11 +46,17 @@
 
         signed netid{ 0 }; // @note peer's netid is world identity. this will be useful for many packet sending
         int user_id{}; // @note unqiue user id.
-        std::array<std::string, 2zu> ltoken{}; // @note peer's ltoken e.g. {growid, password}
+        std::array<std::string, 2zu> ltoken{}; // @note {growid, password}
         std::string prefix{ "w" }; // @note display name color, default: "w" (White)
-        char role{role::PLAYER};
+        u_char role{};
         std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
-        signed skin_color{ -1429995521 };
+        u_char punch_effect{}; // @note last equipped clothing that has a effect. supporting 0-255 effects.
+
+        unsigned skin_color{ 2864971775 };
+
+        bool ghost{};
+        bool double_jump{};
+
         Billboard billboard{};
 
         std::array<float, 2zu> pos{}; // @note position {x, y}
@@ -69,6 +83,8 @@
         std::array<std::string, 200zu> my_worlds{}; // @note first 200 relevant worlds locked by peer.
         
         std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming
+
+        std::array<Friend, 25> friends;
         
         ~peer();
     };
@@ -104,7 +120,7 @@
     extern state get_state(const std::vector<std::byte> &&packet);
 
     /* put it back into it's original form */
-    extern std::vector<std::byte> compress_state(const state &&s);
+    extern std::vector<std::byte> compress_state(const state &s);
 
     extern void inventory_visuals(ENetEvent &event);
 

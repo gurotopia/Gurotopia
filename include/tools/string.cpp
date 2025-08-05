@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "tools/string.hpp"
 
-std::vector<std::string> readch(const std::string &&str, char c) 
+std::vector<std::string> readch(const std::string &str, char c) 
 {
     std::vector<std::string> result;
     result.reserve(std::ranges::count(str, c) + 1);

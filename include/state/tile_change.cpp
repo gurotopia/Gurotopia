@@ -142,6 +142,8 @@ void tile_change(ENetEvent& event, state state)
         } // @note delete im, id
         else if (item.cloth_type != clothing::none) 
         {
+            if (state.punch != std::array<int, 2zu>{ std::lround(peer->pos[0]), std::lround(peer->pos[1]) }) return;
+
             item_activate(event, state);
             return; 
         }

@@ -11,6 +11,7 @@ void warp(ENetEvent& event, const std::string_view text)
         return;
     }
     std::string world_name{ text.substr(sizeof("warp ") - 1) };
+    std::for_each(world_name.begin(), world_name.end(), [](char& c) { c = std::toupper(c); });
 
     packet::action(*event.peer, "log", std::format("msg| `6/warp {}``", world_name));
     packet::create(*event.peer, false, 0, { "OnSetFreezeState", 1 });

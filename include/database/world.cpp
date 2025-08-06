@@ -227,17 +227,30 @@ void modify_item_inventory(ENetEvent& event, const std::array<short, 2zu>& im)
 int item_change_object(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid) 
 {
     state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
-    if (im[1] == 0 || im[0] == 0)
+
+    auto w = worlds.find(_peer[event.peer]->recent_worlds.back());
+    if (w == worlds.end()) return -1;
+
+    auto f = std::find_if(w->second.ifloats.begin(), w->second.ifloats.end(), [&](const std::pair<const int, ifloat>& entry) {
+        return uid == 0 && entry.second.id == im[0] && entry.second.pos == pos;
+    });
+    if (f != w->second.ifloats.end()) // @note merge drop
+    {
+        f->second.count += im[1];
+        state.netid = -3; // @note fd ff ff ff
+        state.uid = f->first;
+        state.count = static_cast<float>(f->second.count);
+        state.id = f->second.id;
+        state.pos = {f->second.pos[0] * 32, f->second.pos[1] * 32};
+    }
+    else if (im[1] == 0 || im[0] == 0) // @note remove drop
     {
         state.netid = _peer[event.peer]->netid;
         state.uid = -1;
         state.id = uid;
     }
-    else
+    else // @note add new drop
     {
-        auto w = worlds.find(_peer[event.peer]->recent_worlds.back());
-        if (w == worlds.end()) return -1;
-
         auto it = w->second.ifloats.emplace(++w->second.ifloat_uid, ifloat{im[0], im[1], pos}); // @note a iterator ahead of time
         state.netid = -1;
         state.uid = it.first->first;

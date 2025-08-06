@@ -9,7 +9,7 @@
 #else
     using namespace std::chrono::_V2;
 #endif
-
+using namespace std::literals::chrono_literals;
 
 class world_db {
 private:
@@ -311,6 +311,16 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
             *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
             for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
             *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
+            break;
+        }
+        case std::byte{ type::SEED }:
+        {
+            data[pos - 2zu] = std::byte{ 0x11 };
+            data.resize(pos + 1zu + 5zu);
+
+            data[pos++] = std::byte{ 04 };
+            *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
+            data[pos++] = std::byte{ 03 }; // @note no clue...
             break;
         }
     }

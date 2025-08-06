@@ -10,6 +10,7 @@
     #include <unistd.h>
     #include <arpa/inet.h>
     #include <netinet/in.h>
+    #include <netinet/tcp.h> // @note TCP_DEFER_ACCEPT
     #include <sys/socket.h>
 
     #define SOCKET int
@@ -72,7 +73,8 @@ void https::listener(_server_data server_data)
             "\r\n{}",
             Content.size(), Content).c_str();
 
-#ifndef _WIN32
+#ifdef TCP_DEFER_ACCEPT // @note unix
+    int enable = 1;
     setsockopt(socket, IPPROTO_TCP, TCP_DEFER_ACCEPT, &enable, sizeof(enable));
 #endif
 

@@ -187,6 +187,17 @@ std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::fun
     return _peers;
 }
 
+void safe_disconnect_peers(int signal)
+{
+    for (ENetPeer &p : std::span(server->peers, server->peerCount))
+        if (p.state == ENET_PEER_STATE_CONNECTED) 
+        {
+            enet_peer_disconnect(&p, 0);
+        }
+
+    enet_deinitialize();
+}
+
 state get_state(const std::vector<std::byte> &&packet) 
 {
     const int *_4bit = reinterpret_cast<const int*>(packet.data());

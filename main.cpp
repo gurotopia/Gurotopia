@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 4b3a1d9bc2a41a46e230ea7afa3179fc6385c5f0 2025-08-06
+    @version perent SHA: 92cc449c618b4ad745af7fd0ff420fdfa5fc9adf 2025-08-06
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -9,9 +9,16 @@
 #include "include/tools/string.hpp"
 #include "include/https/https.hpp"
 #include <filesystem>
+#include <csignal>
 
 int main()
 {
+    /* !! please press Ctrl + C when restarting or stopping server !! */
+    std::signal(SIGINT, safe_disconnect_peers);
+#ifdef SIGHUP // @note unix
+    std::signal(SIGHUP,  safe_disconnect_peers); // @note itty, SSH problems
+#endif
+
     /* libary version checker */
     printf("microsoft/mimalloc beta-%d\n", MI_MALLOC_VERSION);
     printf("ZTzTopia/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);

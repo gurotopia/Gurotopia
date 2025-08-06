@@ -104,6 +104,8 @@
 
     extern std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition = PEER_ALL, std::function<void(ENetPeer&)> fun = [](ENetPeer& peer){});
 
+    void safe_disconnect_peers(int signal);
+
     class state {
     public:
         int type{};

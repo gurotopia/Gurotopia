@@ -3,8 +3,14 @@
 
 void sb(ENetEvent& event, const std::string_view text)
 {
+    if (text.length() <= sizeof("sb ") - 1) 
+    {
+        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "Usage: /sb `w{message}``" });
+        return;
+    }
     std::string message{ text.substr(sizeof("sb ")-1) };
     auto &peer = _peer[event.peer];
+    
 
     auto it = worlds.find(peer->recent_worlds.back());
     if (it == worlds.end()) return;

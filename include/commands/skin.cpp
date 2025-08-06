@@ -12,7 +12,7 @@ void skin(ENetEvent& event, const std::string_view text)
     }
     std::string id{ text.substr(sizeof("skin ")-1) };
 
-    if (atoi(id.c_str()) == 0) // @note so we can use negative skin colors
+    if (atol(id.c_str()) == 0)
     {
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage",
@@ -21,6 +21,6 @@ void skin(ENetEvent& event, const std::string_view text)
         return;
     }
 
-    _peer[event.peer]->skin_color = stoi(id);
+    _peer[event.peer]->skin_color = stol(id);
     on::SetClothing(event);
 }

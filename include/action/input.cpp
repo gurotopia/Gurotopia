@@ -12,7 +12,12 @@
 void action::input(ENetEvent& event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
-    std::string text{readch(header, '|')[4]};
+
+    std::vector<std::string> pipes = readch(header, '|');
+    if (pipes.size() < 5) return;
+    if (pipes[3] != "text") return;
+
+    std::string text = pipes[4];
 
     if (text.front() == '\r' || std::ranges::all_of(text, ::isspace)) return;
     text.erase(text.begin(), std::find_if_not(text.begin(), text.end(), ::isspace));

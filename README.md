@@ -59,33 +59,22 @@ You can build Gurotopia on Windows using either **MSYS2** (recommended) or **MSV
 
 #### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/archive.svg) 1. Install Dependencies
 
-- Open a terminal and use your distribution's package manager to install the necessary build tools and libraries.
-   <details><summary>Debian / Ubuntu</summary>
+- enter command associated with your distribution into the terminal to install nessesary tools.
+   <details><summary><img width="18" height="18" src="https://github.com/user-attachments/assets/8359ba6e-a9b2-4500-893f-61eaf40e2478" /> Arch</summary>
+   <p>
+      
+   ```bash
+   sudo pacman -S base-devel
+   ```
+   </p>
+   </details> 
+   <details><summary><img width="18" height="18" src="https://github.com/user-attachments/assets/742f35c4-3e69-450e-8095-9fabe9ecd0d8" /> Debian <img width="18" height="18" src="https://github.com/user-attachments/assets/46f0770e-f4ed-480b-851d-c90b05fae52f" /> Ubuntu</summary>
    <p>
       
    ```bash
    sudo apt-get update && sudo apt-get install build-essential
    ```
         
-   </p>
-   </details> 
-   
-   <details><summary>Fedora / CentOS / RHEL</summary>
-   <p>
-      
-   ```bash
-   sudo dnf install gcc-c++ make
-   ```
-        
-   </p>
-   </details> 
-   
-   <details><summary>Arch Linux</summary>
-   <p>
-      
-   ```bash
-   sudo pacman -S base-devel
-   ```
    </p>
    </details> 
 

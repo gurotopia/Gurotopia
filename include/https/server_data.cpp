@@ -26,10 +26,9 @@
         else
         {
             std::vector<std::string> pipes;
-            std::string line;
-            while (std::getline(file, line)) 
+            for (std::string line; std::getline(file, line); ) 
             {
-                std::vector<std::string> pipe_pair = readch(line, '|'); // @note {}|{}
+                auto pipe_pair = readch(line, '|');
                 pipes.insert(pipes.end(), pipe_pair.begin(), pipe_pair.end());
             }
 

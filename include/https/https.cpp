@@ -29,7 +29,7 @@ void https::listener(_server_data server_data)
         SSL_CTX_use_PrivateKey_file(ctx, "resources/ctx/server.key", SSL_FILETYPE_PEM) <= 0)
             ERR_print_errors_fp(stderr);
 
-    SOCKET socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    SOCKET socket = ::socket(AF_INET, SOCK_STREAM, 0);
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;

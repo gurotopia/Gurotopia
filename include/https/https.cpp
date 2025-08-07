@@ -20,7 +20,6 @@ void https::listener(_server_data server_data)
 {
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
-    constexpr int enable = 1;
 
     SSL_CTX *ctx = SSL_CTX_new(TLS_server_method());
     if (ctx == nullptr)
@@ -30,25 +29,7 @@ void https::listener(_server_data server_data)
         SSL_CTX_use_PrivateKey_file(ctx, "resources/ctx/server.key", SSL_FILETYPE_PEM) <= 0)
             ERR_print_errors_fp(stderr);
 
-    SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1);
-
-    SSL_CTX_set_cipher_list(ctx, "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305");
-    SSL_CTX_set_ecdh_auto(ctx, 1);
-
-    SSL_CTX_set_mode(ctx, SSL_MODE_RELEASE_BUFFERS | SSL_MODE_AUTO_RETRY);
-
     SOCKET socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-
-    setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(enable));
-#ifdef SO_REUSEPORT // @note unix
-    setsockopt(socket, SOL_SOCKET, SO_REUSEPORT, (char*)&enable, sizeof(enable));
-#endif
-#ifdef TCP_FASTOPEN
-    setsockopt(socket, IPPROTO_TCP, TCP_FASTOPEN, (char*)&enable, sizeof(enable));
-#endif
-#ifdef TCP_DEFER_ACCEPT // @note unix
-    setsockopt(socket, IPPROTO_TCP, TCP_DEFER_ACCEPT, &enable, sizeof(enable));
-#endif
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
@@ -86,8 +67,6 @@ void https::listener(_server_data server_data)
         SOCKET fd = accept(socket, (struct sockaddr*)&addr, &addrlen);
         if (fd < 0) continue;
 
-        setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&enable, sizeof(enable));
-
         SSL *ssl = SSL_new(ctx);
         SSL_set_fd(ssl, fd);
         
@@ -97,13 +76,18 @@ void https::listener(_server_data server_data)
             char buf[213]; // @note size of growtopia's POST request.
             int length{ sizeof(buf) };
 
-            if (SSL_read(ssl, buf, length) == length)
+            if (SSL_read(ssl, buf, length)  == length)
             {
                 printf("%s", buf);
                 
                 if (std::string(buf, sizeof(buf )).contains("POST /growtopia/server_data.php HTTP/1.1"))
                 {
-                    SSL_write(ssl, response.c_str(), response.size());
+                    int write = SSL_write(ssl, response.c_str(), response.size());
+                    if (write <= 0)
+                    {
+                        printf("SSL_write() error enum: %d\n", SSL_get_error(ssl, write));
+                        ERR_print_errors_fp(stderr);
+                    }
                     SSL_shutdown(ssl);
                 }
             }

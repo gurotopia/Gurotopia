@@ -27,7 +27,8 @@ void item_activate_object(ENetEvent& event, state state)
     }
     else 
     {
-        peer->gems += f->second.count = 0;
+        peer->gems += f->second.count;
+        f->second.count = 0; // @todo handle cases that peer has gem limit and cannot pickup anymore.
         on::SetBux(event);
     }
     item_change_object(event, {f->second.id, f->second.count}, f->second.pos, state.id/*@todo*/);

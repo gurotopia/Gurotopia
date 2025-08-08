@@ -10,6 +10,7 @@ void action::logging_in(ENetEvent& event, const std::string& header)
     if (pipes[2zu] == "ltoken")
     {
         const std::string decoded = base64_decode(pipes[3zu]);
+        if (decoded.empty()) enet_peer_disconnect(event.peer, 0);
         if (std::size_t pos = decoded.find("growId="); pos != std::string::npos) 
         {
             pos += sizeof("growId=")-1zu;

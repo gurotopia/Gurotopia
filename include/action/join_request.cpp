@@ -276,14 +276,16 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     ).c_str()
                 });
             }
-
-            packet::create(p, false, -1/* ff ff ff ff */, {
-                "OnSpawn", 
-                std::format(fmt,
-                    peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), peer->prefix, peer->ltoken[0], (peer->role >= MODERATOR) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
-                    (_p->user_id == peer->user_id) ? "type|local" : ""
-                ).c_str()
-            });
+            else
+            {
+                packet::create(p, false, -1/* ff ff ff ff */, {
+                    "OnSpawn", 
+                    std::format(fmt,
+                        peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), peer->prefix, peer->ltoken[0], (peer->role >= MODERATOR) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
+                        (_p->user_id == peer->user_id) ? "type|local" : ""
+                    ).c_str()
+                });
+            }
         });
 
         inventory_visuals(event);

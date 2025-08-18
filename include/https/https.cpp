@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "https.hpp"
 
-#include "ssl/openssl/err.h"
+#include <openssl/err.h>
 
 #ifdef _WIN32
     #include <winsock2.h>

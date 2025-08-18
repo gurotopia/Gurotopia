@@ -1,12 +1,12 @@
 CXX = g++
-CXXFLAGS = -std=c++2b -g -Iinclude -Iinclude/ssl -MMD -MP -MF $(BUILD_DIR)/$*.d
+CXXFLAGS = -std=c++2b -g -Iinclude -MMD -MP -MF $(BUILD_DIR)/$*.d
 
-LIBS := -L./include/enet/lib -L./include/mimalloc/lib -L./include/sqlite/lib -L./include/ssl/openssl/lib -L./include/ssl/crypto/lib
+LIBS := -L./include/enet/lib -L./include/mimalloc/lib
 
 BUILD_DIR := build
 
 ifeq ($(OS),Windows_NT)
-    LIBS += -lssl_32 -lcrypto_32 -lenet_32 -lws2_32 -lcrypt32 -lwinmm -lmimalloc_32 -lsqlite3_32
+    LIBS += -lssl -lcrypto -lenet_32 -lws2_32 -lwinmm -lmimalloc_32 -lsqlite3
     TARGET_NAME := main.exe
 else
     LIBS += -lssl -lcrypto -lenet -lmimalloc -lsqlite3

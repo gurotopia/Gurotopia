@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 92cc449c618b4ad745af7fd0ff420fdfa5fc9adf 2025-08-06
+    @version perent SHA: 3d6e0a1a82d93136ea39b2e5d2872d0402888a39 2025-08-18
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -16,13 +16,13 @@ int main()
     /* !! please press Ctrl + C when restarting or stopping server !! */
     std::signal(SIGINT, safe_disconnect_peers);
 #ifdef SIGHUP // @note unix
-    std::signal(SIGHUP,  safe_disconnect_peers); // @note itty, SSH problems
+    std::signal(SIGHUP,  safe_disconnect_peers); // @note PuTTY, SSH problems
 #endif
 
     /* libary version checker */
     printf("microsoft/mimalloc beta-%d\n", MI_MALLOC_VERSION);
     printf("ZTzTopia/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
-    printf("sqlite/sqlite3 %s\n", sqlite3_sourceid());
+    printf("sqlite/sqlite3 %s\n", sqlite3_libversion());
     printf("openssl/openssl %s\n", OpenSSL_version(OPENSSL_VERSION_STRING));
     
     std::filesystem::create_directory("db");

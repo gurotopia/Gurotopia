@@ -5,6 +5,9 @@ build/
 .vs/
 .msvc/
 
+# vcpkg
+vcpkg/
+
 # lingering files
 main.out
 main.exe

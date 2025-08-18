@@ -255,7 +255,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
         on::EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
-        peer->prefix = (peer->role == MODERATOR) ? "#@" : (peer->role == DEVELOPER) ? "8@" : peer->prefix;
         
         peers(event, PEER_SAME_WORLD, [event, &peer, &world](ENetPeer& p) 
         {

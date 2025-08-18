@@ -8,8 +8,7 @@ void action::enter_game(ENetEvent& event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
     peer->user_id = fnv1a(peer->ltoken[0]); // @note this is to proeprly downgrade std::hash to integer size hash (Growtopia Standards)
-    if (peer->role == role::MODERATOR) peer->prefix = "#@";
-    else if (peer->role == role::DEVELOPER) peer->prefix = "8@";
+    peer->prefix = (peer->role == MODERATOR) ? "#@" : (peer->role == DEVELOPER) ? "8@" : peer->prefix;
 
     std::string fav_list{};
     for (short &fav : peer->fav)

@@ -45,7 +45,7 @@
    <p>
       
    ```bash
-   sudo apt-get update && sudo apt-get install build-essential libssl-dev openssl sqlite
+   sudo apt-get update && sudo apt-get install build-essential libssl-dev openssl sqlite3
    ```
         
    </p>

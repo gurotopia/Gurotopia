@@ -184,8 +184,9 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data.resize(data.size() + 1zu + 5zu);
 
                         data[pos++] = std::byte{ 04 };
-                        *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
-                        data[pos++] = std::byte{ 03 }; // @note no clue...
+                        *reinterpret_cast<short*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(short);
+                        *reinterpret_cast<short*>(&data[pos]) = (steady_clock::now() - block.tick) / 24h; pos += sizeof(short);
+                        data[pos++] = std::byte{ 03 }; // @note fruit on tree
                         break;
                     }
                     case std::byte{ type::PROVIDER }:
@@ -264,9 +265,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             
             if (_p->user_id != peer->user_id)
             {
-                ENetEvent fake_event = ENetEvent{.peer = &p}; // @note this only houses peer data, not the actual event data.
-                on::SetClothing(fake_event);
-
                 packet::create(*event.peer, false, -1/* ff ff ff ff */, {
                     "OnSpawn", 
                     std::format(fmt, 
@@ -275,7 +273,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     ).c_str()
                 });
             }
-
             packet::create(p, false, -1/* ff ff ff ff */, {
                 "OnSpawn", 
                 std::format(fmt,
@@ -283,11 +280,11 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     (_p->user_id == peer->user_id) ? "type|local" : ""
                 ).c_str()
             });
+            ENetEvent fake_event{.peer = &p}; // @note used to call functions that take ENetEvent @todo improve!!
+            on::SetClothing(fake_event);
         });
 
         inventory_visuals(event);
-        on::SetClothing(event);
-        
         if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
 
         auto section = [](const auto& range) 

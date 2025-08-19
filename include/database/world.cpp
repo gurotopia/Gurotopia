@@ -319,8 +319,9 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
             data.resize(pos + 1zu + 5zu);
 
             data[pos++] = std::byte{ 04 };
-            *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
-            data[pos++] = std::byte{ 03 }; // @note no clue...
+            *reinterpret_cast<short*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(short);
+            *reinterpret_cast<short*>(&data[pos]) = (steady_clock::now() - block.tick) / 24h; pos += sizeof(short); // @todo confirm this
+            data[pos++] = std::byte{ 03 }; // @note fruit on tree
             break;
         }
     }

@@ -18,7 +18,7 @@
      
    - Locate your MSYS2 folder (e.g., `C:\msys64`), open `ucrt64.exe`, and run the following command:
      ```bash
-     pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-openssl mingw-w64-ucrt-x86_64-sqlite make
+     pacman -S --needed mingw-w64-ucrt-x86_64-{gcc,openssl,sqlite} make
      ```
 
 #### ![](https://raw.githubusercontent.com/microsoft/vscode-icons/main/icons/dark/build.svg) 2. Compile

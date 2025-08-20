@@ -79,6 +79,7 @@ void packet::action(ENetPeer& p, const std::string& action, const std::string& s
         for (std::size_t i = 0zu; i < action_view.length(); ++i)
             data[4zu + i] = _1bit[i];
     }
+    if (!str.empty())
     {
         const std::byte *_1bit = reinterpret_cast<const std::byte*>(str.data());
         for (std::size_t i = 0zu; i < str.length(); ++i)

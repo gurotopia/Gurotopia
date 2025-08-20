@@ -1,15 +1,15 @@
 CXX = g++
 CXXFLAGS = -std=c++2b -g -Iinclude -MMD -MP -MF $(BUILD_DIR)/$*.d
 
-LIBS := -L./include/enet/lib -L./include/mimalloc/lib
+LIBS := -L./include/enet/lib
 
 BUILD_DIR := build
 
 ifeq ($(OS),Windows_NT)
-    LIBS += -lssl -lcrypto -lenet_32 -lws2_32 -lwinmm -lmimalloc_32 -lsqlite3
+    LIBS += -lssl -lcrypto -lenet_32 -lws2_32 -lwinmm -lsqlite3
     TARGET_NAME := main.exe
 else
-    LIBS += -lssl -lcrypto -lenet -lmimalloc -lsqlite3
+    LIBS += -lssl -lcrypto -lenet -lsqlite3
     TARGET_NAME := main.out
 endif
 

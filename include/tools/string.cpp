@@ -32,17 +32,22 @@ bool alnum(const std::string& str)
 
 std::string base64_decode(const std::string& encoded) 
 {
-    BIO *bio = BIO_new_mem_buf(encoded.data(), static_cast<int>(encoded.size()));
-    BIO *base64 = BIO_new(BIO_f_base64());
+    try
+    {
+        BIO *bio = BIO_new_mem_buf(encoded.data(), static_cast<int>(encoded.size()));
+        BIO *base64 = BIO_new(BIO_f_base64());
 
-    bio = BIO_push(base64, bio);
-    BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+        bio = BIO_push(base64, bio);
+        BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
 
-    std::vector<char> buf(encoded.size());
-    int bio_read = BIO_read(bio, buf.data(), static_cast<int>(buf.size()));
-    BIO_free_all(bio);
+        std::vector<char> buf(encoded.size());
+        int bio_read = BIO_read(bio, buf.data(), static_cast<int>(buf.size()));
+        BIO_free_all(bio);
 
-    return std::string{ buf.data(), static_cast<size_t>(bio_read) };
+        return std::string{ buf.data(), static_cast<size_t>(bio_read) };
+    }
+    catch (...){} // @note what():  basic_string::_M_create
+    return "";
 }
 
 std::size_t fnv1a(const std::string& value) noexcept {

@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 8494bb7c78b54debcf71af83f1cd86f3f358b92a 2025-08-20
+    @version perent SHA: 18ff0d92d84d5f615ebbec5f369d6771e8736edf 2025-08-20
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -20,7 +20,6 @@ int main()
 #endif
 
     /* libary version checker */
-    printf("microsoft/mimalloc beta-%d\n", MI_MALLOC_VERSION);
     printf("ZTzTopia/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
     printf("sqlite/sqlite3 %s\n", sqlite3_libversion());
     printf("openssl/openssl %s\n", OpenSSL_version(OPENSSL_VERSION_STRING));
@@ -28,14 +27,7 @@ int main()
     std::filesystem::create_directory("db");
     init_shouhin_tachi();
 
-    {
-        ENetCallbacks callbacks{
-            .malloc = &mi_malloc,
-            .free = &mi_free,
-            .no_memory = []() { puts("ENet memory overflow"); }
-        };
-        enet_initialize_with_callbacks(ENET_VERSION, &callbacks);
-    } // @note delete callbacks
+    enet_initialize();
     {
         ::_server_data server_data = init_server_data();
         ENetAddress address{

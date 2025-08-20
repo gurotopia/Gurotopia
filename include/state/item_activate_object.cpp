@@ -15,7 +15,7 @@ void item_activate_object(ENetEvent& event, state state)
     if (f == w->second.ifloats.end()) return;
 
     item &item = items[f->second.id];
-    if (item.type != std::byte{ GEM })
+    if (item.type != type::GEM)
     {
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage",

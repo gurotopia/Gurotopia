@@ -59,14 +59,14 @@ void cache_items()
         } // @note delete raw_hits
         shift_pos(im_data, pos, im.hit_reset);
 
-        if (im.type == std::byte {type::CLOTHING}) 
+        if (im.type == type::CLOTHING) 
         {
             std::byte cloth_type{};
             shift_pos(im_data, pos, cloth_type);
             im.cloth_type = std::to_integer<u_short>(cloth_type);
         }
         else pos += 1; // @note assign nothing
-        if (im.type == std::byte{type::AURA}) im.cloth_type = clothing::ances;
+        if (im.type == type::AURA) im.cloth_type = clothing::ances;
         shift_pos(im_data, pos, im.rarity);
 
         pos += 1;
@@ -99,8 +99,8 @@ void cache_items()
 
         shift_pos(im_data, pos, im.tick);
 
-        shift_pos(im_data, pos, im.mod);
-        shift_pos(im_data, pos, im.mod1);
+        pos += sizeof(short);
+        pos += sizeof(short);
 
         pos += *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short);
@@ -119,13 +119,11 @@ void cache_items()
         }
         if (version >= 12)
         {
-            shift_pos(im_data, pos, im.mod2);
+            pos += sizeof(int);
             pos += sizeof(std::array<std::byte, 9zu>);
         }
-        if (version >= 13)
-            shift_pos(im_data, pos, im.mod3);
-        if (version >= 14)
-            shift_pos(im_data, pos, im.mod4);
+        if (version >= 13) pos += sizeof(int);
+        if (version >= 14) pos += sizeof(int);
         if (version >= 15)
         {
             pos += sizeof(std::array<std::byte, 25zu>);
@@ -137,14 +135,11 @@ void cache_items()
             pos += *(reinterpret_cast<short*>(&im_data[pos]));
             pos += sizeof(short);
         }
-        if (version >= 17)
-            shift_pos(im_data, pos, im.mod5);
-        if (version >= 18)
-            shift_pos(im_data, pos, im.mod6);
+        if (version >= 17) pos += sizeof(int);
+        if (version >= 18) pos += sizeof(int);
         if (version >= 19)
             pos += sizeof(std::array<std::byte, 9zu>);
-        if (version >= 21)
-            shift_pos(im_data, pos, im.mod7);
+        if (version >= 21) pos += sizeof(short);
         if (version == 22)
         {
             short len = *reinterpret_cast<short*>(&im_data[pos]);

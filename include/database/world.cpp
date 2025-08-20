@@ -281,13 +281,13 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     // @todo add paint...
     switch (items[block.fg].type)
     {
-        case std::byte{ type::ENTRANCE }:
+        case type::ENTRANCE:
         {
             data[pos - 2zu] = (block._public) ? std::byte{ 0x90 } : std::byte{ 0x10 };
             break;
         }
-        case std::byte{ type::DOOR }:
-        case std::byte{ type::PORTAL }:
+        case type::DOOR:
+        case type::PORTAL:
         {
             data[pos - 2zu] = std::byte{ 01 };
             short len = block.label.length();
@@ -300,7 +300,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
             pos += sizeof(std::byte); // @note '\0'
             break;
         }
-        case std::byte{ type::SIGN }:
+        case type::SIGN:
         {
             data[pos - 2zu] = std::byte{ 0x19 };
             short len = block.label.length();
@@ -313,7 +313,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
             *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
             break;
         }
-        case std::byte{ type::SEED }:
+        case type::SEED:
         {
             data[pos - 2zu] = std::byte{ 0x11 };
             data.resize(pos + 1zu + 5zu);

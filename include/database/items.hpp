@@ -172,8 +172,8 @@
     public:
         u_short id{}; /* item identity */
         std::byte property{};
-        std::byte cat{};
-        std::byte type{};
+        u_char cat{};
+        u_char type{};
         std::string raw_name{}; /* the exact name of the item including uppercases */
         std::byte collision{};
         short hits{}; // @todo make it unsigned.
@@ -183,15 +183,7 @@
         std::string audio_directory{}; // @note ../../audio.mp3
         int audioHash{};
         int tick{}; // @note tile tick time e.g. trees, providers, ect.. (measured in seconds)
-        short mod{};
-        short mod1{};
 
-        int mod2{}; // @note version 12 | Haunted Jack O Latern {3}
-        int mod3{}; // @note version 13 | items that emit light(?)
-        int mod4{}; // @note version 14 | Royal Clam Cruiser {11306}, Royal Mystic Bow {11440}, Anubis Pharaoh Mask {12294}
-        int mod5{}; // @note version 17 | Buster Brush {1815}
-        int mod6{}; // @note version 18 | no clue...
-        short mod7{}; // @note version 21 | 2025 transformation items
         std::string info{}; // @note version 22 | item's info
     };
     extern std::unordered_map<u_short, item> items;

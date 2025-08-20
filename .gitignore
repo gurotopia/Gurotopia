@@ -1,22 +1,11 @@
 # Makefile
 build/
 
-# MSVC
-.vs/
-.msvc/
-
-# vcpkg
-vcpkg/
-
 # lingering files
 main.out
 main.exe
-main.pdb
 items.dat
 server_data.php
-
-# MSVC linker
-main.ilk
 
 # VSC user settings
 .vscode/settings.json

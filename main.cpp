@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 18ff0d92d84d5f615ebbec5f369d6771e8736edf 2025-08-20
+    @version perent SHA: de2132bcc676b7cb2d816dc74f16a799984dac7c 2025-08-20
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -46,9 +46,10 @@ int main()
     {
         const uintmax_t size = std::filesystem::file_size("items.dat");
 
-        im_data.resize(im_data.size() + size + 1/*@todo*/); // @note state + items.dat
+        im_data.resize(im_data.size() + size + 1zu/*@todo*/); // @note state + items.dat
         im_data[0zu] = std::byte{ 04 }; // @note 04 00 00 00
         im_data[4zu] = std::byte{ 0x10 }; // @note 16 00 00 00
+        /* {...} */
         im_data[16zu] = std::byte{ 0x08 }; // @note 08 00 00 00
         *reinterpret_cast<std::uintmax_t*>(&im_data[56zu]) = size;
 

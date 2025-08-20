@@ -69,11 +69,11 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 // @todo add paint...
                 switch (items[block.fg].type)
                 {
-                    case std::byte{ type::FOREGROUND }: 
-                    case std::byte{ type::BACKGROUND }:
+                    case type::FOREGROUND: 
+                    case type::BACKGROUND:
                         break;
 
-                    case std::byte{ type::LOCK }: 
+                    case type::LOCK: 
                     {
                         data[pos - 2zu] = std::byte{ 01 };
                         std::size_t admins = std::ranges::count_if(world.admin, std::identity{});
@@ -87,7 +87,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         /* @todo admin list */
                         break;
                     }
-                    case std::byte{ type::MAIN_DOOR }: 
+                    case type::MAIN_DOOR: 
                     {
                         data[pos - 2zu] = std::byte{ 01 };
                         peer->pos.front() = (i % x) * 32;
@@ -101,7 +101,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data[pos++] = std::byte{ 00 }; // @note '\0'
                         break;
                     }
-                    case std::byte{ type::SILKWORM }:
+                    case type::SILKWORM:
                     {
                         std::string dummy = "Lattish";
                         data[pos - 2] = std::byte{ 0x01 };
@@ -146,13 +146,13 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         uVar1[9] = 0; pos += sizeof(short);
                         break;
                     }
-                    case std::byte { type::ENTRANCE }:
+                    case type::ENTRANCE:
                     {
                         data[pos - 2zu] = (block._public) ? std::byte{ 0x90 } : std::byte{ 0x10 };
                         break;
                     }
-                    case std::byte{ type::DOOR }:
-                    case std::byte{ type::PORTAL }:
+                    case type::DOOR:
+                    case type::PORTAL:
                     {
                         data[pos - 2zu] = std::byte{ 01 };
                         short len = block.label.length();
@@ -165,7 +165,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data[pos++] = std::byte{ 00 }; // @note '\0'
                         break;
                     }
-                    case std::byte{ type::SIGN }:
+                    case type::SIGN:
                     {
                         data[pos - 2zu] = std::byte{ 0x19 };
                         short len = block.label.length();
@@ -178,7 +178,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
                         break;
                     }
-                    case std::byte{ type::SEED }:
+                    case type::SEED:
                     {
                         data[pos - 2zu] = std::byte{ 0x11 };
                         data.resize(data.size() + 1zu + 5zu);
@@ -189,7 +189,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data[pos++] = std::byte{ 03 }; // @note fruit on tree
                         break;
                     }
-                    case std::byte{ type::PROVIDER }:
+                    case type::PROVIDER:
                     {
                         data[pos - 2zu] = std::byte{ 0x31 };
                         data.resize(data.size() + 5zu);
@@ -198,13 +198,13 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
                         break;
                     }
-                    case std::byte{ type::WEATHER_MACHINE }: // @note there are no added bytes (I think)
+                    case type::WEATHER_MACHINE: // @note there are no added bytes (I think)
                     {
                         if (block.toggled)
                             packet::create(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
                         break;
                     }
-                    case std::byte{ type::TOGGLEABLE_BLOCK }:
+                    case type::TOGGLEABLE_BLOCK:
                     {
                         if (block.toggled) 
                         {
@@ -212,7 +212,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         }
                         break;
                     }
-                    case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
+                    case type::TOGGLEABLE_ANIMATED_BLOCK:
                     {
                         if (block.toggled) 
                         {

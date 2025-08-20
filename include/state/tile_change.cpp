@@ -55,9 +55,9 @@ void tile_change(ENetEvent& event, state state)
             }
             switch (item.type)
             {
-                case std::byte{ type::STRONG }: throw std::runtime_error("It's too strong to break."); break;
-                case std::byte{ type::MAIN_DOOR }: throw std::runtime_error("(stand over and punch to use)"); break;
-                case std::byte{ type::LOCK }:
+                case type::STRONG: throw std::runtime_error("It's too strong to break."); break;
+                case type::MAIN_DOOR: throw std::runtime_error("(stand over and punch to use)"); break;
+                case type::LOCK:
                 {
                     if (peer->user_id != w->second.owner) 
                     {
@@ -66,7 +66,7 @@ void tile_change(ENetEvent& event, state state)
                     }
                     break;
                 }
-                case std::byte{ type::SEED }:
+                case type::SEED:
                 {
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick)
                     {
@@ -75,7 +75,7 @@ void tile_change(ENetEvent& event, state state)
                     }
                     break;
                 }
-                case std::byte{ type::WEATHER_MACHINE }:
+                case type::WEATHER_MACHINE:
                 {
                     block.toggled = (block.toggled) ? false : true;
                     peers(event, PEER_SAME_WORLD, [block, item](ENetPeer& p)
@@ -83,12 +83,12 @@ void tile_change(ENetEvent& event, state state)
                         packet::create(p, false, 0, { "OnSetCurrentWeather", (block.toggled) ? get_weather_id(item.id) : 0 });
                     });
                     for (::block &b : w->second.blocks)
-                        if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != block.fg) b.toggled = false;
+                        if (items[b.fg]/*@todo*/.type == type::WEATHER_MACHINE && b.fg != block.fg) b.toggled = false;
                     
                     break;
                 }
-                case std::byte{ type::TOGGLEABLE_BLOCK }:
-                case std::byte{ type::TOGGLEABLE_ANIMATED_BLOCK }:
+                case type::TOGGLEABLE_BLOCK:
+                case type::TOGGLEABLE_ANIMATED_BLOCK:
                 {
                     block.toggled = (block.toggled) ? false : true;
                     if (item.id == 226) // @note Signal Jammer
@@ -110,13 +110,13 @@ void tile_change(ENetEvent& event, state state)
             else return;
             block.label = ""; // @todo
             block.toggled = false; // @todo
-            if (item.type == std::byte{ LOCK }) 
+            if (item.type == type::LOCK) 
             {
                 peer->prefix.front() = 'w';
                 w->second.owner = 0; // @todo handle sl, bl, hl
             }
 
-            if (item.cat == std::byte{ 02 }) // pick up (item goes back in your inventory)
+            if (item.cat == 0x02) // pick up (item goes back in your inventory)
             {
                 int uid = item_change_object(event, {remember_id, 1}, state.pos);
                 item_activate_object(event, ::state{.id = uid});
@@ -125,7 +125,7 @@ void tile_change(ENetEvent& event, state state)
             {
 
                 if (ransuu[{0, 9}] <= 1) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
-                if (item.type != std::byte{ type::SEED })
+                if (item.type != type::SEED)
                 {
                     if (ransuu[{0, 17}] <= 1) im.emplace_back(remember_id, 1);
                     if (ransuu[{0, 11}] <= 1) im.emplace_back(remember_id + 1, 1);
@@ -147,7 +147,7 @@ void tile_change(ENetEvent& event, state state)
             item_activate(event, state);
             return; 
         }
-        else if (item.type == std::byte{ type::CONSUMEABLE }) 
+        else if (item.type == type::CONSUMEABLE) 
         {
             if (item.raw_name.contains(" Blast"))
             {
@@ -203,7 +203,7 @@ void tile_change(ENetEvent& event, state state)
         {
             switch (item.type)
             {
-                case std::byte{ type::LOCK }: // @todo handle sl, bl, hl, builder lock, ect.
+                case type::LOCK: // @todo handle sl, bl, hl, builder lock, ect.
                 {
                     if (peer->user_id == w->second.owner)
                     {
@@ -237,8 +237,8 @@ void tile_change(ENetEvent& event, state state)
                     }
                     break;
                 }
-                case std::byte{ type::DOOR }:
-                case std::byte{ type::PORTAL }:
+                case type::DOOR:
+                case type::PORTAL:
                 {
                     std::string dest, id{};
                     for (::door& door : w->second.doors)
@@ -264,7 +264,7 @@ void tile_change(ENetEvent& event, state state)
                     });
                     break;
                 }
-                case std::byte{ type::SIGN }:
+                case type::SIGN:
                         packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
@@ -279,7 +279,7 @@ void tile_change(ENetEvent& event, state state)
                         ).c_str()
                     });
                     break;
-                case std::byte{ type::ENTRANCE }:
+                case type::ENTRANCE:
                     packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format(
@@ -300,7 +300,7 @@ void tile_change(ENetEvent& event, state state)
         {
             switch (item.type)
             {
-                case std::byte{ type::LOCK }:
+                case type::LOCK:
                 {
                     if (w->second.owner == 00)
                     {
@@ -334,14 +334,14 @@ void tile_change(ENetEvent& event, state state)
                     else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
                     break;
                 }
-                case std::byte{ type::SEED }:
-                case std::byte{ type::PROVIDER }:
+                case type::SEED:
+                case type::PROVIDER:
                 {
                     if (block.fg != 0) return; // @todo add splicing
                     block.tick = steady_clock::now();
                     break;
                 }
-                case std::byte{ type::WEATHER_MACHINE }:
+                case type::WEATHER_MACHINE:
                 {
                     block.toggled = true;
                     peers(event, PEER_SAME_WORLD, [state](ENetPeer& p)
@@ -349,7 +349,7 @@ void tile_change(ENetEvent& event, state state)
                         packet::create(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
                     });
                     for (::block &b : w->second.blocks)
-                        if (items[b.fg]/*@todo*/.type == std::byte{ type::WEATHER_MACHINE } && b.fg != state.id) b.toggled = false;
+                        if (items[b.fg]/*@todo*/.type == type::WEATHER_MACHINE && b.fg != state.id) b.toggled = false;
                     break;
                 }
             }
@@ -362,7 +362,7 @@ void tile_change(ENetEvent& event, state state)
 
                 if ((x && y)) return; // @todo when moving avoid collision.
             }
-            (item.type == std::byte{ type::BACKGROUND }) ? block.bg = state.id : block.fg = state.id;
+            (item.type == type::BACKGROUND) ? block.bg = state.id : block.fg = state.id;
             peer->emplace(slot(state.id, -1));
             inventory_visuals(event);
         }

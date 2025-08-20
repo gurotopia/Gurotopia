@@ -14,13 +14,13 @@ void tile_activate(ENetEvent& event, state state)
 
     switch (item.type)
     {
-        case std::byte{ type::MAIN_DOOR }:
+        case type::MAIN_DOOR:
         {
             action::quit_to_exit(event, "", false);
             break;
         }
-        case std::byte{ type::DOOR }: // @todo add door-to-door with door::id
-        case std::byte{ type::PORTAL }:
+        case type::DOOR: // @todo add door-to-door with door::id
+        case type::PORTAL:
         {
             bool has_dest{ false };
             for (::door &door : w->second.doors)

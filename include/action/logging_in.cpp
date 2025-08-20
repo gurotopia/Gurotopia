@@ -6,25 +6,32 @@
 void action::logging_in(ENetEvent& event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
-    std::vector<std::string> pipes = readch(header, '|');
-    if (pipes[2zu] == "ltoken")
-    {
-        const std::string decoded = base64_decode(pipes[3zu]);
-        if (decoded.empty()) enet_peer_disconnect(event.peer, 0);
-        if (std::size_t pos = decoded.find("growId="); pos != std::string::npos) 
-        {
-            pos += sizeof("growId=")-1zu;
-            const std::size_t ampersand = decoded.find('&', pos); // @note stop at the ampersand(&) -> growId={username}(stop here)&
-            peer->ltoken[0] = decoded.substr(pos, ampersand - pos);
-        } // @note delete ampersand
 
-        if (std::size_t pos = decoded.find("password="); pos != std::string::npos) 
+    try 
+    {
+        std::vector<std::string> pipes = readch(header, '|');
+        if (pipes.size() < 4) throw std::runtime_error("");
+
+        if (pipes[2zu] == "ltoken")
         {
-            pos += sizeof("password=")-1zu;
-            peer->ltoken[1] = decoded.substr(pos);
-        }
-    } // @note delete decoded
+            const std::string decoded = base64_decode(pipes[3zu]);
+            if (decoded.empty()) throw std::runtime_error("");
+
+            if (std::size_t pos = decoded.find("growId="); pos != std::string::npos) 
+            {
+                pos += sizeof("growId=")-1zu;
+                peer->ltoken[0] = decoded.substr(pos, decoded.find('&', pos) - pos);
+            }
+            if (std::size_t pos = decoded.find("password="); pos != std::string::npos) 
+            {
+                pos += sizeof("password=")-1zu;
+                peer->ltoken[1] = decoded.substr(pos);
+            }
+        } // @note delete decoded
+    }
+    catch (...) { packet::action(*event.peer, "logon_fail", ""); }
     peer->read(peer->ltoken[0]);
+    
     packet::create(*event.peer, false, 0, {
         "OnSuperMainStartAcceptLogonHrdxs47254722215a",
         4131735857u, // @note items.dat

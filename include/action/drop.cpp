@@ -8,7 +8,7 @@ void action::drop(ENetEvent& event, const std::string& header)
     
     item &item = items[atoi(itemID.c_str())];
 
-    if (item.cat == std::byte{ 0x80 })
+    if (item.cat == 0x80)
     {
         packet::create(*event.peer, false, 0, { "OnTextOverlay", "You can't drop that." });
         return;

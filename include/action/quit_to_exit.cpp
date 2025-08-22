@@ -9,8 +9,7 @@ void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip
     auto it = worlds.find(peer->recent_worlds.back());
     if (it == worlds.end()) return; // @note peer was not in a world, therefore nothing to exit from.
 
-    packet::create(*event.peer, true, 0, { "OnSetPos", std::vector<float>{-1, -1} }); // @note idk why real growtopia does this.
-    packet::create(*event.peer, true, 0, { "OnRemove", std::format("netID|{}\npId|\n", peer->netid).c_str() }); // @todo 
+    packet::create(*event.peer, true, 0, { "OnSetPos", std::vector<float>{-1, -1} });
 
     if (--it->second.visitors <= 0) worlds.erase(it); // @note take 1, and if result is 0, delete memory copy of world.
 

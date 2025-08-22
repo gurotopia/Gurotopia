@@ -272,6 +272,10 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         ""
                     ).c_str()
                 });
+                packet::create(p, false, 0, {
+                    "OnConsoleMessage",
+                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors - 1).c_str()
+                });
             }
             packet::create(p, false, -1/* ff ff ff ff */, {
                 "OnSpawn", 
@@ -280,6 +284,15 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     (_p->user_id == peer->user_id) ? "type|local" : ""
                 ).c_str()
             });
+
+            /* the reason this is here is cause we need the peer's OnSpawn to happen before OnTalkBubble */
+            if (_p->user_id != peer->user_id)
+                packet::create(p, false, 0, {
+                        "OnTalkBubble",
+                        peer->netid,
+                        std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors - 1).c_str(),
+                        1u
+                });
             ENetEvent fake_event{.peer = &p}; // @note used to call functions that take ENetEvent @todo improve!!
             on::SetClothing(fake_event);
         });

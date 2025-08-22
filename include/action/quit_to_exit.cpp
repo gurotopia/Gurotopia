@@ -22,6 +22,11 @@ void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip
             "OnConsoleMessage", 
             std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, peer->ltoken[0], it->second.visitors).c_str()
         });
+        packet::create(p, false, 0, { 
+            "OnRemove", 
+            std::format("netID|{}\n", peer->netid).c_str(),
+            std::format("pId|{}\n", peer->user_id).c_str() // @note this is found during OnSpawn 'eid', the value is the same for user_id.
+        }); // @todo
     });
 
     if (prefix == "2" || prefix == "c") prefix.front() = 'w';

@@ -26,7 +26,7 @@ void tile_change(ENetEvent& event, state state)
         auto w = worlds.find(peer->recent_worlds.back());
         if (w == worlds.end()) return;
 
-        if ((w->second.owner != 0 && !w->second._public && peer->role == role::PLAYER) &&
+        if ((w->second.owner && !w->second._public && !peer->role) &&
             (peer->user_id != w->second.owner && !std::ranges::contains(w->second.admin, peer->user_id))) return;
 
         block &block = w->second.blocks[cord(state.punch[0], state.punch[1])];
@@ -302,10 +302,10 @@ void tile_change(ENetEvent& event, state state)
             {
                 case type::LOCK:
                 {
-                    if (w->second.owner == 00)
+                    if (!w->second.owner)
                     {
                         w->second.owner = peer->user_id;
-                        if (peer->role == role::PLAYER) peer->prefix.front() = '2';
+                        if (!peer->role) peer->prefix.front() = '2';
                         state.type = 0x0f;
                         state.netid = w->second.owner;
                         state.peer_state = 0x08;

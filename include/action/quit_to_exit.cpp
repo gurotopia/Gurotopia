@@ -14,11 +14,9 @@ void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip
 
     if (--it->second.visitors <= 0) worlds.erase(it); // @note take 1, and if result is 0, delete memory copy of world.
 
-    std::string &prefix = peer->prefix;
-    if (prefix == "2" || prefix == "c") prefix.front() = 'w';
-
     peer->netid = 0; // this will fix any packets being sent outside of world; this can also be used to check if peer is not in a world.
 
+    std::string &prefix = peer->prefix;
     peers(event, PEER_SAME_WORLD, [&peer, &it, &prefix](ENetPeer& p) 
     {
         packet::create(p, false, 0, {
@@ -26,5 +24,7 @@ void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip
             std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, peer->ltoken[0], it->second.visitors).c_str()
         });
     });
+
+    if (prefix == "2" || prefix == "c") prefix.front() = 'w';
     if (!skip_selection) on::RequestWorldSelectMenu(event);
 }

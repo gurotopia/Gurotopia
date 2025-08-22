@@ -268,7 +268,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 packet::create(*event.peer, false, -1/* ff ff ff ff */, {
                     "OnSpawn", 
                     std::format(fmt, 
-                        _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), _p->prefix, _p->ltoken[0], (_p->role >= MODERATOR) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", 
+                        _p->netid, _p->user_id, static_cast<int>(_p->pos.front()), static_cast<int>(_p->pos.back()), _p->prefix, _p->ltoken[0], (_p->role) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", 
                         ""
                     ).c_str()
                 });
@@ -276,7 +276,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             packet::create(p, false, -1/* ff ff ff ff */, {
                 "OnSpawn", 
                 std::format(fmt,
-                    peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), peer->prefix, peer->ltoken[0], (peer->role >= MODERATOR) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
+                    peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), peer->prefix, peer->ltoken[0], (peer->role) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
                     (_p->user_id == peer->user_id) ? "type|local" : ""
                 ).c_str()
             });

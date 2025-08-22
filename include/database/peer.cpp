@@ -175,8 +175,7 @@ std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::fun
             if (condition == peer_condition::PEER_SAME_WORLD)
             {
                 auto &recent_worlds = _peer[event.peer]->recent_worlds;
-                if ((_peer[&peer]->recent_worlds.empty() && recent_worlds.empty()) || 
-                    (_peer[&peer]->recent_worlds.back() != recent_worlds.back())) continue;
+                if (_peer[&peer]->netid == 0 || (_peer[&peer]->recent_worlds.back() != recent_worlds.back())) continue;
             }
             fun(peer);
             _peers.push_back(&peer);
@@ -243,7 +242,7 @@ void inventory_visuals(ENetEvent &event)
     std::vector<std::byte> data(66zu + (size * sizeof(int)));
     
     data[0zu] = std::byte{ 04 };
-    data[4zu] = std::byte{ 0x09 };
+    data[4zu] = std::byte{ 0x09 }; // @note PACKET_SEND_INVENTORY_STATE
     *reinterpret_cast<int*>(&data[8zu]) = peer->netid;
     data[16zu] = std::byte{ 0x08 };
     *reinterpret_cast<int*>(&data[58zu]) = std::byteswap<int>(peer->slot_size);

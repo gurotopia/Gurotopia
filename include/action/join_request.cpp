@@ -255,7 +255,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         if (peer->user_id == world.owner) peer->prefix.front() = '2';
         else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix.front() = 'c';
 
-        on::EmoticonDataChanged(event);
         peer->netid = ++world.visitors;
         
         peers(event, PEER_SAME_WORLD, [event, &peer, &world](ENetPeer& p) 
@@ -284,7 +283,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             ENetEvent fake_event{.peer = &p}; // @note used to call functions that take ENetEvent @todo improve!!
             on::SetClothing(fake_event);
         });
-
+        
         inventory_visuals(event);
         if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
 
@@ -306,6 +305,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 world.name, section(buffs), world.visitors - 1, peers(event).size()
             ).c_str()
         });
+        on::EmoticonDataChanged(event);
     }
     catch (const std::exception& exc)
     {

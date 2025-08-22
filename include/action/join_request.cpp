@@ -32,17 +32,16 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
         
         auto [it, inserted] = worlds.try_emplace(big_name, big_name);
-        world &world = it->second;
-        if (world.name.empty())
-        {
-            generate_world(world, big_name);
-        }
+        ::world &world = it->second; // @note ::world will load from SQL if found. next line, if not.
+        if (world.name.empty()) generate_world(world, big_name); // @note make a new world if not found.
+
         std::vector<std::string> buffs{};
         {
             std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12 + 8/*total drop uid*/, std::byte{ 00 });
             data[0zu] = std::byte{ 04 };
             data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
             data[16zu] = std::byte{ 0x08 };
+            
             u_char len = static_cast<u_char>(world.name.length());
             data[66zu] = std::byte{ len };
 
@@ -50,10 +49,12 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             for (u_char i = 0; i < len; ++i)
                 data[68zu + i] = _1bit[i];
 
-            u_int y = world.blocks.size() / 100, x = world.blocks.size() / y;
+            u_int y = world.blocks.size() / 100;
+            u_int x = world.blocks.size() / y;
             *reinterpret_cast<u_int*>(&data[68zu + len]) = x;
             *reinterpret_cast<u_int*>(&data[72zu + len]) = y;
             *reinterpret_cast<u_short*>(&data[76zu + len]) = static_cast<u_short>(world.blocks.size());
+            
             std::size_t pos = 85 + len;
             short i = 0;
             for (const block &block : world.blocks)
@@ -223,7 +224,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         break;
                     }
                     default:
-                        data.resize(data.size() + 16zu); // @todo
+                        data.resize(data.size() + 32zu); // @todo
                         break;
                 }
                 ++i;
@@ -232,14 +233,14 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
             *reinterpret_cast<int*>(&data[pos]) = world.ifloat_uid; pos += sizeof(int);
             *reinterpret_cast<int*>(&data[pos]) = world.ifloat_uid; pos += sizeof(int);
-            for (const auto& ifloat : world.ifloats) 
+            for (const auto& [uid, ifloat] : world.ifloats) 
             {
                 data.resize(data.size() + 16zu);
-                *reinterpret_cast<short*>(&data[pos]) = ifloat.second.id; pos += sizeof(short);
-                *reinterpret_cast<float*>(&data[pos]) = ifloat.second.pos[0] * 32.0f; pos += sizeof(float);
-                *reinterpret_cast<float*>(&data[pos]) = ifloat.second.pos[1] * 32.0f; pos += sizeof(float);
-                *reinterpret_cast<short*>(&data[pos]) = ifloat.second.count; pos += sizeof(short);
-                *reinterpret_cast<int*>(&data[pos]) = ifloat.first; pos += sizeof(int);
+                *reinterpret_cast<short*>(&data[pos]) = ifloat.id; pos += sizeof(short);
+                *reinterpret_cast<float*>(&data[pos]) = ifloat.pos[0] * 32.0f; pos += sizeof(float);
+                *reinterpret_cast<float*>(&data[pos]) = ifloat.pos[1] * 32.0f; pos += sizeof(float);
+                *reinterpret_cast<short*>(&data[pos]) = ifloat.count; pos += sizeof(short);
+                *reinterpret_cast<int*>(&data[pos]) = uid; pos += sizeof(int);
             }
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data

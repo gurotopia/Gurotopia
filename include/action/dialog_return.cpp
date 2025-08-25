@@ -13,6 +13,6 @@ void action::dialog_return(ENetEvent& event, const std::string& header)
     if (pipes.size() <= 3zu) return; // if button has no name or has no field.
 
     // @note found at ./action/dialog_return/
-    if (auto it = dialog_return_pool.find(pipes[3zu]); it != dialog_return_pool.end()) 
+    if (const auto it = dialog_return_pool.find(pipes[3zu]); it != dialog_return_pool.end()) 
         it->second(std::ref(event), std::move(pipes));
 }

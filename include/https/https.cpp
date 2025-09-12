@@ -95,13 +95,13 @@ void https::listener(_server_data server_data)
         {
 
             char buf[213]; // @note size of growtopia's POST request.
-            int length{ sizeof(buf) };
+            const int length{ sizeof(buf) };
 
             if (SSL_read(ssl, buf, length) == length)
             {
                 printf("%s", buf);
                 
-                if (std::string(buf, sizeof(buf )).contains("POST /growtopia/server_data.php HTTP/1.1"))
+                if (std::string_view(buf, sizeof(buf )).contains("POST /growtopia/server_data.php HTTP/1.1"))
                 {
                     SSL_write(ssl, response.c_str(), response.size());
                     SSL_shutdown(ssl);

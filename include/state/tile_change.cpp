@@ -123,13 +123,25 @@ void tile_change(ENetEvent& event, state state)
             }
             else // normal break (drop gem, seed, block & give XP)
             {
-
-                if (ransuu[{0, 9}] <= 1) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
-                if (item.type != type::SEED)
+                if (item.id == 340 || item.id == 5666) // @note Chandelier or Laser Grid
                 {
-                    if (ransuu[{0, 17}] <= 1) im.emplace_back(remember_id, 1);
-                    if (ransuu[{0, 11}] <= 1) im.emplace_back(remember_id + 1, 1);
+                    if (ransuu[{0, 3}] < 3) im.emplace_back(112, ransuu[{1, 5}]); // 75% chance to drop 1-5 gems
+                    if (item.type != type::SEED)
+                    {
+                        if (ransuu[{0, 17}] <= 1) im.emplace_back(remember_id, 1); // block drop
+                        if (ransuu[{0, 1}] == 1) im.emplace_back(remember_id + 1, 1); // 50% seed drop
+                    }
                 }
+                else // @note normal drop rate
+                {
+                    if (ransuu[{0, 9}] <= 1) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
+                    if (item.type != type::SEED)
+                    {
+                        if (ransuu[{0, 17}] <= 1) im.emplace_back(remember_id, 1);
+                        if (ransuu[{0, 11}] <= 1) im.emplace_back(remember_id + 1, 1);
+                    }
+                }
+                
                 for (std::pair<short, short> &i : im)
                     item_change_object(event, {i.first, i.second},
                         {

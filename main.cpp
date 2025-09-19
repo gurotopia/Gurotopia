@@ -1,6 +1,10 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: a36b27b8bfaf0b11e2864e0db0affa36f706ce0f 2025-09-18
+    @version perent SHA: fc87576555f8ac3911baff9e1b0e692184da81c9 2025-09-18
+
+    @authors
+      @leeendl
+      @XeyyzuV2
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"

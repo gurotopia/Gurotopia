@@ -121,26 +121,28 @@ void tile_change(ENetEvent& event, state state)
                 int uid = item_change_object(event, {remember_id, 1}, state.pos);
                 item_activate_object(event, ::state{.id = uid});
             }
-            else // normal break (drop gem, seed, block & give XP)
+            else // @note normal break (drop gem, seed, block & give XP)
             {
+                /* gem drop */
                 if (item.id == 340 || item.id == 5666) // @note Chandelier or Laser Grid
                 {
-                    if (ransuu[{0, 3}] < 3) im.emplace_back(112, ransuu[{1, 22}]); // @note 75% chance to drop 1-22 gems
-                    if (item.type != type::SEED)
+                    int gems = ransuu[{1, 22}];
+                    if (ransuu[{0, 3}] < 3)
                     {
-                        // @todo create a farmable list and allow only farmables to have 50% seed drop
-                        if (ransuu[{0, 1}]) im.emplace_back(remember_id + 1, 1); // 50% seed drop
+                        while (gems >= 10) im.emplace_back(112, 10), gems-=10;
+                        while (gems >= 5) im.emplace_back(112, 5), gems-=5;
+                        while (gems >= 1) im.emplace_back(112, 1), gems-=1;
                     }
+                    if (!ransuu[{0, 3}]) im.emplace_back(remember_id + 1, 1); // @note seed
                 }
                 else // @note normal drop rate
                 {
-                    if (ransuu[{0, 9}] <= 1) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
-                    if (item.type != type::SEED)
-                    {
-                        if (ransuu[{0, 11}] <= 1) im.emplace_back(remember_id + 1, 1);
-                    }
+                    if (!ransuu[{0, 7}]) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
                 }
-                if (ransuu[{0, 17}] <= 1) im.emplace_back(remember_id, 1);
+                /* ~gem drop */
+
+                if (!ransuu[{0, 13}]) im.emplace_back(remember_id, 1); // @note block
+                if (!ransuu[{0, 9}]) im.emplace_back(remember_id + 1, 1); // @note seed
                 
                 for (std::pair<short, short> &i : im)
                     item_change_object(event, {i.first, i.second},

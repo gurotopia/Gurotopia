@@ -1,4 +1,4 @@
-CXX = g++-13
+CXX = g++
 CXXFLAGS = -std=c++2b -g -Iinclude -MMD -MP -MF $(BUILD_DIR)/$*.d
 
 LIBS := -L./include/enet/lib

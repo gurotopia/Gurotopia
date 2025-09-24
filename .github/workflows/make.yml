@@ -2,6 +2,7 @@ name: Makefile
 on: 
   push:
   pull_request:
+  workflow_dispatch:
 jobs:
   build:
     runs-on: ${{ matrix.os }}

@@ -7,7 +7,6 @@ void ghost(ENetEvent& event, const std::string_view text)
     auto &peer = _peer[event.peer];
 
     peer->ghost = (peer->ghost) ? false : true;
-    if (peer->ghost) peer->skin_color = -140;
 
     on::SetClothing(event);
 }

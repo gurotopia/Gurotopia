@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "tools/string.hpp"
+#include "tools/create_dialog.hpp"
 #include "drop.hpp"
 
 void action::drop(ENetEvent& event, const std::string& header)
@@ -19,15 +20,13 @@ void action::drop(ENetEvent& event, const std::string& header)
         {
             packet::create(*event.peer, false, 0, {
                 "OnDialogRequest", 
-                std::format(
-                    "set_default_color|`o\n"
-                    "add_label_with_icon|big|`wDrop {0}``|left|{1}|\n"
-                    "add_textbox|How many to drop?|left|\n"
-                    "add_text_input|count||{2}|5|\n"
-                    "embed_data|itemID|{1}\n"
-                    "end_dialog|drop_item|Cancel|OK|\n", 
-                    item.raw_name, item.id, slot.count
-                ).c_str()
+                create_dialog()
+                    .set_default_color("`o")
+                    .add_label_with_icon("big", std::format("`wDrop {}``", item.raw_name), item.id)
+                    .add_textbox("How many to drop?")
+                    .add_text_input("count", "", slot.count, 5)
+                    .embed_data("itemID", std::to_string(item.id))
+                    .end_dialog("drop_item").c_str() // @todo handle c_str(); make packet accept std::string.
             });
             return;
         }

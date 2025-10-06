@@ -93,7 +93,7 @@ void tile_change(ENetEvent& event, state state)
                             }
                         }
                         block.tick = steady_clock::now();
-                        tile_update(event, state, block, w->second); // @note update countdown on provider.
+                        tile_update(event, std::move(state), block, w->second); // @note update countdown on provider.
                         _bypass = true; // @todo remove lazy method
                     }
                     break;
@@ -242,7 +242,7 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case 3062: // @note Pocket Lighter
                 {
-                    block.fire = (block.fire) ? false : true;
+                    block.fire = true; // @todo if water used on same tile, make false.
                     tile_update(event, std::move(state), block, w->second);
                     break;
                 }

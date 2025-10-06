@@ -98,7 +98,7 @@ world::world(const std::string& name)
     }, name);
 
     blocks.resize(6000);
-    db.query("SELECT _p, fg, bg, pub, tog, tick, l FROM blocks WHERE _n = ?", [this](sqlite3_stmt* stmt) 
+    db.query("SELECT _p, fg, bg, pub, tog, tick, l, water, glue, fire FROM blocks WHERE _n = ?", [this](sqlite3_stmt* stmt) 
     {
             int pos = sqlite3_column_int(stmt, 0);
             blocks[pos] = block(
@@ -107,7 +107,10 @@ world::world(const std::string& name)
                 sqlite3_column_int(stmt, 3),
                 sqlite3_column_int(stmt, 4),
                 std::chrono::steady_clock::time_point(std::chrono::seconds(sqlite3_column_int(stmt, 5))),
-                reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6))
+                reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6)),
+                sqlite3_column_int(stmt, 7),
+                sqlite3_column_int(stmt, 8),
+                sqlite3_column_int(stmt, 9)
             );
     }, name);
      db.query("SELECT uid, i, c, x, y FROM ifloats WHERE _n = ?", [this](sqlite3_stmt* stmt) 

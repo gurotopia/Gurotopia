@@ -17,7 +17,6 @@ void gateway_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
 
     tile_update(event, {
         .id = block.fg,
-        .pos = { tilex * 32.0f, tiley * 32.0f },
         .punch = { tilex, tiley }
     }, block, it->second);
 

@@ -19,7 +19,12 @@ void ageworld(ENetEvent& event, const std::string_view text)
     for (std::size_t i = 0; i < blocks.size(); ++i)
     {
         block &block = blocks[i];
-        block.tick = steady_clock::now() - 86400s;
+        block.tick = steady_clock::now() - 86400s; // @todo only age, agable blocks. trees, providers, ect.
+        tile_update(event, 
+        {
+            .id = block.fg, 
+            .punch = {(int)i % 100, (int)i / 100}
+        }, block, w->second);
     }
     packet::create(*event.peer, false, 0, { "OnConsoleMessage", "aged world by `w1 day``." });
 }

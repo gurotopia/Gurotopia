@@ -59,7 +59,7 @@ public:
     
     void create_tables() 
     {
-        const char* sql = 
+        const char *sql = 
         "CREATE TABLE IF NOT EXISTS peers (_n TEXT PRIMARY KEY, role INTEGER, gems INTEGER, lvl INTEGER, xp INTEGER);"
         "CREATE TABLE IF NOT EXISTS slots (_n TEXT, i INTEGER, c INTEGER, FOREIGN KEY(_n) REFERENCES peers(_n));";
 

@@ -324,6 +324,15 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
             data[pos++] = std::byte{ 03 }; // @note fruit on tree
             break;
         }
+        case type::PROVIDER:
+        {
+            data[pos - 2zu] = std::byte{ 0x31 };
+            data.resize(pos + 5zu);
+
+            data[pos++] = std::byte{ 0x9 };
+            *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
+            break;
+        }
     }
 
     peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 

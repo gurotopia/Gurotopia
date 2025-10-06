@@ -37,6 +37,7 @@ void tile_change(ENetEvent& event, state state)
 
             std::vector<std::pair<short, short>> im{}; // @note list of dropped items
             ransuu ransuu;
+            bool _bypass{}; // @todo remove lazy method
 
             switch (item.id)
             {
@@ -66,9 +67,40 @@ void tile_change(ENetEvent& event, state state)
                     }
                     break;
                 }
+                case type::PROVIDER:
+                {
+                    if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
+                    {
+                        switch (item.id)
+                        {
+                            case 1008: // @note ATM
+                            {
+                                int gems = ransuu[{1, 100}]; // @note source: https://growtopia.fandom.com/wiki/ATM_Machine
+                                while (gems >= 10) im.emplace_back(112, 10), gems-=10;
+                                while (gems >= 5) im.emplace_back(112, 5), gems-=5;
+                                while (gems >= 1) im.emplace_back(112, 1), gems-=1;
+                                break;
+                            }
+                            case 872: // @note Chicken
+                            {
+                                im.emplace_back(item.id+2, 1);
+                                break;
+                            }
+                            case 866: // @note Cow
+                            {
+                                im.emplace_back(item.id+2, 1);
+                                break;
+                            }
+                        }
+                        block.tick = steady_clock::now();
+                        tile_update(event, state, block, w->second); // @note update countdown on provider.
+                        _bypass = true; // @todo remove lazy method
+                    }
+                    break;
+                }
                 case type::SEED:
                 {
-                    if ((steady_clock::now() - block.tick) / 1s >= item.tick)
+                    if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
                     {
                         block.hits[0] = 999;
                         im.emplace_back(item.id - 1, ransuu[{0, 8}]); // @note fruit (from tree)
@@ -105,9 +137,12 @@ void tile_change(ENetEvent& event, state state)
             tile_apply_damage(event, std::move(state), block);
             
             short remember_id = item.id;
+            if (_bypass) goto skip_reset_tile; // @todo remove lazy method
+
             if (block.hits.front() >= item.hits) block.fg = 0, block.hits.front() = 0;
             else if (block.hits.back() >= item.hits) block.bg = 0, block.hits.back() = 0;
             else return;
+            
             block.label = ""; // @todo
             block.toggled = false; // @todo
             if (item.type == type::LOCK) 
@@ -143,7 +178,9 @@ void tile_change(ENetEvent& event, state state)
 
                 if (!ransuu[{0, 13}]) im.emplace_back(remember_id, 1); // @note block
                 if (!ransuu[{0, 9}]) im.emplace_back(remember_id + 1, 1); // @note seed
-                
+
+skip_reset_tile: // @todo remove lazy method
+
                 for (std::pair<short, short> &i : im)
                     item_change_object(event, {i.first, i.second},
                         {
@@ -152,6 +189,7 @@ void tile_change(ENetEvent& event, state state)
                         });
                         
                 peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
+                if (_bypass) return; // @todo remove lazy method
             }
         } // @note delete im, id
         else if (item.cloth_type != clothing::none) 

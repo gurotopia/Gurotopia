@@ -3,7 +3,7 @@ CXXFLAGS = -std=c++2b -g -Iinclude -MMD -MP -MF $(BUILD_DIR)/$*.d
 
 LIBS := -L./include/enet/lib
 
-BUILD_DIR := build
+BUILD_DIR = build
 
 ifeq ($(OS),Windows_NT)
     LIBS += -lssl -lcrypto -lenet_32 -lws2_32 -lwinmm -lsqlite3
@@ -13,8 +13,8 @@ else
     TARGET_NAME := main.out
 endif
 
-TARGET := $(TARGET_NAME)
-PCH := $(BUILD_DIR)/pch.gch
+TARGET = $(TARGET_NAME)
+PCH = $(BUILD_DIR)/pch.gch
 
 all: $(BUILD_DIR) $(PCH) $(TARGET)
 

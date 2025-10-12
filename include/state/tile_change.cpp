@@ -176,8 +176,8 @@ void tile_change(ENetEvent& event, state state)
                 }
                 /* ~gem drop */
 
-                if (!ransuu[{0, 13}]) im.emplace_back(remember_id, 1); // @note block
-                if (!ransuu[{0, 9}]) im.emplace_back(remember_id + 1, 1); // @note seed
+                if (!ransuu[{0, 11}]) im.emplace_back(remember_id, 1); // @note block
+                if (!ransuu[{0, 8}]) im.emplace_back(remember_id + 1, 1); // @note seed
 
 skip_reset_tile: // @todo remove lazy method
 
@@ -248,7 +248,7 @@ skip_reset_tile: // @todo remove lazy method
                 }
             }
             peer->emplace(slot(item.id, -1));
-            inventory_visuals(event);
+            modify_item_inventory(event, {(short)item.id, 1});
             return;
         }
         else if (state.id == 32)
@@ -416,7 +416,7 @@ skip_reset_tile: // @todo remove lazy method
             }
             (item.type == type::BACKGROUND) ? block.bg = state.id : block.fg = state.id;
             peer->emplace(slot(state.id, -1));
-            inventory_visuals(event);
+            modify_item_inventory(event, {(short)item.id, 1});
         }
         if (state.netid != w->second.owner) state.netid = peer->netid;
         state_visuals(event, std::move(state)); // finished.

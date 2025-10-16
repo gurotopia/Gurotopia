@@ -16,6 +16,8 @@
         bool toggled{}; // @note save toggle state
         std::chrono::steady_clock::time_point tick{}; // @note record a point in time for the tile e.g. tree growth, providers, ect.
         std::string label{}; // @note sign/door label
+
+        /* @todo make this a (XOR style) byte for all tile states. I will add paint in future !! */
         bool water{};
         bool glue{};
         bool fire{};

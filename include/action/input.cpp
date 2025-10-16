@@ -44,7 +44,7 @@ void action::input(ENetEvent& event, const std::string& header)
     }
     else peers(event, PEER_SAME_WORLD, [&peer, &text](ENetPeer& p) 
     {
-        if (peer->ducttape) text = "mfmm"; // @todo scalewith length of message. e.g. "hello" -> "mfmm"; "hello world" -> "mfmm mmfmfm"
+        if (peer->state & DUCT_TAPE) text = "mfmm"; // @todo scalewith length of message. e.g. "hello" -> "mfmm"; "hello world" -> "mfmm mmfmfm"
         packet::create(p, false, 0, {
             "OnTalkBubble", 
             peer->netid, 

@@ -255,7 +255,7 @@ skip_reset_tile: // @todo remove lazy method
 
                         if (state.punch == std::array<int, 2zu>{ std::lround(peers->pos[0]), std::lround(peers->pos[1]) }) // @todo improve accuracy
                         {
-                            peers->ducttape = (peers->ducttape) ? false : true; // @todo for debugging; if you apply ducttape again it removes.
+                            peers->state ^= DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
                             ENetEvent event_perspective{.peer = &p};
                             on::SetClothing(event_perspective);
                         }

@@ -32,6 +32,13 @@
         MODERATOR, 
         DEVELOPER
     };
+
+    enum pstate : u_int
+    {
+        GHOST = 1,
+        DOUBLE_JUMP = 2,
+        DUCT_TAPE = 8192
+    };
     
     #include <deque>
     #include <array>
@@ -54,10 +61,7 @@
 
         unsigned skin_color{ 2527912447 };
 
-        /* @todo move all these in a (XOR style) byte or something. */
-        bool ghost{};
-        bool double_jump{};
-        bool ducttape{};
+        u_int state{}; // @note using pstate::
 
         Billboard billboard{};
 

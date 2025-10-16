@@ -42,8 +42,9 @@ void action::input(ENetEvent& event, const std::string& header)
         else 
             packet::action(*event.peer, "log", "msg|`4Unknown command.`` Enter `$/?`` for a list of valid commands.");
     }
-    else peers(event, PEER_SAME_WORLD, [&peer, text](ENetPeer& p) 
+    else peers(event, PEER_SAME_WORLD, [&peer, &text](ENetPeer& p) 
     {
+        if (peer->ducttape) text = "mfmm"; // @todo scalewith length of message. e.g. "hello" -> "mfmm"; "hello world" -> "mfmm mmfmfm"
         packet::create(p, false, 0, {
             "OnTalkBubble", 
             peer->netid, 

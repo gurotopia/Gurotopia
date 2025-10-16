@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "on/NameChanged.hpp"
+#include "on/SetClothing.hpp"
 #include "commands/weather.hpp"
 #include "item_activate.hpp"
 #include "tools/ransuu.hpp"
@@ -244,6 +245,21 @@ skip_reset_tile: // @todo remove lazy method
                 {
                     block.fire = true; // @todo if water used on same tile, make false.
                     tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+                case 408: // @note Duct Tape
+                {
+                    peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
+                    {
+                        auto &peers = _peer[&p];
+
+                        if (state.punch == std::array<int, 2zu>{ std::lround(peers->pos[0]), std::lround(peers->pos[1]) }) // @todo improve accuracy
+                        {
+                            peers->ducttape = (peers->ducttape) ? false : true; // @todo for debugging; if you apply ducttape again it removes.
+                            ENetEvent event_perspective{.peer = &p};
+                            on::SetClothing(event_perspective);
+                        }
+                    });
                     break;
                 }
             }

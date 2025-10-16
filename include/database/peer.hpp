@@ -54,8 +54,10 @@
 
         unsigned skin_color{ 2527912447 };
 
+        /* @todo move all these in a (XOR style) byte or something. */
         bool ghost{};
         bool double_jump{};
+        bool ducttape{};
 
         Billboard billboard{};
 

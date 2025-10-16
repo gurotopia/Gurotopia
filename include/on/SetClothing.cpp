@@ -25,6 +25,7 @@ void on::SetClothing(ENetEvent& event)
     };
     if (peer->ghost) state.id |= 01;
     if (peer->double_jump) state.id |= 02;
+    if (peer->ducttape) state.id |= 8192;
 
     state_visuals(event, std::move(state));
 }

@@ -217,6 +217,7 @@ skip_reset_tile: // @todo remove lazy method
                     ).c_str()
                 });
             }
+            float effect{ 0.0f };
             switch (item.id)
             {
                 case 1404: // @note Door Mover
@@ -264,47 +265,63 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case 3478: // @note Paint Bucket - Red
                 {
-                    block.state ^= S_RED;
+                    block.state |= S_RED;
                     tile_update(event, std::move(state), block, w->second);
+                    effect = 0x0000ff00; 
                     break;
                 }
                 case 3480: // @note Paint Bucket - Yellow
                 {
-                    block.state ^= S_YELLOW;
+                    block.state |= S_YELLOW;
                     tile_update(event, std::move(state), block, w->second);
+                    effect = 0x00ffff00; // @note red + green
                     break;
                 }
                 case 3482: // @note Paint Bucket - Green
                 {
-                    block.state ^= S_GREEN;
+                    block.state |= S_GREEN;
                     tile_update(event, std::move(state), block, w->second);
+                    effect = 0x00ff0000;
                     break;
                 }
                 case 3484: // @note Paint Bucket - Aqua
                 {
-                    block.state ^= S_AQUA;
+                    block.state |= S_AQUA;
                     tile_update(event, std::move(state), block, w->second);
+                    effect = 0xffff0000; // @note blue + green
                     break;
                 }
                 case 3486: // @note Paint Bucket - Blue
                 {
-                    block.state ^= S_BLUE;
+                    block.state |= S_BLUE;
                     tile_update(event, std::move(state), block, w->second);
+                    effect = 0xff000000;
                     break;
                 }
                 case 3488: // @note Paint Bucket - Purple
                 {
-                    block.state ^= S_PURPLE;
+                    block.state |= S_PURPLE;
                     tile_update(event, std::move(state), block, w->second);
+                    effect = 0xff00ff00; // @note blue + red
                     break;
                 }
                 case 3490: // @note Paint Bucket - Charcoal
                 {
-                    block.state ^= S_CHARCOAL;
+                    block.state |= S_CHARCOAL;
                     tile_update(event, std::move(state), block, w->second);
+                    effect = 0x3c3c3c00; // @note (half) blue + green + red
                     break;
                 }
             }
+            if (effect > 0.0f)
+            {
+                state_visuals(event, ::state{
+                    .type = 0x11,
+                    .pos = { static_cast<float>((state.punch.front() * 32) + 16), static_cast<float>((state.punch.back() * 32) + 16) },
+                    .speed = { effect, 0xa8 }
+                });
+            }
+
             peer->emplace(slot(item.id, -1));
             modify_item_inventory(event, {(short)item.id, 1});
             return;

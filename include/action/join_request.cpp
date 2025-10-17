@@ -64,10 +64,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 pos += sizeof(short);
                 pos += sizeof(short);
 
-                if (block.water) data[pos - 1zu] |= std::byte{ 0x04 };
-                if (block.glue)  data[pos - 1zu] |= std::byte{ 0x08 };
-                if (block.fire)  data[pos - 1zu] |= std::byte{ 0x10 };
-                // @todo add paint...
+                data[pos - 1zu] = std::byte{ block.state };
                 switch (items[block.fg].type)
                 {
                     case type::FOREGROUND: 

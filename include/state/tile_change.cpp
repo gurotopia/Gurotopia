@@ -231,19 +231,19 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case 822: // @note Water Bucket
                 {
-                    block.water = (block.water) ? false : true;
+                    block.state ^= S_WATER;
                     tile_update(event, std::move(state), block, w->second);
                     break;
                 }
                 case 1866: // @note Block Glue
                 {
-                    block.glue = (block.glue) ? false : true;
+                    block.state ^= S_GLUE;
                     tile_update(event, std::move(state), block, w->second);
                     break;
                 }
                 case 3062: // @note Pocket Lighter
                 {
-                    block.fire = true; // @todo if water used on same tile, make false.
+                    block.state ^= S_FIRE; // @todo
                     tile_update(event, std::move(state), block, w->second);
                     break;
                 }
@@ -255,11 +255,53 @@ skip_reset_tile: // @todo remove lazy method
 
                         if (state.punch == std::array<int, 2zu>{ std::lround(peers->pos[0]), std::lround(peers->pos[1]) }) // @todo improve accuracy
                         {
-                            peers->state ^= DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
+                            peers->state ^= S_DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
                             ENetEvent event_perspective{.peer = &p};
                             on::SetClothing(event_perspective);
                         }
                     });
+                    break;
+                }
+                case 3478: // @note Paint Bucket - Red
+                {
+                    block.state ^= S_RED;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+                case 3480: // @note Paint Bucket - Yellow
+                {
+                    block.state ^= S_YELLOW;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+                case 3482: // @note Paint Bucket - Green
+                {
+                    block.state ^= S_GREEN;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+                case 3484: // @note Paint Bucket - Aqua
+                {
+                    block.state ^= S_AQUA;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+                case 3486: // @note Paint Bucket - Blue
+                {
+                    block.state ^= S_BLUE;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+                case 3488: // @note Paint Bucket - Purple
+                {
+                    block.state ^= S_PURPLE;
+                    tile_update(event, std::move(state), block, w->second);
+                    break;
+                }
+                case 3490: // @note Paint Bucket - Charcoal
+                {
+                    block.state ^= S_CHARCOAL;
+                    tile_update(event, std::move(state), block, w->second);
                     break;
                 }
             }

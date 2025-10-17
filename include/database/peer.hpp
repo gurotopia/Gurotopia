@@ -33,11 +33,11 @@
         DEVELOPER
     };
 
-    enum pstate : u_int
+    enum pstate : int
     {
-        GHOST = 1,
-        DOUBLE_JUMP = 2,
-        DUCT_TAPE = 8192
+        S_GHOST = 1,
+        S_DOUBLE_JUMP = 2,
+        S_DUCT_TAPE = 8192
     };
     
     #include <deque>
@@ -61,7 +61,7 @@
 
         unsigned skin_color{ 2527912447 };
 
-        u_int state{}; // @note using pstate::
+        int state{}; // @note using pstate::
 
         Billboard billboard{};
 

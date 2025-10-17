@@ -2,14 +2,29 @@
 #ifndef WORLD_HPP
 #define WORLD_HPP
 
+    enum wstate : u_char
+    {
+        S_WATER = 4,
+        S_GLUE = 8,
+        S_FIRE = 0x10,
+        /* paint buckets */
+        S_RED = 0x20,
+        S_GREEN = 0x40,
+        S_YELLOW = S_RED | S_GREEN,
+        S_BLUE = 0x80,
+        S_AQUA = S_GREEN | S_BLUE,
+        S_PURPLE = S_RED | S_BLUE,
+        S_CHARCOAL = S_RED | S_GREEN | S_BLUE
+    };
+
     class block 
     {
     public:
         block(
             short _fg = 0, short _bg = 0, 
             bool __public = false, bool _toggled = false, std::chrono::steady_clock::time_point _tick = std::chrono::steady_clock::time_point(),
-            std::string _label = "", bool _water = false, bool _glue = false, bool _fire = false
-        ) : fg(_fg), bg(_bg), _public(__public), toggled(_toggled), tick(_tick), label(_label), water(_water), glue(_glue), fire(_fire) {}
+            std::string _label = "", u_char _state = 0
+        ) : fg(_fg), bg(_bg), _public(__public), toggled(_toggled), tick(_tick), label(_label), state(_state) {}
         short fg{0}, bg{0};
         
         bool _public{}; // @note tile can be interacted by anyone in the world
@@ -17,10 +32,7 @@
         std::chrono::steady_clock::time_point tick{}; // @note record a point in time for the tile e.g. tree growth, providers, ect.
         std::string label{}; // @note sign/door label
 
-        /* @todo make this a (XOR style) byte for all tile states. I will add paint in future !! */
-        bool water{};
-        bool glue{};
-        bool fire{};
+        u_char state{}; // @note uses wstate::
 
         std::array<int, 2zu> hits{0, 0}; // @note fg, bg
     };

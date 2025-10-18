@@ -24,7 +24,8 @@
         S_BLUE = 0x80,
         S_AQUA = S_GREEN | S_BLUE,
         S_PURPLE = S_RED | S_BLUE,
-        S_CHARCOAL = S_RED | S_GREEN | S_BLUE
+        S_CHARCOAL = S_RED | S_GREEN | S_BLUE,
+        S_VANISH = S_RED | S_YELLOW | S_GREEN | S_AQUA | S_BLUE | S_PURPLE | S_CHARCOAL
     };
 
     class block 

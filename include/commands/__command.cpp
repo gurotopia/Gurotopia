@@ -13,12 +13,16 @@
 #include "ageworld.hpp"
 #include "__command.hpp"
 
+/* if you plan to use this outside of this file, please include in __command.hpp (^-^) - and just make it a void. */
+auto help_return = [](ENetEvent& event, const std::string_view text) 
+{
+    packet::action(*event.peer, "log", "msg|>> Commands: /find /warp {world} /edit {player} /punch {id} /skin {id} /sb {msg} /who /me {msg} /weather {id} /ghost /ageworld /wave /dance /love /sleep /facepalm /fp /smh /yes /no /omg /idk /shrug /furious /rolleyes /foldarms /stubborn /fold /dab /sassy /dance2 /march /grumpy /shy");
+};
+
 std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::string_view)>> cmd_pool
 {
-    {"help", [](ENetEvent& event, const std::string_view text) 
-    {
-        packet::action(*event.peer, "log", "msg|>> Commands: /find /warp {world} /edit {player} /punch {id} /skin {id} /sb {msg} /who /me {msg} /weather {id} /ghost /ageworld /wave /dance /love /sleep /facepalm /fp /smh /yes /no /omg /idk /shrug /furious /rolleyes /foldarms /stubborn /fold /dab /sassy /dance2 /march /grumpy /shy");
-    }},
+    {"help", help_return },
+    {"?", help_return },
     {"find", &find},
     {"warp", &warp},
     {"edit", &edit},

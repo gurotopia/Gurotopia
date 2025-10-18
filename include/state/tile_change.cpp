@@ -32,6 +32,7 @@ void tile_change(ENetEvent& event, state state)
 
         block &block = w->second.blocks[cord(state.punch[0], state.punch[1])];
         item &item = (state.id != 32 && state.id != 18) ? items[state.id] : (block.fg != 0) ? items[block.fg] : items[block.bg];
+        
         if (state.id == 18) // @note punching a block
         {
             if (item.id == 0) return;
@@ -144,8 +145,12 @@ void tile_change(ENetEvent& event, state state)
             else if (block.hits.back() >= item.hits) block.bg = 0, block.hits.back() = 0;
             else return;
             
-            block.label = ""; // @todo
-            block.toggled = false; // @todo
+            /* @todo update these changes with tile_update() */
+            block.label = "";
+            block.toggled = false; // @todo handle background toggles, if any.
+            block.state3 = 0x00; // @note reset tile direction
+            block.state4 &= ~S_VANISH; // @note remove paint @todo handle for background/forground
+
             if (item.type == type::LOCK) 
             {
                 peer->prefix.front() = 'w';
@@ -318,7 +323,7 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case 3492: // @note Paint Bucket - Vanish
                 {
-                    block.state4 &= ~(S_RED | S_YELLOW | S_GREEN | S_AQUA | S_BLUE | S_PURPLE | S_CHARCOAL);
+                    block.state4 &= ~S_VANISH;
                     tile_update(event, std::move(state), block, w->second);
                     effect = 0xffffff00; // @todo get exact color. I just guessed T-T
                 }

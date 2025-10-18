@@ -217,7 +217,11 @@ skip_reset_tile: // @todo remove lazy method
                     ).c_str()
                 });
             }
-            float effect{ 0.0f };
+            if (item.raw_name.contains("Paint Bucket - "))
+            {
+                if (peer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
+            }
+            float effect{ 0.0f }; // @note allocate 'effect' only if peer is wearing a paint brush.
             switch (item.id)
             {
                 case 1404: // @note Door Mover
@@ -309,8 +313,14 @@ skip_reset_tile: // @todo remove lazy method
                 {
                     block.state |= S_CHARCOAL;
                     tile_update(event, std::move(state), block, w->second);
-                    effect = 0x3c3c3c00; // @note (half) blue + green + red
+                    effect = 0xffffffff; // @note B(blue)G(green)R(red)A(alpha/opacity) max will provide a pure black color. idk if growtopia is the same.
                     break;
+                }
+                case 3492: // @note Paint Bucket - Vanish
+                {
+                    block.state &= ~(S_RED | S_YELLOW | S_GREEN | S_AQUA | S_BLUE | S_PURPLE | S_CHARCOAL);
+                    tile_update(event, std::move(state), block, w->second);
+                    effect = 0xffffff00; // @todo get exact color. I just guessed T-T
                 }
             }
             if (effect > 0.0f)

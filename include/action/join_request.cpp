@@ -62,9 +62,9 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
                 *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
                 pos += sizeof(short);
-                pos += sizeof(short);
 
-                data[pos - 1zu] = std::byte{ block.state };
+                data[pos++] = std::byte{ block.state3 };
+                data[pos++] = std::byte{ block.state4 };
                 switch (items[block.fg].type)
                 {
                     case type::FOREGROUND: 
@@ -189,7 +189,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::PROVIDER:
                     {
-                        data[pos - 2zu] = std::byte{ 0x31 };
                         data.resize(data.size() + 5zu);
 
                         data[pos++] = std::byte{ 0x9 };

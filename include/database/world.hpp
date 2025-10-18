@@ -2,7 +2,17 @@
 #ifndef WORLD_HPP
 #define WORLD_HPP
 
-    enum wstate : u_char
+    enum wstate3 : u_char
+    {
+        S_LOCKED = 0x10,
+        S_TREE = 0x11,
+        S_RIGHT = 0x15, // @todo comfirm this number.
+        S_SIGN = 0x19,
+        S_LEFT = 0x31,
+        S_PUBLIC = 0x90
+    };
+
+    enum wstate4 : u_char
     {
         S_WATER = 4,
         S_GLUE = 8,
@@ -23,8 +33,8 @@
         block(
             short _fg = 0, short _bg = 0, 
             bool __public = false, bool _toggled = false, std::chrono::steady_clock::time_point _tick = std::chrono::steady_clock::time_point(),
-            std::string _label = "", u_char _state = 0
-        ) : fg(_fg), bg(_bg), _public(__public), toggled(_toggled), tick(_tick), label(_label), state(_state) {}
+            std::string _label = "", u_char _state3 = 0, u_char _state4 = 0
+        ) : fg(_fg), bg(_bg), _public(__public), toggled(_toggled), tick(_tick), label(_label), state3(_state3), state4(_state4) {}
         short fg{0}, bg{0};
         
         bool _public{}; // @note tile can be interacted by anyone in the world
@@ -32,7 +42,8 @@
         std::chrono::steady_clock::time_point tick{}; // @note record a point in time for the tile e.g. tree growth, providers, ect.
         std::string label{}; // @note sign/door label
 
-        u_char state{}; // @note uses wstate::
+        u_char state3{}; // @note direction | uses wstate3::
+        u_char state4{}; // @note water; glue; fire; paint | uses wstate4::
 
         std::array<int, 2zu> hits{0, 0}; // @note fg, bg
     };

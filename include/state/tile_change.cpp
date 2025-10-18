@@ -236,19 +236,19 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case 822: // @note Water Bucket
                 {
-                    block.state ^= S_WATER;
+                    block.state4 ^= S_WATER;
                     tile_update(event, std::move(state), block, w->second);
                     break;
                 }
                 case 1866: // @note Block Glue
                 {
-                    block.state ^= S_GLUE;
+                    block.state4 ^= S_GLUE;
                     tile_update(event, std::move(state), block, w->second);
                     break;
                 }
                 case 3062: // @note Pocket Lighter
                 {
-                    block.state ^= S_FIRE; // @todo
+                    block.state4 ^= S_FIRE; // @todo
                     tile_update(event, std::move(state), block, w->second);
                     break;
                 }
@@ -269,56 +269,56 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case 3478: // @note Paint Bucket - Red
                 {
-                    block.state |= S_RED;
+                    block.state4 |= S_RED;
                     tile_update(event, std::move(state), block, w->second);
                     effect = 0x0000ff00; 
                     break;
                 }
                 case 3480: // @note Paint Bucket - Yellow
                 {
-                    block.state |= S_YELLOW;
+                    block.state4 |= S_YELLOW;
                     tile_update(event, std::move(state), block, w->second);
                     effect = 0x00ffff00; // @note red + green
                     break;
                 }
                 case 3482: // @note Paint Bucket - Green
                 {
-                    block.state |= S_GREEN;
+                    block.state4 |= S_GREEN;
                     tile_update(event, std::move(state), block, w->second);
                     effect = 0x00ff0000;
                     break;
                 }
                 case 3484: // @note Paint Bucket - Aqua
                 {
-                    block.state |= S_AQUA;
+                    block.state4 |= S_AQUA;
                     tile_update(event, std::move(state), block, w->second);
                     effect = 0xffff0000; // @note blue + green
                     break;
                 }
                 case 3486: // @note Paint Bucket - Blue
                 {
-                    block.state |= S_BLUE;
+                    block.state4 |= S_BLUE;
                     tile_update(event, std::move(state), block, w->second);
                     effect = 0xff000000;
                     break;
                 }
                 case 3488: // @note Paint Bucket - Purple
                 {
-                    block.state |= S_PURPLE;
+                    block.state4 |= S_PURPLE;
                     tile_update(event, std::move(state), block, w->second);
                     effect = 0xff00ff00; // @note blue + red
                     break;
                 }
                 case 3490: // @note Paint Bucket - Charcoal
                 {
-                    block.state |= S_CHARCOAL;
+                    block.state4 |= S_CHARCOAL;
                     tile_update(event, std::move(state), block, w->second);
                     effect = 0xffffffff; // @note B(blue)G(green)R(red)A(alpha/opacity) max will provide a pure black color. idk if growtopia is the same.
                     break;
                 }
                 case 3492: // @note Paint Bucket - Vanish
                 {
-                    block.state &= ~(S_RED | S_YELLOW | S_GREEN | S_AQUA | S_BLUE | S_PURPLE | S_CHARCOAL);
+                    block.state4 &= ~(S_RED | S_YELLOW | S_GREEN | S_AQUA | S_BLUE | S_PURPLE | S_CHARCOAL);
                     tile_update(event, std::move(state), block, w->second);
                     effect = 0xffffff00; // @todo get exact color. I just guessed T-T
                 }
@@ -471,8 +471,13 @@ skip_reset_tile: // @todo remove lazy method
                     else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
                     break;
                 }
-                case type::SEED:
                 case type::PROVIDER:
+                {
+                    block.state3 |= (peer->facing_left) ? S_LEFT : S_RIGHT;
+                    block.tick = steady_clock::now();
+                    break;
+                }
+                case type::SEED:
                 {
                     if (block.fg != 0) return; // @todo add splicing
                     block.tick = steady_clock::now();

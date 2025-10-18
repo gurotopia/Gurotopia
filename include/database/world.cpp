@@ -35,7 +35,7 @@ public:
         "CREATE TABLE IF NOT EXISTS worlds (_n TEXT PRIMARY KEY, owner INTEGER, pub BOOLEAN);"
 
         "CREATE TABLE IF NOT EXISTS blocks ("
-            "_n TEXT, _p INTEGER, fg INTEGER, bg INTEGER, pub BOOLEAN, tog BOOLEAN, tick INTEGER, l TEXT, s INTEGER,"
+            "_n TEXT, _p INTEGER, fg INTEGER, bg INTEGER, pub BOOLEAN, tog BOOLEAN, tick INTEGER, l TEXT, s3 INTEGER, s4 INTEGER,"
             "PRIMARY KEY (_n, _p),"
             "FOREIGN KEY (_n) REFERENCES worlds(_n)"
         ");"
@@ -97,7 +97,7 @@ world::world(const std::string& name)
     }, name);
 
     blocks.resize(6000);
-    db.query("SELECT _p, fg, bg, pub, tog, tick, l, s FROM blocks WHERE _n = ?", [this](sqlite3_stmt* stmt) 
+    db.query("SELECT _p, fg, bg, pub, tog, tick, l, s3, s4 FROM blocks WHERE _n = ?", [this](sqlite3_stmt* stmt) 
     {
             int pos = sqlite3_column_int(stmt, 0);
             blocks[pos] = block(
@@ -107,7 +107,8 @@ world::world(const std::string& name)
                 sqlite3_column_int(stmt, 4),
                 std::chrono::steady_clock::time_point(std::chrono::seconds(sqlite3_column_int(stmt, 5))),
                 reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6)),
-                sqlite3_column_int(stmt, 7)
+                sqlite3_column_int(stmt, 7),
+                sqlite3_column_int(stmt, 8)
             );
     }, name);
      db.query("SELECT uid, i, c, x, y FROM ifloats WHERE _n = ?", [this](sqlite3_stmt* stmt) 
@@ -145,7 +146,7 @@ world::~world()
     
     for (int pos = 0; pos < blocks.size(); pos++) {
         const block &b = blocks[pos];
-        db.execute("INSERT INTO blocks (_n, _p, fg, bg, pub, tog, tick, l, s) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [this, &b, &pos](sqlite3_stmt* stmt) 
+        db.execute("INSERT INTO blocks (_n, _p, fg, bg, pub, tog, tick, l, s3, s4) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [this, &b, &pos](sqlite3_stmt* stmt) 
         {
             int i = 1;
             sqlite3_bind_text(stmt, i++, name.c_str(), -1, SQLITE_STATIC);
@@ -158,7 +159,8 @@ world::~world()
                 static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(
                     b.tick.time_since_epoch()).count()));
             sqlite3_bind_text(stmt, i++, b.label.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt, i++, b.state);
+            sqlite3_bind_int(stmt, i++, b.state3);
+            sqlite3_bind_int(stmt, i++, b.state4);
         });
     }
 
@@ -271,9 +273,9 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
     *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
     pos += sizeof(short);
-    pos += sizeof(short);
     
-    data[pos - 1zu] = std::byte{ block.state };
+    data[pos++] = std::byte{ block.state3 };
+    data[pos++] = std::byte{ block.state4 };
     switch (items[block.fg].type)
     {
         case type::ENTRANCE:
@@ -321,7 +323,6 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         }
         case type::PROVIDER:
         {
-            data[pos - 2zu] = std::byte{ 0x31 };
             data.resize(pos + 5zu);
 
             data[pos++] = std::byte{ 0x9 };

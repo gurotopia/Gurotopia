@@ -32,11 +32,10 @@ void tile_change(ENetEvent& event, state state)
 
         block &block = w->second.blocks[cord(state.punch[0], state.punch[1])];
         item &item = (state.id != 32 && state.id != 18) ? items[state.id] : (block.fg != 0) ? items[block.fg] : items[block.bg];
+        if (item.id == 0) return;
         
         if (state.id == 18) // @note punching a block
         {
-            if (item.id == 0) return;
-
             std::vector<std::pair<short, short>> im{}; // @note list of dropped items
             ransuu ransuu;
             bool _bypass{}; // @todo remove lazy method
@@ -47,11 +46,11 @@ void tile_change(ENetEvent& event, state state)
                 {
                     u_short number = ransuu[{0, 36}];
                     char color = (number == 0) ? '2' : (ransuu[{0, 3}] < 2) ? 'b' : '4';
-                    std::string message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", peer->prefix, peer->ltoken[0], color, number);
-                    peers(event, PEER_SAME_WORLD, [&peer, message](ENetPeer& p)
+                    const char* message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", peer->prefix, peer->ltoken[0], color, number).c_str();
+                    peers(event, PEER_SAME_WORLD, [peer, message](ENetPeer& p)
                     {
-                        packet::create(p, false, 2000, { "OnTalkBubble", peer->netid, message.c_str() });
-                        packet::create(p, false, 2000, { "OnConsoleMessage", message.c_str() });
+                        packet::create(p, false, 2000, { "OnTalkBubble", peer->netid, message });
+                        packet::create(p, false, 2000, { "OnConsoleMessage", message });
                     });
                     break;
                 }
@@ -77,10 +76,12 @@ void tile_change(ENetEvent& event, state state)
                         {
                             case 1008: // @note ATM
                             {
+                                /* @todo merge gems more effectively */
                                 int gems = ransuu[{1, 100}]; // @note source: https://growtopia.fandom.com/wiki/ATM_Machine
-                                while (gems >= 10) im.emplace_back(112, 10), gems-=10;
-                                while (gems >= 5) im.emplace_back(112, 5), gems-=5;
-                                while (gems >= 1) im.emplace_back(112, 1), gems-=1;
+                                for (int i : {100, 50, 10, 5, 1}/* gem type */)
+                                    for (; gems >= i; gems -= i/* downgrade type */)
+                                        im.emplace_back(112, i);
+                                        
                                 break;
                             }
                             case 872: // @note Chicken
@@ -149,7 +150,7 @@ void tile_change(ENetEvent& event, state state)
             block.label = "";
             block.toggled = false; // @todo handle background toggles, if any.
             block.state3 = 0x00; // @note reset tile direction
-            block.state4 &= ~S_VANISH; // @note remove paint @todo handle for background/forground
+            block.state4 &= ~S_VANISH; // @note remove paint
 
             if (item.type == type::LOCK) 
             {
@@ -162,25 +163,37 @@ void tile_change(ENetEvent& event, state state)
                 int uid = item_change_object(event, {remember_id, 1}, state.pos);
                 item_activate_object(event, ::state{.id = uid});
             }
+            else if (u_char(item.property) & 04) { } // @note "This item never drops any seeds."; should it drop a block?
             else // @note normal break (drop gem, seed, block & give XP)
             {
-                /* gem drop */
-                if (item.id == 340 || item.id == 5666) // @note Chandelier or Laser Grid
-                {
-                    int gems = ransuu[{1, 22}];
-                    if (ransuu[{0, 3}] < 3)
+                { /* gem drop */
+                    std::unordered_map<u_int, int> farmables { // @todo remove hardcode
+                        { 340, 22 }, // @note Chandelier
+                        { 454, 11 }, // @note Venus Guytrap
+                        { 526, 14 }, // @note Pinball Bumper
+                        { 596, 14 }, // @note Treasure Chest
+                        { 3002, 11}, // @note Fish Tank
+                        { 3838, 22}, // @note Sorcerer Stone
+                        { 5666, 18} // @note Laser Grid
+                    };
+                    if (farmables.contains(item.id))
                     {
-                        while (gems >= 10) im.emplace_back(112, 10), gems-=10;
-                        while (gems >= 5) im.emplace_back(112, 5), gems-=5;
-                        while (gems >= 1) im.emplace_back(112, 1), gems-=1;
+                        if (ransuu[{0, 3}] < 3) 
+                        {
+                            /* @todo merge gems more effectively */
+                            int gems = ransuu[{1, farmables[item.id]}];
+                            for (int i : {10, 5, 1}/* gem type */)
+                                for (; gems >= i; gems -= i/* downgrade type */)
+                                    im.emplace_back(112, i);
+                        }
+
+                        if (!ransuu[{0, 3}]) im.emplace_back(remember_id + 1, 1); // @note seed
                     }
-                    if (!ransuu[{0, 3}]) im.emplace_back(remember_id + 1, 1); // @note seed
-                }
-                else // @note normal drop rate
-                {
-                    if (!ransuu[{0, 7}]) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
-                }
-                /* ~gem drop */
+                    else // @note normal drop rate
+                    {
+                        if (!ransuu[{0, 7}]) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
+                    }
+                } /* ~gem drop */
 
                 if (!ransuu[{0, 11}]) im.emplace_back(remember_id, 1); // @note block
                 if (!ransuu[{0, 8}]) im.emplace_back(remember_id + 1, 1); // @note seed

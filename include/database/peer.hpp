@@ -70,7 +70,7 @@
         bool facing_left{}; // @note peer is directed towards the left direction
 
         short slot_size{16}; // @note amount of slots this peer has | were talking total slots not itemed slots, to get itemed slots do slot.size()
-        std::vector<slot> slots{{18, 1}, {32, 1}}; // @note an array of each slot. storing {id, count}
+        std::vector<slot> slots{{18, 1}, {32, 1}, {6336, 1}, {9640, 1}}; // @note an array of each slot. storing {id, count}
         /*
         * @brief set slot::count to nagative value if you want to remove an amount. 
         * @return the remaining amount if exeeds 200. e.g. emplace(slot{0, 201}) returns 1.

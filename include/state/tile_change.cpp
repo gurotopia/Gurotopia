@@ -350,6 +350,7 @@ skip_reset_tile: // @todo remove lazy method
                 });
             }
 
+            if (item.id == 6336) return; // @todo
             peer->emplace(slot(item.id, -1));
             modify_item_inventory(event, {(short)item.id, 1});
             return;

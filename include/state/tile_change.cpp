@@ -84,9 +84,29 @@ void tile_change(ENetEvent& event, state state)
                                         
                                 break;
                             }
-                            case 872:/*chicken*/ case 866:/*cow*/ // @note Chicken
+                            case 872:/*chicken*/ case 866:/*cow*/ case 1632:/*coffee maker*/ case 3888:/*sheep*/
                             {
-                                im.emplace_back(item.id+2, 1);
+                                im.emplace_back(item.id+2, ransuu[{1, 2}]);
+                                break;
+                            }
+                            case 5116:/*tea set*/
+                            {
+                                im.emplace_back(item.id-2, ransuu[{1, 2}]);
+                                break;
+                            }
+                            case 2798:/*well*/
+                            {
+                                im.emplace_back(822/*water bucket*/, ransuu[{1, 2}]);
+                                break;
+                            }
+                            case 928:/*science station*/ // @note source: https://growtopia.fandom.com/wiki/Science_Station
+                            {
+                                short chemcial = 
+                                    (!ransuu[{0, 16}]) ? chemcial = 918/*P*/ : 
+                                    (!ransuu[{0, 8}])  ? chemcial = 920/*B*/ : 
+                                    (!ransuu[{0, 6}])  ? chemcial = 924/*Y*/ : 
+                                    (!ransuu[{0, 4}])  ? chemcial = 916/*R*/ : chemcial = 914/*G*/;
+                                im.emplace_back(chemcial, 1);
                                 break;
                             }
                         }

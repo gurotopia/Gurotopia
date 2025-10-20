@@ -23,10 +23,10 @@ void data_modify(std::vector<std::byte>& data, u_int& pos, const T& value)
 void cache_items()
 {
     u_int pos{60};
-    short version{};
-    shift_pos(im_data, pos, version);
-    short count{};
-    shift_pos(im_data, pos, count); pos += 2; // @note downside count to 2 bit (short)
+    u_char version{};
+    shift_pos(im_data, pos, version); pos += 1; // @note downsize 'version' to 1 bit
+    u_short count{};
+    shift_pos(im_data, pos, count); pos += 2; // @note downside count to 2 bit
     static constexpr std::string_view token{"PBG892FXX982ABC*"};
     for (u_short i = 0; i < count; ++i)
     {
@@ -36,19 +36,19 @@ void cache_items()
         shift_pos(im_data, pos, im.property);
         shift_pos(im_data, pos, im.cat);
         shift_pos(im_data, pos, im.type);
-        pos += 1;
+        pos += sizeof(std::byte);
 
         short len = *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short);
         im.raw_name.resize(len);
         for (short i = 0; i < len; ++i) 
-            im.raw_name[i] = std::to_integer<char>(im_data[pos] ^ std::byte(token[(i + im.id) % token.length()])), 
+            im.raw_name[i] = std::to_integer<u_char>(im_data[pos]) ^ token[(i + im.id) % token.length()], 
             ++pos;
 
         pos += *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short);
 
-        pos += 13;
+        pos += sizeof(std::array<std::byte, 13zu>);
 
         shift_pos(im_data, pos, im.collision);
         {
@@ -69,7 +69,7 @@ void cache_items()
         if (im.type == type::AURA) im.cloth_type = clothing::ances;
         shift_pos(im_data, pos, im.rarity);
 
-        pos += 1;
+        pos += sizeof(std::byte);
 
         len = *reinterpret_cast<short*>(&im_data[pos]);
         pos += sizeof(short);
@@ -81,7 +81,7 @@ void cache_items()
             data_modify(im_data, pos, 0); // @todo make it only for IOS
         shift_pos(im_data, pos, im.audioHash);
 
-        pos += 4;
+        pos += sizeof(std::array<std::byte, 4zu>);
 
         pos += *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short);
@@ -95,7 +95,7 @@ void cache_items()
         pos += *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short);
 
-        pos += 16;
+       pos += sizeof(std::array<std::byte, 16zu>);
 
         shift_pos(im_data, pos, im.tick);
 
@@ -147,7 +147,8 @@ void cache_items()
             im.info.assign(reinterpret_cast<char*>(&im_data[pos]), len);
             pos += len;
         }
-        
+
         items.emplace(i, im);
     }
+    printf("parsed %zu items; %zu KB of stack memory\n", items.size(), (items.size() * sizeof(item)) / 1024);
 }

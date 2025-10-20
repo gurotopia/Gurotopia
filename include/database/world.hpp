@@ -50,13 +50,6 @@
     };
     #define cord(x,y) (y * 100 + x)
 
-    class tamagotchi
-    {
-    public:
-        std::string name{};
-        std::array<int, 2zu> pos;
-    };
-
     class door 
     {
     public:
@@ -91,7 +84,6 @@
         u_char visitors{0}; // @note the current number of peers in a world, excluding invisable peers
 
         std::vector<::block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
-        std::vector<::tamagotchi> tamagotchi_tachi;
         std::vector<::door> doors;
         int ifloat_uid{0}; // @note floating item UID
         std::unordered_map<int, ifloat> ifloats{}; // @note (i)tem floating

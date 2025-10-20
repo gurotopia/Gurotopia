@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 9a3ec005cbb4aab3d14a423b04aa53e0443b4f14 2025-10-19
+    @version perent SHA: 29b0f4ad0a6043a2650cf65292b9a5e9bdadfbb0 2025-10-20
 
     @authors
       @leeendl
@@ -60,6 +60,8 @@ int main()
         std::ifstream("items.dat", std::ios::binary)
             .read(reinterpret_cast<char*>(&im_data[60zu]), size);
 
+        printf("storing items.dat in binary; %zu KB of stack memory\n", im_data.size() / 1024);
+
         cache_items();
     } // @note delete size
     catch (std::filesystem::filesystem_error error) { puts(error.what()); }
@@ -67,7 +69,7 @@ int main()
 
     ENetEvent event{};
     while (true)
-        while (enet_host_service(server, &event, 1/*ms*/) > 0)
+        while (enet_host_service(server, &event, 100/*ms*/) > 0)
             if (const auto i = event_pool.find(event.type); i != event_pool.end())
                 i->second(event);
     return 0;

@@ -7,18 +7,9 @@
 void action::enter_game(ENetEvent& event, const std::string& header) 
 {
     auto &peer = _peer[event.peer];
+
     peer->user_id = fnv1a(peer->ltoken[0]); // @note this is to proeprly downgrade std::hash to integer size hash (Growtopia Standards)
     peer->prefix = (peer->role == MODERATOR) ? "#@" : (peer->role == DEVELOPER) ? "8@" : peer->prefix;
-
-    std::string fav_list{};
-    for (short &fav : peer->fav)
-        fav_list.append(std::format("{},", fav));
-
-    packet::create(*event.peer, false, 0, {
-        "OnSendFavItemsList",
-        fav_list,
-        peer->fav.size()
-    });
 
     on::RequestWorldSelectMenu(event);
     packet::create(*event.peer, false, 0, {
@@ -26,7 +17,7 @@ void action::enter_game(ENetEvent& event, const std::string& header)
         std::format("Welcome back, `{}{}````. No friends are online.", 
             peer->prefix, peer->ltoken[0]).c_str()
     }); 
-    packet::create(*event.peer, false, 0, {"OnConsoleMessage", "`5Personal Settings active:`` `#Can customize profile``"}); 
+    packet::create(*event.peer, false, 0, {"OnConsoleMessage", "`5Personal Settings active:`` `#Can customize profile``"});
     packet::create(*event.peer, false, 0, {
         "UpdateMainMenuTheme", 
         0,

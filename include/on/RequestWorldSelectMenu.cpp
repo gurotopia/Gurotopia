@@ -4,6 +4,7 @@
 void on::RequestWorldSelectMenu(ENetEvent& event) 
 {
     auto &peer = _peer[event.peer];
+    
     auto section = [&peer](const auto& range, const char* color) 
     {
         std::string result;

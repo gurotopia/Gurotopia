@@ -99,51 +99,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data[pos++] = std::byte{ 00 }; // @note '\0'
                         break;
                     }
-                    case type::SILKWORM:
-                    {
-                        std::string dummy = "Lattish";
-                        data[pos - 2] = std::byte{ 0x01 };
-                        short len = static_cast<short>(dummy.length());
-                        data.resize(data.size() + 50zu/*@todo*/ + len);
-
-                        data[pos++] = std::byte{ 0x1f };
-                        data[pos++] = std::byte{ 00 }; // @note died = 01
-
-                        *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-                        for (const char& c : dummy) data[pos++] = static_cast<std::byte>(c);
-
-                        short *uVar1 = reinterpret_cast<short*>(&data[pos]);
-
-                        steady_clock::time_point dummy_1_day_age = steady_clock::now() + 24h;
-                        uVar1[0] = (steady_clock::now() - dummy_1_day_age) / 1s; pos += sizeof(short);
-                        uVar1[1] = (steady_clock::now() - dummy_1_day_age) / 24h; pos += sizeof(short);
-
-                        uVar1[2] = 0x0000; pos += sizeof(short);
-                        uVar1[3] = 0x0000; pos += sizeof(short); // @note silk ready to collect is 00 02
-
-                        *reinterpret_cast<int*>(&data[pos]) = 2; pos += sizeof(int); 
-                        data[pos++] = std::byte{ 01 };
-                        uVar1 = reinterpret_cast<short*>(&data[pos]);
-
-                        /* Hungry */
-                        steady_clock::time_point dummy_hunger = steady_clock::now() + 13h;
-                        uVar1[4] = (steady_clock::now() - dummy_hunger) / 1s; pos += sizeof(short);
-                        uVar1[5] = 1; pos += sizeof(short);
-
-                        /* Thirsty */
-                        steady_clock::time_point dummy_thirst = steady_clock::now() + 13h;
-                        uVar1[6] = (steady_clock::now() - dummy_thirst) / 1s; pos += sizeof(short);
-                        uVar1[7] = 1; pos += sizeof(short);
-
-                        /*                                      B G R A */
-                        *reinterpret_cast<int*>(&data[pos]) = 0x496628ff; pos += sizeof(int);
-                        uVar1 = reinterpret_cast<short*>(&data[pos]);
-
-                        /* ill */
-                        uVar1[8] = 0x0000; pos += sizeof(short);
-                        uVar1[9] = 0; pos += sizeof(short);
-                        break;
-                    }
                     case type::ENTRANCE:
                     {
                         data[pos - 2zu] = (block._public) ? std::byte{ 0x90 } : std::byte{ 0x10 };

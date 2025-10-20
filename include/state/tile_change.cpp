@@ -84,12 +84,7 @@ void tile_change(ENetEvent& event, state state)
                                         
                                 break;
                             }
-                            case 872: // @note Chicken
-                            {
-                                im.emplace_back(item.id+2, 1);
-                                break;
-                            }
-                            case 866: // @note Cow
+                            case 872:/*chicken*/ case 866:/*cow*/ // @note Chicken
                             {
                                 im.emplace_back(item.id+2, 1);
                                 break;

@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: f0b50937f5fee19846e1ccbf1bbe8003d1a27dc9 2025-10-20
+    @version perent SHA: c68787a2ec0f4f647aa89e82efa8b4510d9e84d8 2025-10-23
 
     @authors
       @leeendl

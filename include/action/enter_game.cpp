@@ -11,6 +11,12 @@ void action::enter_game(ENetEvent& event, const std::string& header)
     peer->user_id = fnv1a(peer->ltoken[0]); // @note this is to proeprly downgrade std::hash to integer size hash (Growtopia Standards)
     peer->prefix = (peer->role == MODERATOR) ? "#@" : (peer->role == DEVELOPER) ? "8@" : peer->prefix;
 
+    if (peer->slots.size() <= 2) // @note growpedia acts as the 3rd slot; meaning if a peer only has 2 slots they are new player.
+    {
+        peer->emplace({6336, 1}); // @note growpedia | cannot trash/drop
+        peer->emplace({9640, 1}); // @note My First World Lock
+    }
+
     on::RequestWorldSelectMenu(event);
     packet::create(*event.peer, false, 0, {
         "OnConsoleMessage", 

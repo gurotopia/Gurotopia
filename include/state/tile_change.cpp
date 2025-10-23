@@ -77,8 +77,8 @@ void tile_change(ENetEvent& event, state state)
                             case 1008: // @note ATM
                             {
                                 /* @todo merge gems more effectively */
-                                int gems = ransuu[{1, 100}]; // @note source: https://growtopia.fandom.com/wiki/ATM_Machine
-                                for (int i : {100, 50, 10, 5, 1}/* gem type */)
+                                u_char gems = ransuu[{1, 100}]; // @note source: https://growtopia.fandom.com/wiki/ATM_Machine
+                                for (short i : {100, 50, 10, 5, 1}/* gem type */)
                                     for (; gems >= i; gems -= i/* downgrade type */)
                                         im.emplace_back(112, i);
                                         
@@ -182,36 +182,24 @@ void tile_change(ENetEvent& event, state state)
             else // @note normal break (drop gem, seed, block & give XP)
             {
                 { /* gem drop */
-                    std::unordered_map<u_int, int> farmables { // @todo remove hardcode
-                        { 340, 22 }, // @note Chandelier
-                        { 454, 11 }, // @note Venus Guytrap
-                        { 526, 14 }, // @note Pinball Bumper
-                        { 596, 14 }, // @note Treasure Chest
-                        { 3002, 11}, // @note Fish Tank
-                        { 3838, 22}, // @note Sorcerer Stone
-                        { 5666, 18} // @note Laser Grid
-                    };
-                    if (farmables.contains(item.id))
-                    {
-                        if (ransuu[{0, 3}] < 3) 
-                        {
-                            /* @todo merge gems more effectively */
-                            int gems = ransuu[{1, farmables[item.id]}];
-                            for (int i : {10, 5, 1}/* gem type */)
-                                for (; gems >= i; gems -= i/* downgrade type */)
-                                    im.emplace_back(112, i);
-                        }
+                    /* if greater than 1, assume it's a farmable.*/
+                    int rarity_to_gem =
+                        (item.rarity >= 87) ? 22 : 
+                        (item.rarity >= 68) ? 18 : 
+                        (item.rarity >= 53) ? 14 : 
+                        (item.rarity >= 41) ? 11 : 1;
 
-                        if (!ransuu[{0, 3}]) im.emplace_back(remember_id + 1, 1); // @note seed
-                    }
-                    else // @note normal drop rate
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 2 : 4}]) // @note double chances if farmable.
                     {
-                        if (!ransuu[{0, 7}]) im.emplace_back(112, 1); // @todo get real growtopia gem drop amount.
+                        /* @todo merge gems more effectively */
+                        u_char gems = ransuu[{1, rarity_to_gem}];
+                        for (short i : {10, 5, 1}/* gem type */)
+                            for (; gems >= i; gems -= i/* downgrade type */)
+                                im.emplace_back(112, i);
                     }
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 5 : 10}]) im.emplace_back(remember_id, 1); // @note block
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 3 : 6}]) im.emplace_back(remember_id + 1, 1); // @note seed
                 } /* ~gem drop */
-
-                if (!ransuu[{0, 11}]) im.emplace_back(remember_id, 1); // @note block
-                if (!ransuu[{0, 8}]) im.emplace_back(remember_id + 1, 1); // @note seed
 
 skip_reset_tile: // @todo remove lazy method
 

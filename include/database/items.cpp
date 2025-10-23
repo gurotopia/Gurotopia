@@ -34,7 +34,10 @@ void cache_items()
         
         shift_pos(im_data, pos, im.id); pos += 2; // @note downside im.id to 2 bit (short)
         shift_pos(im_data, pos, im.property);
+
         shift_pos(im_data, pos, im.cat);
+        if (im.id == 6336) im.cat = 0x80; // @todo or |=
+
         shift_pos(im_data, pos, im.type);
         pos += sizeof(std::byte);
 

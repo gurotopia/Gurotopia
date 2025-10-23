@@ -2,13 +2,7 @@
 
 # © XeyyzuV2
 
-# Script to install the necessary dependencies for the Gurotopia server
-# on Debian-based systems (like Ubuntu).
-# This includes installing g++-13 to support C++20 features.
-
-echo "======================================"
-echo "Gurotopia Dependency Installer v0.1.0"
-echo "======================================"
+echo "Gurotopia installer 2025-9-23 sha-48701e5f8a9082e3f2b6c42cd29fecdc3c488f95"
 echo
 
 # Check if the script is run with root privileges (sudo)

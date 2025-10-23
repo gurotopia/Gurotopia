@@ -192,8 +192,8 @@ void safe_disconnect_peers(int signal)
             enet_peer_disconnect(&p, 0);
         }
 
+    enet_host_destroy(server);
     enet_deinitialize();
-    exit(0);
 }
 
 state get_state(const std::vector<std::byte> &&packet) 

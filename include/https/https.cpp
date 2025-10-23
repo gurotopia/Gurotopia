@@ -31,18 +31,11 @@ void https::listener(_server_data server_data)
             ERR_print_errors_fp(stderr);
 
     SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1);
-
     SSL_CTX_set_cipher_list(ctx, "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305");
-    SSL_CTX_set_ecdh_auto(ctx, 1);
-
-    SSL_CTX_set_mode(ctx, SSL_MODE_RELEASE_BUFFERS | SSL_MODE_AUTO_RETRY);
 
     SOCKET socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
     setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(enable));
-#ifdef SO_REUSEPORT // @note unix
-    setsockopt(socket, SOL_SOCKET, SO_REUSEPORT, (char*)&enable, sizeof(enable));
-#endif
 #ifdef TCP_FASTOPEN
     setsockopt(socket, IPPROTO_TCP, TCP_FASTOPEN, (char*)&enable, sizeof(enable));
 #endif

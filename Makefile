@@ -1,49 +1,41 @@
-CXX = g++
-CXXFLAGS = -std=c++2b -g -Iinclude -MMD -MP -MF $(BUILD_DIR)/$*.d
+CXX := g++
+CXXFLAGS := -std=c++2b -g -Iinclude -MMD -MP
+LIBS := -L./include/enet/lib -lssl -lcrypto -lsqlite3
 
-LIBS := -L./include/enet/lib
-
-BUILD_DIR = build
+BUILD_DIR := build
 
 ifeq ($(OS),Windows_NT)
-    LIBS += -lssl -lcrypto -lenet_32 -lws2_32 -lwinmm -lsqlite3
-    TARGET_NAME := main.exe
+	LIBS += -lenet_32 -lws2_32 -lwinmm
+	OUTPUT := main.exe
 else
-    LIBS += -lssl -lcrypto -lenet -lsqlite3
-    TARGET_NAME := main.out
+	LIBS += -lenet
+	OUTPUT := main.out
 endif
 
-TARGET = $(TARGET_NAME)
-PCH = $(BUILD_DIR)/pch.gch
+all: $(OUTPUT)
 
-all: $(BUILD_DIR) $(PCH) $(TARGET)
+SOURCES := main.cpp \
+		$(wildcard include/*.cpp) \
+		$(wildcard include/**/*.cpp) \
+		$(wildcard include/**/**/*.cpp)
 
-SOURCES := main.cpp $(wildcard include/**/*.cpp) $(wildcard include/**/**/*.cpp) # todo
-OBJECTS := $(patsubst %.cpp,$(BUILD_DIR)/%.o,$(SOURCES))
+OBJECTS := $(SOURCES:%.cpp=$(BUILD_DIR)/%.o)
+DEPS := $(OBJECTS:.o=.d)
 
-$(TARGET): $(OBJECTS)
-	$(CXX) $^ -o $@ $(LIBS)
+$(OUTPUT): $(OBJECTS)
+	$(CXX) $(OBJECTS) -o $@ $(LIBS)
 
-$(BUILD_DIR) :
-	@mkdir -p $(BUILD_DIR)
-	@mkdir -p $(BUILD_DIR)/include/action
-	@mkdir -p $(BUILD_DIR)/include/action/dialog_return
-	@mkdir -p $(BUILD_DIR)/include/commands
-	@mkdir -p $(BUILD_DIR)/include/database
-	@mkdir -p $(BUILD_DIR)/include/event_type
-	@mkdir -p $(BUILD_DIR)/include/https
-	@mkdir -p $(BUILD_DIR)/include/on
-	@mkdir -p $(BUILD_DIR)/include/packet
-	@mkdir -p $(BUILD_DIR)/include/state
-	@mkdir -p $(BUILD_DIR)/include/tools
+$(BUILD_DIR)/pch.gch: include/pch.hpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -Iinclude -x c++-header $< -o $@
 
-$(PCH): include/pch.hpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -x c++-header $< -o $@
-
-$(BUILD_DIR)/%.o: %.cpp $(PCH) | $(BUILD_DIR)
+$(BUILD_DIR)/%.o: %.cpp $(BUILD_DIR)/pch.gch | $(BUILD_DIR)
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
--include $(OBJECTS:.o=.d)
+$(BUILD_DIR):
+	@mkdir -p $@
+
+-include $(DEPS)
 
 clean:
 	rm -rf $(BUILD_DIR)

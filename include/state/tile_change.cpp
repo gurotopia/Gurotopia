@@ -154,7 +154,7 @@ void tile_change(ENetEvent& event, state state)
             }
             tile_apply_damage(event, std::move(state), block);
             
-            short remember_id = item.id;
+            short remember_id = (item.type == type::SEED) ? item.id - 1 : item.id; // @todo
             if (_bypass) goto skip_reset_tile; // @todo remove lazy method
 
             if (block.hits.front() >= item.hits) block.fg = 0, block.hits.front() = 0;
@@ -187,9 +187,12 @@ void tile_change(ENetEvent& event, state state)
                         (item.rarity >= 87) ? 22 : 
                         (item.rarity >= 68) ? 18 : 
                         (item.rarity >= 53) ? 14 : 
-                        (item.rarity >= 41) ? 11 : 1;
+                        (item.rarity >= 41) ? 11 : 
+                        (item.rarity >= 36) ? 10 :
+                        (item.rarity >= 32) ? 9 :
+                        (item.rarity >= 24) ? 5 : 1;
 
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 2 : 4}]) // @note double chances if farmable.
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 1 : 4}]) // @note double chances if farmable.
                     {
                         /* @todo merge gems more effectively */
                         u_char gems = ransuu[{1, rarity_to_gem}];

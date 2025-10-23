@@ -105,7 +105,7 @@ world::world(const std::string& name)
                 sqlite3_column_int(stmt, 2),
                 sqlite3_column_int(stmt, 3),
                 sqlite3_column_int(stmt, 4),
-                std::chrono::steady_clock::time_point(std::chrono::seconds(sqlite3_column_int(stmt, 5))),
+                steady_clock::time_point(std::chrono::seconds(sqlite3_column_int64(stmt, 5))),
                 reinterpret_cast<const char*>(sqlite3_column_text(stmt, 6)),
                 sqlite3_column_int(stmt, 7),
                 sqlite3_column_int(stmt, 8)
@@ -155,9 +155,7 @@ world::~world()
             sqlite3_bind_int(stmt, i++, b.bg);
             sqlite3_bind_int(stmt, i++, b._public);
             sqlite3_bind_int(stmt, i++, b.toggled);
-            sqlite3_bind_int(stmt, i++, 
-                static_cast<int>(std::chrono::duration_cast<std::chrono::seconds>(
-                    b.tick.time_since_epoch()).count()));
+            sqlite3_bind_int64(stmt, i++, duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count());
             sqlite3_bind_text(stmt, i++, b.label.c_str(), -1, SQLITE_STATIC);
             sqlite3_bind_int(stmt, i++, b.state3);
             sqlite3_bind_int(stmt, i++, b.state4);
@@ -316,8 +314,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
             data.resize(pos + 1zu + 5zu);
 
             data[pos++] = std::byte{ 04 };
-            *reinterpret_cast<short*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(short);
-            *reinterpret_cast<short*>(&data[pos]) = (steady_clock::now() - block.tick) / 24h; pos += sizeof(short); // @todo confirm this
+            *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
             data[pos++] = std::byte{ 03 }; // @note fruit on tree
             break;
         }

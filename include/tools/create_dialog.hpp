@@ -10,7 +10,7 @@ public:
     create_dialog& set_default_color(std::string code);
     create_dialog& add_label(std::string size, std::string label);
     create_dialog& add_label_with_icon(std::string size, std::string label, int icon);
-    create_dialog& add_label_with_ele_icon(std::string size, std::string label, int icon, char element);
+    create_dialog& add_label_with_ele_icon(std::string size, std::string label, int icon, u_char element);
     create_dialog& add_textbox(std::string label);
     create_dialog& add_text_input(std::string id, std::string label, short set_value, short length);
     create_dialog& embed_data(std::string id, std::string data);

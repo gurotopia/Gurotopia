@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "tools/string.hpp"
+#include "tools/create_dialog.hpp"
 #include "info.hpp"
 
 std::vector<std::string> properties(std::byte property) 
@@ -25,34 +26,28 @@ void action::info(ENetEvent& event, const std::string& header)
 
     item &item = items[atoi(itemID.c_str())];
 
-    auto section = [](const auto& range) 
-    {
-        if (range.empty()) return std::string{};
-        
-        std::string list{};
-        for (const auto& buff : range) 
-            list.append(std::format("add_textbox|{}|left|\n", buff));
+    ::create_dialog create_dialog = 
+    ::create_dialog()
+        .set_default_color("`o")
+        .add_label_with_ele_icon("big", std::format("`wAbout {}``", item.raw_name), item.id, 0)
+        .add_spacer("small")
+        .add_textbox(item.info)
+        .add_spacer("small");
 
-        return list;
-    };
+    if (item.rarity < 999)
+        create_dialog
+            .add_textbox(std::format("Rarity: `w{}``", item.rarity))
+            .add_spacer("small");
+    
+    for (const std::string &prop : properties(item.property)) 
+        create_dialog.add_textbox(prop);
 
     packet::create(*event.peer, false, 0,
     {
         "OnDialogRequest",
-        std::format(
-            "set_default_color|`o\n"
-            "add_label_with_ele_icon|big|`wAbout {0}``|left|{1}|{2}|\n"
-            "add_spacer|small|\n"
-            "add_textbox|{3}|left|\n"
-            "add_spacer|small|\n"
-            "{4}"
-            "{5}"
-            "add_spacer|small|\n"
-            "embed_data|itemID|{1}\n"
-            "end_dialog|continue||OK|\n",
-            item.raw_name, item.id, "0"/*@todo*/, item.info, 
-            (item.rarity == 999) ? "" : std::format("add_textbox|Rarity: `w{}``|left|\nadd_spacer|small|\n", item.rarity), 
-            section(properties(item.property))
-        ).c_str()
+        create_dialog
+            .add_spacer("small")
+            .embed_data("itemID", std::to_string(item.id))
+            .end_dialog("continue", "", "OK").c_str()
     });
 }

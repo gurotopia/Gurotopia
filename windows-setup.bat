@@ -1,13 +1,11 @@
 @echo off
-echo Gurotopia installer 2025-10-23 sha-153a00624228785ded334518fa68c9a469ed2789
+echo Gurotopia installer 2025-10-25 sha-43addcd9b816e2039368c8f20d226316a3251aba
 
 if not exist "%USERPROFILE%\AppData\Local\Programs\Microsoft VS Code\Code.exe" (
 	powershell -Command "Start-BitsTransfer -Source 'https://code.visualstudio.com/sha/download?build=stable&os=win32-x64-user' -Destination 'installer.exe'"
 	start /wait installer.exe /silent /mergetasks=!runcode
 	del installer.exe
 )
-
-set "PATH=%PATH%;%USERPROFILE%\AppData\Local\Programs\Microsoft VS Code\bin"
 
 where code >nul 2>nul && (
 	code --list-extensions | findstr /I "ms-vscode.cpptools" >nul || (

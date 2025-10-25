@@ -1,5 +1,6 @@
 #include <string>
 #include <format>
+#include <_bsd_types.h>
 #include "create_dialog.hpp"
 
 
@@ -18,7 +19,7 @@ create_dialog& create_dialog::add_label_with_icon(std::string size, std::string 
     _d.append(std::format("add_label_with_icon|{}|{}|left|{}|\n", size, label, icon));
     return *this;
 }
-create_dialog& create_dialog::add_label_with_ele_icon(std::string size, std::string label, int icon, char element)
+create_dialog& create_dialog::add_label_with_ele_icon(std::string size, std::string label, int icon, u_char element)
 {
     _d.append(std::format("add_label_with_ele_icon|{}|{}|left|{}|{}|\n", size, label, icon, element));
     return *this;

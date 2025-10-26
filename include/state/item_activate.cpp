@@ -6,8 +6,8 @@
 void item_activate(ENetEvent& event, state state)
 {
     auto &peer = _peer[event.peer];
-    item &item = items[state.id];
 
+    ::item &item = items[state.id];
     if (item.cloth_type != clothing::none) 
     {
         float &cloth_type = peer->clothing[item.cloth_type];

@@ -42,18 +42,15 @@ void action::input(ENetEvent& event, const std::string& header)
         else 
             packet::action(*event.peer, "log", "msg|`4Unknown command.`` Enter `$/?`` for a list of valid commands.");
     }
-    else peers(event, PEER_SAME_WORLD, [&peer, &text](ENetPeer& p) 
+    else 
     {
         if (peer->state & S_DUCT_TAPE) text = "mfmm"; // @todo scalewith length of message. e.g. "hello" -> "mfmm"; "hello world" -> "mfmm mmfmfm"
-        packet::create(p, false, 0, {
-            "OnTalkBubble", 
-            peer->netid, 
-            std::format("CP:0_PL:0_OID:_player_chat={}", text).c_str()
+        const char* talkBubble = std::format("CP:0_PL:0_OID:_player_chat={}", text).c_str();
+        const char* message = std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", peer->prefix, peer->ltoken[0], text).c_str();
+        peers(event, PEER_SAME_WORLD, [&peer, talkBubble, message](ENetPeer& p) 
+        {
+            packet::create(p, false, 0, { "OnTalkBubble", peer->netid, talkBubble });
+            packet::create(p, false, 0, { "OnConsoleMessage", message });
         });
-        packet::create(p, false, 0, {
-            "OnConsoleMessage", 
-            std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", 
-                peer->prefix, peer->ltoken[0], text).c_str()
-        });
-    });
+    }
 }

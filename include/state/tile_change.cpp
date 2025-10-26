@@ -24,14 +24,17 @@ void tile_change(ENetEvent& event, state state)
     try
     {
         auto &peer = _peer[event.peer];
+
         auto w = worlds.find(peer->recent_worlds.back());
         if (w == worlds.end()) return;
+        ::world &world = w->second;
 
-        if ((w->second.owner && !w->second._public && !peer->role) &&
-            (peer->user_id != w->second.owner && !std::ranges::contains(w->second.admin, peer->user_id))) return;
+        if ((world.owner && !world._public && !peer->role) &&
+            (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
 
-        block &block = w->second.blocks[cord(state.punch[0], state.punch[1])];
-        item &item = (state.id != 32 && state.id != 18) ? items[state.id] : (block.fg != 0) ? items[block.fg] : items[block.bg];
+        ::block &block = world.blocks[cord(state.punch[0], state.punch[1])];
+
+        ::item &item = (state.id != 32 && state.id != 18) ? items[state.id] : (block.fg != 0) ? items[block.fg] : items[block.bg];
         if (item.id == 0) return;
         
         if (state.id == 18) // @note punching a block
@@ -44,7 +47,7 @@ void tile_change(ENetEvent& event, state state)
             {
                 case 758: // @note Roulette Wheel
                 {
-                    u_short number = ransuu[{0, 36}];
+                    u_char number = ransuu[{0, 36}];
                     char color = (number == 0) ? '2' : (ransuu[{0, 3}] < 2) ? 'b' : '4';
                     const char* message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", peer->prefix, peer->ltoken[0], color, number).c_str();
                     peers(event, PEER_SAME_WORLD, [peer, message](ENetPeer& p)
@@ -61,7 +64,7 @@ void tile_change(ENetEvent& event, state state)
                 case type::MAIN_DOOR: throw std::runtime_error("(stand over and punch to use)"); break;
                 case type::LOCK:
                 {
-                    if (peer->user_id != w->second.owner) 
+                    if (peer->user_id != world.owner) 
                     {
                         // @todo add message saying who owns the lock.
                         return;
@@ -132,7 +135,7 @@ void tile_change(ENetEvent& event, state state)
                     {
                         packet::create(p, false, 0, { "OnSetCurrentWeather", (block.toggled) ? get_weather_id(item.id) : 0 });
                     });
-                    for (::block &b : w->second.blocks)
+                    for (::block &b : world.blocks)
                         if (items[b.fg]/*@todo*/.type == type::WEATHER_MACHINE && b.fg != block.fg) b.toggled = false;
                     
                     break;
@@ -170,7 +173,7 @@ void tile_change(ENetEvent& event, state state)
             if (item.type == type::LOCK) 
             {
                 peer->prefix.front() = 'w';
-                w->second.owner = 0; // @todo handle sl, bl, hl
+                world.owner = 0; // @todo handle sl, bl, hl
             }
 
             if (item.cat == 0x02) // pick up (item goes back in your inventory)
@@ -367,7 +370,7 @@ skip_reset_tile: // @todo remove lazy method
             {
                 case type::LOCK: // @todo handle sl, bl, hl, builder lock, ect.
                 {
-                    if (peer->user_id == w->second.owner)
+                    if (peer->user_id == world.owner)
                     {
                         packet::create(*event.peer, false, 0, {
                             "OnDialogRequest",
@@ -393,7 +396,7 @@ skip_reset_tile: // @todo remove lazy method
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item.raw_name, item.id, state.punch[0], state.punch[1], to_char(w->second._public)
+                                item.raw_name, item.id, state.punch[0], state.punch[1], to_char(world._public)
                             ).c_str()
                         });
                     }
@@ -403,7 +406,7 @@ skip_reset_tile: // @todo remove lazy method
                 case type::PORTAL:
                 {
                     std::string dest, id{};
-                    for (::door& door : w->second.doors)
+                    for (::door& door : world.doors)
                         if (door.pos == state.punch) dest = door.dest, id = door.id;
                         
                     packet::create(*event.peer, false, 0, {
@@ -464,34 +467,34 @@ skip_reset_tile: // @todo remove lazy method
             {
                 case type::LOCK:
                 {
-                    if (!w->second.owner)
+                    if (!world.owner)
                     {
-                        w->second.owner = peer->user_id;
+                        world.owner = peer->user_id;
                         if (!peer->role) peer->prefix.front() = '2';
                         state.type = 0x0f;
-                        state.netid = w->second.owner;
+                        state.netid = world.owner;
                         state.peer_state = 0x08;
                         state.id = state.id;
-                        if (std::ranges::find(peer->my_worlds, w->second.name) == peer->my_worlds.end()) 
+                        if (std::ranges::find(peer->my_worlds, world.name) == peer->my_worlds.end()) 
                         {
                             std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
-                            peer->my_worlds.back() = w->second.name;
+                            peer->my_worlds.back() = world.name;
                         }
-                        peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
+                        const char* placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", w->first, peer->ltoken[0]).c_str();
+                        peers(event, PEER_SAME_WORLD, [&peer, placed_message](ENetPeer& p) 
                         {
-                            std::string placed_message{ std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", w->first, peer->ltoken[0]) };
                             packet::create(p, false, 0, {
                                 "OnTalkBubble", 
                                 peer->netid,
-                                placed_message.c_str(),
+                                placed_message,
                                 0u
                             });
                             packet::create(p, false, 0, {
                                 "OnConsoleMessage",
-                                placed_message.c_str()
+                                placed_message
                             });
                         });
-                        on::NameChanged(event);
+                        on::NameChanged(event); // @todo
                     }
                     else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
                     break;
@@ -515,7 +518,7 @@ skip_reset_tile: // @todo remove lazy method
                     {
                         packet::create(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
                     });
-                    for (::block &b : w->second.blocks)
+                    for (::block &b : world.blocks)
                         if (items[b.fg]/*@todo*/.type == type::WEATHER_MACHINE && b.fg != state.id) b.toggled = false;
                     break;
                 }
@@ -533,7 +536,7 @@ skip_reset_tile: // @todo remove lazy method
             peer->emplace(slot(state.id, -1));
             modify_item_inventory(event, {(short)item.id, 1});
         }
-        if (state.netid != w->second.owner) state.netid = peer->netid;
+        if (state.netid != world.owner) state.netid = peer->netid;
         state_visuals(event, std::move(state)); // finished.
     }
     catch (const std::exception& exc)

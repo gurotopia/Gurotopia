@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 20fa469eb7ba3750b2114c5830b153ab4b25efc1 2025-10-25
+    @version perent SHA: a32649dde25802affb60bed810aa2ca600893031 2025-10-26
 
     @authors
       @leeendl
@@ -39,7 +39,7 @@ int main()
             .port = server_data.port
         };
 
-        server = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu, 2zu, 0, 0);
+        server = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu/* max peer count */, 2zu, 0, 0);
         std::thread(&https::listener, server_data).detach();
     } // @note delete server_data, address
     server->usingNewPacketForServer = true;
@@ -50,7 +50,7 @@ int main()
     {
         const uintmax_t size = std::filesystem::file_size("items.dat");
 
-        im_data.resize(im_data.size() + size + 1zu/*@todo*/); // @note state + items.dat
+        im_data.resize(im_data.size() + size); // @note state + items.dat
         im_data[0zu] = std::byte{ 04 }; // @note 04 00 00 00
         im_data[4zu] = std::byte{ 0x10 }; // @note 16 00 00 00
         /* {...} */

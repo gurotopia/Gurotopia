@@ -14,13 +14,6 @@
 #endif
 using namespace std::literals::chrono_literals;
 
-constexpr std::array<std::byte, 4zu> EXIT{
-    std::byte{ 0x45 }, // @note 'E'
-    std::byte{ 0x58 }, // @note 'X'
-    std::byte{ 0x49 }, // @note 'I'
-    std::byte{ 0x54 }  // @note 'T'
-};
-
 void action::join_request(ENetEvent& event, const std::string& header, const std::string_view world_name = "") 
 {
     try 
@@ -38,7 +31,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         std::vector<std::string> buffs{};
         {
             std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12 + 8/*total drop uid*/, std::byte{ 00 });
-            data[0zu] = std::byte{ 04 };
+            data[0zu] = TYPE_PACKET;
             data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
             data[16zu] = std::byte{ 0x08 };
             
@@ -95,7 +88,10 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
                         data[pos++] = std::byte{ 01 };
                         *reinterpret_cast<short*>(&data[pos]) = 4; pos += sizeof(short); // @note length of "EXIT"
-                        *reinterpret_cast<std::array<std::byte, 4zu>*>(&data[pos]) = EXIT; pos += sizeof(std::array<std::byte, 4zu>);
+                        data[pos++] = std::byte{'E'};
+                        data[pos++] = std::byte{'X'};
+                        data[pos++] = std::byte{'I'};
+                        data[pos++] = std::byte{'T'};
                         data[pos++] = std::byte{ 00 }; // @note '\0'
                         break;
                     }

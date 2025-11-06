@@ -92,7 +92,7 @@ void https::listener(_server_data server_data)
 
             if (SSL_read(ssl, buf, length) == length)
             {
-                printf("%s", buf);
+                puts(buf);
                 
                 if (std::string_view(buf, sizeof(buf )).contains("POST /growtopia/server_data.php HTTP/1.1"))
                 {

@@ -340,17 +340,17 @@ void generate_world(world &world, const std::string& name)
     u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
     std::vector<block> blocks(100 * 60, block{0, 0});
     
-    for (auto &&[i, block] : blocks | std::views::enumerate)
+    for (size_t i = 0; i < blocks.size(); ++i)
     {
         if (i >= cord(0, 37))
         {
-            block.bg = 14; // @note cave background
-            if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && ransuu[{0, 38}] <= 1) block.fg = 10 /* rock */;
-            else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && ransuu[{0, 8}] < 3) block.fg = 4 /* lava */;
-            else block.fg = (i >= cord(0, 54)) ? 8 : 2;
+            blocks[i].bg = 14; // @note cave background
+            if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && ransuu[{0, 38}] <= 1) blocks[i].fg = 10; // rock
+            else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && ransuu[{0, 8}] < 3) blocks[i].fg = 4; // lava
+            else blocks[i].fg = (i >= cord(0, 54)) ? 8 : 2;
         }
-        if (i == cord(main_door, 36)) block.fg = 6; // @note main door
-        else if (i == cord(main_door, 37)) block.fg = 8; // @note bedrock (below main door)
+        if (i == cord(main_door, 36)) blocks[i].fg = 6; // @note main door
+        else if (i == cord(main_door, 37)) blocks[i].fg = 8; // @note bedrock (below main door)
     }
     world.blocks = std::move(blocks);
     world.name = std::move(name);
@@ -358,21 +358,22 @@ void generate_world(world &world, const std::string& name)
 
 bool door_mover(world &world, const std::array<int, 2ULL> &pos)
 {
-    if (world.blocks[cord(pos[0], pos[1])].fg != 0 ||
-        world.blocks[cord(pos[0], (pos[1] + 1))].fg != 0) return false;
+    std::vector<block> &blocks = world.blocks;
 
-    for (std::size_t i = 0; i < world.blocks.size(); ++i)
+    if (blocks[cord(pos[0], pos[1])].fg != 0 ||
+        blocks[cord(pos[0], (pos[1] + 1))].fg != 0) return false;
+
+    for (size_t i = 0; i < blocks.size(); ++i)
     {
-        block &block = world.blocks[i];
-        if (block.fg == 6)
+        if (blocks[i].fg == 6)
         {
-            block.fg = 0; // @note remove main door
-            world.blocks[cord(i % 100, (i / 100 + 1))].fg = 0; // @note remove bedrock (below main door)
+            blocks[i].fg = 0; // remove main door
+            blocks[cord(i % 100, (i / 100 + 1))].fg = 0; // remove bedrock below
             break;
         }
     }
-    world.blocks[cord(pos[0], pos[1])].fg = 6;
-    world.blocks[cord(pos[0], (pos[1] + 1))].fg = 8;
+    blocks[cord(pos[0], pos[1])].fg = 6;
+    blocks[cord(pos[0], (pos[1] + 1))].fg = 8;
     return true;
 }
 
@@ -382,12 +383,12 @@ void blast::thermonuclear(world &world, const std::string& name)
     u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
     std::vector<block> blocks(100 * 60, block{0, 0});
     
-    for (auto &&[i, block] : blocks | std::views::enumerate)
+    for (size_t i = 0; i < blocks.size(); ++i)
     {
-        block.fg = (i >= cord(0, 54)) ? 8 : 0;
+        blocks[i].fg = (i >= cord(0, 54)) ? 8 : 0;
 
-        if (i == cord(main_door, 36)) block.fg = 6;
-        else if (i == cord(main_door, 37)) block.fg = 8;
+        if (i == cord(main_door, 36)) blocks[i].fg = 6;
+        else if (i == cord(main_door, 37)) blocks[i].fg = 8;
     }
     world.blocks = std::move(blocks);
     world.name = std::move(name);

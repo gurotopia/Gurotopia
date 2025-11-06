@@ -27,6 +27,9 @@
     constexpr std::size_t operator"" zu(std::size_t size) {
         return size;
     }
+
 #endif
+
+    constexpr std::byte TYPE_PACKET{ 4u };
 
 #endif

@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: a32649dde25802affb60bed810aa2ca600893031 2025-10-26
+    @version perent SHA: a32649dde25802affb60bed810aa2ca600893031 2025-11-06
 
     @authors
       @leeendl
@@ -51,7 +51,7 @@ int main()
         const uintmax_t size = std::filesystem::file_size("items.dat");
 
         im_data.resize(im_data.size() + size); // @note state + items.dat
-        im_data[0zu] = std::byte{ 04 }; // @note 04 00 00 00
+        im_data[0zu] = TYPE_PACKET; // @note 04 00 00 00
         im_data[4zu] = std::byte{ 0x10 }; // @note 16 00 00 00
         /* {...} */
         im_data[16zu] = std::byte{ 0x08 }; // @note 08 00 00 00

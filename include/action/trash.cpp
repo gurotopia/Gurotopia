@@ -25,7 +25,7 @@ void action::trash(ENetEvent& event, const std::string& header)
                     .add_label_with_icon("big", std::format("`4Recycle`` `w{}``", item.raw_name), slot.id)
                     .add_textbox(std::format("How many to `4destroy``? (you have {})", slot.count))
                     .add_text_input("count", "", 0, 5)
-                    .embed_data("itemID", std::to_string(slot.id))
+                    .embed_data("itemID", slot.id)
                     .end_dialog("trash_item").c_str()
             });
             return;

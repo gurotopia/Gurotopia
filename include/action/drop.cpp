@@ -25,7 +25,7 @@ void action::drop(ENetEvent& event, const std::string& header)
                     .add_label_with_icon("big", std::format("`wDrop {}``", item.raw_name), item.id)
                     .add_textbox("How many to drop?")
                     .add_text_input("count", "", slot.count, 5)
-                    .embed_data("itemID", std::to_string(item.id))
+                    .embed_data("itemID", item.id)
                     .end_dialog("drop_item").c_str() // @todo handle c_str(); make packet accept std::string.
             });
             return;

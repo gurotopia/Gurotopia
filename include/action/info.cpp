@@ -47,7 +47,7 @@ void action::info(ENetEvent& event, const std::string& header)
         "OnDialogRequest",
         create_dialog
             .add_spacer("small")
-            .embed_data("itemID", std::to_string(item.id))
+            .embed_data("itemID", item.id)
             .end_dialog("continue", "", "OK").c_str()
     });
 }

@@ -36,6 +36,11 @@ create_dialog& create_dialog::embed_data(std::string id, std::string data)
     _d.append(std::format("embed_data|{}|{}\n", id, data));
     return *this;
 }
+create_dialog& create_dialog::embed_data(std::string id, int data)
+{
+    _d.append(std::format("embed_data|{}|{}\n", id, data));
+    return *this;
+}
 create_dialog& create_dialog::add_spacer(std::string size)
 {
     _d.append(std::format("add_spacer|{}|\n", size));

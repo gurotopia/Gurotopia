@@ -14,6 +14,7 @@ public:
     create_dialog& add_textbox(std::string label);
     create_dialog& add_text_input(std::string id, std::string label, short set_value, short length);
     create_dialog& embed_data(std::string id, std::string data);
+    create_dialog& embed_data(std::string id, int data);
     create_dialog& add_spacer(std::string size);
     create_dialog& set_custom_spacing(short x, short y);
     create_dialog& add_button(std::string btn_id, std::string btn_name);

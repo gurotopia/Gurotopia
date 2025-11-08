@@ -46,4 +46,9 @@ void action::enter_game(ENetEvent& event, const std::string& header)
             0u // @todo
         }); 
     } // @note delete now, time
+
+    ::state state{
+        .type = 0x16, // @noote PACKET_PING_REQUEST
+    };
+    send_data(*event.peer, compress_state(state));
 }

@@ -241,10 +241,10 @@ void inventory_visuals(ENetEvent &event)
 	std::size_t size = peer->slots.size();
     std::vector<std::byte> data(66zu + (size * sizeof(int)));
     
-    data[0zu] = std::byte{ 04 };
+    data[0zu] = TYPE_PACKET;
     data[4zu] = std::byte{ 0x09 }; // @note PACKET_SEND_INVENTORY_STATE
     *reinterpret_cast<int*>(&data[8zu]) = peer->netid;
-    data[16zu] = std::byte{ 0x08 };
+    data[16zu] = PACKET_STATE;
     *reinterpret_cast<int*>(&data[58zu]) = std::byteswap<int>(peer->slot_size);
     *reinterpret_cast<int*>(&data[62zu]) = std::byteswap<int>(size);
     int *slot_ptr = reinterpret_cast<int*>(&data[66zu]);

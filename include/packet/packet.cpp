@@ -7,7 +7,7 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
     data[0zu] = TYPE_PACKET;
     data[4zu] = std::byte{ 01 };
     *reinterpret_cast<signed*>(&data[8zu]) = (!netid) ? -1 : _peer[&p]->netid;
-    data[16zu] = std::byte{ 0x08 };
+    data[16zu] = PACKET_STATE;
     *reinterpret_cast<signed*>(&data[24zu]) = delay;
     // @note 04 00 00 00 01 00 00 00 {netid} {...8} 08 00 00 00 {...8} {delay}
 

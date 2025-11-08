@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 63eeab4235a9922e8a1b43707cbf064083a10ef7 2025-11-08
+    @version perent SHA: 9abadcb6d04544582e27c16c530534d78b0745e7 2025-11-08
 
     @authors
       @leeendl
@@ -54,7 +54,7 @@ int main()
         im_data[0zu] = TYPE_PACKET; // @note 04 00 00 00
         im_data[4zu] = std::byte{ 0x10 }; // @note 16 00 00 00
         /* {...} */
-        im_data[16zu] = std::byte{ 0x08 }; // @note 08 00 00 00
+        im_data[16zu] = PACKET_STATE; // @note 08 00 00 00
         *reinterpret_cast<std::uintmax_t*>(&im_data[56zu]) = size;
 
         std::ifstream("items.dat", std::ios::binary)

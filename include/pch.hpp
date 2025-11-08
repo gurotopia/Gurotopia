@@ -30,6 +30,8 @@
 
 #endif
 
-    constexpr std::byte TYPE_PACKET{ 4u };
+    /* @todo have this compile in files of use */
+    constexpr std::byte TYPE_PACKET{ 04 };
+    constexpr std::byte PACKET_STATE{ 0x08 };
 
 #endif

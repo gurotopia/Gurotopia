@@ -61,6 +61,11 @@ create_dialog& create_dialog::add_custom_button(std::string btn_id, std::string 
     _d.append(std::format("add_custom_button|{}|{}|\n", btn_id, image));
     return *this;
 }
+create_dialog& create_dialog::add_custom_label(std::string btn_id, std::string pos)
+{
+    _d.append(std::format("add_custom_label|{}|{}|\n", btn_id, pos));
+    return *this;
+}
 create_dialog& create_dialog::add_custom_break()
 {
     _d.append("add_custom_break|\n");
@@ -86,9 +91,9 @@ create_dialog& create_dialog::add_popup_name(std::string popup_name)
     _d.append(std::format("add_popup_name|{}|\n", popup_name));
     return *this;
 }
-create_dialog& create_dialog::add_player_info(std::string label, std::string progress_bar_name, std::string progress, std::string total_progress)
+create_dialog& create_dialog::add_player_info(std::string label, std::string progress_bar_name, int progress, int total_progress)
 {
-    _d.append(std::format("add_popup_name|{}|{}|{}|{}|\n", label, progress_bar_name, progress, total_progress));
+    _d.append(std::format("add_player_info|{}|{}|{}|{}|\n", label, progress_bar_name, progress, total_progress));
     return *this;
 }
 

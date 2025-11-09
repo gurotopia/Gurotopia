@@ -5,27 +5,30 @@
     enum wstate3 : u_char
     {
         S_LOCKED = 0x10,
-        S_TREE = 0x11,
-        S_RIGHT = 0x15, // @todo comfirm this number.
-        S_SIGN = 0x19,
-        S_LEFT = 0x31,
+        S_TREE =   0x11,
+        S_RIGHT =  0x15, // @todo comfirm this number.
+        S_SIGN =   0x19,
+        S_LEFT =   0x31,
         S_PUBLIC = 0x90
     };
 
+    /* locks that only occupy a number of tiles, and not the whole world. */
+    #define is_tile_lock(id) (id == 202/*small*/ || id == 204/*big*/ || id == 206/*huge*/ || id == 4994/*builder*/)
+
     enum wstate4 : u_char
     {
-        S_WATER = 4,
-        S_GLUE = 8,
-        S_FIRE = 0x10,
+        S_WATER =    0x04,
+        S_GLUE =     0x08,
+        S_FIRE =     0x10,
         /* paint buckets */
-        S_RED = 0x20,
-        S_GREEN = 0x40,
-        S_YELLOW = S_RED | S_GREEN,
-        S_BLUE = 0x80,
-        S_AQUA = S_GREEN | S_BLUE,
-        S_PURPLE = S_RED | S_BLUE,
+        S_RED =      0x20,
+        S_GREEN =    0x40,
+        S_YELLOW =   S_RED | S_GREEN,
+        S_BLUE =     0x80,
+        S_AQUA =     S_GREEN | S_BLUE,
+        S_PURPLE =   S_RED | S_BLUE,
         S_CHARCOAL = S_RED | S_GREEN | S_BLUE,
-        S_VANISH = S_RED | S_YELLOW | S_GREEN | S_AQUA | S_BLUE | S_PURPLE | S_CHARCOAL
+        S_VANISH =   S_RED | S_YELLOW | S_GREEN | S_AQUA | S_BLUE | S_PURPLE | S_CHARCOAL
     };
 
     class block 

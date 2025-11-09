@@ -144,7 +144,7 @@ world::~world()
         sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
     });
     
-    for (int pos = 0; pos < blocks.size(); pos++) {
+    for (std::size_t pos = 0; pos < blocks.size(); pos++) {
         const block &b = blocks[pos];
         db.execute("INSERT INTO blocks (_n, _p, fg, bg, pub, tog, tick, l, s3, s4) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [this, &b, &pos](sqlite3_stmt* stmt) 
         {
@@ -166,7 +166,7 @@ world::~world()
         sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
     });
     
-    for (const auto& [uid, item] : ifloats) 
+    for (const auto &[uid, item] : ifloats) 
     {
         db.execute("INSERT INTO ifloats (_n, uid, i, c, x, y) VALUES (?, ?, ?, ?, ?, ?)", [&](sqlite3_stmt* stmt) 
         {
@@ -291,7 +291,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
             data[pos] = std::byte{ 01 }; pos += sizeof(std::byte);
             
             *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-            for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
+            for (const char &c : block.label) data[pos++] = static_cast<std::byte>(c);
             pos += sizeof(std::byte); // @note '\0'
             break;
         }
@@ -304,7 +304,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
             data[pos] = std::byte{ 02 }; pos += sizeof(std::byte);
 
             *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-            for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
+            for (const char &c : block.label) data[pos++] = static_cast<std::byte>(c);
             *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
             break;
         }
@@ -340,7 +340,7 @@ void generate_world(world &world, const std::string& name)
     u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
     std::vector<block> blocks(100 * 60, block{0, 0});
     
-    for (size_t i = 0; i < blocks.size(); ++i)
+    for (std::size_t i = 0zu; i < blocks.size(); ++i)
     {
         if (i >= cord(0, 37))
         {
@@ -363,7 +363,7 @@ bool door_mover(world &world, const std::array<int, 2ULL> &pos)
     if (blocks[cord(pos[0], pos[1])].fg != 0 ||
         blocks[cord(pos[0], (pos[1] + 1))].fg != 0) return false;
 
-    for (size_t i = 0; i < blocks.size(); ++i)
+    for (std::size_t i = 0zu; i < blocks.size(); ++i)
     {
         if (blocks[i].fg == 6)
         {
@@ -383,7 +383,7 @@ void blast::thermonuclear(world &world, const std::string& name)
     u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
     std::vector<block> blocks(100 * 60, block{0, 0});
     
-    for (size_t i = 0; i < blocks.size(); ++i)
+    for (std::size_t i = 0zu; i < blocks.size(); ++i)
     {
         blocks[i].fg = (i >= cord(0, 54)) ? 8 : 0;
 

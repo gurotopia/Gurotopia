@@ -16,7 +16,7 @@ void ageworld(ENetEvent& event, const std::string_view text)
     if (w == worlds.end()) return;
 
     std::vector<block> &blocks = w->second.blocks;
-    for (std::size_t i = 0; i < blocks.size(); ++i)
+    for (std::size_t i = 0zu; i < blocks.size(); ++i)
     {
         block &block = blocks[i];
         ::item &item = items[block.fg];

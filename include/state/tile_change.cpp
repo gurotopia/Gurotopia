@@ -170,10 +170,12 @@ void tile_change(ENetEvent& event, state state)
             block.state3 = 0x00; // @note reset tile direction
             block.state4 &= ~S_VANISH; // @note remove paint
 
-            if (item.type == type::LOCK) 
+            if (item.type == type::LOCK && !is_tile_lock(item.id))
             {
                 peer->prefix.front() = 'w';
-                world.owner = 0; // @todo handle sl, bl, hl
+                on::NameChanged(event);
+                
+                world.owner = 0; // @todo have a seperate thing for 'range_lock'
             }
 
             if (item.cat == 0x02) // pick up (item goes back in your inventory)
@@ -368,8 +370,10 @@ skip_reset_tile: // @todo remove lazy method
         {
             switch (item.type)
             {
-                case type::LOCK: // @todo handle sl, bl, hl, builder lock, ect.
+                case type::LOCK:
                 {
+                    if (is_tile_lock(item.id)) break; // @todo seperate area for 'range_lock'
+
                     if (peer->user_id == world.owner)
                     {
                         packet::create(*event.peer, false, 0, {
@@ -467,6 +471,8 @@ skip_reset_tile: // @todo remove lazy method
             {
                 case type::LOCK:
                 {
+                    if (is_tile_lock(item.id)) break; // @note seperate area for 'range_lock'
+
                     if (!world.owner)
                     {
                         world.owner = peer->user_id;

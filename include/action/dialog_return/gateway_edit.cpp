@@ -22,9 +22,9 @@ void gateway_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
 
     if (pipes[10zu] == "door_name" && pipes.size() > 12zu)
     {
-        for (::door& door : it->second.doors)
+        for (::door &door : it->second.doors)
         {
-            if (door.pos == std::array<int, 2ULL>{ tilex, tiley }) 
+            if (door.pos == std::array<int, 2zu>{ tilex, tiley }) 
             {
                 door.dest = pipes[13];
                 door.id = pipes[15];

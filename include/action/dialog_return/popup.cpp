@@ -14,7 +14,7 @@ void popup(ENetEvent& event, const std::vector<std::string> &&pipes)
         auto section = [](const auto& range) 
         {
             std::string result;
-            for (const auto& name : range)
+            for (const auto &name : range)
                 if (!name.empty())
                     result.append(std::format("add_button|{0}|{0}|noflags|0|0|\n", name));
             return result;

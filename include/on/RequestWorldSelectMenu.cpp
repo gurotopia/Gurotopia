@@ -8,7 +8,7 @@ void on::RequestWorldSelectMenu(ENetEvent& event)
     auto section = [&peer](const auto& range, const char* color) 
     {
         std::string result;
-        for (const auto& name : range) 
+        for (const auto &name : range) 
             if (!name.empty()) 
             {
                 auto it = worlds.find(name); // @todo reduce iteration.

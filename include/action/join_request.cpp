@@ -50,7 +50,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             
             std::size_t pos = 85 + len;
             short i = 0;
-            for (const block &block : world.blocks)
+            for (const ::block &block : world.blocks)
             {
                 *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
                 *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
@@ -179,7 +179,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
             *reinterpret_cast<int*>(&data[pos]) = world.ifloat_uid; pos += sizeof(int);
             *reinterpret_cast<int*>(&data[pos]) = world.ifloat_uid; pos += sizeof(int);
-            for (const auto& [uid, ifloat] : world.ifloats) 
+            for (const auto &[uid, ifloat] : world.ifloats) 
             {
                 data.resize(data.size() + 16zu);
                 *reinterpret_cast<short*>(&data[pos]) = ifloat.id; pos += sizeof(short);
@@ -251,7 +251,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             if (range.empty()) return std::string{};
             
             std::string list{};
-            for (const auto& buff : range) 
+            for (const auto &buff : range) 
                 list.append(std::format("{}``,", buff));
             list.pop_back();
 

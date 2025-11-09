@@ -147,14 +147,14 @@ peer::~peer()
         sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
     });
     
-    for (const slot &s : this->slots) 
+    for (const ::slot &slot : this->slots) 
     {
-        if ((s.id == 18 || s.id == 32) || s.count <= 0) continue;
-        db.execute("INSERT INTO slots (_n, i, c) VALUES (?, ?, ?)", [this, &s](sqlite3_stmt* stmt) 
+        if ((slot.id == 18 || slot.id == 32) || slot.count <= 0) continue;
+        db.execute("INSERT INTO slots (_n, i, c) VALUES (?, ?, ?)", [this, &slot](sqlite3_stmt* stmt) 
         {
             sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt, 2, s.id);
-            sqlite3_bind_int(stmt, 3, s.count);
+            sqlite3_bind_int(stmt, 2, slot.id);
+            sqlite3_bind_int(stmt, 3, slot.count);
         });
     }
     db.commit();
@@ -248,9 +248,8 @@ void inventory_visuals(ENetEvent &event)
     *reinterpret_cast<int*>(&data[58zu]) = std::byteswap<int>(peer->slot_size);
     *reinterpret_cast<int*>(&data[62zu]) = std::byteswap<int>(size);
     int *slot_ptr = reinterpret_cast<int*>(&data[66zu]);
-    for (const slot &slot : peer->slots) {
-        *slot_ptr++ = (slot.id | (slot.count << 16)) & 0x00ffffff;
-    }
+    for (const ::slot &slot : peer->slots)
+        *slot_ptr++ = slot.id | (slot.count & 0xff) << 16;
 
 	enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
 }

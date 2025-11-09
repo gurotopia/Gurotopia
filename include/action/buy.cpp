@@ -93,7 +93,7 @@ void action::buy(ENetEvent& event, const std::string& header)
             {
                 shouhin.im.emplace_back(11, 10);
                 ids = {3567, 2793, 57, 13, 17, 21, 101, 381, 1139}; // @note instead of iterating seeds with rarity 2 each time
-                for (std::size_t i = 0; i < 10; ++i)
+                for (u_char i = 0; i < 10; ++i)
                     shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
             }
             else if (shouhin.btn == "rare_seed") // @note source: https://growtopia.fandom.com/wiki/Rare_Seed_Pack
@@ -101,7 +101,7 @@ void action::buy(ENetEvent& event, const std::string& header)
                 for (auto &&[id, item] : items)
                     if (item.type == type::SEED && item.rarity >= 13 && item.rarity <= 60)
                         ids.emplace_back(id);
-                for (std::size_t i = 0; i < 5; ++i)
+                for (u_char i = 0; i < 5; ++i)
                     shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
             }
             else if (shouhin.btn == "clothes_pack") // @note source: https://growtopia.fandom.com/wiki/Clothes_Pack
@@ -109,7 +109,7 @@ void action::buy(ENetEvent& event, const std::string& header)
                 for (auto &&[id, item] : items)
                     if (item.type == type::CLOTHING && item.rarity <= 10)
                         ids.emplace_back(id);
-                for (std::size_t i = 0; i < 3; ++i)
+                for (u_char i = 0; i < 3; ++i)
                     shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
             }
             else if (shouhin.btn == "rare_clothes_pack") // @note source: https://growtopia.fandom.com/wiki/Rare_Clothes_Pack
@@ -117,7 +117,7 @@ void action::buy(ENetEvent& event, const std::string& header)
                 for (auto &&[id, item] : items)
                     if (item.type == type::CLOTHING && item.rarity >= 11 && item.rarity <= 60)
                         ids.emplace_back(id);
-                for (std::size_t i = 0; i < 3; ++i)
+                for (u_char i = 0; i < 3; ++i)
                     shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
             }
 

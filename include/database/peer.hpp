@@ -35,9 +35,9 @@
 
     enum pstate : int
     {
-        S_GHOST = 1,
-        S_DOUBLE_JUMP = 2,
-        S_DUCT_TAPE = 8192
+        S_GHOST =       0x01,
+        S_DOUBLE_JUMP = 0x02,
+        S_DUCT_TAPE =   0x2000
     };
     
     #include <deque>

@@ -15,7 +15,7 @@ void action::trash(ENetEvent& event, const std::string& header)
         return;
     }
 
-    for (const slot &slot : _peer[event.peer]->slots)
+    for (const ::slot &slot : _peer[event.peer]->slots)
         if (slot.id == item.id)
         {
             packet::create(*event.peer, false, 0, {

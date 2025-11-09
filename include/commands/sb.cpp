@@ -16,8 +16,8 @@ void sb(ENetEvent& event, const std::string_view text)
     if (it == worlds.end()) return;
 
     std::string display = peer->recent_worlds.back();
-    for (block &b : it->second.blocks)
-        if (b.fg == 226 && b.toggled) 
+    for (const ::block &block : it->second.blocks)
+        if (block.fg == 226 && block.toggled) 
         {
             display = "`4JAMMED``";
             break; // @note we don't care if other signals are toggled.

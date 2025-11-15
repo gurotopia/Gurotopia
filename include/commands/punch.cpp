@@ -19,17 +19,16 @@ void punch(ENetEvent& event, const std::string_view text)
         return;
     }
     std::string id{ text.substr(sizeof("punch ")-1) };
-    if (atoi(id.c_str()) == 0)
+    try
+    {
+        _peer[event.peer]->punch_effect = stoi(id);
+        on::SetClothing(event);
+    }
+    catch (const std::invalid_argument &ex)
     {
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage",
             "`4Invalid input. ``id must be a `wnumber``."
         });
-        return;
     }
-
-    auto &peer = _peer[event.peer];
-
-    peer->punch_effect = stoi(id);
-    on::SetClothing(event);
 }

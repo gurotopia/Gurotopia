@@ -16,7 +16,7 @@
     #define SOCKET int
 #endif
 
-void https::listener(_server_data server_data)
+void https::listener(::server_data server_data)
 {
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();

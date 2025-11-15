@@ -12,15 +12,16 @@ void skin(ENetEvent& event, const std::string_view text)
     }
     std::string id{ text.substr(sizeof("skin ")-1) };
 
-    if (atol(id.c_str()) == 0)
+    try
+    {
+        _peer[event.peer]->skin_color = stol(id);
+        on::SetClothing(event);
+    }
+    catch (const std::invalid_argument &ex)
     {
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage",
             "`4Invalid input. ``id must be a `wnumber``."
         });
-        return;
     }
-
-    _peer[event.peer]->skin_color = stol(id);
-    on::SetClothing(event);
 }

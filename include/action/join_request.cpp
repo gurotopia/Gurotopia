@@ -31,7 +31,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         std::vector<std::string> buffs{};
         {
             std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12 + 8/*total drop uid*/, std::byte{ 00 });
-            data[0zu] = TYPE_PACKET;
+            data[0zu] = PACKET_CREATE;
             data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
             data[16zu] = PACKET_STATE;
             

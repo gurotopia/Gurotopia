@@ -266,8 +266,9 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     state.peer_state = 0x08;
     std::vector<std::byte> data = compress_state(state);
 
-    short pos = 56;
+    short pos = sizeof(::state);
     data.resize(pos + 8zu); // @note {2} {2} 00 00 00 00
+    
     *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
     *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
     pos += sizeof(short);

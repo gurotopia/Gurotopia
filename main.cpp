@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: e7a2dfb0f050fdd357e3d7020bdcbefe81b6db3d 2025-11-09
+    @version perent SHA: 46f252d2c3dcadb7755e8d6bf3a87e7cf87fe128 2025-11-14
 
     @authors
       @leeendl
@@ -33,7 +33,7 @@ int main()
 
     enet_initialize();
     {
-        ::_server_data server_data = init_server_data();
+        ::server_data server_data = init_server_data();
         ENetAddress address{
             .type = ENET_ADDRESS_TYPE_IPV4, 
             .port = server_data.port
@@ -51,11 +51,11 @@ int main()
         const uintmax_t size = std::filesystem::file_size("items.dat");
 
         im_data.resize(im_data.size() + size); // @note state + items.dat
-        im_data[0zu] = TYPE_PACKET; // @note 04 00 00 00
+        im_data[0zu] = PACKET_CREATE; // @note 04 00 00 00
         im_data[4zu] = std::byte{ 0x10 }; // @note 16 00 00 00
         /* {...} */
         im_data[16zu] = PACKET_STATE; // @note 08 00 00 00
-        *reinterpret_cast<std::uintmax_t*>(&im_data[56zu]) = size;
+        *reinterpret_cast<std::uintmax_t*>(&im_data[sizeof(::state)]) = size; // @note at the end of ::state,  items.dat size and data
 
         std::ifstream("items.dat", std::ios::binary)
             .read(reinterpret_cast<char*>(&im_data[60zu]), size);

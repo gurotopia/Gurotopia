@@ -2,7 +2,7 @@
 #ifndef SERVER_DATA_HPP
 #define SERVER_DATA_HPP
 
-    class _server_data 
+    class server_data 
     {
     public:
         std::string server{"127.0.0.1"};
@@ -14,6 +14,6 @@
         std::string meta{"gurotopia"};
     };
 
-    extern ::_server_data init_server_data();
+    extern ::server_data init_server_data();
 
 #endif

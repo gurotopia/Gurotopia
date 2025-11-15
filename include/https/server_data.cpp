@@ -2,9 +2,9 @@
 #include "tools/string.hpp"
 #include "server_data.hpp"
 
-::_server_data init_server_data()
+::server_data init_server_data()
 {
-    ::_server_data server_data{};
+    ::server_data server_data{};
     {
         std::ifstream file("server_data.php");
         if (!file.is_open())

@@ -6,7 +6,7 @@
 
 namespace https
 {
-    extern void listener(_server_data server_data);
+    extern void listener(::server_data server_data);
 }
 
 #endif

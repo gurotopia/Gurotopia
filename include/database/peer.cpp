@@ -216,7 +216,7 @@ state get_state(const std::vector<std::byte> &&packet)
 
 std::vector<std::byte> compress_state(const state &s) 
 {
-    std::vector<std::byte> data(56, std::byte{ 00 });
+    std::vector<std::byte> data(sizeof(::state), std::byte{ 00 });
     int *_4bit = reinterpret_cast<int*>(data.data());
     float *_4bit_f = reinterpret_cast<float*>(data.data());
     _4bit[0] = s.type;
@@ -241,7 +241,7 @@ void inventory_visuals(ENetEvent &event)
 	std::size_t size = peer->slots.size();
     std::vector<std::byte> data(66zu + (size * sizeof(int)));
     
-    data[0zu] = TYPE_PACKET;
+    data[0zu] = PACKET_CREATE;
     data[4zu] = std::byte{ 0x09 }; // @note PACKET_SEND_INVENTORY_STATE
     *reinterpret_cast<int*>(&data[8zu]) = peer->netid;
     data[16zu] = PACKET_STATE;

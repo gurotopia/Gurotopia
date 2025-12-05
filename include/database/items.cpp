@@ -115,6 +115,7 @@ void cache_items()
         pos += sizeof(short);
 
         pos += sizeof(std::array<std::byte, 80zu>);
+
         if (version >= 11)
         {
             pos += *(reinterpret_cast<short*>(&im_data[pos]));
@@ -140,16 +141,17 @@ void cache_items()
         }
         if (version >= 17) pos += sizeof(int);
         if (version >= 18) pos += sizeof(int);
-        if (version >= 19)
-            pos += sizeof(std::array<std::byte, 9zu>);
+        if (version >= 19) pos += sizeof(std::array<std::byte, 9zu>);
         if (version >= 21) pos += sizeof(short);
-        if (version == 22)
+        if (version >= 22)
         {
             short len = *reinterpret_cast<short*>(&im_data[pos]);
             pos += sizeof(short);
             im.info.assign(reinterpret_cast<char*>(&im_data[pos]), len);
             pos += len;
         }
+        if (version == 23) pos += sizeof(int);
+
 
         items.emplace(i, im);
     }

@@ -513,8 +513,34 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case type::SEED:
                 {
-                    if (block.fg != 0) return; // @todo add splicing
+                    /* forgive the messy code. this was rushed. ~leeendl */
+                    bool spliced{};
+                    for (auto &[id, item] : items)
+                    {
+                        if ((item.splice[0] == state.id && item.splice[1] == block.fg) ||
+                            (item.splice[1] == state.id && item.splice[0] == block.fg) /* allow reverse splice combo */)
+                        {
+                            state.id = id;
+                            packet::create(*event.peer, false, 0, {
+                                "OnTalkBubble", 
+                                _peer[event.peer]->netid, 
+                                std::format("`w{}`` and `w{}`` have been spliced to make a `${}``!", 
+                                    items[item.splice[0]].raw_name, items[item.splice[1]].raw_name, item.raw_name).c_str(),
+                                0u,
+                                1u
+                            });
+                            spliced = true;
+                            break;
+                        }
+                    }
+                    if (block.fg != 0 && !spliced) return;
+
                     block.tick = steady_clock::now();
+
+                    /* @todo change this */
+                    block.fg = state.id;
+                    tile_update(event, std::move(state), block, w->second);
+
                     break;
                 }
                 case type::WEATHER_MACHINE:

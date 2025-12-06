@@ -185,6 +185,8 @@
         int tick{}; // @note tile tick time e.g. trees, providers, ect.. (measured in seconds)
 
         std::string info{}; // @note version 22 | item's info
+
+        std::array<u_short, 2> splice{}; // @note version 23 | {seed1, seed2}
     };
     extern std::unordered_map<u_short, item> items;
 

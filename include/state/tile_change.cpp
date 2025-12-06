@@ -524,8 +524,8 @@ skip_reset_tile: // @todo remove lazy method
                             packet::create(*event.peer, false, 0, {
                                 "OnTalkBubble", 
                                 _peer[event.peer]->netid, 
-                                std::format("`w{}`` and `w{}`` have been spliced to make a `${}``!", 
-                                    items[item.splice[0]].raw_name, items[item.splice[1]].raw_name, item.raw_name).c_str(),
+                                std::format("`w{}`` and `w{}`` have been spliced to make a `${} Tree``!", 
+                                    items[item.splice[0]].raw_name, items[item.splice[1]].raw_name, items[state.id-1].raw_name).c_str(),
                                 0u,
                                 1u
                             });

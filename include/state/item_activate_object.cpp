@@ -8,9 +8,8 @@ void item_activate_object(ENetEvent& event, state state)
 {
     auto &peer = _peer[event.peer];
 
-    auto w = worlds.find(peer->recent_worlds.back());
-    if (w == worlds.end()) return;
-    ::world &world = w->second;
+    if (!worlds.contains(peer->recent_worlds.back())) return;
+    ::world &world = worlds.at(peer->recent_worlds.back());
 
     auto f = world.ifloats.find(state.id);
     if (f == world.ifloats.end()) return;

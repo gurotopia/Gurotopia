@@ -31,9 +31,8 @@
         S_VANISH =   S_RED | S_YELLOW | S_GREEN | S_AQUA | S_BLUE | S_PURPLE | S_CHARCOAL
     };
 
-    class block 
+    struct block 
     {
-    public:
         block(
             short _fg = 0, short _bg = 0, 
             bool __public = false, bool _toggled = false, std::chrono::steady_clock::time_point _tick = std::chrono::steady_clock::time_point(),
@@ -53,9 +52,8 @@
     };
     #define cord(x,y) (y * 100 + x)
 
-    class door 
+    struct door 
     {
-    public:
         door(std::string _dest, std::string _id, std::string _password, std::array<int, 2zu> _pos) : 
             dest(_dest), id(_id), password(_password), pos(_pos) {}
 
@@ -65,9 +63,8 @@
         std::array<int, 2zu> pos;
     };
 
-    class ifloat 
+    struct ifloat 
     {
-    public:
         ifloat(short _id, short _count, std::array<float, 2zu> _pos) : id(_id), count(_count), pos(_pos) {}
         short id{0};
         short count{0};
@@ -100,9 +97,9 @@
 
     extern void tile_apply_damage(ENetEvent& event, state s, block& b);
 
-    extern void modify_item_inventory(ENetEvent& event, const std::array<short, 2zu>& im);
+    extern void modify_item_inventory(ENetEvent& event, ::slot slot);
 
-    extern int item_change_object(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid = 0);
+    extern int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2zu>& pos, signed uid = 0);
 
     extern void tile_update(ENetEvent &event, state s, block &b, world& w);
 

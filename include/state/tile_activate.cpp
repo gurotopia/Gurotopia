@@ -7,9 +7,8 @@ void tile_activate(ENetEvent& event, state state)
 {
     auto &peer = _peer[event.peer];
 
-    auto w = worlds.find(peer->recent_worlds.back());
-    if (w == worlds.end()) return;
-    ::world &world = w->second;
+    if (!worlds.contains(peer->recent_worlds.back())) return;
+    ::world &world = worlds.at(peer->recent_worlds.back());
 
     ::block &block = world.blocks[cord(state.punch[0], state.punch[1])];
     ::item &item = items[block.fg]; // @todo handle bg

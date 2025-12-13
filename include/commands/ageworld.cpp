@@ -12,10 +12,10 @@ void ageworld(ENetEvent& event, const std::string_view text)
 {
     auto &peer = _peer[event.peer];
 
-    auto w = worlds.find(peer->recent_worlds.back());
-    if (w == worlds.end()) return;
+    if (!worlds.contains(peer->recent_worlds.back())) return;
+    ::world &world = worlds.at(peer->recent_worlds.back());
 
-    std::vector<block> &blocks = w->second.blocks;
+    std::vector<block> &blocks = world.blocks;
     for (std::size_t i = 0zu; i < blocks.size(); ++i)
     {
         block &block = blocks[i];
@@ -27,7 +27,7 @@ void ageworld(ENetEvent& event, const std::string_view text)
             {
                 .id = block.fg, 
                 .punch = { (int)i % 100, (int)i / 100 }
-            }, block, w->second);
+            }, block, world);
         }
     }
     packet::create(*event.peer, false, 0, { "OnConsoleMessage", "aged world by `w1 day``." });

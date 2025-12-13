@@ -213,16 +213,16 @@ void tile_apply_damage(ENetEvent& event, state state, block &block)
 	state_visuals(event, std::move(state));
 }
 
-void modify_item_inventory(ENetEvent& event, const std::array<short, 2zu>& im)
+void modify_item_inventory(ENetEvent& event, ::slot slot)
 {
     ::state state{
-        .type = (im[1] << 16) | 0x0d, // @noote 0x00{}000d
-        .id = im[0]
+        .type = (slot.count << 16) | 0x0d, // @noote 0x00{}000d
+        .id = slot.id
     };
     state_visuals(event, std::move(state));
 }
 
-int item_change_object(ENetEvent& event, const std::array<short, 2zu>& im, const std::array<float, 2zu>& pos, signed uid) 
+int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2zu>& pos, signed uid) 
 {
     state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
 
@@ -230,18 +230,18 @@ int item_change_object(ENetEvent& event, const std::array<short, 2zu>& im, const
     if (w == worlds.end()) return -1;
 
     auto f = std::find_if(w->second.ifloats.begin(), w->second.ifloats.end(), [&](const std::pair<const int, ifloat>& entry) {
-        return uid == 0 && entry.second.id == im[0] && entry.second.pos == pos;
+        return uid == 0 && entry.second.id == slot.id && entry.second.pos == pos;
     });
     if (f != w->second.ifloats.end()) // @note merge drop
     {
-        f->second.count += im[1];
+        f->second.count += slot.count;
         state.netid = -3; // @note fd ff ff ff
         state.uid = f->first;
         state.count = static_cast<float>(f->second.count);
         state.id = f->second.id;
         state.pos = {f->second.pos[0] * 32, f->second.pos[1] * 32};
     }
-    else if (im[1] == 0 || im[0] == 0) // @note remove drop
+    else if (slot.count == 0 || slot.id == 0) // @note remove drop
     {
         state.netid = _peer[event.peer]->netid;
         state.uid = -1;
@@ -249,10 +249,10 @@ int item_change_object(ENetEvent& event, const std::array<short, 2zu>& im, const
     }
     else // @note add new drop
     {
-        auto it = w->second.ifloats.emplace(++w->second.ifloat_uid, ifloat{im[0], im[1], pos}); // @note a iterator ahead of time
+        auto it = w->second.ifloats.emplace(++w->second.ifloat_uid, ifloat{slot.id, slot.count, pos}); // @note a iterator ahead of time
         state.netid = -1;
         state.uid = it.first->first;
-        state.count = static_cast<float>(im[1]);
+        state.count = static_cast<float>(slot.count);
         state.id = it.first->second.id;
         state.pos = {it.first->second.pos[0] * 32, it.first->second.pos[1] * 32};
     }

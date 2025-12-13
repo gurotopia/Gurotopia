@@ -25,9 +25,8 @@ void tile_change(ENetEvent& event, state state)
     {
         auto &peer = _peer[event.peer];
 
-        auto w = worlds.find(peer->recent_worlds.back());
-        if (w == worlds.end()) return;
-        ::world &world = w->second;
+        if (!worlds.contains(peer->recent_worlds.back())) return;
+        ::world &world = worlds.at(peer->recent_worlds.back());
 
         if ((world.owner && !world._public && !peer->role) &&
             (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
@@ -114,7 +113,7 @@ void tile_change(ENetEvent& event, state state)
                             }
                         }
                         block.tick = steady_clock::now();
-                        tile_update(event, std::move(state), block, w->second); // @note update countdown on provider.
+                        tile_update(event, std::move(state), block, world); // @note update countdown on provider.
                         _bypass = true; // @todo remove lazy method
                     }
                     break;
@@ -255,9 +254,9 @@ skip_reset_tile: // @todo remove lazy method
             {
                 case 1404: // @note Door Mover
                 {
-                    if (!door_mover(w->second, state.punch)) throw std::runtime_error("There's no room to put the door there! You need 2 empty spaces vertically.");
+                    if (!door_mover(world, state.punch)) throw std::runtime_error("There's no room to put the door there! You need 2 empty spaces vertically.");
 
-                    std::string remember_name = w->first;
+                    std::string remember_name = world.name;
                     action::quit_to_exit(event, "", true); // @todo everyone in world exits
                     action::join_request(event, "", remember_name); // @todo everyone in world re-joins
                     
@@ -266,19 +265,16 @@ skip_reset_tile: // @todo remove lazy method
                 case 822: // @note Water Bucket
                 {
                     block.state4 ^= S_WATER;
-                    tile_update(event, std::move(state), block, w->second);
                     break;
                 }
                 case 1866: // @note Block Glue
                 {
                     block.state4 ^= S_GLUE;
-                    tile_update(event, std::move(state), block, w->second);
                     break;
                 }
                 case 3062: // @note Pocket Lighter
                 {
-                    block.state4 ^= S_FIRE; // @todo
-                    tile_update(event, std::move(state), block, w->second);
+                    block.state4 ^= S_FIRE; // @todo ignite with water
                     break;
                 }
                 case 408: // @note Duct Tape
@@ -299,56 +295,48 @@ skip_reset_tile: // @todo remove lazy method
                 case 3478: // @note Paint Bucket - Red
                 {
                     block.state4 |= S_RED;
-                    tile_update(event, std::move(state), block, w->second);
                     effect = 0x0000ff00; 
                     break;
                 }
                 case 3480: // @note Paint Bucket - Yellow
                 {
                     block.state4 |= S_YELLOW;
-                    tile_update(event, std::move(state), block, w->second);
                     effect = 0x00ffff00; // @note red + green
                     break;
                 }
                 case 3482: // @note Paint Bucket - Green
                 {
                     block.state4 |= S_GREEN;
-                    tile_update(event, std::move(state), block, w->second);
                     effect = 0x00ff0000;
                     break;
                 }
                 case 3484: // @note Paint Bucket - Aqua
                 {
                     block.state4 |= S_AQUA;
-                    tile_update(event, std::move(state), block, w->second);
                     effect = 0xffff0000; // @note blue + green
                     break;
                 }
                 case 3486: // @note Paint Bucket - Blue
                 {
                     block.state4 |= S_BLUE;
-                    tile_update(event, std::move(state), block, w->second);
                     effect = 0xff000000;
                     break;
                 }
                 case 3488: // @note Paint Bucket - Purple
                 {
                     block.state4 |= S_PURPLE;
-                    tile_update(event, std::move(state), block, w->second);
                     effect = 0xff00ff00; // @note blue + red
                     break;
                 }
                 case 3490: // @note Paint Bucket - Charcoal
                 {
                     block.state4 |= S_CHARCOAL;
-                    tile_update(event, std::move(state), block, w->second);
                     effect = 0xffffffff; // @note B(blue)G(green)R(red)A(alpha/opacity) max will provide a pure black color. idk if growtopia is the same.
                     break;
                 }
                 case 3492: // @note Paint Bucket - Vanish
                 {
                     block.state4 &= ~S_VANISH;
-                    tile_update(event, std::move(state), block, w->second);
                     effect = 0xffffff00; // @todo get exact color. I just guessed T-T
                 }
             }
@@ -360,10 +348,11 @@ skip_reset_tile: // @todo remove lazy method
                     .speed = { effect, 0xa8 }
                 });
             }
+            tile_update(event, std::move(state), block, world);
 
             if (item.id == 6336) return; // @todo
             peer->emplace(slot(item.id, -1));
-            modify_item_inventory(event, {(short)item.id, 1});
+            modify_item_inventory(event, ::slot(item.id, 1));
             return;
         }
         else if (state.id == 32)
@@ -486,7 +475,7 @@ skip_reset_tile: // @todo remove lazy method
                             std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
                             peer->my_worlds.back() = world.name;
                         }
-                        const char* placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", w->first, peer->ltoken[0]).c_str();
+                        const char* placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, peer->ltoken[0]).c_str();
                         peers(event, PEER_SAME_WORLD, [&peer, placed_message](ENetPeer& p) 
                         {
                             packet::create(p, false, 0, {
@@ -539,7 +528,7 @@ skip_reset_tile: // @todo remove lazy method
 
                     /* @todo change this */
                     block.fg = state.id;
-                    tile_update(event, std::move(state), block, w->second);
+                    tile_update(event, std::move(state), block, world);
 
                     break;
                 }
@@ -566,7 +555,7 @@ skip_reset_tile: // @todo remove lazy method
             }
             (item.type == type::BACKGROUND) ? block.bg = state.id : block.fg = state.id;
             peer->emplace(slot(state.id, -1));
-            modify_item_inventory(event, {(short)item.id, 1});
+            modify_item_inventory(event, ::slot(item.id, 1));
         }
         if (state.netid != world.owner) state.netid = peer->netid;
         state_visuals(event, std::move(state)); // finished.

@@ -3,15 +3,13 @@
 #define PEER_HPP
 
     /* id, count */
-    class slot {
-    public:
+    struct slot {
         slot(short _id, short _count) : id(_id), count(_count) {}
         short id{0};
         short count{0}; // @note total amount of that item
     };
 
-    class Billboard {
-    public:
+    struct Billboard {
         short id{0}; // @note the item they're selling
         bool show{};
         bool isBuying{};
@@ -19,8 +17,7 @@
         bool perItem{}; // @note true if world locks per item, false if items per world lock
     };
 
-    class Friend {
-    public:
+    struct Friend {
         std::string name{};
         bool ignore{};
         bool block{};

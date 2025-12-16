@@ -8,6 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     name: ubuntu-latest
     steps:
-    - uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2 # updated on Jan 16
+    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # 2025-12-16
     
     - run: docker build . --file Dockerfile

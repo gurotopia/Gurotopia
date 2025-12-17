@@ -12,8 +12,14 @@ void gateway_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
 
     block &block = it->second.blocks[cord(tilex, tiley)];
 
-    if (pipes[3zu] == "door_edit" || pipes[3zu] == "sign_edit") block.label = pipes[11zu];
-    else if (pipes[3zu] == "gateway_edit") block._public = stoi(pipes[11zu]);
+    if (pipes[3zu] == "door_edit" || pipes[3zu] == "sign_edit") 
+        block.label = pipes[11zu];
+        
+    else if (pipes[3zu] == "gateway_edit") 
+    {
+        block.state3 &= ~(S_PUBLIC | S_LOCKED);
+        block.state3 |= stoi(pipes[11zu]) ? S_PUBLIC : S_LOCKED;
+    }
 
     tile_update(event, {
         .id = block.fg,
@@ -31,7 +37,7 @@ void gateway_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
                 return;
             }
         }
-        it->second.doors.emplace_back(door(
+        it->second.doors.emplace_back(::door(
             pipes[13],
             pipes[15],
             "", // @todo add password door

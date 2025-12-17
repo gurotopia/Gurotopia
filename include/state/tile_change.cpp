@@ -447,7 +447,7 @@ skip_reset_tile: // @todo remove lazy method
                             "embed_data|tilex|{}\n"
                             "embed_data|tiley|{}\n"
                             "end_dialog|gateway_edit|Cancel|OK|\n", 
-                            item.raw_name, item.id, to_char(block._public), state.punch[0], state.punch[1]
+                            item.raw_name, item.id, to_char((block.state3 & S_PUBLIC)), state.punch[0], state.punch[1]
                         ).c_str()
                     });
                     break;
@@ -501,6 +501,11 @@ skip_reset_tile: // @todo remove lazy method
                         on::NameChanged(event); // @todo
                     }
                     else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
+                    break;
+                }
+                case type::ENTRANCE:
+                {
+                    block.state3 |= S_PUBLIC;
                     break;
                 }
                 case type::PROVIDER:

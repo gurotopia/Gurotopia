@@ -4,10 +4,10 @@
 
     enum wstate3 : u_char
     {
+        S_RIGHT =  0x00,
         S_LOCKED = 0x10,
-        S_RIGHT =  0x01,
-        S_LEFT =   0x21,
-        S_PUBLIC = 0x90
+        S_LEFT =   0x20,
+        S_PUBLIC = 0x80
     };
 
     /* locks that only occupy a number of tiles, and not the whole world. */
@@ -33,12 +33,11 @@
     {
         block(
             short _fg = 0, short _bg = 0, 
-            bool __public = false, bool _toggled = false, std::chrono::steady_clock::time_point _tick = std::chrono::steady_clock::time_point(),
+            bool _toggled = false, std::chrono::steady_clock::time_point _tick = std::chrono::steady_clock::time_point(),
             std::string _label = "", u_char _state3 = 0, u_char _state4 = 0
-        ) : fg(_fg), bg(_bg), _public(__public), toggled(_toggled), tick(_tick), label(_label), state3(_state3), state4(_state4) {}
+        ) : fg(_fg), bg(_bg), toggled(_toggled), tick(_tick), label(_label), state3(_state3), state4(_state4) {}
         short fg{0}, bg{0};
         
-        bool _public{}; // @note tile can be interacted by anyone in the world
         bool toggled{}; // @note save toggle state
         std::chrono::steady_clock::time_point tick{}; // @note record a point in time for the tile e.g. tree growth, providers, ect.
         std::string label{}; // @note sign/door label

@@ -5,10 +5,8 @@
     enum wstate3 : u_char
     {
         S_LOCKED = 0x10,
-        S_TREE =   0x11,
-        S_RIGHT =  0x15, // @todo comfirm this number.
-        S_SIGN =   0x19,
-        S_LEFT =   0x31,
+        S_RIGHT =  0x01,
+        S_LEFT =   0x21,
         S_PUBLIC = 0x90
     };
 

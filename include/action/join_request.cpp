@@ -66,7 +66,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
                     case type::LOCK: 
                     {
-                        data[pos - 2zu] = std::byte{ 01 };
                         std::size_t admins = std::ranges::count_if(world.admin, std::identity{});
                         data.resize(data.size() + 14zu + (admins * 4zu));
 
@@ -80,7 +79,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::MAIN_DOOR: 
                     {
-                        data[pos - 2zu] = std::byte{ 01 };
                         peer->pos.front() = (i % x) * 32;
                         peer->pos.back() = (i / x) * 32;
                         peer->rest_pos = peer->pos;
@@ -97,13 +95,12 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::ENTRANCE:
                     {
-                        data[pos - 2zu] = (block._public) ? std::byte{ 0x90 } : std::byte{ 0x10 };
+                        data[pos - 2zu] |= (block._public) ? std::byte{ 0x90 } : std::byte{ 0x10 };
                         break;
                     }
                     case type::DOOR:
                     case type::PORTAL:
                     {
-                        data[pos - 2zu] = std::byte{ 01 };
                         short len = block.label.length();
                         data.resize(data.size() + 4zu + len); // @note 01 {2} {} 0 0
 
@@ -116,7 +113,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::SIGN:
                     {
-                        data[pos - 2zu] = std::byte{ 0x19 };
                         short len = block.label.length();
                         data.resize(data.size() + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
 
@@ -129,7 +125,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::SEED:
                     {
-                        data[pos - 2zu] = std::byte{ 0x11 };
+                        data[pos - 2zu] |= std::byte{ 0x10 };
                         data.resize(data.size() + 1zu + 5zu);
 
                         data[pos++] = std::byte{ 04 };
@@ -155,7 +151,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     {
                         if (block.toggled) 
                         {
-                            data[pos - 2zu] = std::byte{ 0x50 };
+                            data[pos - 2zu] |= std::byte{ 0x50 };
                         }
                         break;
                     }
@@ -163,7 +159,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     {
                         if (block.toggled) 
                         {
-                            data[pos - 2zu] = std::byte{ 0x40 };
+                            data[pos - 2zu] |= std::byte{ 0x40 };
                             if (block.fg == 226 && std::ranges::find(buffs, "`4JAMMED") == buffs.end()) 
                                 buffs.emplace_back("`4JAMMED");
                         }

@@ -456,6 +456,15 @@ skip_reset_tile: // @todo remove lazy method
         }
         else // @note placing a block
         {
+            if (item.collision == collision::full)
+            {
+                // 이 (left, right)
+                bool x = state.punch.front() == std::lround(state.pos.front() / 32);
+                // 으 (up, down)
+                bool y = state.punch.back() == std::lround(state.pos.back() / 32);
+
+                if ((x && y)) return; // @todo when moving avoid collision.
+            }
             switch (item.type)
             {
                 case type::LOCK:
@@ -496,7 +505,6 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case type::PROVIDER:
                 {
-                    block.state3 |= (peer->facing_left) ? S_LEFT : S_RIGHT;
                     block.tick = steady_clock::now();
                     break;
                 }
@@ -544,15 +552,7 @@ skip_reset_tile: // @todo remove lazy method
                     break;
                 }
             }
-            if (item.collision == collision::full)
-            {
-                // 이 (left, right)
-                bool x = state.punch.front() == std::lround(state.pos.front() / 32);
-                // 으 (up, down)
-                bool y = state.punch.back() == std::lround(state.pos.back() / 32);
-
-                if ((x && y)) return; // @todo when moving avoid collision.
-            }
+            block.state3 |= (peer->facing_left) ? S_LEFT : S_RIGHT;
             (item.type == type::BACKGROUND) ? block.bg = state.id : block.fg = state.id;
             peer->emplace(slot(state.id, -1));
             modify_item_inventory(event, ::slot(item.id, 1));

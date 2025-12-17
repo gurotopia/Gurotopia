@@ -285,7 +285,6 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         case type::DOOR:
         case type::PORTAL:
         {
-            data[pos - 2zu] = std::byte{ 01 };
             short len = block.label.length();
             data.resize(pos + 1zu + 2zu + len + 1zu); // @note 01 {2} {} 0 0
 
@@ -298,7 +297,6 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         }
         case type::SIGN:
         {
-            data[pos - 2zu] = std::byte{ 0x19 };
             short len = block.label.length();
             data.resize(pos + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
 
@@ -311,7 +309,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         }
         case type::SEED:
         {
-            data[pos - 2zu] = std::byte{ 0x11 };
+            data[pos - 2zu] = std::byte{ 0x10 };
             data.resize(pos + 1zu + 5zu);
 
             data[pos++] = std::byte{ 04 };

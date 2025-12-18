@@ -348,12 +348,12 @@ void generate_world(world &world, const std::string& name)
     world.name = std::move(name);
 }
 
-bool door_mover(world &world, const std::array<int, 2ULL> &pos)
+bool door_mover(world &world, const ::pos &pos)
 {
     std::vector<block> &blocks = world.blocks;
 
-    if (blocks[cord(pos[0], pos[1])].fg != 0 ||
-        blocks[cord(pos[0], (pos[1] + 1))].fg != 0) return false;
+    if (blocks[cord(pos.x, pos.y)].fg != 0 ||
+        blocks[cord(pos.x, (pos.y + 1))].fg != 0) return false;
 
     for (std::size_t i = 0zu; i < blocks.size(); ++i)
     {
@@ -364,8 +364,8 @@ bool door_mover(world &world, const std::array<int, 2ULL> &pos)
             break;
         }
     }
-    blocks[cord(pos[0], pos[1])].fg = 6;
-    blocks[cord(pos[0], (pos[1] + 1))].fg = 8;
+    blocks[cord(pos.x, pos.y)].fg = 6;
+    blocks[cord(pos.x, (pos.y + 1))].fg = 8;
     return true;
 }
 

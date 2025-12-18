@@ -9,6 +9,15 @@
         short count{0}; // @note total amount of that item
     };
 
+    /* x, y */ // @todo add float positions
+    struct pos {
+        pos(int _x, int _y) : x(_x), y(_y) {}
+        int x{0};
+        int y{0};
+
+        auto operator<=>(const pos&) const = default;
+    };
+
     struct Billboard {
         short id{0}; // @note the item they're selling
         bool show{};
@@ -121,7 +130,7 @@
         int id{}; // @note peer's active hand, so 18 (fist) = punching, 32 (wrench) interacting, ect...
         std::array<float, 2zu> pos{}; // @note position 1D {x, y}
         std::array<float, 2zu> speed{}; // @note player movement (velocity(x), gravity(y)), higher gravity = smaller jumps
-        std::array<int, 2zu> punch{}; // @note punching/placing position 2D {x, y}
+        ::pos punch{0,0}; // @note punching/placing position 2D {x, y}
 
         u_char idk{}; // @note last bit in a packet
     };

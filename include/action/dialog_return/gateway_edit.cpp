@@ -30,7 +30,7 @@ void gateway_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
     {
         for (::door &door : it->second.doors)
         {
-            if (door.pos == std::array<int, 2zu>{ tilex, tiley }) 
+            if (door.pos == ::pos{tilex, tiley}) 
             {
                 door.dest = pipes[13];
                 door.id = pipes[15];

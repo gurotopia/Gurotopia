@@ -51,13 +51,13 @@
 
     struct door 
     {
-        door(std::string _dest, std::string _id, std::string _password, std::array<int, 2zu> _pos) : 
+        door(std::string _dest, std::string _id, std::string _password, ::pos _pos) : 
             dest(_dest), id(_id), password(_password), pos(_pos) {}
 
         std::string dest{};
         std::string id{};
         std::string password{};
-        std::array<int, 2zu> pos;
+        ::pos pos;
     };
 
     struct ifloat 
@@ -102,7 +102,7 @@
 
     void generate_world(world &world, const std::string& name);
 
-    bool door_mover(world &world, const std::array<int, 2ULL> &pos);
+    bool door_mover(world &world, const ::pos &pos);
 
     namespace blast
     {

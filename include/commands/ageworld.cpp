@@ -26,7 +26,7 @@ void ageworld(ENetEvent& event, const std::string_view text)
             tile_update(event, 
             {
                 .id = block.fg, 
-                .punch = { (int)i % 100, (int)i / 100 }
+                .punch = ::pos{ (short)i % 100, (short)i / 100 }
             }, block, world);
         }
     }

@@ -10,7 +10,7 @@ void tile_activate(ENetEvent& event, state state)
     if (!worlds.contains(peer->recent_worlds.back())) return;
     ::world &world = worlds.at(peer->recent_worlds.back());
 
-    ::block &block = world.blocks[cord(state.punch[0], state.punch[1])];
+    ::block &block = world.blocks[cord(state.punch.x, state.punch.y)];
     ::item &item = items[block.fg]; // @todo handle bg
 
     switch (item.type)

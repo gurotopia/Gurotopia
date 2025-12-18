@@ -31,7 +31,7 @@ void tile_change(ENetEvent& event, state state)
         if ((world.owner && !world._public && !peer->role) &&
             (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
 
-        ::block &block = world.blocks[cord(state.punch[0], state.punch[1])];
+        ::block &block = world.blocks[cord(state.punch.x, state.punch.y)];
 
         ::item &item = (state.id != 32 && state.id != 18) ? items[state.id] : (block.fg != 0) ? items[block.fg] : items[block.bg];
         if (item.id == 0) return;
@@ -213,8 +213,8 @@ skip_reset_tile: // @todo remove lazy method
                 for (std::pair<short, short> &i : im)
                     item_change_object(event, {i.first, i.second},
                         {
-                            static_cast<float>(state.punch[0]) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
-                            static_cast<float>(state.punch[1]) + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
+                            static_cast<float>(state.punch.x) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
+                            static_cast<float>(state.punch.y) + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
                         });
                         
                 peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
@@ -223,7 +223,7 @@ skip_reset_tile: // @todo remove lazy method
         } // @note delete im, id
         else if (item.cloth_type != clothing::none) 
         {
-            if (state.punch != std::array<int, 2zu>{ std::lround(peer->pos[0]), std::lround(peer->pos[1]) }) return;
+            if (state.punch != ::pos{ std::lround(peer->pos[0]), std::lround(peer->pos[1]) }) return;
 
             item_activate(event, state);
             return; 
@@ -283,7 +283,7 @@ skip_reset_tile: // @todo remove lazy method
                     {
                         auto &peers = _peer[&p];
 
-                        if (state.punch == std::array<int, 2zu>{ std::lround(peers->pos[0]), std::lround(peers->pos[1]) }) // @todo improve accuracy
+                        if (state.punch == ::pos{ std::lround(peers->pos[0]), std::lround(peers->pos[1]) }) // @todo improve accuracy
                         {
                             peers->state ^= S_DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
                             ENetEvent event_perspective{.peer = &p};
@@ -344,7 +344,7 @@ skip_reset_tile: // @todo remove lazy method
             {
                 state_visuals(event, ::state{
                     .type = 0x11,
-                    .pos = { static_cast<float>((state.punch.front() * 32) + 16), static_cast<float>((state.punch.back() * 32) + 16) },
+                    .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
                     .speed = { effect, 0xa8 }
                 });
             }
@@ -389,7 +389,7 @@ skip_reset_tile: // @todo remove lazy method
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item.raw_name, item.id, state.punch[0], state.punch[1], to_char(world._public)
+                                item.raw_name, item.id, state.punch.x, state.punch.y, to_char(world._public)
                             ).c_str()
                         });
                     }
@@ -417,7 +417,7 @@ skip_reset_tile: // @todo remove lazy method
                             "embed_data|tilex|{}\n"
                             "embed_data|tiley|{}\n"
                             "end_dialog|door_edit|Cancel|OK|", 
-                            item.raw_name, item.id, block.label, dest, id, state.punch[0], state.punch[1]
+                            item.raw_name, item.id, block.label, dest, id, state.punch.x, state.punch.y
                         ).c_str()
                     });
                     break;
@@ -433,7 +433,7 @@ skip_reset_tile: // @todo remove lazy method
                             "embed_data|tilex|{}\n"
                             "embed_data|tiley|{}\n"
                             "end_dialog|sign_edit|Cancel|OK|", 
-                            item.raw_name, item.id, block.label, state.punch[0], state.punch[1]
+                            item.raw_name, item.id, block.label, state.punch.x, state.punch.y
                         ).c_str()
                     });
                     break;
@@ -447,7 +447,7 @@ skip_reset_tile: // @todo remove lazy method
                             "embed_data|tilex|{}\n"
                             "embed_data|tiley|{}\n"
                             "end_dialog|gateway_edit|Cancel|OK|\n", 
-                            item.raw_name, item.id, to_char((block.state3 & S_PUBLIC)), state.punch[0], state.punch[1]
+                            item.raw_name, item.id, to_char((block.state3 & S_PUBLIC)), state.punch.x, state.punch.y
                         ).c_str()
                     });
                     break;
@@ -459,9 +459,9 @@ skip_reset_tile: // @todo remove lazy method
             if (item.collision == collision::full)
             {
                 // 이 (left, right)
-                bool x = state.punch.front() == std::lround(state.pos.front() / 32);
+                bool x = state.punch.x == std::lround(state.pos.front() / 32);
                 // 으 (up, down)
-                bool y = state.punch.back() == std::lround(state.pos.back() / 32);
+                bool y = state.punch.y == std::lround(state.pos.back() / 32);
 
                 if ((x && y)) return; // @todo when moving avoid collision.
             }

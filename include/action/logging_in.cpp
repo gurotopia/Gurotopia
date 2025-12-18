@@ -10,7 +10,7 @@ void action::logging_in(ENetEvent& event, const std::string& header)
     try 
     {
         std::vector<std::string> pipes = readch(header, '|');
-        if (pipes.size() < 4) throw std::runtime_error("");
+        if (pipes.size() < 4zu) throw std::runtime_error("");
 
         if (pipes[2zu] == "ltoken")
         {

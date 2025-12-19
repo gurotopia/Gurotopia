@@ -150,11 +150,12 @@ void cache_items()
             im.info.assign(reinterpret_cast<char*>(&im_data[pos]), len);
             pos += len;
         }
-        if (version == 23) 
+        if (version >= 23) 
         {
             shift_pos(im_data, pos, im.splice[0]);
             shift_pos(im_data, pos, im.splice[1]);
         }
+        if (version == 24) pos += sizeof(std::byte);
 
 
         items.emplace(i, im);

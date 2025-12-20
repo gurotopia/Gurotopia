@@ -62,8 +62,9 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 {
                     case type::FOREGROUND: 
                     case type::BACKGROUND:
+                    case type::STRONG: // @note bedrock
+                    case type::FIRE_PAIN: // @note lava
                         break;
-
                     case type::LOCK: 
                     {
                         std::size_t admins = std::ranges::count_if(world.admin, std::identity{});
@@ -160,9 +161,20 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         }
                         break;
                     }
+                    case type::FISH_TANK_PORT:
+                    {
+                        data.resize(data.size() + 5zu);
+
+                        data[pos++] = std::byte{ 0x00 };
+                        *reinterpret_cast<int*>(&data[pos]) = 0; pos += sizeof(int);
+                        break;
+                    }
                     default:
+                    {
+                        printf("%s's visuals has not been added yet.", items[block.fg].raw_name.c_str());
                         data.resize(data.size() + 32zu); // @todo
                         break;
+                    }
                 }
                 ++i;
             }

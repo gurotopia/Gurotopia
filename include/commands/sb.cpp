@@ -10,14 +10,13 @@ void sb(ENetEvent& event, const std::string_view text)
     }
     std::string message{ text.substr(sizeof("sb ")-1) };
     auto &peer = _peer[event.peer];
-    
 
     auto it = worlds.find(peer->recent_worlds.back());
     if (it == worlds.end()) return;
 
     std::string display = peer->recent_worlds.back();
-    for (const ::block &block : it->second.blocks)
-        if (block.fg == 226 && block.toggled) 
+    for (::block &block : it->second.blocks)
+        if (block.fg == 226 && block.state3 & S_TOGGLE) 
         {
             display = "`4JAMMED``";
             break; // @note we don't care if other signals are toggled.

@@ -7,6 +7,7 @@
         S_RIGHT =  0x00,
         S_LOCKED = 0x10,
         S_LEFT =   0x20,
+        S_TOGGLE = 0x40, // @note including mailbox which just toggles the visuals
         S_PUBLIC = 0x80
     };
 
@@ -33,16 +34,15 @@
     {
         block(
             short _fg = 0, short _bg = 0, 
-            bool _toggled = false, std::chrono::steady_clock::time_point _tick = std::chrono::steady_clock::time_point(),
+            std::chrono::steady_clock::time_point _tick = std::chrono::steady_clock::time_point(),
             std::string _label = "", u_char _state3 = 0, u_char _state4 = 0
-        ) : fg(_fg), bg(_bg), toggled(_toggled), tick(_tick), label(_label), state3(_state3), state4(_state4) {}
+        ) : fg(_fg), bg(_bg), tick(_tick), label(_label), state3(_state3), state4(_state4) {}
         short fg{0}, bg{0};
         
-        bool toggled{}; // @note save toggle state
         std::chrono::steady_clock::time_point tick{}; // @note record a point in time for the tile e.g. tree growth, providers, ect.
         std::string label{}; // @note sign/door label
 
-        u_char state3{}; // @note direction | uses wstate3::
+        u_char state3{}; // @note direction; visuals | uses wstate3::
         u_char state4{}; // @note water; glue; fire; paint | uses wstate4::
 
         std::array<int, 2zu> hits{0, 0}; // @note fg, bg

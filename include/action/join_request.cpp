@@ -64,6 +64,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     case type::BACKGROUND:
                     case type::STRONG: // @note bedrock
                     case type::FIRE_PAIN: // @note lava
+                    case type::CHEST: // @note treasure, booty chest
+                    case type::TOGGLEABLE_BLOCK:
                         break;
                     case type::LOCK: 
                     {
@@ -121,7 +123,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::SEED:
                     {
-                        data[pos - 2zu] |= std::byte{ 0x10 };
+                        data[pos - 2zu] |= std::byte{ 0x11 }; // @todo idk
                         data.resize(data.size() + 1zu + 5zu);
 
                         data[pos++] = std::byte{ 04 };
@@ -137,25 +139,16 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
                         break;
                     }
-                    case type::WEATHER_MACHINE: // @note there are no added bytes (I think)
+                    case type::WEATHER_MACHINE:
                     {
-                        if (block.toggled)
+                        if (block.state3 & S_TOGGLE)
                             packet::create(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
-                        break;
-                    }
-                    case type::TOGGLEABLE_BLOCK:
-                    {
-                        if (block.toggled) 
-                        {
-                            data[pos - 2zu] |= std::byte{ 0x50 };
-                        }
                         break;
                     }
                     case type::TOGGLEABLE_ANIMATED_BLOCK:
                     {
-                        if (block.toggled) 
+                        if (block.state3 & S_TOGGLE)
                         {
-                            data[pos - 2zu] |= std::byte{ 0x40 };
                             if (block.fg == 226 && std::ranges::find(buffs, "`4JAMMED") == buffs.end()) 
                                 buffs.emplace_back("`4JAMMED");
                         }
@@ -163,15 +156,26 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::FISH_TANK_PORT:
                     {
-                        data.resize(data.size() + 5zu);
+                        data.resize(data.size() + 1zu);
 
-                        data[pos++] = std::byte{ 0x00 };
-                        *reinterpret_cast<int*>(&data[pos]) = 0; pos += sizeof(int);
+                        data[pos++] = std::byte{ 0x00 }; // @todo if glow toggled this becomes 0x10
+                        break;
+                    }
+                    case type::MAILBOX:
+                    {
+                        data.resize(data.size() + 7zu);
+
+                        data[pos++] = std::byte{ 0x02 };
+                        
+                        *reinterpret_cast<short*>(&data[pos]) = 0; pos += sizeof(short);
+                        *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
                         break;
                     }
                     default:
                     {
-                        printf("%s's visuals has not been added yet.", items[block.fg].raw_name.c_str());
+                        throw std::runtime_error(std::format("`w{}``'s visuals has not been added yet.", 
+                            items[block.fg].raw_name));
+
                         data.resize(data.size() + 32zu); // @todo
                         break;
                     }
@@ -202,7 +206,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         } // @note delete name, first
 
         if (peer->user_id == world.owner) peer->prefix.front() = '2';
-        else if (std::ranges::find(world.admin, peer->user_id) != world.admin.end()) peer->prefix.front() = 'c';
+        else if (std::ranges::contains(world.admin, peer->user_id)) peer->prefix.front() = 'c';
 
         peer->netid = ++world.visitors;
         

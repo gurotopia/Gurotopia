@@ -35,7 +35,7 @@ public:
         "CREATE TABLE IF NOT EXISTS worlds (_n TEXT PRIMARY KEY, owner INTEGER, pub BOOLEAN);"
 
         "CREATE TABLE IF NOT EXISTS blocks ("
-            "_n TEXT, _p INTEGER, fg INTEGER, bg INTEGER, tog BOOLEAN, tick INTEGER, l TEXT, s3 INTEGER, s4 INTEGER,"
+            "_n TEXT, _p INTEGER, fg INTEGER, bg INTEGER, tick INTEGER, l TEXT, s3 INTEGER, s4 INTEGER,"
             "PRIMARY KEY (_n, _p),"
             "FOREIGN KEY (_n) REFERENCES worlds(_n)"
         ");"
@@ -97,17 +97,16 @@ world::world(const std::string& name)
     }, name);
 
     blocks.resize(6000);
-    db.query("SELECT _p, fg, bg, tog, tick, l, s3, s4 FROM blocks WHERE _n = ?", [this](sqlite3_stmt* stmt) 
+    db.query("SELECT _p, fg, bg, tick, l, s3, s4 FROM blocks WHERE _n = ?", [this](sqlite3_stmt* stmt) 
     {
             int pos = sqlite3_column_int(stmt, 0);
             blocks[pos] = block(
                 sqlite3_column_int(stmt, 1),
                 sqlite3_column_int(stmt, 2),
-                sqlite3_column_int(stmt, 3),
-                steady_clock::time_point(std::chrono::seconds(sqlite3_column_int64(stmt, 4))),
-                reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5)),
-                sqlite3_column_int(stmt, 6),
-                sqlite3_column_int(stmt, 7)
+                steady_clock::time_point(std::chrono::seconds(sqlite3_column_int64(stmt, 3))),
+                reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4)),
+                sqlite3_column_int(stmt, 5),
+                sqlite3_column_int(stmt, 6)
             );
     }, name);
      db.query("SELECT uid, i, c, x, y FROM ifloats WHERE _n = ?", [this](sqlite3_stmt* stmt) 
@@ -145,14 +144,13 @@ world::~world()
     
     for (std::size_t pos = 0; pos < blocks.size(); pos++) {
         const block &b = blocks[pos];
-        db.execute("INSERT INTO blocks (_n, _p, fg, bg, tog, tick, l, s3, s4) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)", [this, &b, &pos](sqlite3_stmt* stmt) 
+        db.execute("INSERT INTO blocks (_n, _p, fg, bg, tick, l, s3, s4) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [this, &b, &pos](sqlite3_stmt* stmt) 
         {
             int i = 1;
             sqlite3_bind_text(stmt, i++, name.c_str(), -1, SQLITE_STATIC);
             sqlite3_bind_int(stmt, i++, pos);
             sqlite3_bind_int(stmt, i++, b.fg);
             sqlite3_bind_int(stmt, i++, b.bg);
-            sqlite3_bind_int(stmt, i++, b.toggled);
             sqlite3_bind_int64(stmt, i++, duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count());
             sqlite3_bind_text(stmt, i++, b.label.c_str(), -1, SQLITE_STATIC);
             sqlite3_bind_int(stmt, i++, b.state3);

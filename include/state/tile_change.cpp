@@ -61,15 +61,6 @@ void tile_change(ENetEvent& event, state state)
             {
                 case type::STRONG: throw std::runtime_error("It's too strong to break."); break;
                 case type::MAIN_DOOR: throw std::runtime_error("(stand over and punch to use)"); break;
-                case type::LOCK:
-                {
-                    if (peer->user_id != world.owner) 
-                    {
-                        // @todo add message saying who owns the lock.
-                        return;
-                    }
-                    break;
-                }
                 case type::PROVIDER:
                 {
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
@@ -78,7 +69,6 @@ void tile_change(ENetEvent& event, state state)
                         {
                             case 1008: // @note ATM
                             {
-                                /* @todo merge gems more effectively */
                                 u_char gems = ransuu[{1, 100}]; // @note source: https://growtopia.fandom.com/wiki/ATM_Machine
                                 for (short i : {100, 50, 10, 5, 1}/* gem type */)
                                     for (; gems >= i; gems -= i/* downgrade type */)
@@ -122,33 +112,34 @@ void tile_change(ENetEvent& event, state state)
                 {
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
                     {
-                        block.hits[0] = 999;
+                        block.hits[0] = 99;
                         im.emplace_back(item.id - 1, ransuu[{0, 8}]); // @note fruit (from tree)
                     }
                     break;
                 }
                 case type::WEATHER_MACHINE:
                 {
-                    block.toggled = (block.toggled) ? false : true;
+                    block.state3 ^= S_TOGGLE;
                     peers(event, PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
-                        packet::create(p, false, 0, { "OnSetCurrentWeather", (block.toggled) ? get_weather_id(item.id) : 0 });
+                        packet::create(p, false, 0, { "OnSetCurrentWeather", (block.state3 & S_TOGGLE) ? get_weather_id(item.id) : 0 });
                     });
                     for (::block &b : world.blocks)
-                        if (items[b.fg]/*@todo*/.type == type::WEATHER_MACHINE && b.fg != block.fg) b.toggled = false;
+                        if (items[b.fg]/*@todo*/.type == type::WEATHER_MACHINE && b.fg != block.fg) block.state3 &= ~S_TOGGLE;
                     
                     break;
                 }
                 case type::TOGGLEABLE_BLOCK:
                 case type::TOGGLEABLE_ANIMATED_BLOCK:
                 {
-                    block.toggled = (block.toggled) ? false : true;
+                    block.state3 ^= S_TOGGLE;
                     if (item.id == 226) // @note Signal Jammer
                     {
                         packet::create(*event.peer, false, 0, {
                             "OnConsoleMessage",
-                            (block.toggled) ? "Signal jammer enabled. This world is now `4hidden`` from the universe." :
-                                              "Signal jammer disabled.  This world is `2visible`` to the universe."
+                            (block.state3 & S_TOGGLE) ? 
+                                "Signal jammer enabled. This world is now `4hidden`` from the universe." :
+                                "Signal jammer disabled.  This world is `2visible`` to the universe."
                         });
                     }
                     break;
@@ -165,7 +156,6 @@ void tile_change(ENetEvent& event, state state)
             
             /* @todo update these changes with tile_update() */
             block.label = "";
-            block.toggled = false; // @todo handle background toggles, if any.
             block.state3 = 0x00; // @note reset tile direction
             block.state4 &= ~S_VANISH; // @note remove paint
 
@@ -177,7 +167,7 @@ void tile_change(ENetEvent& event, state state)
                 world.owner = 0; // @todo have a seperate thing for 'range_lock'
             }
 
-            if (item.cat == 0x02) // pick up (item goes back in your inventory)
+            if (item.cat == CAT_RETURN)
             {
                 int uid = item_change_object(event, {remember_id, 1}, state.pos);
                 item_activate_object(event, ::state{.id = uid});
@@ -547,13 +537,13 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case type::WEATHER_MACHINE:
                 {
-                    block.toggled = true;
+                    block.state3 |= S_TOGGLE;
                     peers(event, PEER_SAME_WORLD, [state](ENetPeer& p)
                     {
                         packet::create(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
                     });
                     for (::block &b : world.blocks)
-                        if (items[b.fg]/*@todo*/.type == type::WEATHER_MACHINE && b.fg != state.id) b.toggled = false;
+                        if (items[b.fg]/*@todo*/.type == type::WEATHER_MACHINE && b.fg != state.id) block.state3 &= ~S_TOGGLE;
                     break;
                 }
             }

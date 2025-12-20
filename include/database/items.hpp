@@ -148,6 +148,11 @@
         FRIEND_ENTRANCE = 0x8e,
     };
 
+    enum cat : u_char {
+        CAT_RETURN = 02, // @note This item can't be destroyed - smashing it will return it to your backpack if you have room!
+        CAT_CANNOT_DROP = 0x80 // @note This item cannot be dropped or traded.
+    };
+
     #include <string>
 
     namespace collision {

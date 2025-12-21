@@ -31,6 +31,11 @@ create_dialog& create_dialog::add_text_input(std::string id, std::string label, 
     _d.append(std::format("add_text_input|{}|{}|{}|{}|\n", id, label, set_value, length));
     return *this;
 }
+create_dialog& create_dialog::add_text_input(std::string id, std::string label, std::string set_value, short length)
+{
+    _d.append(std::format("add_text_input|{}|{}|{}|{}|\n", id, label, set_value, length));
+    return *this;
+}
 create_dialog& create_dialog::embed_data(std::string id, std::string data)
 {
     _d.append(std::format("embed_data|{}|{}\n", id, data));

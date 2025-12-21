@@ -5,6 +5,7 @@
 #include "item_activate.hpp"
 #include "tools/ransuu.hpp"
 #include "tools/string.hpp"
+#include "tools/create_dialog.hpp"
 #include "action/quit_to_exit.hpp"
 #include "action/join_request.hpp"
 #include "item_activate_object.hpp"
@@ -265,6 +266,19 @@ skip_reset_tile: // @todo remove lazy method
                 case 3062: // @note Pocket Lighter
                 {
                     block.state4 ^= S_FIRE; // @todo ignite with water
+                    break;
+                }
+                case 2480: // @note Megaphone
+                {
+                    packet::create(*event.peer, false, 0, {
+                        "OnDialogRequest",
+                        ::create_dialog()
+                            .set_default_color("`o")
+                            .add_label_with_icon("big", "`wMegaphone``", item.id)
+                            .add_textbox("Enter a message you want to broadcast to every player in Growtopia! This will use up 1 Megaphone")
+                            .add_text_input("message", "", "", 128)
+                            .end_dialog("megaphone", "Nevermind", "Broadcast").c_str()
+                    });
                     break;
                 }
                 case 408: // @note Duct Tape

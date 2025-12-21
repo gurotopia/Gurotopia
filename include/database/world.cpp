@@ -300,7 +300,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         }
         case type::SEED:
         {
-            data[pos - 2zu] = std::byte{ 0x10 };
+            data[pos - 2zu] = std::byte{ 0x11 };
             data.resize(pos + 1zu + 5zu);
 
             data[pos++] = std::byte{ 04 };

@@ -151,6 +151,12 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         {
                             if (block.fg == 226 && std::ranges::find(buffs, "`4JAMMED") == buffs.end()) 
                                 buffs.emplace_back("`4JAMMED");
+                            else if (block.fg == 1276 && std::ranges::find(buffs, "`2NOPUNCH") == buffs.end())
+                                buffs.emplace_back("`2NOPUNCH");
+                            else if (block.fg == 1278 && std::ranges::find(buffs, "`2IMMUNE") == buffs.end())
+                                buffs.emplace_back("`2IMMUNE");
+                            else if (block.fg == 4992 && std::ranges::find(buffs, " `2ANTIGRAVITY") == buffs.end())
+                                buffs.emplace_back(" `2ANTIGRAVITY");
                         }
                         break;
                     }
@@ -259,7 +265,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             
             std::string list{};
             for (const auto &buff : range) 
-                list.append(std::format("{}``,", buff));
+                list.append(std::format("{}``, ", buff));
             list.pop_back();
 
             return std::format(" `0[``{}`0]``", list);

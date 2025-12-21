@@ -216,10 +216,9 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
         peer->netid = ++world.visitors;
         
-        peers(event, PEER_SAME_WORLD, [event, &peer, &world](ENetPeer& p) 
+        peers(event, PEER_SAME_WORLD, [&event, &peer, &world](ENetPeer& p) 
         {
             auto &_p = _peer[&p];
-
             constexpr std::string_view fmt = "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}";
             
             if (_p->user_id != peer->user_id)
@@ -235,6 +234,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     "OnConsoleMessage",
                     std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors - 1).c_str()
                 });
+                on::SetClothing(event, &p);
             }
             packet::create(p, false, -1/* ff ff ff ff */, {
                 "OnSpawn", 
@@ -252,11 +252,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors - 1).c_str(),
                         1u
                 });
-            ENetEvent fake_event{.peer = &p}; // @note used to call functions that take ENetEvent @todo improve!!
-            on::SetClothing(fake_event);
         });
-        
-        inventory_visuals(event);
+
         if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
 
         auto section = [](const auto& range) 
@@ -278,6 +275,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             ).c_str()
         });
         on::EmoticonDataChanged(event);
+        on::SetClothing(event);
     }
     catch (const std::exception& exc)
     {

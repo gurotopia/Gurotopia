@@ -24,14 +24,10 @@ void action::enter_game(ENetEvent& event, const std::string& header)
             peer->prefix, peer->ltoken[0]).c_str()
     }); 
     packet::create(*event.peer, false, 0, {"OnConsoleMessage", "`5Personal Settings active:`` `#Can customize profile``"});
-    packet::create(*event.peer, false, 0, {
-        "UpdateMainMenuTheme", 
-        0,
-        4226000383u,
-        4226000383u,
-        "4226000383|4226000383|80543231|80543231|1554912511|1554912511"
-    });
+    
+    inventory_visuals(event);
     on::SetBux(event);
+    
     packet::create(*event.peer, false, 0, {"SetHasGrowID", 1, peer->ltoken[0].c_str(), ""}); 
 
     {

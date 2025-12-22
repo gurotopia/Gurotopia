@@ -11,9 +11,9 @@ void item_activate_object(ENetEvent& event, state state)
     if (!worlds.contains(peer->recent_worlds.back())) return;
     ::world &world = worlds.at(peer->recent_worlds.back());
 
-    auto f = world.ifloats.find(state.id);
-    if (f == world.ifloats.end()) return;
-    ::ifloat &ifloat = f->second;
+    auto it = world.ifloats.find(state.id);
+    if (it == world.ifloats.end()) return;
+    ::ifloat &ifloat = it->second;
 
     ::item &item = items[ifloat.id];
     if (item.type != type::GEM)
@@ -33,5 +33,5 @@ void item_activate_object(ENetEvent& event, state state)
         on::SetBux(event);
     }
     item_change_object(event, {ifloat.id, ifloat.count}, ifloat.pos, state.id/*@todo*/);
-    if (ifloat.count == 0) world.ifloats.erase(f);
+    if (ifloat.count == 0) world.ifloats.erase(it);
 }

@@ -332,15 +332,16 @@ void generate_world(world &world, const std::string& name)
     
     for (std::size_t i = 0zu; i < blocks.size(); ++i)
     {
+        ::block &block = blocks[i];
         if (i >= cord(0, 37))
         {
-            blocks[i].bg = 14; // @note cave background
-            if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && ransuu[{0, 38}] <= 1) blocks[i].fg = 10; // rock
-            else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && ransuu[{0, 8}] < 3) blocks[i].fg = 4; // lava
-            else blocks[i].fg = (i >= cord(0, 54)) ? 8 : 2;
+            block.bg = 14; // @note cave background
+            if (i >= cord(0, 38) && i < cord(0, 50) /* (above) lava level */ && ransuu[{0, 38}] <= 1) block.fg = 10; // rock
+            else if (i > cord(0, 50) && i < cord(0, 54) /* (above) bedrock level */ && ransuu[{0, 8}] < 3) block.fg = 4; // lava
+            else block.fg = (i >= cord(0, 54)) ? 8 : 2;
         }
-        if (i == cord(main_door, 36)) blocks[i].fg = 6; // @note main door
-        else if (i == cord(main_door, 37)) blocks[i].fg = 8; // @note bedrock (below main door)
+        if (i == cord(main_door, 36)) block.fg = 6, block.label = "EXIT"; // @note main door
+        else if (i == cord(main_door, 37)) block.fg = 8; // @note bedrock (below main door)
     }
     world.blocks = std::move(blocks);
     world.name = std::move(name);

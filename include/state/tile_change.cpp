@@ -255,17 +255,22 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case 822: // @note Water Bucket
                 {
-                    block.state4 ^= S_WATER;
+                    if (block.state4 & S_FIRE) [[fallthrough]]; // @note extinguish the fire
+                    else {
+                        block.state4 ^= S_WATER;
+                        break;
+                    }
+                }
+                case 3062: // @note Pocket Lighter
+                {
+                    if (!block.state4 & S_WATER) // @note avoid fire on water
+                        block.state4 ^= S_FIRE;
+
                     break;
                 }
                 case 1866: // @note Block Glue
                 {
                     block.state4 ^= S_GLUE;
-                    break;
-                }
-                case 3062: // @note Pocket Lighter
-                {
-                    block.state4 ^= S_FIRE; // @todo ignite with water
                     break;
                 }
                 case 2480: // @note Megaphone

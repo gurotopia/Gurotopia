@@ -82,19 +82,10 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::MAIN_DOOR: 
                     {
-                        peer->pos.front() = (i % x) * 32;
-                        peer->pos.back() = (i / x) * 32;
+                        peer->pos = { (float)(i % x) * 32.0f, (float)(i / x) * 32.0f };
                         peer->rest_pos = peer->pos;
-                        data.resize(data.size() + 8zu);
 
-                        data[pos++] = std::byte{ 01 };
-                        *reinterpret_cast<short*>(&data[pos]) = 4; pos += sizeof(short); // @note length of "EXIT"
-                        data[pos++] = std::byte{'E'};
-                        data[pos++] = std::byte{'X'};
-                        data[pos++] = std::byte{'I'};
-                        data[pos++] = std::byte{'T'};
-                        data[pos++] = std::byte{ 00 }; // @note '\0'
-                        break;
+                        [[fallthrough]];
                     }
                     case type::DOOR:
                     case type::PORTAL:

@@ -6,7 +6,7 @@
 
 void receive(ENetEvent& event) 
 {
-    std::span<enet_uint8> data{event.packet->data, event.packet->dataLength};
+    std::span<const enet_uint8> data{event.packet->data, event.packet->dataLength};
     switch (data[0zu]) 
     {
         case 2: case 3: 
@@ -15,7 +15,7 @@ void receive(ENetEvent& event)
             puts(header.c_str());
             
             std::ranges::replace(header, '\n', '|');
-            std::vector<std::string> pipes = readch(header, '|');
+            const std::vector<std::string> pipes = readch(header, '|');
             
             const std::string action = (pipes[0zu] == "protocol") ? pipes[0zu] : std::format("{}|{}", pipes[0zu], pipes[1zu]);
             if (const auto i = action_pool.find(action); i != action_pool.end())
@@ -24,20 +24,11 @@ void receive(ENetEvent& event)
         }
         case 4: 
         {
-            state state{};
-            {
-                std::vector<std::byte> raw_state{event.packet->dataLength - 4};
-                {
-                    std::size_t size = raw_state.size();
-                    if ((size + 4zu) >= 61zu) // @note growtopia packets are 61 (::state), however most are greater than 61 (visuals, ect)
-                    {
-                        std::byte *_1bit = reinterpret_cast<std::byte*>(event.packet->data) + 4; // @note ignore 04 00 00 00
-                        for (std::size_t i = 0zu; i < size; ++i)
-                            raw_state[i] = _1bit[i];
-                    }
-                } // @note deletes size
-                state = get_state(std::move(raw_state));
-            } // @note deletes raw_state
+            if (event.packet->dataLength <= sizeof(::state)) return;
+
+            const std::byte *_1bit = reinterpret_cast<const std::byte*>(event.packet->data) + 4; // @note ignore 04 00 00 00
+            ::state state = get_state({_1bit, _1bit + (event.packet->dataLength - 4)});
+
             if (const auto i = state_pool.find(state.type); i != state_pool.end())
                 i->second(event, std::move(state));
             break;

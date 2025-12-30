@@ -60,8 +60,8 @@ void tile_change(ENetEvent& event, state state)
             }
             switch (item.type)
             {
-                case type::STRONG: throw std::runtime_error("It's too strong to break."); break;
-                case type::MAIN_DOOR: throw std::runtime_error("(stand over and punch to use)"); break;
+                case type::STRONG: throw std::runtime_error("It's too strong to break.");
+                case type::MAIN_DOOR: throw std::runtime_error("(stand over and punch to use)");
                 case type::PROVIDER:
                 {
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
@@ -236,10 +236,8 @@ skip_reset_tile: // @todo remove lazy method
                     ).c_str()
                 });
             }
-            if (item.raw_name.contains("Paint Bucket - "))
-            {
-                if (peer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
-            }
+
+            if (item.raw_name.contains("Paint Bucket - ") && peer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
             float effect{ 0.0f }; // @note allocate 'effect' only if peer is wearing a paint brush.
             switch (item.id)
             {
@@ -255,15 +253,13 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case 822: // @note Water Bucket
                 {
-                    if (block.state4 & S_FIRE) [[fallthrough]]; // @note extinguish the fire
-                    else {
-                        block.state4 ^= S_WATER;
-                        break;
-                    }
+                    if (block.state4 & S_FIRE) block.state4 &= ~S_FIRE; // @note extinguish the fire
+                    else block.state4 ^= S_WATER;
+                    break;
                 }
                 case 3062: // @note Pocket Lighter
                 {
-                    if (!block.state4 & S_WATER) // @note avoid fire on water
+                    if (!(block.state4 & S_WATER)) // @note avoid fire on water
                         block.state4 ^= S_FIRE;
 
                     break;
@@ -295,8 +291,7 @@ skip_reset_tile: // @todo remove lazy method
                         if (state.punch == ::pos{ std::lround(peers->pos[0]), std::lround(peers->pos[1]) }) // @todo improve accuracy
                         {
                             peers->state ^= S_DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
-                            ENetEvent event_perspective{.peer = &p};
-                            on::SetClothing(event_perspective);
+                            on::SetClothing(event, &p);
                         }
                     });
                     break;

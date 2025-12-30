@@ -168,14 +168,9 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
                         break;
                     }
-                    default:
-                    {
+                    default: 
                         throw std::runtime_error(std::format("`w{}``'s visuals has not been added yet.", 
                             items[block.fg].raw_name));
-
-                        data.resize(data.size() + 32zu); // @todo
-                        break;
-                    }
                 }
                 ++i;
             }

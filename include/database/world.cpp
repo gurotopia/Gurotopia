@@ -212,7 +212,7 @@ void tile_apply_damage(ENetEvent& event, state state, block &block)
 void modify_item_inventory(ENetEvent& event, ::slot slot)
 {
     ::state state{
-        .type = (slot.count << 16) | 0x0d, // @noote 0x00{}000d
+        .type = (slot.count << 16) | 0x000d, // @noote 0x00{}000d
         .id = slot.id
     };
     state_visuals(event, std::move(state));

@@ -2,7 +2,7 @@
 #include "items.hpp"
 
 std::unordered_map<u_short, item> items;
-std::vector<std::byte> im_data(61, std::byte{ 00 });
+std::vector<std::byte> im_data((sizeof(::state)-3)/*inital packet*/ + sizeof(std::uintmax_t)/*items.dat size*/, std::byte{ 00 });
 
 template<typename T>
 void shift_pos(std::vector<std::byte>& data, u_int& pos, T& value) 
@@ -12,7 +12,7 @@ void shift_pos(std::vector<std::byte>& data, u_int& pos, T& value)
     pos += sizeof(T);
 }
 
-/* have not tested modifying string values... */
+/* have not tested modifying string values··· */
 template<typename T>
 void data_modify(std::vector<std::byte>& data, u_int& pos, const T& value) 
 {

@@ -214,7 +214,7 @@ skip_reset_tile: // @todo remove lazy method
         } // @note delete im, id
         else if (item.cloth_type != clothing::none) 
         {
-            if (state.punch != ::pos{ std::lround(peer->pos[0]), std::lround(peer->pos[1]) }) return;
+            if (state.punch != ::pos{ std::lround(peer->pos[0]/32), std::lround(peer->pos[1]/32) }) return;
 
             item_activate(event, state);
             return; 

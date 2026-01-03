@@ -127,12 +127,31 @@
         int uid{}; // @todo understand this better @note so far I think this holds uid value
         int peer_state{};
         float count{}; // @todo understand this better
-        int id{}; // @note peer's active hand, so 18 (fist) = punching, 32 (wrench) interacting, ect...
+        int id{}; // @note peer's active hand, so 18 (fist) = punching, 32 (wrench) interacting, ect
         std::array<float, 2zu> pos{}; // @note position 1D {x, y}
         std::array<float, 2zu> speed{}; // @note player movement (velocity(x), gravity(y)), higher gravity = smaller jumps
+        int idk{};
         ::pos punch{0,0}; // @note punching/placing position 2D {x, y}
+        int idk1{};
+        u_char idk2{}; // @note last bit in a packet
+    };
 
-        u_char idk{}; // @note last bit in a packet
+    enum packet_pos
+    {
+        P_INIT,
+        P_TYPE =       4zu,
+        P_NETID =      P_TYPE*2,
+        P_UID =        P_TYPE*3,
+        P_PEER_STATE = P_TYPE*4,
+        P_COUNT      = P_TYPE*5,
+        P_ID         = P_TYPE*6,
+        P_POS        = P_TYPE*7, // @note 8 bit
+        P_SPEED      = P_TYPE*9, // @note 8 bit
+        P_IDK        = P_TYPE*11,
+        P_PUNCH      = P_TYPE*12, // @note 8 bit
+        P_IDK1       = P_TYPE*14,
+        /* @todo */
+        P_IDK2       = sizeof(::state)-3
     };
 
     extern state get_state(const std::vector<std::byte> &&packet);

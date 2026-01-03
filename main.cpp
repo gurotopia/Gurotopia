@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 8d8511d77d156cbddc46bd3e5c4897753c947246 2025-12-30
+    @version perent SHA: 8d8511d77d156cbddc46bd3e5c4897753c947246 2026-1-3
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -42,26 +42,27 @@ int main()
     server->checksum = enet_crc32;
     enet_host_compress_with_range_coder(server);
 
-    try // @note for people who don't use a debugger..
+    try // @note for people who don't use a debugger···
     {
-        const uintmax_t size = std::filesystem::file_size("items.dat");
 
-        im_data.resize(im_data.size() + size); // @note state + items.dat
-        im_data[0zu] = PACKET_CREATE; // @note 04 00 00 00
-        im_data[4zu] = std::byte{ 0x10 }; // @note 16 00 00 00
+        im_data[P_INIT] = PACKET_CREATE; // @note 04 00 00 00
+        im_data[P_TYPE] = std::byte{ 0x10 };
         /* {...} */
-        im_data[16zu] = PACKET_STATE; // @note 08 00 00 00
-        *reinterpret_cast<std::uintmax_t*>(&im_data[sizeof(::state)]) = size; // @note at the end of ::state,  items.dat size and data
+        im_data[P_PEER_STATE] = PACKET_STATE; // @note 08 00 00 00
 
+        const int size = std::filesystem::file_size("items.dat");
+        *reinterpret_cast<int*>(&im_data[P_IDK1]) = size;
+
+        im_data.resize(im_data.size() + size); // @note resize to fit binary data
         std::ifstream("items.dat", std::ios::binary)
-            .read(reinterpret_cast<char*>(&im_data[60zu]), size);
+            .read(reinterpret_cast<char*>(&im_data[60zu]), size); // @note the binary data···
 
         printf("storing items.dat in binary; %zu KB of stack memory\n", im_data.size() / 1024);
 
         cache_items();
     } // @note delete size
     catch (std::filesystem::filesystem_error error) { puts(error.what()); }
-    catch (...) { puts("unknown error occured during decoding items.dat"); } // @note if this appears, it's probably cache_items()...
+    catch (...) { puts("unknown error occured during decoding items.dat"); } // @note if this appears, it's probably cache_items()···
 
     ENetEvent event{};
     while (true)

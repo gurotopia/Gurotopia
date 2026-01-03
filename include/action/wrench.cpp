@@ -46,7 +46,7 @@ void action::wrench(ENetEvent& event, const std::string& header)
                             .add_custom_button("marvelous_missions", "image:interface/large/gui_wrench_marvelous_missions.rttex;image_size:400,260;width:0.19;")
                             .add_custom_button("title_edit", "image:interface/large/gui_wrench_title.rttex;image_size:400,260;width:0.19;")
                             .add_custom_button("trade_scan", "image:interface/large/gui_wrench_trades.rttex;image_size:400,260;width:0.19;")
-                            .embed_data("netID", netid) // @todo research why rgt adds this twice...
+                            .embed_data("netID", netid) // @todo research why rgt adds this twice···
                             .add_custom_button("pets", "image:interface/large/gui_wrench_battle_pets.rttex;image_size:400,260;width:0.19;")
                             .add_custom_button("wrench_customization", "image:interface/large/gui_wrench_customization.rttex;image_size:400,260;width:0.19;")
                             .add_custom_button("open_worldlock_storage", "image:interface/large/gui_wrench_auction.rttex;image_size:400,260;width:0.19;")
@@ -60,7 +60,7 @@ void action::wrench(ENetEvent& event, const std::string& header)
                             /* @todo handle peer's effects */
                             .add_spacer("small")
                             .add_textbox(std::format("`oYou have `w{}`` backpack slots.``", peer->slot_size))
-                            .add_textbox(std::format("`oCurrent world: `w{}`` (`w{}``, `w{}``) (`w0`` person)````", peer->recent_worlds.back(), std::round(peer->pos[0]), std::round(peer->pos[1])))
+                            .add_textbox(std::format("`oCurrent world: `w{}`` (`w{}``, `w{}``) (`w0`` person)````", peer->recent_worlds.back(), std::round(peer->pos[0]/32), std::round(peer->pos[1]/32)))
                             .add_spacer("small")
                             .add_textbox("`oTotal time played is `w0.0`` hours.  This account was created `w0`` days ago.``")
                             .add_spacer("small")

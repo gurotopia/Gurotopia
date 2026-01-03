@@ -82,8 +82,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::MAIN_DOOR: 
                     {
-                        peer->pos = { (float)(i % x) * 32.0f, (float)(i / x) * 32.0f };
-                        peer->rest_pos = peer->pos;
+                        peer->rest_pos = { (float)(i % x) * 32.0f, ((float)(i / x) * 32.0f) + 0.5f };
 
                         [[fallthrough]];
                     }
@@ -97,7 +96,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
                         *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
                         for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
-                        data[pos++] = std::byte{ 00 }; // @note '\0'
+                        data[pos++] = std::byte{ '\0' }; // @note terminator which Growtopia requires.
                         break;
                     }
                     case type::SIGN:
@@ -225,7 +224,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             packet::create(p, false, -1/* ff ff ff ff */, {
                 "OnSpawn", 
                 std::format(fmt,
-                    peer->netid, peer->user_id, static_cast<int>(peer->pos.front()), static_cast<int>(peer->pos.back()), peer->prefix, peer->ltoken[0], (peer->role) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
+                    peer->netid, peer->user_id, static_cast<int>(peer->rest_pos[0]), static_cast<int>(peer->rest_pos[1]), peer->prefix, peer->ltoken[0], (peer->role) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
                     (_p->user_id == peer->user_id) ? "type|local" : ""
                 ).c_str()
             });

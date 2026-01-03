@@ -24,7 +24,7 @@ void receive(ENetEvent& event)
         }
         case 4: 
         {
-            if (event.packet->dataLength <= sizeof(::state)) return;
+            if (event.packet->dataLength < sizeof(::state)-3) return;
 
             const std::byte *_1bit = reinterpret_cast<const std::byte*>(event.packet->data) + 4; // @note ignore 04 00 00 00
             ::state state = get_state({_1bit, _1bit + (event.packet->dataLength - 4)});

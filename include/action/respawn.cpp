@@ -8,7 +8,7 @@ void action::respawn(ENetEvent& event, const std::string& header)
         2 
     });
     packet::create(*event.peer, true, 0,{ "OnKilled" });
-    // @note wait 1900 milliseconds...
+    // @note wait 1900 milliseconds···
     auto &peer = _peer[event.peer];
     packet::create(*event.peer, true, 1900, {
         "OnSetPos", 

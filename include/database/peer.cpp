@@ -201,39 +201,40 @@ state get_state(const std::vector<std::byte> &&packet)
     const int *_4bit = reinterpret_cast<const int*>(packet.data());
     const float *_4bit_f = reinterpret_cast<const float*>(packet.data());
     return state{
-        .type = _4bit[0],
-        .netid = _4bit[1],
-        .uid = _4bit[2],
-        .peer_state = _4bit[3],
-        .count = _4bit_f[4],
-        .id = _4bit[5],
-        .pos = {_4bit_f[6], _4bit_f[7]},
-        .speed = {_4bit_f[8], _4bit_f[9]},
-        .idk = _4bit[10],
-        .punch = ::pos{_4bit[11], _4bit[12]},
-        .idk1 = _4bit[13]
+        .type = _4bit[1],
+        .netid = _4bit[2],
+        .uid = _4bit[3],
+        .peer_state = _4bit[4],
+        .count = _4bit_f[5],
+        .id = _4bit[6],
+        .pos = {_4bit_f[7], _4bit_f[8]},
+        .speed = {_4bit_f[9], _4bit_f[10]},
+        .idk = _4bit[11],
+        .punch = ::pos{_4bit[12], _4bit[13]},
+        .idk1 = _4bit[14]
     };
 }
 
 std::vector<std::byte> compress_state(const state &s) 
 {
-    std::vector<std::byte> data(sizeof(::state)-3, std::byte{ 00 });
+    std::vector<std::byte> data(sizeof(::state), std::byte{ 00 });
     int *_4bit = reinterpret_cast<int*>(data.data());
     float *_4bit_f = reinterpret_cast<float*>(data.data());
-    _4bit[0] = s.type;
-    _4bit[1] = s.netid;
-    _4bit[2] = s.uid;
-    _4bit[3] = s.peer_state;
-    _4bit_f[4] = s.count;
-    _4bit[5] = s.id;
-    _4bit_f[6] = s.pos[0];
-    _4bit_f[7] = s.pos[1];
-    _4bit_f[8] = s.speed[0];
-    _4bit_f[9] = s.speed[1];
-    _4bit[10] = s.idk;
-    _4bit[11] = s.punch.x;
-    _4bit[12] = s.punch.y;
-    _4bit[13] = s.idk1;
+    _4bit[0] = s.packet_create;
+    _4bit[1] = s.type;
+    _4bit[2] = s.netid;
+    _4bit[3] = s.uid;
+    _4bit[4] = s.peer_state;
+    _4bit_f[5] = s.count;
+    _4bit[6] = s.id;
+    _4bit_f[7] = s.pos[0];
+    _4bit_f[8] = s.pos[1];
+    _4bit_f[9] = s.speed[0];
+    _4bit_f[10] = s.speed[1];
+    _4bit[11] = s.idk;
+    _4bit[12] = s.punch.x;
+    _4bit[13] = s.punch.y;
+    _4bit[14] = s.idk1;
     return data;
 }
 

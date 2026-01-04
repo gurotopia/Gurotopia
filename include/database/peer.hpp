@@ -133,7 +133,6 @@
         int idk{};
         ::pos punch{0,0}; // @note punching/placing position 2D {x, y}
         int idk1{};
-        u_char idk2{}; // @note last bit in a packet
     };
 
     enum packet_pos
@@ -149,9 +148,7 @@
         P_SPEED      = P_TYPE*9, // @note 8 bit
         P_IDK        = P_TYPE*11,
         P_PUNCH      = P_TYPE*12, // @note 8 bit
-        P_IDK1       = P_TYPE*14,
-        /* @todo */
-        P_IDK2       = sizeof(::state)-3
+        P_IDK1       = P_TYPE*14
     };
 
     extern state get_state(const std::vector<std::byte> &&packet);

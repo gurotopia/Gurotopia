@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 8d8511d77d156cbddc46bd3e5c4897753c947246 2026-1-3
+    @version perent SHA: 799ae0d255a59915ceb8945b52f396c8105bae65 2026-1-3
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -44,18 +44,16 @@ int main()
 
     try // @note for people who don't use a debugger···
     {
-
-        im_data[P_INIT] = PACKET_CREATE; // @note 04 00 00 00
-        im_data[P_TYPE] = std::byte{ 0x10 };
-        /* {...} */
-        im_data[P_PEER_STATE] = PACKET_STATE; // @note 08 00 00 00
-
         const int size = std::filesystem::file_size("items.dat");
-        *reinterpret_cast<int*>(&im_data[P_IDK1]) = size;
+        im_data = compress_state(::state{
+            .type = 0x10, 
+            .peer_state = 0x08, 
+            .idk1 = size
+        });
 
         im_data.resize(im_data.size() + size); // @note resize to fit binary data
         std::ifstream("items.dat", std::ios::binary)
-            .read(reinterpret_cast<char*>(&im_data[60zu]), size); // @note the binary data···
+            .read(reinterpret_cast<char*>(&im_data[sizeof(::state)]), size); // @note the binary data···
 
         printf("storing items.dat in binary; %zu KB of stack memory\n", im_data.size() / 1024);
 

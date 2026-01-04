@@ -24,10 +24,10 @@ void receive(ENetEvent& event)
         }
         case 4: 
         {
-            if (event.packet->dataLength < sizeof(::state)-3) return;
+            if (event.packet->dataLength < sizeof(::state)) return;
 
-            const std::byte *_1bit = reinterpret_cast<const std::byte*>(event.packet->data) + 4; // @note ignore 04 00 00 00
-            ::state state = get_state({_1bit, _1bit + (event.packet->dataLength - 4)});
+            const std::byte *_1bit = reinterpret_cast<const std::byte*>(event.packet->data);
+            ::state state = get_state({_1bit, _1bit + (event.packet->dataLength)});
 
             if (const auto i = state_pool.find(state.type); i != state_pool.end())
                 i->second(event, std::move(state));

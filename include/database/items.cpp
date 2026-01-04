@@ -2,7 +2,7 @@
 #include "items.hpp"
 
 std::unordered_map<u_short, item> items;
-std::vector<std::byte> im_data((sizeof(::state)-3)/*inital packet*/ + sizeof(std::uintmax_t)/*items.dat size*/, std::byte{ 00 });
+std::vector<std::byte> im_data(sizeof(::state)/*inital packet*/ + sizeof(std::uintmax_t)/*items.dat size*/, std::byte{ 00 });
 
 template<typename T>
 void shift_pos(std::vector<std::byte>& data, u_int& pos, T& value) 

@@ -183,12 +183,9 @@ std::unordered_map<std::string, world> worlds;
 
 void send_data(ENetPeer& peer, const std::vector<std::byte> &&data)
 {
-    std::size_t size = data.size();
-    ENetPacket *packet = enet_packet_create(nullptr, size + 5zu, ENET_PACKET_FLAG_RELIABLE);
+    ENetPacket *packet = enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE);
+    if (packet == nullptr || packet->dataLength < sizeof(::state)) return;
 
-    *reinterpret_cast<int*>(&packet->data[0]) = 04;
-    std::memcpy(packet->data + 4, data.data(), size);
-    
     enet_peer_send(&peer, 1, packet);
 }
 
@@ -262,7 +259,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     state.peer_state = 0x08;
     std::vector<std::byte> data = compress_state(state);
 
-    short pos = sizeof(::state)-3;
+    short pos = sizeof(::state);
     data.resize(pos + 8zu); // @note {2} {2} 00 00 00 00
     
     *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);

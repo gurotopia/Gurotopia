@@ -47,7 +47,7 @@ void action::input(ENetEvent& event, const std::string& header)
         if (peer->state & S_DUCT_TAPE) text = "mfmm"; // @todo scalewith length of message. e.g. "hello" -> "mfmm"; "hello world" -> "mfmm mmfmfm"
         std::string player_chat = std::format("CP:0_PL:0_OID:_player_chat={}", text);
         std::string message = std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", peer->prefix, peer->ltoken[0], text);
-        peers(event, PEER_SAME_WORLD, [&peer, player_chat, message](ENetPeer& p) 
+        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, player_chat, message](ENetPeer& p) 
         {
             packet::create(p, false, 0, { "OnTalkBubble", peer->netid, player_chat.c_str() });
             packet::create(p, false, 0, { "OnConsoleMessage", message.c_str() });

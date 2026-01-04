@@ -16,7 +16,7 @@ void item_activate(ENetEvent& event, state state)
         peer->punch_effect = get_punch_id(state.id); // @todo
 
         packet::create(*event.peer, true, 0, { "OnEquipNewItem", state.id });
-        on::SetClothing(event); // @todo
+        on::SetClothing(*event.peer); // @todo
     }
     else 
     {

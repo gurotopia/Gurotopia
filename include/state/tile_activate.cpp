@@ -54,5 +54,5 @@ void tile_activate(ENetEvent& event, state state)
         }
     }
 
-    state_visuals(event, std::move(state)); // finished.
+    state_visuals(*event.peer, std::move(state)); // finished.
 }

@@ -15,7 +15,7 @@ void skin(ENetEvent& event, const std::string_view text)
     try
     {
         _peer[event.peer]->skin_color = stol(id);
-        on::SetClothing(event);
+        on::SetClothing(*event.peer);
     }
     catch (const std::invalid_argument &ex)
     {

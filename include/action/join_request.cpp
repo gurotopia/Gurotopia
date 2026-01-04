@@ -201,7 +201,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
         peer->netid = ++world.visitors;
         
-        peers(event, PEER_SAME_WORLD, [&event, &peer, &world](ENetPeer& p) 
+        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &peer, &world](ENetPeer& p) 
         {
             auto &_p = _peer[&p];
             constexpr std::string_view fmt = "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}";
@@ -219,7 +219,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     "OnConsoleMessage",
                     std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors - 1).c_str()
                 });
-                on::SetClothing(event, &p);
+                on::SetClothing(p);
             }
             packet::create(p, false, -1/* ff ff ff ff */, {
                 "OnSpawn", 
@@ -256,11 +256,11 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             "OnConsoleMessage", 
             std::format(
                 "World `w{}{}`` entered.  There are `w{}`` other people here, `w{}`` online.", 
-                world.name, section(buffs), world.visitors - 1, peers(event).size()
+                world.name, section(buffs), world.visitors - 1, peers().size()
             ).c_str()
         });
         on::EmoticonDataChanged(event);
-        on::SetClothing(event);
+        on::SetClothing(*event.peer);
     }
     catch (const std::exception& exc)
     {

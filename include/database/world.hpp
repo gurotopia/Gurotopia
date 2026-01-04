@@ -88,9 +88,9 @@
     };
     extern std::unordered_map<std::string, world> worlds;
 
-    extern void send_data(ENetPeer& peer, const std::vector<std::byte> &&data);
+    extern void send_data(ENetPeer &peer, const std::vector<std::byte> &&data);
 
-    extern void state_visuals(ENetEvent& event, state &&s);
+    extern void state_visuals(ENetPeer &peer, state &&s);
 
     extern void tile_apply_damage(ENetEvent& event, state s, block& b);
 

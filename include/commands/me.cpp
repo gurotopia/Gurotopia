@@ -12,7 +12,7 @@ void me(ENetEvent& event, const std::string_view text)
     auto &peer = _peer[event.peer];
 
     // @todo
-    peers(event, PEER_SAME_WORLD, [&peer, message](ENetPeer& p)
+    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, message](ENetPeer& p)
     {
         packet::create(p, false, 0, {
             "OnTalkBubble",

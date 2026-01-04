@@ -1,11 +1,11 @@
 #include "pch.hpp"
 #include "SetClothing.hpp"
 
-void on::SetClothing(ENetEvent& event, ENetPeer* p)
+void on::SetClothing(ENetPeer &p)
 {
-    auto &peer = _peer[(p == nullptr) ? event.peer : p];
+    auto &peer = _peer[&p];
     
-    packet::create((p == nullptr) ? *event.peer : *p, true, 0, {
+    packet::create(p, true, 0, {
         "OnSetClothing", 
         std::vector<float>{peer->clothing[hair], peer->clothing[shirt], peer->clothing[legs]}, 
         std::vector<float>{peer->clothing[feet], peer->clothing[face], peer->clothing[hand]}, 
@@ -24,5 +24,5 @@ void on::SetClothing(ENetEvent& event, ENetPeer* p)
         .speed = { 250.0f, 1000.0f },
         .punch = { 0x1fffefff, 0x00000000 }
     };
-    state_visuals(event, std::move(state)); // @todo handle for 'p'
+    state_visuals(p, std::move(state)); // @todo handle for 'p'
 }

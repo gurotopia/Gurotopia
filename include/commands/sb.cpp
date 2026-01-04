@@ -22,7 +22,7 @@ void sb(ENetEvent& event, const std::string_view text)
             break; // @note we don't care if other signals are toggled.
         }
 
-    peers(event, PEER_ALL, [&peer, message, display](ENetPeer& p) 
+    peers("", PEER_ALL, [&peer, message, display](ENetPeer& p) 
     {
         packet::create(p, false, 0, {
             "OnConsoleMessage",

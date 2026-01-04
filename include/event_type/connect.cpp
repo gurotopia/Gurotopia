@@ -4,7 +4,7 @@
 
 void _connect(ENetEvent& event) 
 {
-    if (peers(event, PEER_ALL).size() > server->peerCount) 
+    if (peers("", PEER_ALL).size() > server->peerCount) 
     {
         packet::action(*event.peer, "log", 
             std::format(

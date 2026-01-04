@@ -4,7 +4,7 @@
 
     namespace on
     {
-        extern void SetClothing(ENetEvent& event, ENetPeer* p = nullptr);
+        extern void SetClothing(ENetPeer &p);
     }
 
 #endif

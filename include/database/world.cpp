@@ -189,9 +189,9 @@ void send_data(ENetPeer& peer, const std::vector<std::byte> &&data)
     enet_peer_send(&peer, 1, packet);
 }
 
-void state_visuals(ENetEvent& event, state &&state) 
+void state_visuals(ENetPeer& peer, state &&state) 
 {
-    peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
+    peers(_peer[&peer]->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
         send_data(p, compress_state(state));
     });
@@ -203,7 +203,7 @@ void tile_apply_damage(ENetEvent& event, state state, block &block)
     state.type = 0x08; // @note PACKET_TILE_APPLY_DAMAGE
     state.id = 6; // @note idk exactly
     state.netid = _peer[event.peer]->netid;
-	state_visuals(event, std::move(state));
+	state_visuals(*event.peer, std::move(state));
 }
 
 void modify_item_inventory(ENetEvent& event, ::slot slot)
@@ -212,7 +212,7 @@ void modify_item_inventory(ENetEvent& event, ::slot slot)
         .type = (slot.count << 16) | 0x000d, // @noote 0x00{}000d
         .id = slot.id
     };
-    state_visuals(event, std::move(state));
+    state_visuals(*event.peer, std::move(state));
 }
 
 int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2zu>& pos, signed uid) 
@@ -249,7 +249,7 @@ int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2z
         state.id = it.first->second.id;
         state.pos = {it.first->second.pos[0] * 32, it.first->second.pos[1] * 32};
     }
-    state_visuals(event, std::move(state));
+    state_visuals(*event.peer, std::move(state));
     return state.uid;
 }
 
@@ -315,7 +315,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         }
     }
 
-    peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
+    peers(_peer[event.peer]->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
         send_data(p, std::move(data));
     });

@@ -164,7 +164,7 @@ std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 
 ENetHost *server;
 
-std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::function<void(ENetPeer&)> fun)
+std::vector<ENetPeer*> peers(const std::string &world, peer_condition condition, std::function<void(ENetPeer&)> fun)
 {
     std::vector<ENetPeer*> _peers{};
     _peers.reserve(server->peerCount);
@@ -174,8 +174,7 @@ std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::fun
         {
             if (condition == peer_condition::PEER_SAME_WORLD)
             {
-                auto &recent_worlds = _peer[event.peer]->recent_worlds;
-                if (_peer[&peer]->netid == 0 || (_peer[&peer]->recent_worlds.back() != recent_worlds.back())) continue;
+                if (_peer[&peer]->netid == 0 || (_peer[&peer]->recent_worlds.back() != world)) continue;
             }
             fun(peer);
             _peers.push_back(&peer);

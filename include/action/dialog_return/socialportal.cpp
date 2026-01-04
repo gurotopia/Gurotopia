@@ -13,7 +13,7 @@ void socialportal(ENetEvent& event, const std::vector<std::string> &&pipes)
 
         // @todo i will improve!! cause i hate this so much t-t
         for (const ::Friend &Friend : peer->friends)
-            peers(event, PEER_ALL, [&Friend, &__online](ENetPeer& peer){
+            peers("", PEER_ALL, [&Friend, &__online](ENetPeer& peer){
                 auto &p = _peer[&peer];
                 if (p->ltoken[0] == Friend.name)
                     ++__online;

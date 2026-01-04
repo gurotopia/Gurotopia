@@ -39,6 +39,6 @@ void on::RequestWorldSelectMenu(ENetEvent& event)
     });
     packet::create(*event.peer, false, 0, {
         "OnConsoleMessage", 
-        std::format("Where would you like to go? (`w{}`` online)", peers(event).size()).c_str()
+        std::format("Where would you like to go? (`w{}`` online)", peers().size()).c_str()
     });
 }

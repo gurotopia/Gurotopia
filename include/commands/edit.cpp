@@ -24,7 +24,7 @@ void edit(ENetEvent& event, const std::string_view text)
         "embed_data|status|{5}\n"
         "end_dialog|peer_edit|Close|`2Edit|\n";
 
-    peers(event, PEER_ALL, [&event, name, &is_online, fmt](ENetPeer& p) 
+    peers("", PEER_ALL, [&event, name, &is_online, fmt](ENetPeer& p) 
     {
         auto &peer = _peer[&p];
         if (_peer[&p]->ltoken[0] == name)

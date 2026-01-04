@@ -11,7 +11,7 @@ void action::wrench(ENetEvent& event, const std::string& header)
     if ((pipes[3zu] == "netid" && !pipes[4zu].empty()/*empty netid*/))
     {
         const short netid = atoi(pipes[4zu].c_str());
-        peers(event, PEER_SAME_WORLD, [event, netid](ENetPeer& p) 
+        peers(_peer[event.peer]->recent_worlds.back(), PEER_SAME_WORLD, [event, netid](ENetPeer& p) 
         {
             if (_peer[&p]->netid == netid)
             {

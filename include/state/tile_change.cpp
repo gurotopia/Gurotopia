@@ -50,7 +50,7 @@ void tile_change(ENetEvent& event, state state)
                     u_char number = ransuu[{0, 36}];
                     char color = (number == 0) ? '2' : (ransuu[{0, 3}] < 2) ? 'b' : '4';
                     std::string message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", peer->prefix, peer->ltoken[0], color, number);
-                    peers(event, PEER_SAME_WORLD, [&peer, message](ENetPeer& p)
+                    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, message](ENetPeer& p)
                     {
                         packet::create(p, false, 2000, { "OnTalkBubble", peer->netid, message.c_str() });
                         packet::create(p, false, 2000, { "OnConsoleMessage", message.c_str() });
@@ -121,7 +121,7 @@ void tile_change(ENetEvent& event, state state)
                 case type::WEATHER_MACHINE:
                 {
                     block.state3 ^= S_TOGGLE;
-                    peers(event, PEER_SAME_WORLD, [block, item](ENetPeer& p)
+                    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
                         packet::create(p, false, 0, { "OnSetCurrentWeather", (block.state3 & S_TOGGLE) ? get_weather_id(item.id) : 0 });
                     });
@@ -284,14 +284,14 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case 408: // @note Duct Tape
                 {
-                    peers(event, PEER_SAME_WORLD, [&](ENetPeer& p) 
+                    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
                     {
                         auto &peers = _peer[&p];
 
-                        if (state.punch == ::pos{ std::lround(peers->pos[0]), std::lround(peers->pos[1]) }) // @todo improve accuracy
+                        if (state.punch == ::pos{ std::lround(peers->pos[0]/32), std::lround(peers->pos[1]/32) }) // @todo improve accuracy
                         {
                             peers->state ^= S_DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
-                            on::SetClothing(event, &p);
+                            on::SetClothing(p);
                         }
                     });
                     break;
@@ -346,7 +346,7 @@ skip_reset_tile: // @todo remove lazy method
             }
             if (effect > 0.0f)
             {
-                state_visuals(event, ::state{
+                state_visuals(*event.peer, ::state{
                     .type = 0x11,
                     .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
                     .speed = { effect, 0xa8 }
@@ -489,7 +489,7 @@ skip_reset_tile: // @todo remove lazy method
                             peer->my_worlds.back() = world.name;
                         }
                         std::string placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, peer->ltoken[0]);
-                        peers(event, PEER_SAME_WORLD, [&peer, placed_message](ENetPeer& p) 
+                        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, placed_message](ENetPeer& p) 
                         {
                             packet::create(p, false, 0, { "OnTalkBubble", peer->netid, placed_message.c_str() });
                             packet::create(p, false, 0, { "OnConsoleMessage", placed_message.c_str() });
@@ -544,7 +544,7 @@ skip_reset_tile: // @todo remove lazy method
                 case type::WEATHER_MACHINE:
                 {
                     block.state3 |= S_TOGGLE;
-                    peers(event, PEER_SAME_WORLD, [state](ENetPeer& p)
+                    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [state](ENetPeer& p)
                     {
                         packet::create(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
                     });
@@ -559,7 +559,7 @@ skip_reset_tile: // @todo remove lazy method
             modify_item_inventory(event, ::slot(item.id, 1));
         }
         if (state.netid != world.owner) state.netid = peer->netid;
-        state_visuals(event, std::move(state)); // finished.
+        state_visuals(*event.peer, std::move(state)); // finished.
     }
     catch (const std::exception& exc)
     {

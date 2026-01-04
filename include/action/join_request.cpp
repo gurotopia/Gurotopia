@@ -196,8 +196,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             peer->recent_worlds.back() = world.name;
         } // @note delete name, first
 
-        if (peer->user_id == world.owner) peer->prefix.front() = '2';
-        else if (std::ranges::contains(world.admin, peer->user_id)) peer->prefix.front() = 'c';
+        if (peer->user_id == world.owner && !peer->role) peer->prefix.front() = '2';
+        else if (std::ranges::contains(world.admin, peer->user_id) && !peer->role) peer->prefix.front() = 'c';
 
         peer->netid = ++world.visitors;
         

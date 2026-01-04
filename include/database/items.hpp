@@ -149,8 +149,11 @@
     };
 
     enum cat : u_char {
-        CAT_RETURN = 02, // @note This item can't be destroyed - smashing it will return it to your backpack if you have room!
-        CAT_CANNOT_DROP = 0x80 // @note This item cannot be dropped or traded.
+        CAT_RETURN =          02, // @note This item can't be destroyed - smashing it will return it to your backpack if you have room!
+        CAT_SUPRISING_FRUIT = 0x08, // @note A tree of this type can bear surprising fruit!
+        CAT_PUBLIC =          0x10, // @note This item is PUBLIC: Even if it's locked, anyone can smash it.
+        CAT_HOLIDAY =         0x40, // @note This item can only be created during WinterFest/Halloween.
+        CAT_CANNOT_DROP =     0x80 // @note This item cannot be dropped or traded.
     };
 
     #include <string>

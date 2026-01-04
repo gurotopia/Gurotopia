@@ -186,10 +186,8 @@ std::vector<ENetPeer*> peers(const std::string &world, peer_condition condition,
 void safe_disconnect_peers(int signal)
 {
     for (ENetPeer &p : std::span(server->peers, server->peerCount))
-        if (p.state == ENET_PEER_STATE_CONNECTED) 
-        {
+        if (p.state == ENET_PEER_STATE_CONNECTED)
             enet_peer_disconnect(&p, 0);
-        }
 
     enet_host_destroy(server);
     enet_deinitialize();

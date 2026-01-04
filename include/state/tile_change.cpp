@@ -29,13 +29,14 @@ void tile_change(ENetEvent& event, state state)
         if (!worlds.contains(peer->recent_worlds.back())) return;
         ::world &world = worlds.at(peer->recent_worlds.back());
 
-        if ((world.owner && !world._public && !peer->role) &&
-            (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
-
         ::block &block = world.blocks[cord(state.punch.x, state.punch.y)];
 
         ::item &item = (state.id != 32 && state.id != 18) ? items[state.id] : (block.fg != 0) ? items[block.fg] : items[block.bg];
         if (item.id == 0) return;
+
+        if (!(item.cat & CAT_PUBLIC)) // @note if block is public skip validating if peer is owner or admin
+            if ((world.owner && !world._public && !peer->role) &&
+                (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
         
         if (state.id == 18) // @note punching a block
         {
@@ -162,8 +163,11 @@ void tile_change(ENetEvent& event, state state)
 
             if (item.type == type::LOCK && !is_tile_lock(item.id))
             {
-                peer->prefix.front() = 'w';
-                on::NameChanged(event);
+                if (!peer->role)
+                {
+                    peer->prefix.front() = 'w';
+                    on::NameChanged(event);
+                }
                 
                 world.owner = 0; // @todo have a seperate thing for 'range_lock'
             }
@@ -478,7 +482,11 @@ skip_reset_tile: // @todo remove lazy method
                     if (!world.owner)
                     {
                         world.owner = peer->user_id;
-                        if (!peer->role) peer->prefix.front() = '2';
+                        if (!peer->role) 
+                        {
+                            peer->prefix.front() = '2';
+                            on::NameChanged(event);
+                        }
                         state.type = 0x0f;
                         state.netid = world.owner;
                         state.peer_state = 0x08;
@@ -494,7 +502,6 @@ skip_reset_tile: // @todo remove lazy method
                             packet::create(p, false, 0, { "OnTalkBubble", peer->netid, placed_message.c_str() });
                             packet::create(p, false, 0, { "OnConsoleMessage", placed_message.c_str() });
                         });
-                        on::NameChanged(event); // @todo
                     }
                     else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
                     break;
@@ -556,7 +563,6 @@ skip_reset_tile: // @todo remove lazy method
             block.state3 |= (peer->facing_left) ? S_LEFT : S_RIGHT;
             (item.type == type::BACKGROUND) ? block.bg = state.id : block.fg = state.id;
             peer->emplace(slot(state.id, -1));
-            modify_item_inventory(event, ::slot(item.id, 1));
         }
         if (state.netid != world.owner) state.netid = peer->netid;
         state_visuals(*event.peer, std::move(state)); // finished.

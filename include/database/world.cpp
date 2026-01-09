@@ -320,6 +320,19 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     });
 }
 
+void remove_fire(ENetEvent &event, state state, block &block, world& w)
+{
+    block.state4 &= ~S_FIRE; 
+    state_visuals(*event.peer, ::state{
+        .type = 0x11,
+        .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
+        .speed = { 0x00000000, 0x95 }
+    });
+
+    tile_update(event, state, block, w);
+    _peer[event.peer]->fires_removed++;
+}
+
 void generate_world(world &world, const std::string& name)
 {
     ransuu ransuu;

@@ -34,6 +34,13 @@ void tile_change(ENetEvent& event, state state)
         ::item &item = (state.id != 32 && state.id != 18) ? items[state.id] : (block.fg != 0) ? items[block.fg] : items[block.bg];
         if (item.id == 0) return;
 
+        if (block.state4 & S_FIRE) // @note allow anyone to take out fire
+            if (peer->clothing[hand] == 3066/* fire hose */)
+            {
+                remove_fire(event, state, block, world);
+                return; // @note avoid hitting the block
+            }
+
         if (!(item.cat & CAT_PUBLIC)) // @note if block is public skip validating if peer is owner or admin
             if ((world.owner && !world._public && !peer->role) &&
                 (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
@@ -242,7 +249,8 @@ skip_reset_tile: // @todo remove lazy method
             }
 
             if (item.raw_name.contains("Paint Bucket - ") && peer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
-            float effect{ 0.0f }; // @note allocate 'effect' only if peer is wearing a paint brush.
+            float color{}; // @note the color of the paint particle effect.
+            float particle{};
             switch (item.id)
             {
                 case 1404: // @note Door Mover
@@ -257,15 +265,25 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case 822: // @note Water Bucket
                 {
-                    if (block.state4 & S_FIRE) block.state4 &= ~S_FIRE; // @note extinguish the fire
+                    if (block.state4 & S_FIRE) remove_fire(event, state, block, world);
                     else block.state4 ^= S_WATER;
                     break;
                 }
                 case 3062: // @note Pocket Lighter
                 {
-                    if (!(block.state4 & S_WATER)) // @note avoid fire on water
+                    if (block.fg == 0 && block.bg == 0) throw std::runtime_error("There's nothing to burn!");
+                    if (!(block.state4 & S_WATER) || !(block.state4 & S_FIRE)) // @note avoid fire on water & fire on fire
+                    {
                         block.state4 ^= S_FIRE;
 
+                        std::string message = "`7[```4MWAHAHAHA!! FIRE FIRE FIRE```7]``";
+                        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
+                        {
+                            packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, message.c_str(), 0u });
+                            packet::create(*event.peer, false, 0, { "OnConsoleMessage", message.c_str() });
+                        });
+                        particle = 0x96;
+                    }
                     break;
                 }
                 case 1866: // @note Block Glue
@@ -303,57 +321,61 @@ skip_reset_tile: // @todo remove lazy method
                 case 3478: // @note Paint Bucket - Red
                 {
                     block.state4 |= S_RED;
-                    effect = 0x0000ff00; 
+                    color = 0x0000ff00, particle = 0xa8; 
                     break;
                 }
                 case 3480: // @note Paint Bucket - Yellow
                 {
                     block.state4 |= S_YELLOW;
-                    effect = 0x00ffff00; // @note red + green
+                    color = 0x00ffff00, particle = 0xa8; // @note red + green
                     break;
                 }
                 case 3482: // @note Paint Bucket - Green
                 {
                     block.state4 |= S_GREEN;
-                    effect = 0x00ff0000;
+                    color = 0x00ff0000, particle = 0xa8;
                     break;
                 }
                 case 3484: // @note Paint Bucket - Aqua
                 {
                     block.state4 |= S_AQUA;
-                    effect = 0xffff0000; // @note blue + green
+                    color = 0xffff0000, particle = 0xa8; // @note blue + green
                     break;
                 }
                 case 3486: // @note Paint Bucket - Blue
                 {
                     block.state4 |= S_BLUE;
-                    effect = 0xff000000;
+                    color = 0xff000000, particle = 0xa8;
                     break;
                 }
                 case 3488: // @note Paint Bucket - Purple
                 {
                     block.state4 |= S_PURPLE;
-                    effect = 0xff00ff00; // @note blue + red
+                    color = 0xff00ff00, particle = 0xa8; // @note blue + red
                     break;
                 }
                 case 3490: // @note Paint Bucket - Charcoal
                 {
                     block.state4 |= S_CHARCOAL;
-                    effect = 0xffffffff; // @note B(blue)G(green)R(red)A(alpha/opacity) max will provide a pure black color. idk if growtopia is the same.
+                    color = 0xffffffff, particle = 0xa8; // @note B(blue)G(green)R(red)A(alpha/opacity) max will provide a pure black color. idk if growtopia is the same.
                     break;
                 }
                 case 3492: // @note Paint Bucket - Vanish
                 {
                     block.state4 &= ~S_VANISH;
-                    effect = 0xffffff00; // @todo get exact color. I just guessed T-T
+                    color = 0xffffff00, particle = 0xa8; // @todo get exact color. I just guessed T-T
                 }
+                default: return; // @note prevent taking the consumeable if nothing happended
             }
-            if (effect > 0.0f)
+            if (particle > 0.0f)
             {
-                state_visuals(*event.peer, ::state{
-                    .type = 0x11,
-                    .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
-                    .speed = { effect, 0xa8 }
+                peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
+                {
+                    state_visuals(p, ::state{
+                        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
+                        .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
+                        .speed = { color, particle }
+                    });
                 });
             }
             tile_update(event, std::move(state), block, world);

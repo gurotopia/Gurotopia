@@ -141,7 +141,7 @@ void action::buy(ENetEvent& event, const std::string& header)
                         shouhin.name, growtoken_cost, growtoken->count -= growtoken_cost, received).c_str()
             });
             inventory_visuals(event);
-            on::SetBux(event); // @todo wasteful if peer is buying with growtokens
+            if (_tab < 5) on::SetBux(event);
 
             break;
         }

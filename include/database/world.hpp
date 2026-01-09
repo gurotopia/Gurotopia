@@ -100,6 +100,8 @@
 
     extern void tile_update(ENetEvent &event, state s, block &b, world& w);
 
+    extern void remove_fire(ENetEvent &event, state state, block &block, world& w);
+
     void generate_world(world &world, const std::string& name);
 
     bool door_mover(world &world, const ::pos &pos);

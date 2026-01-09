@@ -97,6 +97,8 @@
         std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming
 
         std::array<Friend, 25> friends;
+
+        u_short fires_removed{};
         
         ~peer();
     };

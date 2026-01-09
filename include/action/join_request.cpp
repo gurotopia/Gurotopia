@@ -35,29 +35,29 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
             data[16zu] = PACKET_STATE;
             
-            u_char len = static_cast<u_char>(world.name.length());
+            const u_char len = static_cast<const u_char>(world.name.length());
             data[66zu] = std::byte{ len };
 
             const std::byte *_1bit = reinterpret_cast<const std::byte*>(world.name.data());
             for (u_char i = 0; i < len; ++i)
                 data[68zu + i] = _1bit[i];
 
-            u_int y = world.blocks.size() / 100;
-            u_int x = world.blocks.size() / y;
+            const u_int y = world.blocks.size() / 100;
+            const u_int x = world.blocks.size() / y;
             *reinterpret_cast<u_int*>(&data[68zu + len]) = x;
             *reinterpret_cast<u_int*>(&data[72zu + len]) = y;
             *reinterpret_cast<u_short*>(&data[76zu + len]) = static_cast<u_short>(world.blocks.size());
             
-            std::size_t pos = 85 + len;
-            short i = 0;
+            std::byte *w_data = data.data() + 85 + len;
+            short i = 0; // @note track the block position
             for (const ::block &block : world.blocks)
             {
-                *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
-                *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
-                pos += sizeof(short);
+                *reinterpret_cast<short*>(w_data) = block.fg; w_data += sizeof(short);
+                *reinterpret_cast<short*>(w_data) = block.bg; w_data += sizeof(short);
+                w_data += sizeof(short);
 
-                data[pos++] = std::byte{ block.state3 };
-                data[pos++] = std::byte{ block.state4 };
+                *w_data++ = std::byte{ block.state3 };
+                *w_data++ = std::byte{ block.state4 };
                 switch (items[block.fg].type)
                 {
                     case type::FOREGROUND: 
@@ -70,13 +70,15 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     case type::LOCK: 
                     {
                         std::size_t admins = std::ranges::count_if(world.admin, std::identity{});
+                        auto offset = w_data - reinterpret_cast<std::byte*>(data.data());
                         data.resize(data.size() + 14zu + (admins * 4zu));
+                        w_data = reinterpret_cast<std::byte*>(data.data()) + offset;
 
-                        data[pos++] = std::byte{ 03 };
-                        data[pos++] = std::byte{ 00 };
-                        *reinterpret_cast<int*>(&data[pos]) = world.owner; pos += sizeof(int);
-                        *reinterpret_cast<int*>(&data[pos]) = admins + 1; pos += sizeof(int);
-                        *reinterpret_cast<int*>(&data[pos]) = -100; pos += sizeof(int);
+                        *w_data++ = std::byte{ 03 };
+                        *w_data++ = std::byte{ 00 };
+                        *reinterpret_cast<int*>(w_data) = world.owner; w_data += sizeof(int);
+                        *reinterpret_cast<int*>(w_data) = admins + 1; w_data += sizeof(int);
+                        *reinterpret_cast<int*>(w_data) = -100; w_data += sizeof(int);
                         /* @todo admin list */
                         break;
                     }
@@ -90,43 +92,50 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     case type::PORTAL:
                     {
                         short len = block.label.length();
+                        auto offset = w_data - reinterpret_cast<std::byte*>(data.data());
                         data.resize(data.size() + 4zu + len); // @note 01 {2} {} 0 0
+                        w_data = reinterpret_cast<std::byte*>(data.data()) + offset;
 
-                        data[pos++] = std::byte{ 01 };
+                        *w_data++ = std::byte{ 01 };
 
-                        *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-                        for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
-                        data[pos++] = std::byte{ '\0' }; // @note terminator which Growtopia requires.
+                        *reinterpret_cast<short*>(w_data) = len; w_data += sizeof(short);
+                        for (const char& c : block.label) *w_data++ = static_cast<std::byte>(c);
+                        *w_data++ = std::byte{ '\0' }; // @note terminator which Growtopia requires.
                         break;
                     }
                     case type::SIGN:
                     {
                         short len = block.label.length();
+                        auto offset = w_data - reinterpret_cast<std::byte*>(data.data());
                         data.resize(data.size() + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
+                        w_data = reinterpret_cast<std::byte*>(data.data()) + offset;
 
-                        data[pos++] = std::byte{ 02 };
+                        *w_data++ = std::byte{ 02 };
 
-                        *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-                        for (const char& c : block.label) data[pos++] = static_cast<std::byte>(c);
-                        *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
+                        *reinterpret_cast<short*>(w_data) = len; w_data += sizeof(short);
+                        for (const char& c : block.label) *w_data++ = static_cast<std::byte>(c);
+                        *reinterpret_cast<int*>(w_data) = -1; w_data += sizeof(int); // @note ff ff ff ff
                         break;
                     }
                     case type::SEED:
                     {
-                        data[pos - 2zu] |= std::byte{ 0x11 }; // @todo idk
+                        auto offset = w_data - reinterpret_cast<std::byte*>(data.data());
                         data.resize(data.size() + 1zu + 5zu);
+                        w_data = reinterpret_cast<std::byte*>(data.data()) + offset;
 
-                        data[pos++] = std::byte{ 04 };
-                        *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
-                        data[pos++] = std::byte{ 03 }; // @note fruit on tree
+                        *w_data++ = std::byte{ 04 };
+                        *reinterpret_cast<int*>(w_data) = (steady_clock::now() - block.tick) / 1s; w_data += sizeof(int);
+                        *w_data++ = std::byte{ 03 }; // @note fruit on tree
                         break;
                     }
                     case type::PROVIDER:
                     {
+                        auto offset = w_data - reinterpret_cast<std::byte*>(data.data());
                         data.resize(data.size() + 5zu);
+                        w_data = reinterpret_cast<std::byte*>(data.data()) + offset;
 
-                        data[pos++] = std::byte{ 0x9 };
-                        *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
+                        *w_data++ = std::byte{ 0x9 };
+                        *reinterpret_cast<int*>(w_data) = (steady_clock::now() - block.tick) / 1s; w_data += sizeof(int);
                         break;
                     }
                     case type::WEATHER_MACHINE:
@@ -152,19 +161,23 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::FISH_TANK_PORT:
                     {
+                        auto offset = w_data - reinterpret_cast<std::byte*>(data.data());
                         data.resize(data.size() + 1zu);
+                        w_data = reinterpret_cast<std::byte*>(data.data()) + offset;
 
-                        data[pos++] = std::byte{ 0x00 }; // @todo if glow toggled this becomes 0x10
+                        *w_data++ = std::byte{ 0x00 }; // @todo if glow toggled this becomes 0x10
                         break;
                     }
                     case type::MAILBOX:
                     {
+                        auto offset = w_data - reinterpret_cast<std::byte*>(data.data());
                         data.resize(data.size() + 7zu);
+                        w_data = reinterpret_cast<std::byte*>(data.data()) + offset;
 
-                        data[pos++] = std::byte{ 0x02 };
+                        *w_data++ = std::byte{ 0x02 };
                         
-                        *reinterpret_cast<short*>(&data[pos]) = 0; pos += sizeof(short);
-                        *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
+                        *reinterpret_cast<short*>(w_data) = 0; w_data += sizeof(short);
+                        *reinterpret_cast<int*>(w_data) = -1; w_data += sizeof(int); // @note ff ff ff ff
                         break;
                     }
                     default: 
@@ -173,18 +186,22 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 }
                 ++i;
             }
-            pos += 12; // @note rgt has it as: bb 7f 06 00 00 00 00 00 5b 0d 0a 00
+            w_data += 12; // @note rgt has it as: bb 7f 06 00 00 00 00 00 5b 0d 0a 00
 
-            *reinterpret_cast<int*>(&data[pos]) = world.ifloat_uid; pos += sizeof(int);
-            *reinterpret_cast<int*>(&data[pos]) = world.ifloat_uid; pos += sizeof(int);
+            *reinterpret_cast<int*>(w_data) = world.ifloat_uid; w_data += sizeof(int);
+            *reinterpret_cast<int*>(w_data) = world.ifloat_uid; w_data += sizeof(int);
             for (const auto &[uid, ifloat] : world.ifloats) 
             {
-                data.resize(data.size() + 16zu);
-                *reinterpret_cast<short*>(&data[pos]) = ifloat.id; pos += sizeof(short);
-                *reinterpret_cast<float*>(&data[pos]) = ifloat.pos[0] * 32.0f; pos += sizeof(float);
-                *reinterpret_cast<float*>(&data[pos]) = ifloat.pos[1] * 32.0f; pos += sizeof(float);
-                *reinterpret_cast<short*>(&data[pos]) = ifloat.count; pos += sizeof(short);
-                *reinterpret_cast<int*>(&data[pos]) = uid; pos += sizeof(int);
+                const auto &[id, count, pos] = ifloat;
+                auto offset = w_data - reinterpret_cast<std::byte*>(data.data());
+                data.resize(data.size() + sizeof(::ifloat) + 4zu/*@todo*/);
+                w_data = reinterpret_cast<std::byte*>(data.data()) + offset;
+                
+                *reinterpret_cast<short*>(w_data) = id; w_data += sizeof(short);
+                *reinterpret_cast<float*>(w_data) = pos[0] * 32.0f; w_data += sizeof(float);
+                *reinterpret_cast<float*>(w_data) = pos[1] * 32.0f; w_data += sizeof(float);
+                *reinterpret_cast<short*>(w_data) = count; w_data += sizeof(short);
+                *reinterpret_cast<int*>(w_data) = uid; w_data += sizeof(int);
             }
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data
@@ -249,6 +266,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             for (const auto &buff : range) 
                 list.append(std::format("{}``, ", buff));
             list.pop_back();
+            list.pop_back(); // @note remove the ',' @todo improve
 
             return std::format(" `0[``{}`0]``", list);
         };

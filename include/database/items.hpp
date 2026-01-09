@@ -188,8 +188,6 @@
         int hit_reset{}; // @note in seconds
         u_short cloth_type{clothing::none}; /* use clothing:: if you are unsure of the order */
         short rarity{};
-        std::string audio_directory{}; // @note ../../audio.mp3
-        int audioHash{};
         int tick{}; // @note tile tick time e.g. trees, providers, ect.. (measured in seconds)
 
         std::string info{}; // @note version 22 | item's info

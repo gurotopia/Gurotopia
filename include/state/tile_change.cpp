@@ -518,6 +518,7 @@ skip_reset_tile: // @todo remove lazy method
                 }
                 case type::SEED:
                 {
+                    block.state3 = 0x11; // @todo use |-
                     /* forgive the messy code. this was rushed. ~leeendl */
                     bool spliced{};
                     for (auto &[id, item] : items)

@@ -6,7 +6,9 @@ u_char get_punch_id(u_int item_id)
 {
     switch (item_id)
     {
-        // @todo
+        case 138: case 2976: return 1;
+        case 366: return 2;
+        case 472: return 3;
         default: return 0;
     }
 }

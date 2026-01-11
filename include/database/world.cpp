@@ -255,6 +255,16 @@ int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2z
     return state.uid;
 }
 
+void add_drop(ENetEvent& event, std::pair<short, short> im, ::pos pos)
+{
+    ransuu ransuu;
+    item_change_object(event, {im.first, im.second},
+    {
+        static_cast<float>(pos.x) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
+        static_cast<float>(pos.y) + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
+    });
+}
+
 void tile_update(ENetEvent &event, state state, block &block, world& w) 
 {
     state.type = 05; // @note PACKET_SEND_TILE_UPDATE_DATA

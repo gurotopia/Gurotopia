@@ -246,7 +246,7 @@ void inventory_visuals(ENetEvent &event)
     });
 
     std::size_t size = peer->slots.size();
-    data.resize(data.size() + (size * sizeof(int)));
+    data.resize(data.size() + 5zu + (size * sizeof(int)));
 
     int *_4bit = reinterpret_cast<int*>(&data[58zu]);
 

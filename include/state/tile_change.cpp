@@ -47,9 +47,9 @@ void tile_change(ENetEvent& event, state state)
         
         if (state.id == 18) // @note punching a block
         {
-            std::vector<std::pair<short, short>> im{}; // @note list of dropped items
+            tile_apply_damage(event, std::move(state), block);
+
             ransuu ransuu;
-            bool _bypass{}; // @todo remove lazy method
 
             switch (item.id)
             {
@@ -81,23 +81,23 @@ void tile_change(ENetEvent& event, state state)
                                 u_char gems = ransuu[{1, 100}]; // @note source: https://growtopia.fandom.com/wiki/ATM_Machine
                                 for (short i : {100, 50, 10, 5, 1}/* gem type */)
                                     for (; gems >= i; gems -= i/* downgrade type */)
-                                        im.emplace_back(112, i);
+                                        add_drop(event, {112, i}, state.punch);
                                         
                                 break;
                             }
                             case 872:/*chicken*/ case 866:/*cow*/ case 1632:/*coffee maker*/ case 3888:/*sheep*/
                             {
-                                im.emplace_back(item.id+2, ransuu[{1, 2}]);
+                                add_drop(event, {item.id+2, ransuu[{1, 2}]}, state.punch);
                                 break;
                             }
                             case 5116:/*tea set*/
                             {
-                                im.emplace_back(item.id-2, ransuu[{1, 2}]);
+                                add_drop(event, {item.id-2, ransuu[{1, 2}]}, state.punch);
                                 break;
                             }
                             case 2798:/*well*/
                             {
-                                im.emplace_back(822/*water bucket*/, ransuu[{1, 2}]);
+                                add_drop(event, {822/*water bucket*/, ransuu[{1, 2}]}, state.punch);
                                 break;
                             }
                             case 928:/*science station*/ // @note source: https://growtopia.fandom.com/wiki/Science_Station
@@ -107,13 +107,13 @@ void tile_change(ENetEvent& event, state state)
                                     (!ransuu[{0, 8}])  ? chemcial = 920/*B*/ : 
                                     (!ransuu[{0, 6}])  ? chemcial = 924/*Y*/ : 
                                     (!ransuu[{0, 4}])  ? chemcial = 916/*R*/ : chemcial = 914/*G*/;
-                                im.emplace_back(chemcial, 1);
+                                add_drop(event, {chemcial, 1}, state.punch);
                                 break;
                             }
                         }
                         block.tick = steady_clock::now();
                         tile_update(event, std::move(state), block, world); // @note update countdown on provider.
-                        _bypass = true; // @todo remove lazy method
+                        return;
                     }
                     break;
                 }
@@ -122,7 +122,7 @@ void tile_change(ENetEvent& event, state state)
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
                     {
                         block.hits[0] = 99;
-                        im.emplace_back(item.id - 1, ransuu[{0, 8}]); // @note fruit (from tree)
+                        add_drop(event, {item.id - 1, ransuu[{0, 8}]}, state.punch); // @note fruit (from tree)
                     }
                     break;
                 }
@@ -154,11 +154,7 @@ void tile_change(ENetEvent& event, state state)
                     break;
                 }
             }
-            tile_apply_damage(event, std::move(state), block);
-            
             short remember_id = (item.type == type::SEED) ? item.id - 1 : item.id; // @todo
-            if (_bypass) goto skip_reset_tile; // @todo remove lazy method
-
             if (block.hits.front() >= item.hits) block.fg = 0, block.hits.front() = 0;
             else if (block.hits.back() >= item.hits) block.bg = 0, block.hits.back() = 0;
             else return;
@@ -204,23 +200,13 @@ void tile_change(ENetEvent& event, state state)
                         u_char gems = ransuu[{1, rarity_to_gem}];
                         for (short i : {10, 5, 1}/* gem type */)
                             for (; gems >= i; gems -= i/* downgrade type */)
-                                im.emplace_back(112, i);
+                                add_drop(event, {112, i}, state.punch);
                     }
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 5 : 10}]) im.emplace_back(remember_id, 1); // @note block
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 3 : 6}]) im.emplace_back(remember_id + 1, 1); // @note seed
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 5 : 10}]) add_drop(event, {remember_id, 1}, state.punch); // @note block
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 3 : 6}]) add_drop(event, {remember_id + 1, 1}, state.punch); // @note seed
                 } /* ~gem drop */
 
-skip_reset_tile: // @todo remove lazy method
-
-                for (std::pair<short, short> &i : im)
-                    item_change_object(event, {i.first, i.second},
-                        {
-                            static_cast<float>(state.punch.x) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
-                            static_cast<float>(state.punch.y) + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
-                        });
-                        
                 peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
-                if (_bypass) return; // @todo remove lazy method
             }
         } // @note delete im, id
         else if (item.cloth_type != clothing::none) 

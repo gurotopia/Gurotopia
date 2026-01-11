@@ -99,6 +99,8 @@
 
     extern int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2zu>& pos, signed uid = 0);
 
+    void add_drop(ENetEvent& event, std::pair<short, short> im, ::pos pos);
+
     extern void tile_update(ENetEvent &event, state s, block &b, world& w);
 
     extern void remove_fire(ENetEvent &event, state state, block &block, world& w);

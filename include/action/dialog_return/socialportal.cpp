@@ -12,13 +12,11 @@ void socialportal(ENetEvent& event, const std::vector<std::string> &&pipes)
         u_char __online{};
 
         // @todo i will improve!! cause i hate this so much t-t
-        for (Friend &f : peer->friends)
-            peers(event, PEER_ALL, [&f, &__online](ENetPeer& peer){
+        for (const ::Friend &Friend : peer->friends)
+            peers("", PEER_ALL, [&Friend, &__online](ENetPeer& peer){
                 auto &p = _peer[&peer];
-                if (p->ltoken[0] == f.name)
-                {
+                if (p->ltoken[0] == Friend.name)
                     ++__online;
-                }
             });
 
         packet::create(*event.peer, false, 0, {

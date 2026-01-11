@@ -4,10 +4,10 @@
 void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std::any>& params) 
 {
     std::vector<std::byte> data(61, std::byte{ 00 });
-    data[0zu] = std::byte{ 04 };
+    data[0zu] = PACKET_CREATE;
     data[4zu] = std::byte{ 01 };
     *reinterpret_cast<signed*>(&data[8zu]) = (!netid) ? -1 : _peer[&p]->netid;
-    data[16zu] = std::byte{ 0x08 };
+    data[16zu] = PACKET_STATE;
     *reinterpret_cast<signed*>(&data[24zu]) = delay;
     // @note 04 00 00 00 01 00 00 00 {netid} {...8} 08 00 00 00 {...8} {delay}
 
@@ -79,6 +79,7 @@ void packet::action(ENetPeer& p, const std::string& action, const std::string& s
         for (std::size_t i = 0zu; i < action_view.length(); ++i)
             data[4zu + i] = _1bit[i];
     }
+    if (!str.empty())
     {
         const std::byte *_1bit = reinterpret_cast<const std::byte*>(str.data());
         for (std::size_t i = 0zu; i < str.length(); ++i)

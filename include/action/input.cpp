@@ -12,7 +12,12 @@
 void action::input(ENetEvent& event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
-    std::string text{readch(header, '|')[4]};
+
+    std::vector<std::string> pipes = readch(header, '|');
+    if (pipes.size() < 5) return;
+    if (pipes[3] != "text") return;
+
+    std::string text = pipes[4];
 
     if (text.front() == '\r' || std::ranges::all_of(text, ::isspace)) return;
     text.erase(text.begin(), std::find_if_not(text.begin(), text.end(), ::isspace));
@@ -37,17 +42,15 @@ void action::input(ENetEvent& event, const std::string& header)
         else 
             packet::action(*event.peer, "log", "msg|`4Unknown command.`` Enter `$/?`` for a list of valid commands.");
     }
-    else peers(event, PEER_SAME_WORLD, [&peer, text](ENetPeer& p) 
+    else 
     {
-        packet::create(p, false, 0, {
-            "OnTalkBubble", 
-            peer->netid, 
-            std::format("CP:0_PL:0_OID:_player_chat={}", text).c_str()
+        if (peer->state & S_DUCT_TAPE) text = "mfmm"; // @todo scalewith length of message. e.g. "hello" -> "mfmm"; "hello world" -> "mfmm mmfmfm"
+        std::string player_chat = std::format("CP:0_PL:0_OID:_player_chat={}", text);
+        std::string message = std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", peer->prefix, peer->ltoken[0], text);
+        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, player_chat, message](ENetPeer& p) 
+        {
+            packet::create(p, false, 0, { "OnTalkBubble", peer->netid, player_chat.c_str() });
+            packet::create(p, false, 0, { "OnConsoleMessage", message.c_str() });
         });
-        packet::create(p, false, 0, {
-            "OnConsoleMessage", 
-            std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", 
-                peer->prefix, peer->ltoken[0], text).c_str()
-        });
-    });
+    }
 }

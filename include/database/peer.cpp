@@ -59,7 +59,7 @@ public:
     
     void create_tables() 
     {
-        const char* sql = 
+        const char *sql = 
         "CREATE TABLE IF NOT EXISTS peers (_n TEXT PRIMARY KEY, role INTEGER, gems INTEGER, lvl INTEGER, xp INTEGER);"
         "CREATE TABLE IF NOT EXISTS slots (_n TEXT, i INTEGER, c INTEGER, FOREIGN KEY(_n) REFERENCES peers(_n));";
 
@@ -147,14 +147,14 @@ peer::~peer()
         sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
     });
     
-    for (const slot &s : this->slots) 
+    for (const ::slot &slot : this->slots) 
     {
-        if ((s.id == 18 || s.id == 32) || s.count <= 0) continue;
-        db.execute("INSERT INTO slots (_n, i, c) VALUES (?, ?, ?)", [this, &s](sqlite3_stmt* stmt) 
+        if ((slot.id == 18 || slot.id == 32) || slot.count <= 0) continue;
+        db.execute("INSERT INTO slots (_n, i, c) VALUES (?, ?, ?)", [this, &slot](sqlite3_stmt* stmt) 
         {
             sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt, 2, s.id);
-            sqlite3_bind_int(stmt, 3, s.count);
+            sqlite3_bind_int(stmt, 2, slot.id);
+            sqlite3_bind_int(stmt, 3, slot.count);
         });
     }
     db.commit();
@@ -164,21 +164,17 @@ std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
 
 ENetHost *server;
 
-std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::function<void(ENetPeer&)> fun)
+std::vector<ENetPeer*> peers(const std::string &world, peer_condition condition, std::function<void(ENetPeer&)> fun)
 {
     std::vector<ENetPeer*> _peers{};
-
     _peers.reserve(server->peerCount);
 
-    auto &recent_worlds = _peer[event.peer]->recent_worlds;
-
     for (ENetPeer &peer : std::span(server->peers, server->peerCount))
-        if (peer.state == ENET_PEER_STATE_CONNECTED) 
+        if (peer.state == ENET_PEER_STATE_CONNECTED) // @todo handle peers who haven't been allocated in _peer
         {
             if (condition == peer_condition::PEER_SAME_WORLD)
             {
-                if ((_peer[&peer]->recent_worlds.empty() && recent_worlds.empty()) || 
-                    (_peer[&peer]->recent_worlds.back() != recent_worlds.back())) continue;
+                if (_peer[&peer]->netid == 0 || (_peer[&peer]->recent_worlds.back() != world)) continue;
             }
             fun(peer);
             _peers.push_back(&peer);
@@ -187,42 +183,55 @@ std::vector<ENetPeer*> peers(ENetEvent event, peer_condition condition, std::fun
     return _peers;
 }
 
+void safe_disconnect_peers(int signal)
+{
+    for (ENetPeer &p : std::span(server->peers, server->peerCount))
+        if (p.state == ENET_PEER_STATE_CONNECTED)
+            enet_peer_disconnect(&p, 0);
+
+    enet_host_destroy(server);
+    enet_deinitialize();
+}
+
 state get_state(const std::vector<std::byte> &&packet) 
 {
     const int *_4bit = reinterpret_cast<const int*>(packet.data());
     const float *_4bit_f = reinterpret_cast<const float*>(packet.data());
     return state{
-        .type = _4bit[0],
-        .netid = _4bit[1],
-        .uid = _4bit[2],
-        .peer_state = _4bit[3],
-        .count = _4bit_f[4],
-        .id = _4bit[5],
-        .pos = {_4bit_f[6], _4bit_f[7]},
-        .speed = {_4bit_f[8], _4bit_f[9]},
-
-        .punch = {_4bit[11], _4bit[12]}
+        .type = _4bit[1],
+        .netid = _4bit[2],
+        .uid = _4bit[3],
+        .peer_state = _4bit[4],
+        .count = _4bit_f[5],
+        .id = _4bit[6],
+        .pos = {_4bit_f[7], _4bit_f[8]},
+        .speed = {_4bit_f[9], _4bit_f[10]},
+        .idk = _4bit[11],
+        .punch = ::pos{_4bit[12], _4bit[13]},
+        .idk1 = _4bit[14]
     };
 }
 
 std::vector<std::byte> compress_state(const state &s) 
 {
-    std::vector<std::byte> data(56, std::byte{ 00 });
+    std::vector<std::byte> data(sizeof(::state), std::byte{ 00 });
     int *_4bit = reinterpret_cast<int*>(data.data());
     float *_4bit_f = reinterpret_cast<float*>(data.data());
-    _4bit[0] = s.type;
-    _4bit[1] = s.netid;
-    _4bit[2] = s.uid;
-    _4bit[3] = s.peer_state;
-    _4bit_f[4] = s.count;
-    _4bit[5] = s.id;
-    _4bit_f[6] = s.pos[0];
-    _4bit_f[7] = s.pos[1];
-    _4bit_f[8] = s.speed[0];
-    _4bit_f[9] = s.speed[1];
-    
-    _4bit[11] = s.punch[0];
-    _4bit[12] = s.punch[1];
+    _4bit[0] = s.packet_create;
+    _4bit[1] = s.type;
+    _4bit[2] = s.netid;
+    _4bit[3] = s.uid;
+    _4bit[4] = s.peer_state;
+    _4bit_f[5] = s.count;
+    _4bit[6] = s.id;
+    _4bit_f[7] = s.pos[0];
+    _4bit_f[8] = s.pos[1];
+    _4bit_f[9] = s.speed[0];
+    _4bit_f[10] = s.speed[1];
+    _4bit[11] = s.idk;
+    _4bit[12] = s.punch.x;
+    _4bit[13] = s.punch.y;
+    _4bit[14] = s.idk1;
     return data;
 }
 
@@ -232,16 +241,15 @@ void inventory_visuals(ENetEvent &event)
 	std::size_t size = peer->slots.size();
     std::vector<std::byte> data(66zu + (size * sizeof(int)));
     
-    data[0zu] = std::byte{ 04 };
-    data[4zu] = std::byte{ 0x09 };
+    data[0zu] = PACKET_CREATE;
+    data[4zu] = std::byte{ 0x09 }; // @note PACKET_SEND_INVENTORY_STATE
     *reinterpret_cast<int*>(&data[8zu]) = peer->netid;
-    data[16zu] = std::byte{ 0x08 };
+    data[16zu] = PACKET_STATE;
     *reinterpret_cast<int*>(&data[58zu]) = std::byteswap<int>(peer->slot_size);
     *reinterpret_cast<int*>(&data[62zu]) = std::byteswap<int>(size);
     int *slot_ptr = reinterpret_cast<int*>(&data[66zu]);
-    for (const slot &slot : peer->slots) {
-        *slot_ptr++ = (slot.id | (slot.count << 16)) & 0x00ffffff;
-    }
+    for (const ::slot &slot : peer->slots)
+        *slot_ptr++ = slot.id | (slot.count & 0xff) << 16;
 
 	enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
 }

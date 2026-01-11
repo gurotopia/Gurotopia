@@ -7,19 +7,15 @@
 void action::enter_game(ENetEvent& event, const std::string& header) 
 {
     auto &peer = _peer[event.peer];
+
     peer->user_id = fnv1a(peer->ltoken[0]); // @note this is to proeprly downgrade std::hash to integer size hash (Growtopia Standards)
-    if (peer->role == role::MODERATOR) peer->prefix = "#@";
-    else if (peer->role == role::DEVELOPER) peer->prefix = "8@";
+    peer->prefix = (peer->role == MODERATOR) ? "#@" : (peer->role == DEVELOPER) ? "8@" : peer->prefix;
 
-    std::string fav_list{};
-    for (short &fav : peer->fav)
-        fav_list.append(std::format("{},", fav));
-
-    packet::create(*event.peer, false, 0, {
-        "OnSendFavItemsList",
-        fav_list,
-        peer->fav.size()
-    });
+    if (peer->slots.size() <= 2) // @note growpedia acts as the 3rd slot; meaning if a peer only has 2 slots they are new player.
+    {
+        peer->emplace({6336, 1}); // @note growpedia | cannot trash/drop
+        peer->emplace({9640, 1}); // @note My First World Lock
+    }
 
     on::RequestWorldSelectMenu(event);
     packet::create(*event.peer, false, 0, {
@@ -27,15 +23,11 @@ void action::enter_game(ENetEvent& event, const std::string& header)
         std::format("Welcome back, `{}{}````. No friends are online.", 
             peer->prefix, peer->ltoken[0]).c_str()
     }); 
-    packet::create(*event.peer, false, 0, {"OnConsoleMessage", "`5Personal Settings active:`` `#Can customize profile``"}); 
-    packet::create(*event.peer, false, 0, {
-        "UpdateMainMenuTheme", 
-        0,
-        4226000383u,
-        4226000383u,
-        "4226000383|4226000383|80543231|80543231|1554912511|1554912511"
-    });
+    packet::create(*event.peer, false, 0, {"OnConsoleMessage", "`5Personal Settings active:`` `#Can customize profile``"});
+    
+    inventory_visuals(event);
     on::SetBux(event);
+    
     packet::create(*event.peer, false, 0, {"SetHasGrowID", 1, peer->ltoken[0].c_str(), ""}); 
 
     {
@@ -50,4 +42,9 @@ void action::enter_game(ENetEvent& event, const std::string& header)
             0u // @todo
         }); 
     } // @note delete now, time
+
+    ::state state{
+        .type = 0x16 // @noote PACKET_PING_REQUEST
+    };
+    send_data(*event.peer, compress_state(state));
 }

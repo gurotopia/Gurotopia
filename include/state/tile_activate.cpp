@@ -6,32 +6,33 @@
 void tile_activate(ENetEvent& event, state state)
 {
     auto &peer = _peer[event.peer];
-    auto w = worlds.find(peer->recent_worlds.back());
-    if (w == worlds.end()) return;
 
-    block &block = w->second.blocks[cord(state.punch[0], state.punch[1])];
-    item &item = items[block.fg]; // @todo handle bg
+    if (!worlds.contains(peer->recent_worlds.back())) return;
+    ::world &world = worlds.at(peer->recent_worlds.back());
+
+    ::block &block = world.blocks[cord(state.punch.x, state.punch.y)];
+    ::item &item = items[block.fg]; // @todo handle bg
 
     switch (item.type)
     {
-        case std::byte{ type::MAIN_DOOR }:
+        case type::MAIN_DOOR:
         {
             action::quit_to_exit(event, "", false);
             break;
         }
-        case std::byte{ type::DOOR }: // @todo add door-to-door with door::id
-        case std::byte{ type::PORTAL }:
+        case type::DOOR: // @todo add door-to-door with door::id
+        case type::PORTAL:
         {
-            bool has_dest{ false };
-            for (::door &door : w->second.doors)
+            bool has_dest{};
+            for (::door &door : world.doors)
             {
                 if (door.pos == state.punch) 
                 {
                     has_dest = true;
-                    const std::string_view world_name{ door.dest };
+                    const std::string_view dest{ door.dest };
                     
                     action::quit_to_exit(event, "", true);
-                    action::join_request(event, "", world_name);
+                    action::join_request(event, "", dest);
                     break;
                 }
             }
@@ -53,5 +54,5 @@ void tile_activate(ENetEvent& event, state state)
         }
     }
 
-    state_visuals(event, std::move(state)); // finished.
+    state_visuals(*event.peer, std::move(state)); // finished.
 }

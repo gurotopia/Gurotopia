@@ -23,7 +23,7 @@ void init_shouhin_tachi()
         std::vector<std::string> tachi = readch(pipes[8], ',');
         for (std::string &im : tachi)
         {
-            std::vector<std::string> co = readch(im, ':');
+            std::vector<std::string> co = readch(im, ':'); // @note 'co' short for colon
             shouhin.im.emplace_back(stoi(co[0]), stoi(co[1]));
         }
         shouhin_tachi.emplace_back(stoi(pipes[0]), shouhin);

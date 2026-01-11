@@ -148,6 +148,14 @@
         FRIEND_ENTRANCE = 0x8e,
     };
 
+    enum cat : u_char {
+        CAT_RETURN =          02, // @note This item can't be destroyed - smashing it will return it to your backpack if you have room!
+        CAT_SUPRISING_FRUIT = 0x08, // @note A tree of this type can bear surprising fruit!
+        CAT_PUBLIC =          0x10, // @note This item is PUBLIC: Even if it's locked, anyone can smash it.
+        CAT_HOLIDAY =         0x40, // @note This item can only be created during WinterFest/Halloween.
+        CAT_CANNOT_DROP =     0x80 // @note This item cannot be dropped or traded.
+    };
+
     #include <string>
 
     namespace collision {
@@ -172,27 +180,19 @@
     public:
         u_short id{}; /* item identity */
         std::byte property{};
-        std::byte cat{};
-        std::byte type{};
+        u_char cat{};
+        u_char type{};
         std::string raw_name{}; /* the exact name of the item including uppercases */
         std::byte collision{};
         short hits{}; // @todo make it unsigned.
         int hit_reset{}; // @note in seconds
         u_short cloth_type{clothing::none}; /* use clothing:: if you are unsure of the order */
         short rarity{};
-        std::string audio_directory{}; // @note ../../audio.mp3
-        int audioHash{};
         int tick{}; // @note tile tick time e.g. trees, providers, ect.. (measured in seconds)
-        short mod{};
-        short mod1{};
 
-        int mod2{}; // @note version 12 | Haunted Jack O Latern {3}
-        int mod3{}; // @note version 13 | items that emit light(?)
-        int mod4{}; // @note version 14 | Royal Clam Cruiser {11306}, Royal Mystic Bow {11440}, Anubis Pharaoh Mask {12294}
-        int mod5{}; // @note version 17 | Buster Brush {1815}
-        int mod6{}; // @note version 18 | no clue...
-        short mod7{}; // @note version 21 | 2025 transformation items
         std::string info{}; // @note version 22 | item's info
+
+        std::array<u_short, 2> splice{}; // @note version 23 | {seed1, seed2}
     };
     extern std::unordered_map<u_short, item> items;
 

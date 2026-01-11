@@ -7,13 +7,14 @@
 void popup(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
     auto &peer = _peer[event.peer];
+    if (pipes.size() <= 11) return; // @note "Continue" botton on wrench has no data. so we return early.
 
     if (pipes[11zu] == "my_worlds")
     {
         auto section = [](const auto& range) 
         {
             std::string result;
-            for (const auto& name : range)
+            for (const auto &name : range)
                 if (!name.empty())
                     result.append(std::format("add_button|{0}|{0}|noflags|0|0|\n", name));
             return result;

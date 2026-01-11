@@ -16,7 +16,7 @@ void peer_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
 
     if (status) // @note online
     {
-        peers(event, PEER_ALL, [&event, name, role, level, gems](ENetPeer& p) 
+        peers("", PEER_ALL, [&event, name, role, level, gems](ENetPeer& p) 
         {
             if (_peer[&p]->ltoken[0] == name)
             {

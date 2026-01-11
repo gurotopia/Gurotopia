@@ -3,6 +3,11 @@
 
 void sb(ENetEvent& event, const std::string_view text)
 {
+    if (text.length() <= sizeof("sb ") - 1) 
+    {
+        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "Usage: /sb `w{message}``" });
+        return;
+    }
     std::string message{ text.substr(sizeof("sb ")-1) };
     auto &peer = _peer[event.peer];
 
@@ -10,14 +15,14 @@ void sb(ENetEvent& event, const std::string_view text)
     if (it == worlds.end()) return;
 
     std::string display = peer->recent_worlds.back();
-    for (block &b : it->second.blocks)
-        if (b.fg == 226 && b.toggled) 
+    for (::block &block : it->second.blocks)
+        if (block.fg == 226 && block.state3 & S_TOGGLE) 
         {
             display = "`4JAMMED``";
             break; // @note we don't care if other signals are toggled.
         }
 
-    peers(event, PEER_ALL, [&peer, message, display](ENetPeer& p) 
+    peers("", PEER_ALL, [&peer, message, display](ENetPeer& p) 
     {
         packet::create(p, false, 0, {
             "OnConsoleMessage",

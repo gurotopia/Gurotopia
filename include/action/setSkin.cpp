@@ -8,5 +8,5 @@ void action::setSkin(ENetEvent& event, const std::string& header)
     std::vector<std::string> pipes = readch(header, '|');
 
     _peer[event.peer]->skin_color = stoul(pipes[3zu]); // @todo handle non-numrials
-    on::SetClothing(event);
+    on::SetClothing(*event.peer);
 }

@@ -10,7 +10,7 @@
         std::string rttx{};
         std::string description{};
         char tex1{};
-        char tex2{}; // @todo may have to change variable type...
+        char tex2{}; // @todo may have to change variable type···
         int cost{};
 
         std::vector<std::pair<short, short>> im{}; // @note {id, amount}

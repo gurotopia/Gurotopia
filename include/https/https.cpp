@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "https.hpp"
 
-#include "ssl/openssl/err.h"
+#include <openssl/err.h>
 
 #ifdef _WIN32
     #include <winsock2.h>
@@ -16,17 +16,11 @@
     #define SOCKET int
 #endif
 
-#if defined(_MSC_VER)
-    using namespace std::chrono;
-#else
-    using namespace std::chrono::_V2;
-#endif
-using namespace std::literals::chrono_literals;
-
-void https::listener(_server_data server_data)
+void https::listener(::server_data server_data)
 {
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
+    constexpr int enable = 1;
 
     SSL_CTX *ctx = SSL_CTX_new(TLS_server_method());
     if (ctx == nullptr)
@@ -36,12 +30,18 @@ void https::listener(_server_data server_data)
         SSL_CTX_use_PrivateKey_file(ctx, "resources/ctx/server.key", SSL_FILETYPE_PEM) <= 0)
             ERR_print_errors_fp(stderr);
 
-    SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION);
-    
-    SSL_CTX_set_cipher_list(ctx, "HIGH:!aNULL:!MD5:!RC4:!3DES");
-    SSL_CTX_set_ecdh_auto(ctx, 1);
+    SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1);
+    SSL_CTX_set_cipher_list(ctx, "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305");
 
-    SOCKET socket = ::socket(AF_INET, SOCK_STREAM, 0);
+    SOCKET socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+
+    setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(enable));
+#ifdef TCP_FASTOPEN
+    setsockopt(socket, IPPROTO_TCP, TCP_FASTOPEN, (char*)&enable, sizeof(enable));
+#endif
+#ifdef TCP_DEFER_ACCEPT // @note unix
+    setsockopt(socket, IPPROTO_TCP, TCP_DEFER_ACCEPT, &enable, sizeof(enable));
+#endif
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = INADDR_ANY;
@@ -50,7 +50,7 @@ void https::listener(_server_data server_data)
     if (bind(socket, (struct sockaddr*)&addr, addrlen) < 0)
         puts("could not bind port 443.");
 
-    printf("listening on %s:%d\n", server_data.server.c_str(), server_data.port);
+    printf("listening on %s:%hu\n", server_data.server.c_str(), server_data.port);
 
     const std::string Content =
         std::format(
@@ -69,38 +69,36 @@ void https::listener(_server_data server_data)
             "HTTP/1.1 200 OK\r\n"
             "Content-Type: text/plain\r\n"
             "Content-Length: {}\r\n"
-            "Connection: close\r\n"
-            "\r\n{}",
-            Content.size(), Content).c_str();
+            "Connection: close\r\n\r\n"
+            "{}",
+            Content.size(), Content);
 
-#ifdef TCP_DEFER_ACCEPT // @note unix
-    int enable = 1;
-    setsockopt(socket, IPPROTO_TCP, TCP_DEFER_ACCEPT, &enable, sizeof(enable));
-#endif
-
-    listen(socket, 9);
+    listen(socket, SOMAXCONN); // @todo
     while (true)
     {
         SOCKET fd = accept(socket, (struct sockaddr*)&addr, &addrlen);
         if (fd < 0) continue;
 
+        setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&enable, sizeof(enable));
+
         SSL *ssl = SSL_new(ctx);
         SSL_set_fd(ssl, fd);
-
-        struct timeval timeout{.tv_sec = 3};
-        setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
-        setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
-
+        
         if (SSL_accept(ssl) > 0)
         {
+
             char buf[213]; // @note size of growtopia's POST request.
-            int length{ sizeof(buf) };
+            const int length{ sizeof(buf) };
 
             if (SSL_read(ssl, buf, length) == length)
             {
-                printf("%s", buf);
-                if (std::string(buf, sizeof(buf )).contains("POST /growtopia/server_data.php HTTP/1.1"))
+                puts(buf);
+                
+                if (std::string_view(buf, sizeof(buf )).contains("POST /growtopia/server_data.php HTTP/1.1"))
+                {
                     SSL_write(ssl, response.c_str(), response.size());
+                    SSL_shutdown(ssl);
+                }
             }
             else ERR_print_errors_fp(stderr); // @note we don't accept growtopia GET. this error is normal if appears.
         }

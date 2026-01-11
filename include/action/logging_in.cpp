@@ -6,31 +6,40 @@
 void action::logging_in(ENetEvent& event, const std::string& header)
 {
     auto &peer = _peer[event.peer];
-    std::vector<std::string> pipes = readch(header, '|');
-    if (pipes[2zu] == "ltoken")
-    {
-        const std::string decoded = base64_decode(pipes[3zu]);
-        if (std::size_t pos = decoded.find("growId="); pos != std::string::npos) 
-        {
-            pos += sizeof("growId=")-1zu;
-            const std::size_t ampersand = decoded.find('&', pos); // @note stop at the ampersand(&) -> growId={username}(stop here)&
-            peer->ltoken[0] = decoded.substr(pos, ampersand - pos);
-        } // @note delete ampersand
 
-        if (std::size_t pos = decoded.find("password="); pos != std::string::npos) 
+    try 
+    {
+        std::vector<std::string> pipes = readch(header, '|');
+        if (pipes.size() < 4zu) throw std::runtime_error("");
+
+        if (pipes[2zu] == "ltoken")
         {
-            pos += sizeof("password=")-1zu;
-            peer->ltoken[1] = decoded.substr(pos);
-        }
-    } // @note delete decoded
+            const std::string decoded = base64_decode(pipes[3zu]);
+            if (decoded.empty()) throw std::runtime_error("");
+
+            if (std::size_t pos = decoded.find("growId="); pos != std::string::npos) 
+            {
+                pos += sizeof("growId=")-1zu;
+                peer->ltoken[0] = decoded.substr(pos, decoded.find('&', pos) - pos);
+            }
+            if (std::size_t pos = decoded.find("password="); pos != std::string::npos) 
+            {
+                pos += sizeof("password=")-1zu;
+                peer->ltoken[1] = decoded.substr(pos);
+            }
+        } // @note delete decoded
+    }
+    catch (...) { packet::action(*event.peer, "logon_fail", ""); }
     peer->read(peer->ltoken[0]);
+    
+    /* v5.39 */
     packet::create(*event.peer, false, 0, {
         "OnSuperMainStartAcceptLogonHrdxs47254722215a",
-        4131735857u, // @note items.dat
+        1973844992u, // @note items.dat
         "ubistatic-a.akamaihd.net",
-        "0098/23134121343/cache/",
+        "0098/030120205/cache/",
         "cc.cz.madkite.freedom org.aqua.gg idv.aqua.bulldog com.cih.gamecih2 com.cih.gamecih com.cih.game_cih cn.maocai.gamekiller com.gmd.speedtime org.dax.attack com.x0.strai.frep com.x0.strai.free org.cheatengine.cegui org.sbtools.gamehack com.skgames.traffikrider org.sbtoods.gamehaca com.skype.ralder org.cheatengine.cegui.xx.multi1458919170111 com.prohiro.macro me.autotouch.autotouch com.cygery.repetitouch.free com.cygery.repetitouch.pro com.proziro.zacro com.slash.gamebuster",
-        "proto=216|choosemusic=audio/mp3/about_theme.mp3|active_holiday=0|wing_week_day=0|ubi_week_day=0|server_tick=67782135|clash_active=0|drop_lavacheck_faster=1|isPayingUser=1|usingStoreNavigation=1|enableInventoryTab=1|bigBackpack=1",
+        "proto=225|choosemusic=audio/mp3/tsirhc.mp3|active_holiday=9|wing_week_day=0|ubi_week_day=0|server_tick=47112773|game_theme=winterfest-theme|clash_active=0|drop_lavacheck_faster=1|isPayingUser=1|usingStoreNavigation=1|enableInventoryTab=1|bigBackpack=1|seed_diary_hash=2264386986",
         0u // @note player_tribute.dat
     });
 }

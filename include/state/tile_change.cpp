@@ -381,7 +381,6 @@ skip_reset_tile: // @todo remove lazy method
             tile_update(event, std::move(state), block, world);
 
             if (item.id == 6336) return; // @todo
-            peer->emplace(slot(item.id, -1));
             modify_item_inventory(event, ::slot(item.id, 1));
             return;
         }
@@ -585,7 +584,7 @@ skip_reset_tile: // @todo remove lazy method
             }
             block.state3 |= (peer->facing_left) ? S_LEFT : S_RIGHT;
             (item.type == type::BACKGROUND) ? block.bg = state.id : block.fg = state.id;
-            peer->emplace(slot(state.id, -1));
+            modify_item_inventory(event, ::slot(item.id, 1));
         }
         if (state.netid != world.owner) state.netid = peer->netid;
         state_visuals(*event.peer, std::move(state)); // finished.

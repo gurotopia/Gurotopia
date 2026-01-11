@@ -213,6 +213,8 @@ void modify_item_inventory(ENetEvent& event, ::slot slot)
         .id = slot.id
     };
     state_visuals(*event.peer, std::move(state));
+
+    _peer[event.peer]->emplace(::slot(slot.id, -slot.count));
 }
 
 int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2zu>& pos, signed uid) 
@@ -322,15 +324,26 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
 
 void remove_fire(ENetEvent &event, state state, block &block, world& w)
 {
-    block.state4 &= ~S_FIRE; 
     state_visuals(*event.peer, ::state{
-        .type = 0x11,
+        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
         .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
         .speed = { 0x00000000, 0x95 }
     });
 
+    block.state4 &= ~S_FIRE;
     tile_update(event, state, block, w);
-    _peer[event.peer]->fires_removed++;
+
+    auto &peer = _peer[event.peer];
+
+    if (++peer->fires_removed % 100 == 0) 
+    {
+        packet::create(*event.peer, false, 0, {
+            "OnConsoleMessage",
+            "`oI'm so good at fighting fires, I rescused this `2Highly Combustible Box``!"
+        });
+        peer->emplace({3090/*Combustible Box*/, 1});
+        inventory_visuals(event);
+    }
 }
 
 void generate_world(world &world, const std::string& name)

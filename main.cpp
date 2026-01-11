@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 7df291d236228830af7f7f4cf77e8a7e98ac2d13 2026-1-9
+    @version perent SHA: a8f260c11b6d6125d709903f51e9bf4df04e938f 2026-1-11
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -54,8 +54,6 @@ int main()
         im_data.resize(im_data.size() + size); // @note resize to fit binary data
         std::ifstream("items.dat", std::ios::binary)
             .read(reinterpret_cast<char*>(&im_data[sizeof(::state)]), size); // @note the binary data···
-
-        printf("storing items.dat in binary; %zu KB of stack memory\n", im_data.size() / 1024);
 
         cache_items();
     } // @note delete size

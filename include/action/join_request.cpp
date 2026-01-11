@@ -30,25 +30,27 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
         std::vector<std::string> buffs{};
         {
-            std::vector<std::byte> data(85 + world.name.length() + 5/*unknown*/ + (8 * world.blocks.size()) + 12 + 8/*total drop uid*/, std::byte{ 00 });
-            data[0zu] = PACKET_CREATE;
-            data[4zu] = std::byte{ 04 }; // @note PACKET_SEND_MAP_DATA
-            data[16zu] = PACKET_STATE;
-            
-            const u_char len = static_cast<const u_char>(world.name.length());
-            data[66zu] = std::byte{ len };
+            std::vector<std::byte> data = compress_state(::state{
+                .type = 0x04, // @note PACKET_SEND_MAP_DATA
+                .peer_state = 0x08
+            });
+            data.resize(data.size() + 24zu + world.name.length() + (8zu * world.blocks.size()) + 12zu + 8zu/*total drop uid*/);
+            std::byte *w_data = data.data() + sizeof(::state) + 6;
+
+            const short len = world.name.length();
+            *reinterpret_cast<short*>(w_data) = len; w_data += sizeof(short);
 
             const std::byte *_1bit = reinterpret_cast<const std::byte*>(world.name.data());
             for (u_char i = 0; i < len; ++i)
-                data[68zu + i] = _1bit[i];
+                *w_data++ = _1bit[i];
 
             const u_int y = world.blocks.size() / 100;
             const u_int x = world.blocks.size() / y;
-            *reinterpret_cast<u_int*>(&data[68zu + len]) = x;
-            *reinterpret_cast<u_int*>(&data[72zu + len]) = y;
-            *reinterpret_cast<u_short*>(&data[76zu + len]) = static_cast<u_short>(world.blocks.size());
-            
-            std::byte *w_data = data.data() + 85 + len;
+            *reinterpret_cast<u_int*>(w_data) = x; w_data += sizeof(u_int);
+            *reinterpret_cast<u_int*>(w_data) = y; w_data += sizeof(u_int);
+            *reinterpret_cast<u_short*>(w_data) = static_cast<u_short>(world.blocks.size()); w_data += sizeof(u_short);
+            w_data += 7; // @todo
+
             short i = 0; // @note track the block position
             for (const ::block &block : world.blocks)
             {
@@ -91,7 +93,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     case type::DOOR:
                     case type::PORTAL:
                     {
-                        short len = block.label.length();
+                        const short len = block.label.length();
                         auto offset = w_data - reinterpret_cast<std::byte*>(data.data());
                         data.resize(data.size() + 4zu + len); // @note 01 {2} {} 0 0
                         w_data = reinterpret_cast<std::byte*>(data.data()) + offset;
@@ -105,7 +107,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::SIGN:
                     {
-                        short len = block.label.length();
+                        const short len = block.label.length();
                         auto offset = w_data - reinterpret_cast<std::byte*>(data.data());
                         data.resize(data.size() + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
                         w_data = reinterpret_cast<std::byte*>(data.data()) + offset;
@@ -216,12 +218,14 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         if (peer->user_id == world.owner && !peer->role) peer->prefix.front() = '2';
         else if (std::ranges::contains(world.admin, peer->user_id) && !peer->role) peer->prefix.front() = 'c';
 
-        peer->netid = ++world.visitors;
+        ++world.visitors;
+        peer->netid = ++world.netid_counter;
         
-        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &peer, &world](ENetPeer& p) 
+        constexpr std::string_view fmt = "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}";
+        
+        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &peer, &world, &fmt](ENetPeer& p) 
         {
             auto &_p = _peer[&p];
-            constexpr std::string_view fmt = "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}";
             
             if (_p->user_id != peer->user_id)
             {
@@ -242,7 +246,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 "OnSpawn", 
                 std::format(fmt,
                     peer->netid, peer->user_id, static_cast<int>(peer->rest_pos[0]), static_cast<int>(peer->rest_pos[1]), peer->prefix, peer->ltoken[0], (peer->role) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
-                    (_p->user_id == peer->user_id) ? "type|local" : ""
+                    (_p->user_id == peer->user_id) ? "type|local\n" : ""
                 ).c_str()
             });
 
@@ -278,7 +282,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             ).c_str()
         });
         on::EmoticonDataChanged(event);
-        on::SetClothing(*event.peer);
     }
     catch (const std::exception& exc)
     {

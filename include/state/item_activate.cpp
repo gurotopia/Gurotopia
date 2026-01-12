@@ -27,17 +27,26 @@ void item_activate(ENetEvent& event, state state)
 
             if (lock->id == 242 && lock->count >= 100) 
             {
-                const short nokori = peer->emplace(slot(1796, 1));
-                if (nokori == 0) peer->emplace(slot(lock->id, -100)); // @note do not take 100 if dl is already at 200.
+                const short nokori = modify_item_inventory(event, {1796, 1});
+                if (nokori == 0) 
+                {
+                    modify_item_inventory(event, {lock->id, -100});
+                    packet::create(*event.peer, false, 0, { "OnTalkBubble", 1u, "You compressed 100 `2World Lock`` into a `2Diamond Lock``!", 0u, 1u });
+                    packet::create(*event.peer, false, 0, { "OnConsoleMessage", "You compressed 100 `2World Lock`` into a `2Diamond Lock``!" });
+                }
             }
             else if (lock->id == 1796 && lock->count >= 1) 
             {
-                const short nokori = peer->emplace(slot(242, 100));
+                const short nokori = modify_item_inventory(event, {242, 100});
                 short hyaku = 100 - nokori;
-                if (hyaku == 100) peer->emplace(slot(1796, -1)); // @note do not take 1 if cannot take 100 more wls
-                else peer->emplace(slot(242, -hyaku)); // @note return wls if not 100
+                if (hyaku == 100) 
+                {
+                    modify_item_inventory(event, {1796, -1});
+                    packet::create(*event.peer, false, 0, { "OnTalkBubble", 1u, "You shattered a `2Diamond Lock`` into 100 `2World Lock``!", 0u, 1u });
+                    packet::create(*event.peer, false, 0, { "OnConsoleMessage", "You shattered a `2Diamond Lock`` into 100 `2World Lock``!" });
+                }
+                else modify_item_inventory(event, {242, -hyaku}); // @note return wls if not 100
             }
-            inventory_visuals(event);
         }
     }
 }

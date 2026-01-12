@@ -206,15 +206,14 @@ void tile_apply_damage(ENetEvent& event, state state, block &block)
 	state_visuals(*event.peer, std::move(state));
 }
 
-void modify_item_inventory(ENetEvent& event, ::slot slot)
+short modify_item_inventory(ENetEvent& event, ::slot slot)
 {
-    ::state state{
-        .type = (slot.count << 16) | 0x000d, // @noote 0x00{}000d
-        .id = slot.id
-    };
-    state_visuals(*event.peer, std::move(state));
+    ::state state{.id = slot.id};
+    if (slot.count < 0) state.type = (slot.count*-1 << 16) | 0x000d; // @noote 0x00{}000d
+    else                state.type = (slot.count    << 24) | 0x000d; // @noote 0x{}00000d
 
-    _peer[event.peer]->emplace(::slot(slot.id, -slot.count));
+    state_visuals(*event.peer, std::move(state));
+    return _peer[event.peer]->emplace(::slot(slot.id, slot.count));
 }
 
 int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2zu>& pos, signed uid) 
@@ -255,10 +254,10 @@ int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2z
     return state.uid;
 }
 
-void add_drop(ENetEvent& event, std::pair<short, short> im, ::pos pos)
+void add_drop(ENetEvent& event, ::slot im, ::pos pos)
 {
     ransuu ransuu;
-    item_change_object(event, {im.first, im.second},
+    item_change_object(event, {im.id, im.count},
     {
         static_cast<float>(pos.x) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
         static_cast<float>(pos.y) + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
@@ -351,8 +350,7 @@ void remove_fire(ENetEvent &event, state state, block &block, world& w)
             "OnConsoleMessage",
             "`oI'm so good at fighting fires, I rescused this `2Highly Combustible Box``!"
         });
-        peer->emplace({3090/*Combustible Box*/, 1});
-        inventory_visuals(event);
+        modify_item_inventory(event, {3090/*Combustible Box*/, 1});
     }
 }
 

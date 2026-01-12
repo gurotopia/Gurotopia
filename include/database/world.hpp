@@ -95,11 +95,11 @@
 
     extern void tile_apply_damage(ENetEvent& event, state s, block& b);
 
-    extern void modify_item_inventory(ENetEvent& event, ::slot slot);
+    extern short modify_item_inventory(ENetEvent& event, ::slot slot);
 
     extern int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2zu>& pos, signed uid = 0);
 
-    void add_drop(ENetEvent& event, std::pair<short, short> im, ::pos pos);
+    void add_drop(ENetEvent& event, ::slot im, ::pos pos);
 
     extern void tile_update(ENetEvent &event, state s, block &b, world& w);
 

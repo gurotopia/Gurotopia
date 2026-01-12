@@ -87,17 +87,17 @@ void tile_change(ENetEvent& event, state state)
                             }
                             case 872:/*chicken*/ case 866:/*cow*/ case 1632:/*coffee maker*/ case 3888:/*sheep*/
                             {
-                                add_drop(event, {item.id+2, ransuu[{1, 2}]}, state.punch);
+                                add_drop(event, ::slot(item.id+2, ransuu[{1, 2}]), state.punch);
                                 break;
                             }
                             case 5116:/*tea set*/
                             {
-                                add_drop(event, {item.id-2, ransuu[{1, 2}]}, state.punch);
+                                add_drop(event, ::slot(item.id-2, ransuu[{1, 2}]), state.punch);
                                 break;
                             }
                             case 2798:/*well*/
                             {
-                                add_drop(event, {822/*water bucket*/, ransuu[{1, 2}]}, state.punch);
+                                add_drop(event, ::slot(822/*water bucket*/, ransuu[{1, 2}]), state.punch);
                                 break;
                             }
                             case 928:/*science station*/ // @note source: https://growtopia.fandom.com/wiki/Science_Station
@@ -122,7 +122,7 @@ void tile_change(ENetEvent& event, state state)
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
                     {
                         block.hits[0] = 99;
-                        add_drop(event, {item.id - 1, ransuu[{0, 8}]}, state.punch); // @note fruit (from tree)
+                        add_drop(event, ::slot(item.id - 1, ransuu[{0, 8}]), state.punch); // @note fruit (from tree)
                     }
                     break;
                 }
@@ -203,7 +203,7 @@ void tile_change(ENetEvent& event, state state)
                                 add_drop(event, {112, i}, state.punch);
                     }
                     if (!ransuu[{0, (rarity_to_gem > 1) ? 5 : 10}]) add_drop(event, {remember_id, 1}, state.punch); // @note block
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 3 : 6}]) add_drop(event, {remember_id + 1, 1}, state.punch); // @note seed
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 3 : 6}]) add_drop(event, ::slot(remember_id + 1, 1), state.punch); // @note seed
                 } /* ~gem drop */
 
                 peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
@@ -367,7 +367,7 @@ void tile_change(ENetEvent& event, state state)
             tile_update(event, std::move(state), block, world);
 
             if (item.id == 6336) return; // @todo
-            modify_item_inventory(event, ::slot(item.id, 1));
+            modify_item_inventory(event, ::slot(item.id, -1));
             return;
         }
         else if (state.id == 32)
@@ -570,7 +570,7 @@ void tile_change(ENetEvent& event, state state)
             }
             block.state3 |= (peer->facing_left) ? S_LEFT : S_RIGHT;
             (item.type == type::BACKGROUND) ? block.bg = state.id : block.fg = state.id;
-            modify_item_inventory(event, ::slot(item.id, 1));
+            modify_item_inventory(event, ::slot(item.id, -1));
         }
         if (state.netid != world.owner) state.netid = peer->netid;
         state_visuals(*event.peer, std::move(state)); // finished.

@@ -235,7 +235,7 @@ std::vector<std::byte> compress_state(const state &s)
     return data;
 }
 
-void inventory_visuals(ENetEvent &event)
+void send_inventory_state(ENetEvent &event)
 {
     auto &peer = _peer[event.peer];
 

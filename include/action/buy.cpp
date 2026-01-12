@@ -120,15 +120,13 @@ void action::buy(ENetEvent& event, const std::string& header)
                 for (u_char i = 0; i < 3; ++i)
                     shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
             }
-
             std::string received{};
             for (std::pair<short, short> &im : shouhin.im)
             {
                 if (im.first == 9412) peer->slot_size += 10; // @note 9412 is the id for increase backpack sprite, but peer wont actually be given that item.
-                else peer->emplace(slot(im.first, im.second));
+                else modify_item_inventory(event, {im.first, im.second});
                 received.append(std::format("{}, ", items[im.first].raw_name)); // @todo add green text to rare items, or something cool.
             }
-
             packet::create(*event.peer, false, 0, 
             {
                 "OnStorePurchaseResult",
@@ -138,11 +136,10 @@ void action::buy(ENetEvent& event, const std::string& header)
                         shouhin.name, shouhin.cost, peer->gems -= shouhin.cost, received).c_str() :
                     std::format(
                         "You've purchased `0{}`` for `${}`` `2Growtokens``.\nYou have `${}`` `2Growtokens`` left.\n\n`5Received: ```0{}``",
-                        shouhin.name, growtoken_cost, growtoken->count -= growtoken_cost, received).c_str()
+                        shouhin.name, growtoken_cost, growtoken->count - growtoken_cost, received).c_str()
             });
-            inventory_visuals(event);
             if (_tab < 5) on::SetBux(event);
-
+            else modify_item_inventory(event, ::slot(growtoken->id, -growtoken_cost));
             break;
         }
     }

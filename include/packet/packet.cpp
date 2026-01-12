@@ -3,13 +3,12 @@
 
 void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std::any>& params) 
 {
-    std::vector<std::byte> data(61, std::byte{ 00 });
-    data[0zu] = PACKET_CREATE;
-    data[4zu] = std::byte{ 01 };
-    *reinterpret_cast<signed*>(&data[8zu]) = (!netid) ? -1 : _peer[&p]->netid;
-    data[16zu] = PACKET_STATE;
-    *reinterpret_cast<signed*>(&data[24zu]) = delay;
-    // @note 04 00 00 00 01 00 00 00 {netid} {...8} 08 00 00 00 {...8} {delay}
+    std::vector<std::byte> data = compress_state(::state{
+        .type = 01,
+        .netid = (!netid) ? -1 : _peer[&p]->netid,
+        .peer_state = 0x08,
+        .id = delay
+    });
 
     std::size_t size = data.size();
     std::byte index{};

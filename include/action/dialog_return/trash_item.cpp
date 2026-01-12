@@ -12,8 +12,7 @@ void trash_item(ENetEvent& event, const std::vector<std::string> &&pipes)
             if (count > slot.count) count = slot.count;
             else if (count < 0) count = 0;
 
-    _peer[event.peer]->emplace(slot(id, -count)); // @note take away
-    modify_item_inventory(event, {id, count});
+    modify_item_inventory(event, {id, -count});
 
     packet::create(*event.peer, false, 0, {
         "OnConsoleMessage",

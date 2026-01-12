@@ -206,13 +206,14 @@ void tile_apply_damage(ENetEvent& event, state state, block &block)
 	state_visuals(*event.peer, std::move(state));
 }
 
-void modify_item_inventory(ENetEvent& event, ::slot slot)
+short modify_item_inventory(ENetEvent& event, ::slot slot)
 {
-    ::state state{
-        .type = (slot.count << 16) | 0x000d, // @noote 0x00{}000d
-        .id = slot.id
-    };
+    ::state state{.id = slot.id};
+    if (slot.count < 0) state.type = (slot.count*-1 << 16) | 0x000d; // @noote 0x00{}000d
+    else                state.type = (slot.count    << 24) | 0x000d; // @noote 0x{}00000d
+
     state_visuals(*event.peer, std::move(state));
+    return _peer[event.peer]->emplace(::slot(slot.id, slot.count));
 }
 
 int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2zu>& pos, signed uid) 
@@ -251,6 +252,16 @@ int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2z
     }
     state_visuals(*event.peer, std::move(state));
     return state.uid;
+}
+
+void add_drop(ENetEvent& event, ::slot im, ::pos pos)
+{
+    ransuu ransuu;
+    item_change_object(event, {im.id, im.count},
+    {
+        static_cast<float>(pos.x) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
+        static_cast<float>(pos.y) + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
+    });
 }
 
 void tile_update(ENetEvent &event, state state, block &block, world& w) 
@@ -322,15 +333,25 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
 
 void remove_fire(ENetEvent &event, state state, block &block, world& w)
 {
-    block.state4 &= ~S_FIRE; 
     state_visuals(*event.peer, ::state{
-        .type = 0x11,
+        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
         .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
         .speed = { 0x00000000, 0x95 }
     });
 
+    block.state4 &= ~S_FIRE;
     tile_update(event, state, block, w);
-    _peer[event.peer]->fires_removed++;
+
+    auto &peer = _peer[event.peer];
+
+    if (++peer->fires_removed % 100 == 0) 
+    {
+        packet::create(*event.peer, false, 0, {
+            "OnConsoleMessage",
+            "`oI'm so good at fighting fires, I rescused this `2Highly Combustible Box``!"
+        });
+        modify_item_inventory(event, {3090/*Combustible Box*/, 1});
+    }
 }
 
 void generate_world(world &world, const std::string& name)

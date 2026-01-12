@@ -25,7 +25,7 @@ void action::enter_game(ENetEvent& event, const std::string& header)
     }); 
     packet::create(*event.peer, false, 0, {"OnConsoleMessage", "`5Personal Settings active:`` `#Can customize profile``"});
     
-    inventory_visuals(event);
+    send_inventory_state(event);
     on::SetBux(event);
     
     packet::create(*event.peer, false, 0, {"SetHasGrowID", 1, peer->ltoken[0].c_str(), ""}); 
@@ -43,8 +43,7 @@ void action::enter_game(ENetEvent& event, const std::string& header)
         }); 
     } // @note delete now, time
 
-    ::state state{
+    send_data(*event.peer, compress_state(::state{
         .type = 0x16 // @noote PACKET_PING_REQUEST
-    };
-    send_data(*event.peer, compress_state(state));
+    }));
 }

@@ -8,5 +8,6 @@ void movement(ENetEvent& event, state state)
     peer->pos = state.pos;
     peer->facing_left = state.peer_state & 0x10;
     
+    state.netid = peer->netid;
     state_visuals(*event.peer, std::move(state)); // finished.
 }

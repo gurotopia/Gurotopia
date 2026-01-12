@@ -28,10 +28,6 @@
         return size;
     }
 
-#endif
+#endif // _MSC_VER
 
-    /* @todo have this compile in files of use */
-    constexpr std::byte PACKET_CREATE{ 04 };
-    constexpr std::byte PACKET_STATE{ 0x08 };
-
-#endif
+#endif // PCH_HPP

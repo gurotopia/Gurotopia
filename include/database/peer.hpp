@@ -158,6 +158,6 @@
     /* put it back into it's original form */
     extern std::vector<std::byte> compress_state(const state &s);
 
-    extern void inventory_visuals(ENetEvent &event);
+    extern void send_inventory_state(ENetEvent &event);
 
 #endif

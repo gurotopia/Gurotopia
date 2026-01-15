@@ -163,7 +163,58 @@ void tile_change(ENetEvent& event, state state)
             block.label = "";
             block.state3 = 0x00; // @note reset tile direction
             block.state4 &= ~S_VANISH; // @note remove paint
+            if (item.id == 3402)       // @note Golden Booty Chest
+            {
+                short reward =
+                        (ransuu[{0, 100}] < 5) ? 1458 : // @note Golden heart crystal
+                        (ransuu[{0, 100}] < 5) ? 362 : // @note Angel Wings
+                        (ransuu[{0, 100}] < 5) ? 9342 : // @note Diaper
+                        (ransuu[{0, 100}] < 5) ? 9340 : // @note Datemaster's Rose
+                        (ransuu[{0, 100}] < 5) ? 2390 : // @note Teeny Angel Wings
+                        (ransuu[{0, 100}] < 5) ? 10632 : // @note Silk Scarf
+                        388; // @note Perfume
+                        // @todo add all the remaining drops
+                add_drop(event, {reward, 1}, state.punch);
+                if (reward == 1458)
+                {
+                    peers(peer->recent_worlds.back(), PEER_ALL, [&peer, item](ENetPeer &p)
+                    {
+                        packet::action(p, "log", std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", peer->ltoken[0], item.raw_name).c_str());
+                    });
 
+                    state_visuals(*event.peer, ::state{
+                        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
+                        .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
+                        .speed = { 0x0, 0x49 }
+                    });
+                }
+            }
+            else if (item.id == 9350)       // @note Golden Booty Chest
+            {
+                short reward =
+                        (ransuu[{0, 100}] < 5) ? 1458 : // @note Golden heart crystal
+                        (ransuu[{0, 100}] < 5) ? 362 : // @note Angel Wings
+                        (ransuu[{0, 100}] < 5) ? 9342 : // @note Diaper
+                        (ransuu[{0, 100}] < 5) ? 9340 : // @note Datemaster's Rose
+                        (ransuu[{0, 100}] < 5) ? 2390 : // @note Teeny Angel Wings
+                        (ransuu[{0, 100}] < 5) ? 10632 : // @note Silk Scarf
+                        388; // @note Perfume
+                        // @todo add all the remaining drops
+                add_drop(event, {reward, 1}, state.punch);
+                if (reward == 1458)
+                {
+                    peers(peer->recent_worlds.back(), PEER_ALL, [&peer, item](ENetPeer &p)
+                    {
+                        packet::action(p, "log", std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", peer->ltoken[0], item.raw_name).c_str());
+                    });
+
+                    state_visuals(*event.peer, ::state{
+                        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
+                        .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
+                        .speed = { 0x0, 0x49 }
+                    });
+                }
+            }
             if (item.type == type::LOCK && !is_tile_lock(item.id))
             {
                 if (!peer->role)

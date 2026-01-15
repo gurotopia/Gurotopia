@@ -2,6 +2,7 @@
 #include "on/EmoticonDataChanged.hpp"
 #include "on/BillboardChange.hpp"
 #include "on/SetClothing.hpp"
+#include "on/CountryState.hpp"
 #include "commands/weather.hpp"
 #include "tools/ransuu.hpp"
 #include "tools/string.hpp"
@@ -282,6 +283,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             ).c_str()
         });
         on::EmoticonDataChanged(event);
+
+        on::CountryState(event);
     }
     catch (const std::exception& exc)
     {

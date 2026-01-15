@@ -2,6 +2,7 @@
 
 #include "on/NameChanged.hpp" // @note peer name changes when role updates
 #include "on/SetBux.hpp" // @note update gem count @todo if changed. (currently it updates everytime peer is edited)
+#include "on/CountryState.hpp" // @note for blue name if give peer 125 levels
 
 #include "peer_edit.hpp"
 
@@ -21,11 +22,15 @@ void peer_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
             if (_peer[&p]->ltoken[0] == name)
             {
                 auto &_p = _peer[&p];
-                _p->role = role;
-                _p->level[0] = level;
-                _p->gems = gems;
+                
+                _p->level[0] = level; // @todo use _p->add_xp()
+                on::CountryState(event);
 
+                _p->role = role;
+                _p->prefix = (_p->role == MODERATOR) ? "#@" : (_p->role == DEVELOPER) ? "8@" : _p->prefix;
                 on::NameChanged(event);
+
+                _p->gems = gems;
                 on::SetBux(event);
                 return;
             }

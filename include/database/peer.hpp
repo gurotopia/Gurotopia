@@ -89,7 +89,7 @@
         /*
         * @brief add XP safely, this function also handles level up.
         */
-        void add_xp(u_short value);
+        void add_xp(ENetEvent &event, u_short value);
 
         std::array<std::string, 6zu> recent_worlds{}; // @note recent worlds, a list of 6 worlds, once it reaches 7 it'll be replaced by the oldest
         std::array<std::string, 200zu> my_worlds{}; // @note first 200 relevant worlds locked by peer.

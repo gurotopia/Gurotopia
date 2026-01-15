@@ -3,6 +3,7 @@
 #include "peer.hpp"
 #include "world.hpp"
 #include "on/SetClothing.hpp"
+#include "on/CountryState.hpp"
 
 #if defined(_MSC_VER)
     using namespace std::chrono;
@@ -27,16 +28,37 @@ short peer::emplace(slot s)
     return 0;
 }
 
-void peer::add_xp(u_short value) 
+void peer::add_xp(ENetEvent &event, u_short value) 
 {
     u_short &lvl = this->level.front();
     u_short &xp = this->level.back() += value; // @note factor the new xp amount
 
-    const u_short xp_formula = 50 * (lvl * lvl + 2); // @note credits: https://www.growtopiagame.com/forums/member/553046-kasete
-    const u_short level_up = std::min<u_short>(xp / xp_formula, 125 - lvl);
-    
-    lvl += level_up;
-    xp -= level_up * xp_formula;
+    for (; lvl < 125; )
+    {
+        u_short xp_formula = 50 * (lvl * lvl + 2); // @author https://www.growtopiagame.com/forums/member/553046-kasete
+        if (xp < xp_formula) break;
+
+        xp -= xp_formula;
+        lvl++;
+
+        if (lvl == 50) 
+        {
+            modify_item_inventory(event, ::slot{1400, 1}); // @note Mini Growtopian
+            /* @todo based on account age give peer other items... */
+        }
+        if (lvl == 125) on::CountryState(event);
+
+        /* @todo make particle effect smaller like growtopia */
+        state_visuals(*event.peer, {
+            .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
+            .pos = this->pos, 
+            .speed = {0, 0x2e}
+        });
+        packet::create(*event.peer, false, 0, {
+            "OnTalkBubble", this->netid,
+            std::format("`{}{}`` is now level {}!", this->prefix, this->ltoken[0], lvl).c_str()
+        });
+    }
 }
 
 class peer_db {

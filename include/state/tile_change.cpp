@@ -257,7 +257,7 @@ void tile_change(ENetEvent& event, state state)
                     if (!ransuu[{0, (rarity_to_gem > 1) ? 3 : 6}]) add_drop(event, ::slot(remember_id + 1, 1), state.punch); // @note seed
                 } /* ~gem drop */
 
-                peer->add_xp(std::trunc(1.0f + items[remember_id].rarity / 5.0f));
+                peer->add_xp(event, std::trunc(1.0f + items[remember_id].rarity / 5.0f));
             }
         } // @note delete im, id
         else if (item.cloth_type != clothing::none) 
@@ -306,6 +306,11 @@ void tile_change(ENetEvent& event, state state)
                     else block.state4 ^= S_WATER;
                     break;
                 }
+                case 1866: // @note Block Glue
+                {
+                    block.state4 ^= S_GLUE;
+                    break;
+                }
                 case 3062: // @note Pocket Lighter
                 {
                     if (block.fg == 0 && block.bg == 0) throw std::runtime_error("There's nothing to burn!");
@@ -323,9 +328,10 @@ void tile_change(ENetEvent& event, state state)
                     }
                     break;
                 }
-                case 1866: // @note Block Glue
+                case 1488: // @note Experience Potion
                 {
-                    block.state4 ^= S_GLUE;
+                    packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, "`#GULP! You got smarter!", 0u });
+                    peer->add_xp(event, 10000);
                     break;
                 }
                 case 2480: // @note Megaphone

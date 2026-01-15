@@ -31,7 +31,7 @@ void item_activate(ENetEvent& event, state state)
                 if (nokori == 0) 
                 {
                     modify_item_inventory(event, {lock->id, -100});
-                    packet::create(*event.peer, false, 0, { "OnTalkBubble", 1u, "You compressed 100 `2World Lock`` into a `2Diamond Lock``!", 0u, 1u });
+                    packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, "You compressed 100 `2World Lock`` into a `2Diamond Lock``!", 0u, 1u });
                     packet::create(*event.peer, false, 0, { "OnConsoleMessage", "You compressed 100 `2World Lock`` into a `2Diamond Lock``!" });
                 }
             }
@@ -42,10 +42,10 @@ void item_activate(ENetEvent& event, state state)
                 if (hyaku == 100) 
                 {
                     modify_item_inventory(event, {1796, -1});
-                    packet::create(*event.peer, false, 0, { "OnTalkBubble", 1u, "You shattered a `2Diamond Lock`` into 100 `2World Lock``!", 0u, 1u });
+                    packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, "You shattered a `2Diamond Lock`` into 100 `2World Lock``!", 0u, 1u });
                     packet::create(*event.peer, false, 0, { "OnConsoleMessage", "You shattered a `2Diamond Lock`` into 100 `2World Lock``!" });
                 }
-                else modify_item_inventory(event, {242, -hyaku}); // @note return wls if not 100
+                else modify_item_inventory(event, ::slot(242, -hyaku)); // @note return wls if not 100
             }
         }
     }

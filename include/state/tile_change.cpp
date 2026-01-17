@@ -8,6 +8,7 @@
 #include "tools/create_dialog.hpp"
 #include "action/quit_to_exit.hpp"
 #include "action/join_request.hpp"
+#include "on/Action.hpp"
 #include "item_activate_object.hpp"
 #include "tile_change.hpp"
 
@@ -140,6 +141,7 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case type::TOGGLEABLE_BLOCK:
                 case type::TOGGLEABLE_ANIMATED_BLOCK:
+                case type::CHEST:
                 {
                     block.state3 ^= S_TOGGLE;
                     if (item.id == 226) // @note Signal Jammer
@@ -163,59 +165,32 @@ void tile_change(ENetEvent& event, state state)
             block.label = "";
             block.state3 = 0x00; // @note reset tile direction
             block.state4 &= ~S_VANISH; // @note remove paint
-            if (item.id == 3402)       // @note Golden Booty Chest
+            
+            if (item.id == 392/*Heartstone*/ || item.id == 3402/*GBC*/ || item.id == 9350/*Super GBC*/)
             {
                 short reward =
-                        (ransuu[{0, 100}] < 5) ? 1458 : // @note Golden heart crystal
-                        (ransuu[{0, 100}] < 5) ? 362 : // @note Angel Wings
-                        (ransuu[{0, 100}] < 5) ? 9342 : // @note Diaper
-                        (ransuu[{0, 100}] < 5) ? 9340 : // @note Datemaster's Rose
-                        (ransuu[{0, 100}] < 5) ? 2390 : // @note Teeny Angel Wings
-                        (ransuu[{0, 100}] < 5) ? 10632 : // @note Silk Scarf
+                        (!ransuu[{0, 100}]) ? 1458 : // @note GHC
+                        (!ransuu[{0, 20}]) ? 362 : // @note Angel Wings
+                        (!ransuu[{0, 10}]) ? 366 : // @note Heartbow
+                        (!ransuu[{0, 10}]) ? 2390 : // @note Teeny Angel Wings
+                        (!ransuu[{0, 10}]) ? 3396 : // @note Lovebird Pendant
+                        (!ransuu[{0, 2}]) ? 3404 : // @note Sour Lollipop
+                        (!ransuu[{0, 4}]) ? 3406 : // @note Sweet Lollipop
+                        (!ransuu[{0, 2}]) ? 3408 : // @note Pink Marble Arch
                         388; // @note Perfume
-                        // @todo add all the remaining drops
-                add_drop(event, {reward, 1}, state.punch);
+                        // @todo add all the remaining drops - https://growtopia.fandom.com/wiki/Golden_Booty_Chest
+
+                add_drop(event, ::slot(reward, (reward == 3408 || reward == 3404) ? 10 : 1), state.punch);
                 if (reward == 1458)
                 {
-                    peers(peer->recent_worlds.back(), PEER_ALL, [&peer, item](ENetPeer &p)
+                    std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", peer->ltoken[0], item.raw_name);
+                    peers(peer->recent_worlds.back(), PEER_ALL, [message](ENetPeer &p)
                     {
-                        packet::action(p, "log", std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", peer->ltoken[0], item.raw_name).c_str());
-                    });
-
-                    state_visuals(*event.peer, ::state{
-                        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-                        .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
-                        .speed = { 0x0, 0x49 }
+                        packet::action(p, "log", message.c_str());
                     });
                 }
             }
-            else if (item.id == 9350)       // @note Golden Booty Chest
-            {
-                short reward =
-                        (ransuu[{0, 100}] < 5) ? 1458 : // @note Golden heart crystal
-                        (ransuu[{0, 100}] < 5) ? 362 : // @note Angel Wings
-                        (ransuu[{0, 100}] < 5) ? 9342 : // @note Diaper
-                        (ransuu[{0, 100}] < 5) ? 9340 : // @note Datemaster's Rose
-                        (ransuu[{0, 100}] < 5) ? 2390 : // @note Teeny Angel Wings
-                        (ransuu[{0, 100}] < 5) ? 10632 : // @note Silk Scarf
-                        388; // @note Perfume
-                        // @todo add all the remaining drops
-                add_drop(event, {reward, 1}, state.punch);
-                if (reward == 1458)
-                {
-                    peers(peer->recent_worlds.back(), PEER_ALL, [&peer, item](ENetPeer &p)
-                    {
-                        packet::action(p, "log", std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", peer->ltoken[0], item.raw_name).c_str());
-                    });
-
-                    state_visuals(*event.peer, ::state{
-                        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-                        .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
-                        .speed = { 0x0, 0x49 }
-                    });
-                }
-            }
-            if (item.type == type::LOCK && !is_tile_lock(item.id))
+            else if (item.type == type::LOCK && !is_tile_lock(item.id))
             {
                 if (!peer->role)
                 {
@@ -314,18 +289,37 @@ void tile_change(ENetEvent& event, state state)
                 case 3062: // @note Pocket Lighter
                 {
                     if (block.fg == 0 && block.bg == 0) throw std::runtime_error("There's nothing to burn!");
-                    if (!(block.state4 & S_WATER) || !(block.state4 & S_FIRE)) // @note avoid fire on water & fire on fire
-                    {
-                        block.state4 ^= S_FIRE;
+                    if (block.state4 & (S_FIRE | S_WATER)) return; // @note avoid fire on water & fire on fire
 
-                        std::string message = "`7[```4MWAHAHAHA!! FIRE FIRE FIRE```7]``";
-                        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
-                        {
-                            packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, message.c_str(), 0u });
-                            packet::create(*event.peer, false, 0, { "OnConsoleMessage", message.c_str() });
-                        });
-                        particle = 0x96;
+                    block.state4 |= S_FIRE;
+
+                    std::string message = "`7[```4MWAHAHAHA!! FIRE FIRE FIRE```7]``";
+                    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
+                    {
+                        packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, message.c_str(), 0u });
+                        packet::create(*event.peer, false, 0, { "OnConsoleMessage", message.c_str() });
+                    });
+                    particle = 0x96;
+
+                    if (block.fg == 3090) // @note Highly Combustible Box
+                    {
+                        block.fg = 3128; // @note Combusted Box
+                        if (!(block.state3 & S_TOGGLE)/*closed*/) {} // @todo recipes: https://growtopia.fandom.com/wiki/Guide:Highly_Combustible_Box
                     }
+                    break;
+                }
+                case 3404:/*Sour Lollipop*/ case 3406:/*Sweet Lollipop*/
+                {
+                    packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, "`#YUM!:D", 0u });
+
+                    break;
+                }
+                case 3400: // @note Love Potion #8
+                {
+                    if (block.fg != 10) return; // @note Rock
+
+                    block.fg = 392; // @note Heartstone
+                    particle = 0x2c;
                     break;
                 }
                 case 1488: // @note Experience Potion
@@ -412,13 +406,10 @@ void tile_change(ENetEvent& event, state state)
             }
             if (particle > 0.0f)
             {
-                peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
-                {
-                    state_visuals(p, ::state{
-                        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-                        .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
-                        .speed = { color, particle }
-                    });
+                state_visuals(*event.peer, ::state{
+                    .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
+                    .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
+                    .speed = { color, particle }
                 });
             }
             tile_update(event, std::move(state), block, world);

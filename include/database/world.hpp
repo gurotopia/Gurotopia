@@ -62,10 +62,10 @@
 
     struct ifloat 
     {
-        ifloat(short _id, short _count, std::array<float, 2zu> _pos) : id(_id), count(_count), pos(_pos) {}
+        ifloat(short _id, short _count, ::pos _pos) : id(_id), count(_count), pos(_pos) {}
         short id{0};
         short count{0};
-        std::array<float, 2zu> pos;
+        ::pos pos;
     };
 
     class world 
@@ -95,9 +95,13 @@
 
     extern void tile_apply_damage(ENetEvent& event, state s, block& b);
 
+    /*
+    * @brief set slot::count to nagative value if you want to remove an amount. 
+    * @return the remaining amount if exeeds 200. e.g. emplace(slot{0, 201}) returns 1.
+    */
     extern short modify_item_inventory(ENetEvent& event, ::slot slot);
 
-    extern int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2zu>& pos, signed uid = 0);
+    extern int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed uid = 0);
 
     void add_drop(ENetEvent& event, ::slot im, ::pos pos);
 

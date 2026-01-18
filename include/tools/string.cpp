@@ -1,5 +1,7 @@
 #include "pch.hpp"
-#include "tools/string.hpp"
+#include <ranges>
+
+#include "string.hpp"
 
 std::vector<std::string> readch(const std::string &str, char c) 
 {

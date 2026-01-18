@@ -10,8 +10,7 @@ void me(ENetEvent& event, const std::string_view text)
     }
     std::string message{ text.substr(sizeof("me ")-1) };
     auto &peer = _peer[event.peer];
-
-    // @todo
+    
     peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, message](ENetPeer& p)
     {
         packet::create(p, false, 0, {

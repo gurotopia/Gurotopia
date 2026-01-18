@@ -1,15 +1,12 @@
 #include "pch.hpp"
 #include "items.hpp"
-#include "peer.hpp"
 #include "world.hpp"
 #include "on/SetClothing.hpp"
 #include "on/CountryState.hpp"
 
-#if defined(_MSC_VER)
-    using namespace std::chrono;
-#else
-    using namespace std::chrono::_V2;
-#endif
+#include "peer.hpp"
+
+using namespace std::chrono;
 
 short peer::emplace(slot s) 
 {
@@ -226,7 +223,7 @@ state get_state(const std::vector<std::byte> &&packet)
         .peer_state = _4bit[4],
         .count = _4bit_f[5],
         .id = _4bit[6],
-        .pos = {_4bit_f[7], _4bit_f[8]},
+        .pos = ::pos{_4bit_f[7], _4bit_f[8]},
         .speed = {_4bit_f[9], _4bit_f[10]},
         .idk = _4bit[11],
         .punch = ::pos{_4bit[12], _4bit[13]},
@@ -246,8 +243,9 @@ std::vector<std::byte> compress_state(const state &s)
     _4bit[4] = s.peer_state;
     _4bit_f[5] = s.count;
     _4bit[6] = s.id;
-    _4bit_f[7] = s.pos[0];
-    _4bit_f[8] = s.pos[1];
+    ::pos f_pos = s.pos; // @todo
+    _4bit_f[7] = f_pos.f_x();
+    _4bit_f[8] = f_pos.f_y();
     _4bit_f[9] = s.speed[0];
     _4bit_f[10] = s.speed[1];
     _4bit[11] = s.idk;

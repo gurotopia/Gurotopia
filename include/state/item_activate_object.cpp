@@ -2,8 +2,6 @@
 #include "on/SetBux.hpp"
 #include "item_activate_object.hpp"
 
-#include <cmath>
-
 void item_activate_object(ENetEvent& event, state state) 
 {
     auto &peer = _peer[event.peer];

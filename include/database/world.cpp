@@ -2,14 +2,11 @@
 #include "items.hpp"
 #include "peer.hpp"
 #include "tools/ransuu.hpp"
+
 #include "world.hpp"
 
-#if defined(_MSC_VER)
-    using namespace std::chrono;
-#else
-    using namespace std::chrono::_V2;
-#endif
-using namespace std::literals::chrono_literals;
+using namespace std::chrono;
+using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec, seconds)
 
 class world_db {
 private:
@@ -115,7 +112,7 @@ world::world(const std::string& name)
             ifloats.emplace(uid, ifloat(
                 sqlite3_column_int(stmt, 1),
                 sqlite3_column_int(stmt, 2),
-                {
+                ::pos{
                     static_cast<float>(sqlite3_column_double(stmt, 3)), // @todo
                     static_cast<float>(sqlite3_column_double(stmt, 4)) // @todo
                 }
@@ -171,8 +168,8 @@ world::~world()
             sqlite3_bind_int(stmt, i++, uid);
             sqlite3_bind_int(stmt, i++, item.id);
             sqlite3_bind_int(stmt, i++, item.count);
-            sqlite3_bind_double(stmt, i++, item.pos[0]);
-            sqlite3_bind_double(stmt, i++, item.pos[1]);
+            sqlite3_bind_double(stmt, i++, item.pos.x);
+            sqlite3_bind_double(stmt, i++, item.pos.y);
         });
     }
     
@@ -211,12 +208,12 @@ short modify_item_inventory(ENetEvent& event, ::slot slot)
     ::state state{.id = slot.id};
     if (slot.count < 0) state.type = (slot.count*-1 << 16) | 0x000d; // @noote 0x00{}000d
     else                state.type = (slot.count    << 24) | 0x000d; // @noote 0x{}00000d
-
     state_visuals(*event.peer, std::move(state));
+
     return _peer[event.peer]->emplace(::slot(slot.id, slot.count));
 }
 
-int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2zu>& pos, signed uid) 
+int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed uid) 
 {
     state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
 
@@ -233,7 +230,7 @@ int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2z
         state.uid = f->first;
         state.count = static_cast<float>(f->second.count);
         state.id = f->second.id;
-        state.pos = {f->second.pos[0] * 32, f->second.pos[1] * 32};
+        state.pos = f->second.pos;
     }
     else if (slot.count == 0 || slot.id == 0) // @note remove drop
     {
@@ -248,7 +245,7 @@ int item_change_object(ENetEvent& event, ::slot slot, const std::array<float, 2z
         state.uid = it.first->first;
         state.count = static_cast<float>(slot.count);
         state.id = it.first->second.id;
-        state.pos = {it.first->second.pos[0] * 32, it.first->second.pos[1] * 32};
+        state.pos = it.first->second.pos;
     }
     state_visuals(*event.peer, std::move(state));
     return state.uid;
@@ -259,8 +256,8 @@ void add_drop(ENetEvent& event, ::slot im, ::pos pos)
     ransuu ransuu;
     item_change_object(event, {im.id, im.count},
     {
-        static_cast<float>(pos.x) + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
-        static_cast<float>(pos.y) + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
+        pos.f_x() + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
+        pos.f_y() + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
     });
 }
 
@@ -335,7 +332,7 @@ void remove_fire(ENetEvent &event, state state, block &block, world& w)
 {
     state_visuals(*event.peer, ::state{
         .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-        .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
+        .pos = state.punch,
         .speed = { 0x00000000, 0x95 }
     });
 
@@ -352,6 +349,8 @@ void remove_fire(ENetEvent &event, state state, block &block, world& w)
         });
         modify_item_inventory(event, {3090/*Combustible Box*/, 1});
     }
+
+    peer->add_xp(event, 1);
 }
 
 void generate_world(world &world, const std::string& name)

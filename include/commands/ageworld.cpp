@@ -1,12 +1,8 @@
 #include "pch.hpp"
 #include "ageworld.hpp"
 
-#if defined(_MSC_VER)
-    using namespace std::chrono;
-#else
-    using namespace std::chrono::_V2;
-#endif
-using namespace std::literals::chrono_literals;
+using namespace std::chrono;
+using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec, seconds)
 
 void ageworld(ENetEvent& event, const std::string_view text)
 {

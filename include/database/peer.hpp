@@ -9,11 +9,18 @@
         short count{0}; // @note total amount of that item
     };
 
-    /* x, y */ // @todo add float positions
+    #include <cmath> // @todo
+
+    /* x, y */
     struct pos {
         pos(int _x, int _y) : x(_x), y(_y) {}
+        pos(float _x, float _y) : x(std::round(_x / 32.0f)), y(std::round(_y / 32.0f)) {}
+
         int x{0};
         int y{0};
+        
+        const float f_x() { return this->x * 32.0f; }
+        const float f_y() { return this->y * 32.0f; }
 
         auto operator<=>(const pos&) const = default;
     };
@@ -48,10 +55,6 @@
     
     #include <deque>
     #include <array>
-    #if defined(_MSC_VER)
-        #undef max
-        #undef min
-    #endif
 
     class peer {
     public:
@@ -71,7 +74,7 @@
 
         Billboard billboard{};
 
-        std::array<float, 2zu> pos{}; // @note position {x, y}
+        ::pos pos{0,0}; // @note position 1D {x, y}
         std::array<float, 2zu> rest_pos{}; // @note respawn position {x, y}
         bool facing_left{}; // @note peer is directed towards the left direction
 
@@ -99,6 +102,7 @@
         std::array<Friend, 25> friends;
 
         u_short fires_removed{};
+        u_short gbc_pity{}; // @note GBC pity; for each 100 will receive super GBC
         
         ~peer();
     };
@@ -130,7 +134,7 @@
         int peer_state{};
         float count{}; // @todo understand this better
         int id{}; // @note peer's active hand, so 18 (fist) = punching, 32 (wrench) interacting, ect
-        std::array<float, 2zu> pos{}; // @note position 1D {x, y}
+        ::pos pos{0,0}; // @note position 1D {x, y}
         std::array<float, 2zu> speed{}; // @note player movement (velocity(x), gravity(y)), higher gravity = smaller jumps
         int idk{};
         ::pos punch{0,0}; // @note punching/placing position 2D {x, y}

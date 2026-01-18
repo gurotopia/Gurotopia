@@ -3,8 +3,6 @@
 #include "tools/create_dialog.hpp"
 #include "wrench.hpp"
 
-#include <cmath>
-
 void action::wrench(ENetEvent& event, const std::string& header) 
 {
     std::vector<std::string> pipes = readch(header, '|');
@@ -63,7 +61,7 @@ void action::wrench(ENetEvent& event, const std::string& header)
                             .add_smalltext(std::format("Fires Put Out: {}", peer->fires_removed))
                             .add_spacer("small")
                             .add_textbox(std::format("`oYou have `w{}`` backpack slots.``", peer->slot_size))
-                            .add_textbox(std::format("`oCurrent world: `w{}`` (`w{}``, `w{}``) (`w0`` person)````", peer->recent_worlds.back(), std::round(peer->pos[0]/32), std::round(peer->pos[1]/32)))
+                            .add_textbox(std::format("`oCurrent world: `w{}`` (`w{}``, `w{}``) (`w0`` person)````", peer->recent_worlds.back(), peer->pos.x, peer->pos.y))
                             .add_textbox("`oYou are standing on the note \"A\".``")
                             .add_spacer("small")
                             .add_textbox("`oTotal time played is `w0.0`` hours.  This account was created `w0`` days ago.``")

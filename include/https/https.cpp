@@ -30,17 +30,15 @@ void https::listener(::server_data server_data)
         SSL_CTX_use_PrivateKey_file(ctx, "resources/ctx/server.key", SSL_FILETYPE_PEM) <= 0)
             ERR_print_errors_fp(stderr);
 
-    SSL_CTX_set_options(ctx, SSL_OP_NO_SSLv2 | SSL_OP_NO_SSLv3 | SSL_OP_NO_COMPRESSION | SSL_OP_NO_TLSv1 | SSL_OP_NO_TLSv1_1);
-    SSL_CTX_set_cipher_list(ctx, "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305");
+    SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
 
     SOCKET socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 
+#ifdef SO_REUSEADDR
     setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (char*)&enable, sizeof(enable));
-#ifdef TCP_FASTOPEN
-    setsockopt(socket, IPPROTO_TCP, TCP_FASTOPEN, (char*)&enable, sizeof(enable));
 #endif
 #ifdef TCP_DEFER_ACCEPT // @note unix
-    setsockopt(socket, IPPROTO_TCP, TCP_DEFER_ACCEPT, &enable, sizeof(enable));
+    setsockopt(socket, IPPROTO_TCP, TCP_DEFER_ACCEPT, (char*)&enable, sizeof(enable));
 #endif
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
@@ -76,14 +74,28 @@ void https::listener(::server_data server_data)
     listen(socket, SOMAXCONN); // @todo
     while (true)
     {
-        SOCKET fd = accept(socket, (struct sockaddr*)&addr, &addrlen);
+        SOCKET fd = accept(socket, reinterpret_cast<sockaddr*>(&addr), &addrlen);
         if (fd < 0) continue;
 
         setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&enable, sizeof(enable));
 
         SSL *ssl = SSL_new(ctx);
-        SSL_set_fd(ssl, fd);
-        
+        if (!ssl) { 
+#ifdef _WIN32
+            closesocket(fd);
+#else
+            close(fd);
+#endif
+            continue;
+        }
+        if (SSL_set_fd(ssl, fd) != 1) {
+#ifdef _WIN32
+            closesocket(fd);
+#else
+            close(fd);
+#endif
+            continue;
+        }
         if (SSL_accept(ssl) > 0)
         {
 
@@ -103,6 +115,8 @@ void https::listener(::server_data server_data)
             else ERR_print_errors_fp(stderr); // @note we don't accept growtopia GET. this error is normal if appears.
         }
         else ERR_print_errors_fp(stderr);
+
+        SSL_shutdown(ssl);
         SSL_free(ssl);
 #ifdef _WIN32
             closesocket(fd);

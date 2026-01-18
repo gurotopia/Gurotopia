@@ -12,14 +12,8 @@
 #include "item_activate_object.hpp"
 #include "tile_change.hpp"
 
-#include <cmath>
-
-#if defined(_MSC_VER)
-    using namespace std::chrono;
-#else
-    using namespace std::chrono::_V2;
-#endif
-using namespace std::literals::chrono_literals;
+using namespace std::chrono;
+using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec, seconds)
 
 void tile_change(ENetEvent& event, state state) 
 {
@@ -48,8 +42,6 @@ void tile_change(ENetEvent& event, state state)
         
         if (state.id == 18) // @note punching a block
         {
-            tile_apply_damage(event, std::move(state), block);
-
             ransuu ransuu;
 
             switch (item.id)
@@ -114,6 +106,8 @@ void tile_change(ENetEvent& event, state state)
                         }
                         block.tick = steady_clock::now();
                         tile_update(event, std::move(state), block, world); // @note update countdown on provider.
+
+                        peer->add_xp(event, 1);
                         return;
                     }
                     break;
@@ -123,7 +117,7 @@ void tile_change(ENetEvent& event, state state)
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
                     {
                         block.hits[0] = 99;
-                        add_drop(event, ::slot(item.id - 1, ransuu[{0, 8}]), state.punch); // @note fruit (from tree)
+                        add_drop(event, ::slot(item.id - 1, ransuu[{2, 12}]), state.punch); // @note fruit (from tree)
                     }
                     break;
                 }
@@ -156,7 +150,8 @@ void tile_change(ENetEvent& event, state state)
                     break;
                 }
             }
-            short remember_id = (item.type == type::SEED) ? item.id - 1 : item.id; // @todo
+            tile_apply_damage(event, std::move(state), block);
+
             if (block.hits.front() >= item.hits) block.fg = 0, block.hits.front() = 0;
             else if (block.hits.back() >= item.hits) block.bg = 0, block.hits.back() = 0;
             else return;
@@ -169,16 +164,20 @@ void tile_change(ENetEvent& event, state state)
             if (item.id == 392/*Heartstone*/ || item.id == 3402/*GBC*/ || item.id == 9350/*Super GBC*/)
             {
                 short reward =
-                        (!ransuu[{0, 100}]) ? 1458 : // @note GHC
-                        (!ransuu[{0, 20}]) ? 362 : // @note Angel Wings
-                        (!ransuu[{0, 10}]) ? 366 : // @note Heartbow
-                        (!ransuu[{0, 10}]) ? 2390 : // @note Teeny Angel Wings
-                        (!ransuu[{0, 10}]) ? 3396 : // @note Lovebird Pendant
-                        (!ransuu[{0, 2}]) ? 3404 : // @note Sour Lollipop
-                        (!ransuu[{0, 4}]) ? 3406 : // @note Sweet Lollipop
-                        (!ransuu[{0, 2}]) ? 3408 : // @note Pink Marble Arch
-                        388; // @note Perfume
-                        // @todo add all the remaining drops - https://growtopia.fandom.com/wiki/Golden_Booty_Chest
+                    (!ransuu[{0, 99}]) ? 1458 : // @note GHC
+                    (!ransuu[{0, 20}]) ? 362 : // @note Angel Wings
+                    (!ransuu[{0, 8}])  ? 366 : // @note Heartbow
+                    (!ransuu[{0, 8}])  ? 1470 : // @note Ruby Necklace
+                    (!ransuu[{0, 20}]) ? 2384 : // @note Love Bug
+                    (!ransuu[{0, 4}])  ? 2396 : // @note Valensign
+                    (!ransuu[{0, 10}]) ? 3388 : // @note Heartbreaker Hammer
+                    (!ransuu[{0, 10}]) ? 2390 : // @note Teeny Angel Wings
+                    (!ransuu[{0, 10}]) ? 3396 : // @note Lovebird Pendant
+                    (!ransuu[{0, 2}])  ? 3404 : // @note Sour Lollipop
+                    (!ransuu[{0, 4}])  ? 3406 : // @note Sweet Lollipop
+                    (!ransuu[{0, 2}])  ? 3408 : // @note Pink Marble Arch
+                    388; // @note Perfume
+                    // @todo add all the remaining drops - https://growtopia.fandom.com/wiki/Golden_Booty_Chest
 
                 add_drop(event, ::slot(reward, (reward == 3408 || reward == 3404) ? 10 : 1), state.punch);
                 if (reward == 1458)
@@ -189,6 +188,7 @@ void tile_change(ENetEvent& event, state state)
                         packet::action(p, "log", message.c_str());
                     });
                 }
+                if (++peer->gbc_pity % 100 == 0) modify_item_inventory(event, ::slot{9350, 1});
             }
             else if (item.type == type::LOCK && !is_tile_lock(item.id))
             {
@@ -203,15 +203,16 @@ void tile_change(ENetEvent& event, state state)
 
             if (item.cat == CAT_RETURN)
             {
-                int uid = item_change_object(event, {remember_id, 1}, state.pos);
-                item_activate_object(event, ::state{.id = uid});
+                int uid = item_change_object(event, ::slot(item.id, 1), state.pos);
+                item_activate_object(event, ::state{.id = uid, .punch = state.punch});
             }
             else if (u_char(item.property) & 04) { } // @note "This item never drops any seeds."; should it drop a block?
             else // @note normal break (drop gem, seed, block & give XP)
             {
+                if (item.type != type::SEED)
                 { /* gem drop */
                     /* if greater than 1, assume it's a farmable.*/
-                    int rarity_to_gem =
+                    u_char rarity_to_gem =
                         (item.rarity >= 87) ? 22 : 
                         (item.rarity >= 68) ? 18 : 
                         (item.rarity >= 53) ? 14 : 
@@ -228,16 +229,16 @@ void tile_change(ENetEvent& event, state state)
                             for (; gems >= i; gems -= i/* downgrade type */)
                                 add_drop(event, {112, i}, state.punch);
                     }
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 5 : 10}]) add_drop(event, {remember_id, 1}, state.punch); // @note block
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 3 : 6}]) add_drop(event, ::slot(remember_id + 1, 1), state.punch); // @note seed
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 4 : 10}]) add_drop(event, ::slot(item.id, 1), state.punch);
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 2 : 4}]) add_drop(event, ::slot(item.id + 1, 1), state.punch);
                 } /* ~gem drop */
 
-                peer->add_xp(event, std::trunc(1.0f + items[remember_id].rarity / 5.0f));
+                peer->add_xp(event, std::trunc(1.0f + item.rarity / 5.0f));
             }
         } // @note delete im, id
         else if (item.cloth_type != clothing::none) 
         {
-            if (state.punch != ::pos{ std::lround(peer->pos[0]/32), std::lround(peer->pos[1]/32) }) return;
+            if (state.punch != peer->pos) return;
 
             item_activate(event, state);
             return; 
@@ -347,7 +348,7 @@ void tile_change(ENetEvent& event, state state)
                     {
                         auto &peers = _peer[&p];
 
-                        if (state.punch == ::pos{ std::lround(peers->pos[0]/32), std::lround(peers->pos[1]/32) }) // @todo improve accuracy
+                        if (state.punch == peer->pos) // @todo improve accuracy
                         {
                             peers->state ^= S_DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
                             on::SetClothing(p);
@@ -408,14 +409,14 @@ void tile_change(ENetEvent& event, state state)
             {
                 state_visuals(*event.peer, ::state{
                     .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-                    .pos = { static_cast<float>((state.punch.x * 32) + 16), static_cast<float>((state.punch.y * 32) + 16) },
+                    .pos = state.punch,
                     .speed = { color, particle }
                 });
             }
             tile_update(event, std::move(state), block, world);
 
-            if (item.id == 6336) return; // @todo
             modify_item_inventory(event, ::slot(item.id, -1));
+            peer->add_xp(event, 1);
             return;
         }
         else if (state.id == 32)
@@ -521,12 +522,7 @@ void tile_change(ENetEvent& event, state state)
         {
             if (item.collision == collision::full)
             {
-                // 이 (left, right)
-                bool x = state.punch.x == std::lround(state.pos.front() / 32);
-                // 으 (up, down)
-                bool y = state.punch.y == std::lround(state.pos.back() / 32);
-
-                if ((x && y)) return; // @todo when moving avoid collision.
+                if (state.punch.x == state.pos.x && state.punch.y == state.pos.y) return; // @todo when moving avoid collision.
             }
             switch (item.type)
             {

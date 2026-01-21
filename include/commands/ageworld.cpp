@@ -6,7 +6,7 @@ using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec,
 
 void ageworld(ENetEvent& event, const std::string_view text)
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     if (!worlds.contains(peer->recent_worlds.back())) return;
     ::world &world = worlds.at(peer->recent_worlds.back());

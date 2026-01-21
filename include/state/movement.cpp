@@ -3,7 +3,7 @@
 
 void movement(ENetEvent& event, state state) 
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
     
     peer->pos = state.pos;
     peer->facing_left = state.peer_state & 0x10;

@@ -4,7 +4,8 @@
 
 void on::BillboardChange(ENetEvent& event)
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    
     packet::create(*event.peer, true, 0, {
         "OnBillboardChange",
         peer->netid,

@@ -2,8 +2,9 @@
 
 #include "CountryState.hpp"
 
-void on::CountryState(ENetEvent& event) {
-    auto &peer = _peer[event.peer];
+void on::CountryState(ENetEvent& event) 
+{
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     packet::create(*event.peer, true, 0, {
         "OnCountryState",

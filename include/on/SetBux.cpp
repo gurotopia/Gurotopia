@@ -3,13 +3,14 @@
 
 void on::SetBux(ENetEvent& event)
 {
-    signed &gems = _peer[event.peer]->gems;
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
+
     static constexpr int signed_max = std::numeric_limits<signed>::max();
-    gems = std::clamp(gems, 0, signed_max);
+    peer->gems = std::clamp(peer->gems, 0, signed_max);
 
     packet::create(*event.peer, false, 0, {
         "OnSetBux",
-        gems,
+        peer->gems,
         1,
         1
     });

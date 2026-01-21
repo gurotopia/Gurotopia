@@ -6,7 +6,7 @@
 
 void popup(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
     if (pipes.size() <= 11) return; // @note "Continue" botton on wrench has no data. so we return early.
 
     if (pipes[11zu] == "my_worlds")

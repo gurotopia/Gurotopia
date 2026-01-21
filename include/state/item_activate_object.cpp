@@ -4,7 +4,7 @@
 
 void item_activate_object(ENetEvent& event, state state) 
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     if (!worlds.contains(peer->recent_worlds.back())) return;
     ::world &world = worlds.at(peer->recent_worlds.back());

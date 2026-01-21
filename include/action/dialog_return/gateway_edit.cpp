@@ -4,10 +4,12 @@
 
 void gateway_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
+
     const short tilex = atoi(pipes[5zu].c_str());
     const short tiley = atoi(pipes[8zu].c_str());
 
-    auto it = worlds.find(_peer[event.peer]->recent_worlds.back());
+    auto it = worlds.find(peer->recent_worlds.back());
     if (it == worlds.end()) return;
 
     block &block = it->second.blocks[cord(tilex, tiley)];

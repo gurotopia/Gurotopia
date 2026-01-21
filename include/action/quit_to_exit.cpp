@@ -4,7 +4,7 @@
 
 void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip_selection = false) 
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     auto it = worlds.find(peer->recent_worlds.back());
     if (it == worlds.end()) return; // @note peer was not in a world, therefore nothing to exit from.

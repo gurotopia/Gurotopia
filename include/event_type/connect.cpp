@@ -4,12 +4,12 @@
 
 void _connect(ENetEvent& event) 
 {
-    if (peers().size() > server->peerCount) 
+    if (peers().size() > host->peerCount) 
     {
         packet::action(*event.peer, "log", 
             std::format(
                 "msg|`4SERVER OVERLOADED`` : Sorry, our servers are currently at max capacity with {} online, please try later. We are working to improve this!",
-                server->peerCount
+                host->peerCount
             ));
         packet::action(*event.peer, "logon_fail", ""); // @note triggers action|quit on client.
     }
@@ -17,8 +17,6 @@ void _connect(ENetEvent& event)
     {
         enet_peer_send(event.peer, 0, enet_packet_create("\x01\x00\x00\x00", 4zu, ENET_PACKET_FLAG_RELIABLE)); // @note 01 00 00 00
 
-        std::shared_ptr<peer> peer_data = std::make_shared<peer>();
-        event.peer->data = peer_data.get();
-        _peer.emplace(event.peer, std::move(peer_data));
+        event.peer->data = new peer();
     }
 }

@@ -7,7 +7,7 @@ void action::itemfavourite(ENetEvent& event, const std::string& header)
     std::string id{readch(header, '|')[4]};
     if (id.empty()) return;
 
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
     auto it = std::ranges::find(peer->fav, stoi(id));
     bool fav = it != peer->fav.end();
     if (peer->fav.size() >= 20 && !fav)

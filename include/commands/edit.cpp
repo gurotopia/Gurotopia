@@ -26,14 +26,13 @@ void edit(ENetEvent& event, const std::string_view text)
 
     peers("", PEER_ALL, [&event, name, &is_online, fmt](ENetPeer& p) 
     {
-        auto &peer = _peer[&p];
-        if (_peer[&p]->ltoken[0] == name)
+        ::peer *_p = static_cast<::peer*>(p.data);
+        if (_p->ltoken[0] == name)
         {
-            auto &peer = _peer[&p];
             is_online = 1;
             packet::create(*event.peer, false, 0, {
                 "OnDialogRequest",
-                std::vformat(fmt, std::make_format_args(name, "`2Online", peer->role, peer->level.front(), peer->gems, is_online)).c_str()
+                std::vformat(fmt, std::make_format_args(name, "`2Online", _p->role, _p->level.front(), _p->gems, is_online)).c_str()
             });
             return;
         }

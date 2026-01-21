@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: cf6ba9761b77ee356763497b53d5fcd3b1e6e8a6 2026-1-16
+    @version perent SHA: 8a873586ab5ad7371643c7383a0a0106c4435a31 2026-1-21
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -20,9 +20,9 @@ int main()
 #endif
 
     /* libary version checker */
-    printf("ZTzTopia/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
-    printf("sqlite/sqlite3 %s\n", sqlite3_libversion());
-    printf("openssl/openssl %s\n", OpenSSL_version(OPENSSL_VERSION_STRING));
+    std::printf("ZTzTopia/enet %d.%d.%d\n", ENET_VERSION_MAJOR, ENET_VERSION_MINOR, ENET_VERSION_PATCH);
+    std::printf("sqlite/sqlite3 %s\n", sqlite3_libversion());
+    std::printf("openssl/openssl %s\n", OpenSSL_version(OPENSSL_VERSION_STRING));
     
     std::filesystem::create_directory("db");
     init_shouhin_tachi();
@@ -35,12 +35,12 @@ int main()
             .port = server_data.port
         };
 
-        server = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu/* max peer count */, 2zu, 0, 0);
+        host = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu/* max peer count */, 2zu, 0, 0);
         std::thread(&https::listener, server_data).detach();
     } // @note delete server_data, address
-    server->usingNewPacketForServer = true;
-    server->checksum = enet_crc32;
-    enet_host_compress_with_range_coder(server);
+    host->usingNewPacketForServer = true;
+    host->checksum = enet_crc32;
+    enet_host_compress_with_range_coder(host);
 
     try // @note for people who don't use a debugger···
     {
@@ -62,8 +62,9 @@ int main()
 
     ENetEvent event{};
     while (true)
-        while (enet_host_service(server, &event, 100/*ms*/) > 0)
+        while (enet_host_service(host, &event, 100/*ms*/) > 0)
             if (const auto i = event_pool.find(event.type); i != event_pool.end())
                 i->second(event);
+
     return 0;
 }

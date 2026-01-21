@@ -48,7 +48,7 @@ void https::listener(::server_data server_data)
     if (bind(socket, (struct sockaddr*)&addr, addrlen) < 0)
         puts("could not bind port 443.");
 
-    printf("listening on %s:%hu\n", server_data.server.c_str(), server_data.port);
+    std::printf("listening on %s:%hu\n", server_data.server.c_str(), server_data.port);
 
     const std::string Content =
         std::format(

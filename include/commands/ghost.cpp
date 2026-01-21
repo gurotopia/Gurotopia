@@ -4,7 +4,7 @@
 
 void ghost(ENetEvent& event, const std::string_view text)
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     peer->state ^= S_GHOST;
 

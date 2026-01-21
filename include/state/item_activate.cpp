@@ -5,7 +5,7 @@
 
 void item_activate(ENetEvent& event, state state)
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     ::item &item = items[state.id];
     if (item.cloth_type != clothing::none) 

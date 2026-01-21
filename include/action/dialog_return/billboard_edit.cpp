@@ -6,7 +6,7 @@
 
 void billboard_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     if (pipes[4zu] == "billboard_item") 
     {

@@ -3,9 +3,9 @@
 
 void on::RequestWorldSelectMenu(ENetEvent& event) 
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
     
-    auto section = [&peer](const auto& range, const char* color) 
+    auto section = [](const auto& range, const char* color) 
     {
         std::string result;
         for (const auto &name : range) 

@@ -4,7 +4,7 @@
 
 void lock_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     if (pipes[10] == "checkbox_public" && pipes[11] == "1"/*true*/ || pipes[11] == "0"/*false*/)
     {

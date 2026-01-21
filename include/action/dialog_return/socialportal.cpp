@@ -3,7 +3,7 @@
 
 void socialportal(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     /* buttonClicked */
     if (pipes[5zu] == "showfriend")
@@ -13,9 +13,9 @@ void socialportal(ENetEvent& event, const std::vector<std::string> &&pipes)
 
         // @todo i will improve!! cause i hate this so much t-t
         for (const ::Friend &Friend : peer->friends)
-            peers("", PEER_ALL, [&Friend, &__online](ENetPeer& peer){
-                auto &p = _peer[&peer];
-                if (p->ltoken[0] == Friend.name)
+            peers("", PEER_ALL, [&Friend, &__online](ENetPeer& p){
+                ::peer *_p = static_cast<::peer*>(p.data);
+                if (_p->ltoken[0] == Friend.name)
                     ++__online;
             });
 

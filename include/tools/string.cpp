@@ -46,7 +46,7 @@ std::string base64_decode(const std::string& encoded)
         int bio_read = BIO_read(bio, buf.data(), static_cast<int>(buf.size()));
         BIO_free_all(bio);
 
-        return std::string{ buf.data(), static_cast<size_t>(bio_read) };
+        return std::string{ buf.data(), static_cast<std::size_t>(bio_read) };
     }
     catch (...){} // @note what():  basic_string::_M_create
     return "";

@@ -7,7 +7,7 @@ using namespace std::chrono;
 
 void action::input(ENetEvent& event, const std::string& header)
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     std::vector<std::string> pipes = readch(header, '|');
     if (pipes.size() < 5) return;

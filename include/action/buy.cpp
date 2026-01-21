@@ -11,7 +11,7 @@ void action::buy(ENetEvent& event, const std::string& header)
 {
     std::vector<std::string> pipes = readch(header, '|');
 
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     short No = (peer->slot_size - 16) / 10 + 1; // @note number of upgrades | credits: https://growtopia.fandom.com/wiki/Backpack_Upgrade
     short backpack_cost = (100 * No * No - 200 * No + 200);

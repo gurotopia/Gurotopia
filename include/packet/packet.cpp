@@ -3,9 +3,11 @@
 
 void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std::any>& params) 
 {
+    ::peer *_p = static_cast<::peer*>(p.data);
+
     std::vector<std::byte> data = compress_state(::state{
         .type = 01,
-        .netid = (!netid) ? -1 : _peer[&p]->netid,
+        .netid = (!netid) ? -1 : _p->netid,
         .peer_state = 0x08,
         .id = delay
     });
@@ -71,7 +73,7 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
 void packet::action(ENetPeer& p, const std::string& action, const std::string& str) 
 {
     std::string_view action_view = std::format("action|{}\n", action);
-    std::vector<std::byte> data(4 + action_view.length() + str.length(), std::byte{ 00 });
+    std::vector<std::byte> data(4zu + action_view.length() + str.length(), std::byte{ 00 });
     data[0zu] = std::byte{ 03 };
     {
         const std::byte *_1bit = reinterpret_cast<const std::byte*>(action_view.data());

@@ -7,7 +7,6 @@
 
 void action::dialog_return(ENetEvent& event, const std::string& header) 
 {
-    auto &peer = _peer[event.peer];
     std::vector<std::string> pipes = readch(header, '|');
 
     if (pipes.size() <= 3zu) return; // if button has no name or has no field.

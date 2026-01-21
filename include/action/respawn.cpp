@@ -9,7 +9,7 @@ void action::respawn(ENetEvent& event, const std::string& header)
     });
     packet::create(*event.peer, true, 0,{ "OnKilled" });
     // @note wait 1900 milliseconds···
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
     packet::create(*event.peer, true, 1900, {
         "OnSetPos", 
         std::vector<float>{peer->rest_pos.front(), peer->rest_pos.back()}

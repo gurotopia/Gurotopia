@@ -188,7 +188,9 @@ void send_data(ENetPeer& peer, const std::vector<std::byte> &&data)
 
 void state_visuals(ENetPeer& peer, state &&state) 
 {
-    peers(_peer[&peer]->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
+    ::peer *_p = static_cast<::peer*>(peer.data);
+
+    peers(_p->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
         send_data(p, compress_state(state));
     });
@@ -196,28 +198,34 @@ void state_visuals(ENetPeer& peer, state &&state)
 
 void tile_apply_damage(ENetEvent& event, state state, block &block)
 {
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
+
     (block.fg == 0) ? ++block.hits.back() : ++block.hits.front();
     state.type = 0x08; // @note PACKET_TILE_APPLY_DAMAGE
     state.id = 6; // @note idk exactly
-    state.netid = _peer[event.peer]->netid;
+    state.netid = peer->netid;
 	state_visuals(*event.peer, std::move(state));
 }
 
 short modify_item_inventory(ENetEvent& event, ::slot slot)
-{
+{   
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
+
     ::state state{.id = slot.id};
     if (slot.count < 0) state.type = (slot.count*-1 << 16) | 0x000d; // @noote 0x00{}000d
     else                state.type = (slot.count    << 24) | 0x000d; // @noote 0x{}00000d
     state_visuals(*event.peer, std::move(state));
 
-    return _peer[event.peer]->emplace(::slot(slot.id, slot.count));
+    return peer->emplace(::slot(slot.id, slot.count));
 }
 
 int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed uid) 
 {
-    state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
-    auto w = worlds.find(_peer[event.peer]->recent_worlds.back());
+    ::state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
+
+    auto w = worlds.find(peer->recent_worlds.back());
     if (w == worlds.end()) return -1;
 
     auto f = std::find_if(w->second.ifloats.begin(), w->second.ifloats.end(), [&](const std::pair<const int, ifloat>& entry) {
@@ -234,7 +242,7 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
     }
     else if (slot.count == 0 || slot.id == 0) // @note remove drop
     {
-        state.netid = _peer[event.peer]->netid;
+        state.netid = peer->netid;
         state.uid = -1;
         state.id = uid;
     }
@@ -322,7 +330,8 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         }
     }
 
-    peers(_peer[event.peer]->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
         send_data(p, std::move(data));
     });
@@ -339,7 +348,7 @@ void remove_fire(ENetEvent &event, state state, block &block, world& w)
     block.state4 &= ~S_FIRE;
     tile_update(event, state, block, w);
 
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     if (++peer->fires_removed % 100 == 0) 
     {

@@ -1,8 +1,9 @@
 #include "pch.hpp"
 #include "NameChanged.hpp"
 
-void on::NameChanged(ENetEvent& event) {
-    auto &peer = _peer[event.peer];
+void on::NameChanged(ENetEvent& event) 
+{
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     packet::create(*event.peer, true, 0, {
         "OnNameChanged",

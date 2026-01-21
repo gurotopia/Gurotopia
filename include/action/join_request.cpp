@@ -15,7 +15,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 {
     try 
     {
-        auto &peer = _peer[event.peer];
+        ::peer *peer = static_cast<::peer*>(event.peer->data);
 
         std::string big_name{world_name.empty() ? readch(header, '|')[3] : world_name};
         if (!alnum(big_name)) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
@@ -222,7 +222,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         
         peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &peer, &world, &fmt](ENetPeer& p) 
         {
-            auto &_p = _peer[&p];
+            ::peer *_p = static_cast<::peer*>(p.data);
             
             if (_p->user_id != peer->user_id)
             {

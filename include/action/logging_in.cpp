@@ -5,7 +5,7 @@
 
 void action::logging_in(ENetEvent& event, const std::string& header)
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     try 
     {

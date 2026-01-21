@@ -106,11 +106,8 @@
         
         ~peer();
     };
-    #include <memory>
 
-    extern std::unordered_map<ENetPeer*, std::shared_ptr<peer>> _peer;
-
-    extern ENetHost* server;
+    extern ENetHost* host;
 
     #include <functional>
 
@@ -122,7 +119,7 @@
 
     extern std::vector<ENetPeer*> peers(const std::string &world = "", peer_condition condition = PEER_ALL, std::function<void(ENetPeer&)> fun = [](ENetPeer& peer){});
 
-    void safe_disconnect_peers(int signal);
+    extern void safe_disconnect_peers(int signal);
 
     class state {
     public:

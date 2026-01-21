@@ -162,5 +162,5 @@ void cache_items()
 
         items.emplace(i, im);
     }
-    printf("parsed %zu items; %zu KB of stack memory\n", items.size(), (items.size() * sizeof(item)) / 1024);
+    std::printf("parsed %zu items; %zu KB of stack memory\n", items.size(), (items.size() * sizeof(item)) / 1024);
 }

@@ -17,10 +17,9 @@ using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec,
 
 void tile_change(ENetEvent& event, state state) 
 {
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
     try
     {
-        auto &peer = _peer[event.peer];
-
         if (!worlds.contains(peer->recent_worlds.back())) return;
         ::world &world = worlds.at(peer->recent_worlds.back());
 
@@ -346,11 +345,11 @@ void tile_change(ENetEvent& event, state state)
                 {
                     peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
                     {
-                        auto &peers = _peer[&p];
+                        ::peer *_p = static_cast<::peer*>(p.data);
 
                         if (state.punch == peer->pos) // @todo improve accuracy
                         {
-                            peers->state ^= S_DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
+                            _p->state ^= S_DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
                             on::SetClothing(p);
                         }
                     });
@@ -580,7 +579,7 @@ void tile_change(ENetEvent& event, state state)
                             state.id = id;
                             packet::create(*event.peer, false, 0, {
                                 "OnTalkBubble", 
-                                _peer[event.peer]->netid, 
+                                peer->netid, 
                                 std::format("`w{}`` and `w{}`` have been spliced to make a `${} Tree``!", 
                                     items[item.splice[0]].raw_name, items[item.splice[1]].raw_name, items[state.id-1].raw_name).c_str(),
                                 0u,
@@ -624,7 +623,7 @@ void tile_change(ENetEvent& event, state state)
         if (exc.what() && *exc.what()) 
             packet::create(*event.peer, false, 0, {
                 "OnTalkBubble", 
-                _peer[event.peer]->netid, 
+                peer->netid, 
                 exc.what(),
                 0u,
                 1u // @note message will be sent once instead of multiple times.

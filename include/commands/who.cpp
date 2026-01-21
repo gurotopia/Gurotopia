@@ -3,18 +3,18 @@
 
 void who(ENetEvent& event, const std::string_view text) 
 {
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
     std::string list;
 
     peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, event, &list](ENetPeer& p)
     {
-        auto &w_peer = _peer[&p]; // @note 'w' is just short for world. so world_peer
-        std::string full_name = std::format("`{}{}", w_peer->prefix, w_peer->ltoken[0]);
-        if (w_peer->user_id != peer->user_id)
+        ::peer *_p = static_cast<::peer*>(p.data);
+        std::string full_name = std::format("`{}{}", _p->prefix, _p->ltoken[0]);
+        if (_p->user_id != peer->user_id)
         {
             packet::create(*event.peer, false, 0, {
                 "OnTalkBubble",
-                w_peer->netid,
+                _p->netid,
                 full_name.c_str(),
                 1u
             });

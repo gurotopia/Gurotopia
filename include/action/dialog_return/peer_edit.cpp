@@ -19,10 +19,9 @@ void peer_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
     {
         peers("", PEER_ALL, [&event, name, role, level, gems](ENetPeer& p) 
         {
-            if (_peer[&p]->ltoken[0] == name)
+            ::peer *_p = static_cast<::peer*>(p.data);
+            if (_p->ltoken[0] == name)
             {
-                auto &_p = _peer[&p];
-                
                 _p->level[0] = level; // @todo use _p->add_xp()
                 on::CountryState(event);
 

@@ -11,10 +11,11 @@ void skin(ENetEvent& event, const std::string_view text)
         return;
     }
     std::string id{ text.substr(sizeof("skin ")-1) };
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     try
     {
-        _peer[event.peer]->skin_color = stol(id);
+        peer->skin_color = stol(id);
         on::SetClothing(*event.peer);
     }
     catch (const std::invalid_argument &ex)

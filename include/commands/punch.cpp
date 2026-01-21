@@ -34,9 +34,12 @@ void punch(ENetEvent& event, const std::string_view text)
         return;
     }
     std::string id{ text.substr(sizeof("punch ")-1) };
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
+
+
     try
     {
-        _peer[event.peer]->punch_effect = stoi(id);
+        peer->punch_effect = stoi(id);
         on::SetClothing(*event.peer);
     }
     catch (const std::invalid_argument &ex)

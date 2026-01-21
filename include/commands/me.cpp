@@ -9,7 +9,7 @@ void me(ENetEvent& event, const std::string_view text)
         return;
     }
     std::string message{ text.substr(sizeof("me ")-1) };
-    auto &peer = _peer[event.peer];
+    ::peer *peer = static_cast<::peer*>(event.peer->data);
     
     peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, message](ENetPeer& p)
     {

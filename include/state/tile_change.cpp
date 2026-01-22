@@ -122,14 +122,18 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case type::WEATHER_MACHINE:
                 {
+                    for (::block &b : world.blocks)
+                    {
+                        const u_char &type = items[b.fg].type;
+                        if (type == type::WEATHER_MACHINE && b.fg != block.fg) 
+                            b.state3 &= ~S_TOGGLE;
+                    }
                     block.state3 ^= S_TOGGLE;
+                    
                     peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
                         packet::create(p, false, 0, { "OnSetCurrentWeather", (block.state3 & S_TOGGLE) ? get_weather_id(item.id) : 0 });
                     });
-                    for (::block &b : world.blocks)
-                        if (items[b.fg]/*@todo*/.type == type::WEATHER_MACHINE && b.fg != block.fg) block.state3 &= ~S_TOGGLE;
-                    
                     break;
                 }
                 case type::TOGGLEABLE_BLOCK:
@@ -568,7 +572,7 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case type::SEED:
                 {
-                    block.state3 = 0x11; // @todo use |-
+                    block.state3 |= 0x11;
                     /* forgive the messy code. this was rushed. ~leeendl */
                     bool spliced{};
                     for (auto &[id, item] : items)
@@ -597,17 +601,6 @@ void tile_change(ENetEvent& event, state state)
                     block.fg = state.id;
                     tile_update(event, std::move(state), block, world);
 
-                    break;
-                }
-                case type::WEATHER_MACHINE:
-                {
-                    block.state3 |= S_TOGGLE;
-                    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [state](ENetPeer& p)
-                    {
-                        packet::create(p, false, 0, { "OnSetCurrentWeather", get_weather_id(state.id) });
-                    });
-                    for (::block &b : world.blocks)
-                        if (items[b.fg]/*@todo*/.type == type::WEATHER_MACHINE && b.fg != state.id) block.state3 &= ~S_TOGGLE;
                     break;
                 }
             }

@@ -1,6 +1,6 @@
 #include "pch.hpp"
 
-#include "logging_in.hpp"
+#include "protocol.hpp"
 #include "refresh_item_data.hpp"
 #include "enter_game.hpp"
 
@@ -27,7 +27,7 @@
 
 std::unordered_map<std::string, std::function<void(ENetEvent&, const std::string&)>> action_pool
 {
-    {"protocol", std::bind(&action::logging_in, std::placeholders::_1, std::placeholders::_2)},
+    {"protocol", std::bind(&action::protocol, std::placeholders::_1, std::placeholders::_2)},
     {"action|refresh_item_data", std::bind(&action::refresh_item_data, std::placeholders::_1, std::placeholders::_2)}, 
     {"action|enter_game", std::bind(&action::enter_game, std::placeholders::_1, std::placeholders::_2)},
     

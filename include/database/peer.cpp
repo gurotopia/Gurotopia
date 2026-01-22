@@ -177,7 +177,6 @@ peer::~peer()
         });
     }
     db.commit();
-    printf("save peer\n");
 }
 
 ENetHost *host;
@@ -188,7 +187,7 @@ std::vector<ENetPeer*> peers(const std::string &world, peer_condition condition,
     _peers.reserve(host->peerCount);
 
     for (ENetPeer &peer : std::span(host->peers, host->peerCount))
-        if (peer.state == ENET_PEER_STATE_CONNECTED) // @todo handle peers who haven't been allocated in _peer
+        if (peer.state == ENET_PEER_STATE_CONNECTED)
         {
             if (condition == peer_condition::PEER_SAME_WORLD)
             {
@@ -202,7 +201,7 @@ std::vector<ENetPeer*> peers(const std::string &world, peer_condition condition,
     return _peers;
 }
 
-void safe_disconnect_peers(int signal)
+void safe_disconnect_peers(int)
 {
     for (ENetPeer &p : std::span(host->peers, host->peerCount))
         if (p.state == ENET_PEER_STATE_CONNECTED)

@@ -9,7 +9,6 @@ void action::quit(ENetEvent& event, const std::string& header)
     if (event.peer == nullptr) return;
     if (event.peer->data != nullptr) 
     {
-        printf("delete peer\n");
         delete static_cast<::peer*>(event.peer->data);
         event.peer->data = nullptr;
     }

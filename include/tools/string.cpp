@@ -32,24 +32,22 @@ bool alnum(const std::string& str)
 #include <openssl/bio.h>
 #include <openssl/evp.h>
 
-std::string base64_decode(const std::string& encoded) 
+std::string base64_decode(const std::string& encoded)
 {
-    try
-    {
-        BIO *bio = BIO_new_mem_buf(encoded.data(), static_cast<int>(encoded.size()));
-        BIO *base64 = BIO_new(BIO_f_base64());
+    if (encoded.empty()) return {};
 
-        bio = BIO_push(base64, bio);
-        BIO_set_flags(bio, BIO_FLAGS_BASE64_NO_NL);
+    BIO *bio = BIO_new_mem_buf(encoded.data(), static_cast<int>(encoded.size()));
+    BIO *base64 = BIO_new(BIO_f_base64());
 
-        std::vector<char> buf(encoded.size());
-        int bio_read = BIO_read(bio, buf.data(), static_cast<int>(buf.size()));
-        BIO_free_all(bio);
+    bio = BIO_push(base64, bio);
+    BIO_set_flags(base64, BIO_FLAGS_BASE64_NO_NL);
 
-        return std::string{ buf.data(), static_cast<std::size_t>(bio_read) };
-    }
-    catch (...){} // @note what():  basic_string::_M_create
-    return "";
+    std::string decode(encoded.size() * 3/4, '\0'); // @note RFC 4648
+    const int bio_read = BIO_read(bio, decode.data(), static_cast<int>(decode.size()));
+    BIO_free_all(bio);
+
+    decode.resize(bio_read);
+    return decode;
 }
 
 std::size_t fnv1a(const std::string& value) noexcept {

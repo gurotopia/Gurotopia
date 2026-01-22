@@ -1,9 +1,9 @@
 #include "pch.hpp"
-#include "tools/string.hpp"
-#include "join_request.hpp"
-#include "logging_in.hpp"
+#include "tools/string.hpp" // @note base64_decode()
 
-void action::logging_in(ENetEvent& event, const std::string& header)
+#include "protocol.hpp"
+
+void action::protocol(ENetEvent& event, const std::string& header)
 {
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 

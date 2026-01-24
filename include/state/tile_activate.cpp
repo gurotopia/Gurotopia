@@ -40,7 +40,7 @@ void tile_activate(ENetEvent& event, state state)
             {
                 packet::create(*event.peer, true, 0, {
                     "OnSetPos", 
-                    std::vector<float>{peer->rest_pos.front(), peer->rest_pos.back()}
+                    std::vector<float>{peer->rest_pos.f_x(), peer->rest_pos.f_y()}
                 });
                 packet::create(*event.peer, false, 0, {
                     "OnZoomCamera", 

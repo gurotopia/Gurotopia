@@ -62,14 +62,8 @@ class peer_db {
 private:
     sqlite3 *db;
 
-    void sqlite3_bind(sqlite3_stmt* stmt, int index, int value) 
-    {
-        sqlite3_bind_int(stmt, index, value);
-    }
-    void sqlite3_bind(sqlite3_stmt* stmt, int index, const std::string& value) 
-    {
-        sqlite3_bind_text(stmt, index, value.c_str(), -1, SQLITE_STATIC);
-    }
+    void sqlite3_bind(sqlite3_stmt* stmt, int i, int value)                { sqlite3_bind_int(stmt, i, value); }
+    void sqlite3_bind(sqlite3_stmt* stmt, int i, const std::string& value) { sqlite3_bind_text(stmt, i, value.c_str(), -1, SQLITE_STATIC); }
 public:
     peer_db() {
         sqlite3_open("db/peers.db", &db);
@@ -112,15 +106,9 @@ public:
         }
     }
     
-    void begin_transaction() 
-    {
-        sqlite3_exec(db, "BEGIN TRANSACTION", nullptr, nullptr, nullptr);
-    }
+    void begin_transaction() { sqlite3_exec(db, "BEGIN TRANSACTION", nullptr, nullptr, nullptr); }
     
-    void commit() 
-    {
-        sqlite3_exec(db, "COMMIT", nullptr, nullptr, nullptr);
-    }
+    void commit()            { sqlite3_exec(db, "COMMIT", nullptr, nullptr, nullptr); }
 };
 
 peer& peer::read(const std::string& name) 
@@ -156,10 +144,10 @@ peer::~peer()
     db.execute("REPLACE INTO peers (_n, role, gems, lvl, xp) VALUES (?, ?, ?, ?, ?)", [this](sqlite3_stmt* stmt) 
     {
         sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
-        sqlite3_bind_int(stmt, 2, this->role);
-        sqlite3_bind_int(stmt, 3, this->gems);
-        sqlite3_bind_int(stmt, 4, this->level[0]);
-        sqlite3_bind_int(stmt, 5, this->level[1]);
+        sqlite3_bind_int(stmt,  2, this->role);
+        sqlite3_bind_int(stmt,  3, this->gems);
+        sqlite3_bind_int(stmt,  4, this->level[0]);
+        sqlite3_bind_int(stmt,  5, this->level[1]);
     });
     
     db.execute("DELETE FROM slots WHERE _n = ?", [this](auto stmt) {
@@ -172,8 +160,8 @@ peer::~peer()
         db.execute("INSERT INTO slots (_n, i, c) VALUES (?, ?, ?)", [this, &slot](sqlite3_stmt* stmt) 
         {
             sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt, 2, slot.id);
-            sqlite3_bind_int(stmt, 3, slot.count);
+            sqlite3_bind_int(stmt,  2, slot.id);
+            sqlite3_bind_int(stmt,  3, slot.count);
         });
     }
     db.commit();

@@ -19,8 +19,8 @@
         int x{0};
         int y{0};
         
-        const float f_x() { return this->x * 32.0f; }
-        const float f_y() { return this->y * 32.0f; }
+        float f_x() const { return this->x * 32.0f; }
+        float f_y() const { return this->y * 32.0f; }
 
         auto operator<=>(const pos&) const = default;
     };
@@ -75,7 +75,7 @@
         Billboard billboard{};
 
         ::pos pos{0,0}; // @note position 1D {x, y}
-        std::array<float, 2zu> rest_pos{}; // @note respawn position {x, y}
+        ::pos rest_pos{0,0}; // @note respawn position {x, y}
         bool facing_left{}; // @note peer is directed towards the left direction
 
         short slot_size{16}; // @note amount of slots this peer has | were talking total slots not itemed slots, to get itemed slots do slot.size()

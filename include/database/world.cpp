@@ -12,14 +12,8 @@ class world_db {
 private:
     sqlite3* db;
 
-    void sqlite3_bind(sqlite3_stmt* stmt, int index, int value) 
-    {
-        sqlite3_bind_int(stmt, index, value);
-    }
-    void sqlite3_bind(sqlite3_stmt* stmt, int index, const std::string& value) 
-    {
-        sqlite3_bind_text(stmt, index, value.c_str(), -1, SQLITE_STATIC);
-    }
+    void sqlite3_bind(sqlite3_stmt* stmt, int i, int value)                 { sqlite3_bind_int(stmt, i, value); }
+    void sqlite3_bind(sqlite3_stmt* stmt, int i, const std::string& value)  { sqlite3_bind_text(stmt, i, value.c_str(), -1, SQLITE_STATIC); }
 public:
     world_db() {
         sqlite3_open("db/worlds.db", &db);
@@ -73,13 +67,8 @@ public:
         }
     }
     
-    void begin_transaction() {
-        sqlite3_exec(db, "BEGIN TRANSACTION", nullptr, nullptr, nullptr);
-    }
-    
-    void commit() {
-        sqlite3_exec(db, "COMMIT", nullptr, nullptr, nullptr);
-    }
+    void begin_transaction() { sqlite3_exec(db, "BEGIN TRANSACTION", nullptr, nullptr, nullptr); }
+    void commit()            { sqlite3_exec(db, "COMMIT", nullptr, nullptr, nullptr); }
 };
 
 world::world(const std::string& name) 
@@ -88,36 +77,36 @@ world::world(const std::string& name)
     
     db.query("SELECT owner, pub FROM worlds WHERE _n = ?", [this, &name](sqlite3_stmt* stmt) 
     {
-            this->owner = sqlite3_column_int(stmt, 0);
-            this->_public = sqlite3_column_int(stmt, 1);
-            this->name = name;
+        this->owner =   sqlite3_column_int(stmt, 0);
+        this->_public = sqlite3_column_int(stmt, 1);
+        this->name = name;
     }, name);
 
     blocks.resize(6000);
     db.query("SELECT _p, fg, bg, tick, l, s3, s4 FROM blocks WHERE _n = ?", [this](sqlite3_stmt* stmt) 
     {
-            int pos = sqlite3_column_int(stmt, 0);
-            blocks[pos] = block(
-                sqlite3_column_int(stmt, 1),
-                sqlite3_column_int(stmt, 2),
-                steady_clock::time_point(std::chrono::seconds(sqlite3_column_int64(stmt, 3))),
-                reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4)),
-                sqlite3_column_int(stmt, 5),
-                sqlite3_column_int(stmt, 6)
-            );
+        int pos = sqlite3_column_int(stmt, 0);
+        blocks[pos] = block(
+            sqlite3_column_int(stmt, 1),
+            sqlite3_column_int(stmt, 2),
+            steady_clock::time_point(std::chrono::seconds(sqlite3_column_int64(stmt, 3))),
+            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4)),
+            sqlite3_column_int(stmt, 5),
+            sqlite3_column_int(stmt, 6)
+        );
     }, name);
      db.query("SELECT uid, i, c, x, y FROM ifloats WHERE _n = ?", [this](sqlite3_stmt* stmt) 
      {
-            int uid = sqlite3_column_int(stmt, 0);
-            ifloats.emplace(uid, ifloat(
-                sqlite3_column_int(stmt, 1),
-                sqlite3_column_int(stmt, 2),
-                ::pos{
-                    static_cast<float>(sqlite3_column_double(stmt, 3)), // @todo
-                    static_cast<float>(sqlite3_column_double(stmt, 4)) // @todo
-                }
-            ));
-            ifloat_uid = std::max(ifloat_uid, uid);
+        int uid = sqlite3_column_int(stmt, 0);
+        ifloats.emplace(uid, ifloat(
+            sqlite3_column_int(stmt, 1),
+            sqlite3_column_int(stmt, 2),
+            ::pos{
+                static_cast<float>(sqlite3_column_double(stmt, 3)), // @todo
+                static_cast<float>(sqlite3_column_double(stmt, 4)) // @todo
+            }
+        ));
+        ifloat_uid = std::max(ifloat_uid, uid);
     }, name);
 }
 
@@ -131,8 +120,8 @@ world::~world()
     db.execute("REPLACE INTO worlds (_n, owner, pub) VALUES (?, ?, ?)", [this](sqlite3_stmt* stmt) 
     {
             sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt, 2, owner);
-            sqlite3_bind_int(stmt, 3, _public);
+            sqlite3_bind_int(stmt,  2, owner);
+            sqlite3_bind_int(stmt,  3, _public);
     });
     
     db.execute("DELETE FROM blocks WHERE _n = ?", [this](auto stmt) {
@@ -144,14 +133,14 @@ world::~world()
         db.execute("INSERT INTO blocks (_n, _p, fg, bg, tick, l, s3, s4) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [this, &b, &pos](sqlite3_stmt* stmt) 
         {
             int i = 1;
-            sqlite3_bind_text(stmt, i++, name.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt, i++, pos);
-            sqlite3_bind_int(stmt, i++, b.fg);
-            sqlite3_bind_int(stmt, i++, b.bg);
+            sqlite3_bind_text(stmt,  i++, name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,   i++, pos);
+            sqlite3_bind_int(stmt,   i++, b.fg);
+            sqlite3_bind_int(stmt,   i++, b.bg);
             sqlite3_bind_int64(stmt, i++, duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count());
-            sqlite3_bind_text(stmt, i++, b.label.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt, i++, b.state3);
-            sqlite3_bind_int(stmt, i++, b.state4);
+            sqlite3_bind_text(stmt,  i++, b.label.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,   i++, b.state3);
+            sqlite3_bind_int(stmt,   i++, b.state4);
         });
     }
 
@@ -164,12 +153,12 @@ world::~world()
         db.execute("INSERT INTO ifloats (_n, uid, i, c, x, y) VALUES (?, ?, ?, ?, ?, ?)", [&](sqlite3_stmt* stmt) 
         {
             int i = 1;
-            sqlite3_bind_text(stmt, i++, name.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt, i++, uid);
-            sqlite3_bind_int(stmt, i++, item.id);
-            sqlite3_bind_int(stmt, i++, item.count);
-            sqlite3_bind_double(stmt, i++, item.pos.x);
-            sqlite3_bind_double(stmt, i++, item.pos.y);
+            sqlite3_bind_text(stmt,   i++, name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,    i++, uid);
+            sqlite3_bind_int(stmt,    i++, item.id);
+            sqlite3_bind_int(stmt,    i++, item.count);
+            sqlite3_bind_double(stmt, i++, item.pos.x*32);
+            sqlite3_bind_double(stmt, i++, item.pos.y*32);
         });
     }
     

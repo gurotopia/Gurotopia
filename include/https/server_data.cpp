@@ -1,6 +1,9 @@
 #include "pch.hpp"
 #include "tools/string.hpp"
+
 #include "server_data.hpp"
+
+::server_data g_server_data{};
 
 ::server_data init_server_data()
 {

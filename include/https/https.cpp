@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "https.hpp"
+#include "server_data.hpp"
 
 #include <openssl/err.h>
 
@@ -16,7 +17,7 @@
     #define SOCKET int
 #endif
 
-void https::listener(::server_data server_data)
+void https::listener()
 {
     OpenSSL_add_all_algorithms();
     SSL_load_error_strings();
@@ -48,7 +49,7 @@ void https::listener(::server_data server_data)
     if (bind(socket, (struct sockaddr*)&addr, addrlen) < 0)
         puts("could not bind port 443.");
 
-    std::printf("listening on %s:%hu\n", server_data.server.c_str(), server_data.port);
+    std::printf("listening on %s:%hu\n", g_server_data.server.c_str(), g_server_data.port);
 
     const std::string Content =
         std::format(
@@ -60,7 +61,7 @@ void https::listener(::server_data server_data)
             "loginurl|{}\n"
             "meta|{}\n"
             "RTENDMARKERBS1001", 
-            server_data.server, server_data.port, server_data.type, server_data.type2, server_data.maint, server_data.loginurl, server_data.meta
+            g_server_data.server, g_server_data.port, g_server_data.type, g_server_data.type2, g_server_data.maint, g_server_data.loginurl, g_server_data.meta
         );
     const std::string response =
         std::format(

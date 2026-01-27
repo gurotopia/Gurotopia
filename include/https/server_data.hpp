@@ -13,6 +13,7 @@
         std::string loginurl{"login-gurotopia.vercel.app"};
         std::string meta{"gurotopia"};
     };
+    extern ::server_data g_server_data; // @note global
 
     extern ::server_data init_server_data();
 

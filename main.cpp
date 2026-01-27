@@ -1,13 +1,13 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: b8827f754b4528d8b586d6166897dd39e2df7666 2026-1-26
+    @version perent SHA: b4ed0c2c2e9a408b861ebd59058a6341fbbdd9e2 2026-1-26
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
 
-#include "include/database/shouhin.hpp"
-#include "include/tools/string.hpp"
-#include "include/https/https.hpp"
+#include "include/database/shouhin.hpp" // @note init_shouhin_tachi()
+#include "include/https/https.hpp" // @note https::listener()
+#include "include/https/server_data.hpp" // @note g_server_data
 #include <filesystem>
 #include <csignal>
 
@@ -26,17 +26,17 @@ int main()
     
     std::filesystem::create_directory("db");
     init_shouhin_tachi();
+    g_server_data = init_server_data();
 
     enet_initialize();
     {
-        ::server_data server_data = init_server_data();
         ENetAddress address{
             .type = ENET_ADDRESS_TYPE_IPV4, 
-            .port = server_data.port
+            .port = g_server_data.port
         };
 
         host = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu/* max peer count */, 2zu, 0, 0);
-        std::thread(&https::listener, server_data).detach();
+        std::thread(&https::listener).detach();
     } // @note delete server_data, address
     host->usingNewPacketForServer = true;
     host->checksum = enet_crc32;

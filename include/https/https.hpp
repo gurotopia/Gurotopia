@@ -2,11 +2,9 @@
 #ifndef HTTPS_HPP
 #define HTTPS_HPP
 
-#include "server_data.hpp" // @todo make this independent
-
 namespace https
 {
-    extern void listener(::server_data server_data);
+    extern void listener();
 }
 
 #endif

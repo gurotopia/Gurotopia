@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "tools/string.hpp" // @note base64_decode()
+#include "https/server_data.hpp"
 
 #include "protocol.hpp"
 
@@ -33,12 +34,12 @@ void action::protocol(ENetEvent& event, const std::string& header)
 
     packet::create(*event.peer, false, 0, {
         "OnSendToServer",
-        17091,
-        8172597,
-        fnv1a(peer->ltoken[0]),
-        "127.0.0.1|0|0260DCEB9063AC540552C15E90E9E639",
+        (signed)g_server_data.port,
+        8172597, // @todo
+        (signed)fnv1a(peer->ltoken[0]), // @todo downsize to 4 bit
+        std::format("{}|0|0260DCEB9063AC540552C15E90E9E639", g_server_data.server).c_str(),
         1,
         peer->ltoken[0].c_str()
     });
-    enet_peer_disconnect_later(event.peer, 0);
+    enet_peer_disconnect_later(event.peer, 0); // @note avoids this event.peer from lingering in the server.
 }

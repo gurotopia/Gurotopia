@@ -48,9 +48,9 @@
 
     enum pstate : int
     {
-        S_GHOST =       0x01,
-        S_DOUBLE_JUMP = 0x02,
-        S_DUCT_TAPE =   0x2000
+        S_GHOST       = 0x00000001,
+        S_DOUBLE_JUMP = 0x00000002,
+        S_DUCT_TAPE   = 0x00002000
     };
     
     #include <deque>
@@ -79,7 +79,7 @@
         bool facing_left{}; // @note peer is directed towards the left direction
 
         short slot_size{16}; // @note amount of slots this peer has | were talking total slots not itemed slots, to get itemed slots do slot.size()
-        std::vector<slot> slots{{18, 1}, {32, 1}}; // @note an array of each slot. storing {id, count}
+        std::vector<slot> slots{}; // @note an array of each slot. storing {id, count}
         /*
         * @brief set slot::count to nagative value if you want to remove an amount. 
         * @return the remaining amount if exeeds 200. e.g. emplace(slot{0, 201}) returns 1.
@@ -154,10 +154,10 @@
         P_IDK1       = P_TYPE*14
     };
 
-    extern state get_state(const std::vector<std::byte> &&packet);
+    extern state get_state(const std::vector<u_char> &&packet);
 
     /* put it back into it's original form */
-    extern std::vector<std::byte> compress_state(const state &s);
+    extern std::vector<u_char> compress_state(const state &s);
 
     extern void send_inventory_state(ENetEvent &event);
 

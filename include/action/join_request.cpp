@@ -29,16 +29,16 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
         std::vector<std::string> buffs{};
         {
-            std::vector<std::byte> data = compress_state(::state{
+            std::vector<u_char> data = compress_state(::state{
                 .type = 0x04, // @note PACKET_SEND_MAP_DATA
                 .peer_state = 0x08
             });
             data.resize(data.size() + 24zu + world.name.length() + (8zu * world.blocks.size()) + 12zu + 8zu/*total drop uid*/);
-            std::byte *w_data = data.data() + sizeof(::state) + 6;
+            u_char *w_data = data.data() + sizeof(::state) + 6;
 
             const short len = world.name.length();
             *reinterpret_cast<short*>(w_data) = len; w_data += sizeof(short);
-            for (u_char c : world.name) *w_data++ = std::byte{ c };
+            for (u_char c : world.name) *w_data++ = c;
             
             const int y = world.blocks.size() / 100;
             const int x = world.blocks.size() / y;
@@ -54,8 +54,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 *reinterpret_cast<short*>(w_data) = block.bg; w_data += sizeof(short);
 
                 w_data += sizeof(short);
-                *w_data++ = std::byte{ block.state3 };
-                *w_data++ = std::byte{ block.state4 };
+                *w_data++ = block.state3;
+                *w_data++ = block.state4;
 
                 int offset = w_data - data.data();
                 switch (items[block.fg].type)
@@ -74,8 +74,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + 4zu + (admins * 4zu));
                         w_data = data.data() + offset;
 
-                        *w_data++ = std::byte{ 03 };
-                        *w_data++ = std::byte{ 00 };
+                        *w_data++ = 0x03;
+                        *w_data++ = 0x00;
                         *reinterpret_cast<int*>(w_data) = world.owner; w_data += sizeof(int);
                         *reinterpret_cast<int*>(w_data) = admins + 1; w_data += sizeof(int);
                         *reinterpret_cast<int*>(w_data) = -100; w_data += sizeof(int);
@@ -95,11 +95,11 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data.resize(data.size() + 4zu + len); // @note 01 {2} {} 0 0
                         w_data = data.data() + offset;
 
-                        *w_data++ = std::byte{ 01 };
+                        *w_data++ = 0x01;
 
                         *reinterpret_cast<short*>(w_data) = len; w_data += sizeof(short);
-                        for (u_char c : block.label) *w_data++ = std::byte{ c };
-                        *w_data++ = std::byte{ '\0' }; // @note terminator which Growtopia requires.
+                        for (u_char c : block.label) *w_data++ = c;
+                        *w_data++ = '\0'; // @note terminator which Growtopia requires.
                         break;
                     }
                     case type::MAILBOX:
@@ -114,10 +114,10 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data.resize(data.size() + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
                         w_data = data.data() + offset;
 
-                        *w_data++ = std::byte{ 02 };
+                        *w_data++ = 0x02;
 
                         *reinterpret_cast<short*>(w_data) = len; w_data += sizeof(short);
-                        for (u_char c : block.label) *w_data++ = std::byte{ c };
+                        for (u_char c : block.label) *w_data++ = c;
                         *reinterpret_cast<int*>(w_data) = -1; w_data += sizeof(int); // @note ff ff ff ff
                         break;
                     }
@@ -126,10 +126,10 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data.resize(data.size() + 1zu + 4zu + 1zu);
                         w_data = data.data() + offset;
 
-                        *w_data++ = std::byte{ 04 };
+                        *w_data++ = 0x04;
 
                         *reinterpret_cast<int*>(w_data) = (steady_clock::now() - block.tick) / 1s; w_data += sizeof(int);
-                        *w_data++ = std::byte{ 03 }; // @note fruit on tree
+                        *w_data++ = 0x03; // @note fruit on tree
                         break;
                     }
                     case type::PROVIDER:
@@ -137,7 +137,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data.resize(data.size() + 1zu + 4zu);
                         w_data = data.data() + offset;
 
-                        *w_data++ = std::byte{ 0x09 };
+                        *w_data++ = 0x09;
 
                         *reinterpret_cast<int*>(w_data) = (steady_clock::now() - block.tick) / 1s; w_data += sizeof(int);
                         break;
@@ -168,7 +168,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         data.resize(data.size() + 1zu);
                         w_data = data.data() + offset;
 
-                        *w_data++ = std::byte{ 0x00 }; // @todo if glow toggled this becomes 0x10
+                        *w_data++ = 0x00; // @todo if glow toggled this becomes 0x10
                         break;
                     }
                     default: 

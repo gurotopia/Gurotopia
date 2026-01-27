@@ -2,7 +2,7 @@
 #ifndef ITEMS_HPP
 #define ITEMS_HPP
 
-    enum clothing : u_short {
+    enum clothing : u_char {
         hair, shirt, legs, 
         feet, face, hand, 
         back, head, charm, 
@@ -158,35 +158,34 @@
 
     #include <string>
 
-    namespace collision {
-        const std::byte
-            no_collision{ 00 },
-            full{ 01 },
-            platform{ 02 },
-            entrance{ 03 },
-            toggle{ 04 },
-            horizontal{ 05 },
-            vip{ 06 }, // @note VIP entrance
-            vertical{ 07 },
-            adventure_item{ 0x08 },
-            activate{ 0x09 },
-            balloon_warz_team{ 0x0a }, // @note team entrance
-            guild{ 0x0b }, // @note guild entrance
-            step_on{ 0x0c };
-    }
+    enum collision : u_char {
+        NO_COLLISION,
+        FULL,
+        ON_TOP, // @note platforms
+        IF_ACCESS, // @note entrance
+        TOGGLE,
+        HORIZONTAL,
+        IF_VIP, // @note VIP entrance
+        VERTICAL,
+        ADVENTURE_ITEM,
+        ACTIVATE,
+        BALLOON_WARZ_TEAM, // @note team entrance
+        IF_GUILD, // @note guild entrance
+        STEP_ON
+    };
 
     class item 
     {
     public:
         u_short id{}; /* item identity */
-        std::byte property{};
+        u_char property{};
         u_char cat{};
         u_char type{};
         std::string raw_name{}; /* the exact name of the item including uppercases */
-        std::byte collision{};
-        short hits{}; // @todo make it unsigned.
+        u_char collision{};
+        u_char hits{}; // @todo make it unsigned.
         int hit_reset{}; // @note in seconds
-        u_short cloth_type{clothing::none}; /* use clothing:: if you are unsure of the order */
+        u_char cloth_type{clothing::none}; /* use clothing:: if you are unsure of the order */
         short rarity{};
         int tick{}; // @note tile tick time e.g. trees, providers, ect.. (measured in seconds)
 
@@ -196,7 +195,7 @@
     };
     extern std::unordered_map<u_short, item> items;
 
-    extern std::vector<std::byte> im_data;
+    extern std::vector<u_char> im_data;
 
     extern void cache_items();
 

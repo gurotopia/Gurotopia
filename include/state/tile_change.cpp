@@ -523,7 +523,7 @@ void tile_change(ENetEvent& event, state state)
         }
         else // @note placing a block
         {
-            if (item.collision == collision::full)
+            if (item.collision == collision::FULL)
             {
                 if (state.punch.x == state.pos.x && state.punch.y == state.pos.y) return; // @todo when moving avoid collision.
             }

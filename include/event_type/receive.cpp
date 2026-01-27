@@ -17,7 +17,10 @@ void receive(ENetEvent& event)
             std::ranges::replace(header, '\n', '|');
             const std::vector<std::string> pipes = readch(header, '|');
             
-            const std::string action = (pipes[0zu] == "protocol") ? pipes[0zu] : std::format("{}|{}", pipes[0zu], pipes[1zu]);
+            const std::string action = 
+                (pipes[0zu] == "protocol") ? pipes[0zu] : 
+                (pipes[0zu] == "tankIDName") ? pipes[0zu] : // @todo improve integrity
+                std::format("{}|{}", pipes[0zu], pipes[1zu]);
             if (const auto i = action_pool.find(action); i != action_pool.end())
                 i->second(event, header);
             break;
@@ -26,8 +29,7 @@ void receive(ENetEvent& event)
         {
             if (event.packet->dataLength < sizeof(::state)) return;
 
-            const std::byte *_1bit = reinterpret_cast<const std::byte*>(event.packet->data);
-            ::state state = get_state({_1bit, _1bit + (event.packet->dataLength)});
+            ::state state = get_state({event.packet->data, event.packet->data + (event.packet->dataLength)});
 
             if (const auto i = state_pool.find(state.type); i != state_pool.end())
                 i->second(event, std::move(state));

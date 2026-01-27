@@ -200,7 +200,7 @@ void safe_disconnect_peers(int)
     puts("you killed gurotopia safely!");
 }
 
-state get_state(const std::vector<std::byte> &&packet) 
+state get_state(const std::vector<u_char> &&packet) 
 {
     const int *_4bit = reinterpret_cast<const int*>(packet.data());
     const float *_4bit_f = reinterpret_cast<const float*>(packet.data());
@@ -219,9 +219,9 @@ state get_state(const std::vector<std::byte> &&packet)
     };
 }
 
-std::vector<std::byte> compress_state(const state &s) 
+std::vector<u_char> compress_state(const state &s) 
 {
-    std::vector<std::byte> data(sizeof(::state) + 1, std::byte{ 00 });
+    std::vector<u_char> data(sizeof(::state) + 1, 0x00);
     int *_4bit = reinterpret_cast<int*>(data.data());
     float *_4bit_f = reinterpret_cast<float*>(data.data());
     _4bit[0] = s.packet_create;
@@ -247,7 +247,7 @@ void send_inventory_state(ENetEvent &event)
 {
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 
-    std::vector<std::byte> data = compress_state(::state{
+    std::vector<u_char> data = compress_state(::state{
         .type = 0x09, // @note PACKET_SEND_INVENTORY_STATE
         .netid = peer->netid,
         .peer_state = 0x08

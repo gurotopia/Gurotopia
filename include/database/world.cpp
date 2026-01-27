@@ -167,7 +167,7 @@ world::~world()
 
 std::unordered_map<std::string, world> worlds;
 
-void send_data(ENetPeer& peer, const std::vector<std::byte> &&data)
+void send_data(ENetPeer& peer, const std::vector<u_char> &&data)
 {
     ENetPacket *packet = enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE);
     if (packet == nullptr || packet->dataLength < sizeof(::state)) return;
@@ -262,7 +262,7 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
 {
     state.type = 05; // @note PACKET_SEND_TILE_UPDATE_DATA
     state.peer_state = 0x08;
-    std::vector<std::byte> data = compress_state(state);
+    std::vector<u_char> data = compress_state(state);
 
     short pos = sizeof(::state);
     data.resize(pos + 8zu); // @note {2} {2} 00 00 00 00
@@ -271,8 +271,8 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
     pos += sizeof(short);
     
-    data[pos++] = std::byte{ block.state3 };
-    data[pos++] = std::byte{ block.state4 };
+    data[pos++] = block.state3 ;
+    data[pos++] = block.state4;
     switch (items[block.fg].type)
     {
         case type::DOOR:
@@ -281,11 +281,11 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
             short len = block.label.length();
             data.resize(pos + 1zu + 2zu + len + 1zu); // @note 01 {2} {} 0 0
 
-            data[pos] = std::byte{ 01 }; pos += sizeof(std::byte);
+            data[pos++] = 0x01;
             
             *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-            for (const char &c : block.label) data[pos++] = static_cast<std::byte>(c);
-            pos += sizeof(std::byte); // @note '\0'
+            for (const char &c : block.label) data[pos++] = c;
+            data[pos++] = '\0';
             break;
         }
         case type::SIGN:
@@ -293,10 +293,10 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
             short len = block.label.length();
             data.resize(pos + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
 
-            data[pos] = std::byte{ 02 }; pos += sizeof(std::byte);
+            data[pos++] = 0x02;
 
             *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-            for (const char &c : block.label) data[pos++] = static_cast<std::byte>(c);
+            for (const char &c : block.label) data[pos++] = c;
             *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
             break;
         }
@@ -304,16 +304,16 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
         {
             data.resize(pos + 1zu + 5zu);
 
-            data[pos++] = std::byte{ 04 };
+            data[pos++] = 0x04;
             *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
-            data[pos++] = std::byte{ 03 }; // @note fruit on tree
+            data[pos++] = 0x03; // @note fruit on tree
             break;
         }
         case type::PROVIDER:
         {
             data.resize(pos + 5zu);
 
-            data[pos++] = std::byte{ 0x9 };
+            data[pos++] = 0x09;
             *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
             break;
         }

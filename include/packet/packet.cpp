@@ -5,7 +5,7 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
 {
     ::peer *_p = static_cast<::peer*>(p.data);
 
-    std::vector<std::byte> data = compress_state(::state{
+    std::vector<u_char> data = compress_state(::state{
         .type = 01,
         .netid = (!netid) ? -1 : _p->netid,
         .peer_state = 0x08,
@@ -13,7 +13,7 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
     });
 
     std::size_t size = data.size();
-    std::byte index{};
+    u_char index{};
     for (const std::any &param : params) 
     {
         if (param.type() == typeid(const char*)) 
@@ -21,10 +21,10 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
             std::string_view param_view{ std::any_cast<const char*>(param) };
             data.resize(size + 2zu + sizeof(int) + param_view.length());
             data[size] = index; // @note element counter e.g. "OnConsoleMessage" -> 00, "hello" -> 01
-            data[size + 1zu] = std::byte{ 02 };
+            data[size + 1zu] = 0x02;
             *reinterpret_cast<int*>(&data[size + 2zu]) = param_view.length();
 
-            const std::byte *_1bit = reinterpret_cast<const std::byte*>(param_view.data());
+            const u_char *_1bit = reinterpret_cast<const u_char*>(param_view.data());
             for (std::size_t i = 0zu; i < param_view.length(); ++i)
                 data[size + 6zu + i] = _1bit[i]; // @note e.g. 'a' -> 0x61. 'z' = 0x7A, hex tabel: https://en.cppreference.com/w/cpp/language/ascii
 
@@ -36,9 +36,9 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
             auto value = is_signed ? std::any_cast<int>(param) : std::any_cast<u_int>(param);
             data.resize(size + 2zu + sizeof(value));
             data[size] = index; // @note element counter e.g. "OnSetBux" -> 00, 43562/-43562 -> 01
-            data[size + 1zu] = (is_signed) ? std::byte{ 0x09 } : std::byte{ 05 };
+            data[size + 1zu] = (is_signed) ? 0x09 : 0x05;
 
-            const std::byte *_1bit = reinterpret_cast<const std::byte*>(&value);
+            const u_char *_1bit = reinterpret_cast<const u_char*>(&value);
             for (std::size_t i = 0zu; i < sizeof(value); ++i)
                 data[size + 2zu + i] = _1bit[i];
 
@@ -50,12 +50,11 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
             data.resize(size + 2zu + (sizeof(float) * vec.size()));
             data[size] = index;
             data[size + 1zu] = 
-                (vec.size() == 1zu) ? std::byte{ 01 } :
-                (vec.size() == 2zu) ? std::byte{ 03 } :
-                (vec.size() == 3zu) ? std::byte{ 04 } :
-                                    std::byte{ 00 };
+                (vec.size() == 1zu) ? 0x01 :
+                (vec.size() == 2zu) ? 0x03 :
+                (vec.size() == 3zu) ? 0x04 : 0x00;
 
-            const std::byte *_1bit = reinterpret_cast<const std::byte*>(vec.data());
+            const u_char *_1bit = reinterpret_cast<const u_char*>(vec.data());
             for (std::size_t i = 0zu; i < sizeof(float) * vec.size(); ++i)
                 data[size + 2zu + i] = _1bit[i];
 
@@ -63,8 +62,7 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
         }
         else return; // @note this will never pass unless you include a param that Growtopia does not recognize
 
-        index = static_cast<std::byte>(std::to_integer<char>(index) + 1);
-        data[60zu] = index;
+        data[60zu] = ++index;
     }
 
     enet_peer_send(&p, 0, enet_packet_create(data.data(), size, ENET_PACKET_FLAG_RELIABLE));
@@ -73,16 +71,16 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
 void packet::action(ENetPeer& p, const std::string& action, const std::string& str) 
 {
     std::string_view action_view = std::format("action|{}\n", action);
-    std::vector<std::byte> data(4zu + action_view.length() + str.length(), std::byte{ 00 });
-    data[0zu] = std::byte{ 03 };
+    std::vector<u_char> data(4zu + action_view.length() + str.length(), 0x00);
+    data[0zu] = 0x03;
     {
-        const std::byte *_1bit = reinterpret_cast<const std::byte*>(action_view.data());
+        const u_char *_1bit = reinterpret_cast<const u_char*>(action_view.data());
         for (std::size_t i = 0zu; i < action_view.length(); ++i)
             data[4zu + i] = _1bit[i];
     }
     if (!str.empty())
     {
-        const std::byte *_1bit = reinterpret_cast<const std::byte*>(str.data());
+        const u_char *_1bit = reinterpret_cast<const u_char*>(str.data());
         for (std::size_t i = 0zu; i < str.length(); ++i)
             data[4zu + action_view.length() + i] = _1bit[i];
     }

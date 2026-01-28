@@ -32,6 +32,8 @@ void action::protocol(ENetEvent& event, const std::string& header)
     }
     catch (...) { packet::action(*event.peer, "logon_fail", ""); }
 
+    packet::create(*event.peer, false, 0, {"SetHasGrowID", 1, peer->ltoken[0].c_str(), ""}); // @todo temp fix, i will change later.
+
     packet::create(*event.peer, false, 0, {
         "OnSendToServer",
         (signed)g_server_data.port,

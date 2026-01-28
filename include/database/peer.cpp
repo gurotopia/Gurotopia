@@ -156,7 +156,7 @@ peer::~peer()
     
     for (const ::slot &slot : this->slots) 
     {
-        if ((slot.id == 18 || slot.id == 32) || slot.count <= 0) continue;
+        if (slot.count <= 0) continue;
         db.execute("INSERT INTO slots (_n, i, c) VALUES (?, ?, ?)", [this, &slot](sqlite3_stmt* stmt) 
         {
             sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
@@ -215,7 +215,7 @@ state get_state(const std::vector<u_char> &&packet)
         .speed = {_4bit_f[9], _4bit_f[10]},
         .idk = _4bit[11],
         .punch = ::pos{_4bit[12], _4bit[13]},
-        .idk1 = _4bit[14]
+        .size = _4bit[14]
     };
 }
 
@@ -239,7 +239,7 @@ std::vector<u_char> compress_state(const state &s)
     _4bit[11] = s.idk;
     _4bit[12] = s.punch.x;
     _4bit[13] = s.punch.y;
-    _4bit[14] = s.idk1;
+    _4bit[14] = s.size;
     return data;
 }
 

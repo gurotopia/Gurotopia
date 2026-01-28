@@ -60,12 +60,14 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 int offset = w_data - data.data();
                 switch (items[block.fg].type)
                 {
+                    case type::ENTRANCE:
                     case type::FOREGROUND: 
                     case type::BACKGROUND:
                     case type::STRONG: // @note bedrock
                     case type::FIRE_PAIN: // @note lava
                     case type::CHEST: // @note treasure, booty chest
                     case type::TOGGLEABLE_BLOCK:
+                    case type::CHECKPOINT:
                         break;
                     case type::LOCK: 
                     {

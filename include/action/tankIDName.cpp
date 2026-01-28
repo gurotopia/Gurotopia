@@ -8,10 +8,18 @@ void action::tankIDName(ENetEvent& event, const std::string& header)
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     std::vector<std::string> pipes = readch(header, '|');
-    peer->ltoken[0] = pipes[1];
+    if (pipes.empty() || pipes.size() < 41zu) enet_peer_disconnect_later(event.peer, 0);
+
+    if (pipes[0zu] == "tankIDName") peer->ltoken[0] = pipes[1zu];
+    if (pipes[10zu] == "game_version") peer->game_version = pipes[11zu];
+    if (peer->game_version != "5.40")
+    {
+        // @todo add update client message
+    }
+    if (pipes[40zu] == "country") peer->country = pipes[41zu];
+    if (pipes[50zu] == "user") peer->user_id = std::stoi(pipes[51zu]); // @note validate user_id
 
     peer->read(peer->ltoken[0]);
-    peer->user_id = fnv1a(peer->ltoken[0]); // @note this is to proeprly downgrade std::hash to integer size hash (Growtopia Standards)
 
     /* v5.40 */
     packet::create(*event.peer, false, 0, {

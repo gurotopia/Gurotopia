@@ -124,8 +124,7 @@ void tile_change(ENetEvent& event, state state)
                 {
                     for (::block &b : world.blocks)
                     {
-                        const u_char &type = items[b.fg].type;
-                        if (type == type::WEATHER_MACHINE && b.fg != block.fg) 
+                        if (items[b.fg].type == type::WEATHER_MACHINE && b.fg != block.fg) 
                             b.state3 &= ~S_TOGGLE;
                     }
                     block.state3 ^= S_TOGGLE;

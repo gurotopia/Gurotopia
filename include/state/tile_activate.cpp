@@ -11,7 +11,7 @@ void tile_activate(ENetEvent& event, state state)
     ::world &world = worlds.at(peer->recent_worlds.back());
 
     ::block &block = world.blocks[cord(state.punch.x, state.punch.y)];
-    ::item &item = items[block.fg]; // @todo handle bg
+    ::item &item = items[block.fg];
 
     switch (item.type)
     {
@@ -50,6 +50,25 @@ void tile_activate(ENetEvent& event, state state)
                 packet::create(*event.peer, true, 0, { "OnSetFreezeState", 0u });
                 packet::create(*event.peer, true, 0, { "OnPlayPositioned", "audio/teleport.wav" });
             }
+            break;
+        }
+        case type::CHECKPOINT:
+        {
+            peer->rest_pos = state.punch;
+
+            int i{};
+            for (::block &b : world.blocks)
+            {
+                if (items[b.fg].type == type::CHECKPOINT) 
+                {
+                    b.state3 &= ~S_TOGGLE; // @note untoggle other checkpoints
+                    tile_update(event, ::state{.id = b.fg, .punch = {i % 100, i / 100}}, b, world);
+                }
+                ++i;
+            }
+            block.state3 |= S_TOGGLE; // @note toggle current checkpoint
+
+            tile_update(event, ::state{.id = block.fg, .punch = state.punch}, block, world);
             break;
         }
     }

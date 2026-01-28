@@ -9,6 +9,6 @@ void on::CountryState(ENetEvent& event)
     packet::create(*event.peer, true, 0, {
         "OnCountryState",
         /* @todo add |showGuild when we add guild system; also add peer's real country */
-        std::format("us{}", (peer->level[0] == 125) ? "|maxLevel" : "").c_str()
+        std::format("{}{}", peer->country, (peer->level[0] == 125) ? "|maxLevel" : "").c_str()
     });
 }

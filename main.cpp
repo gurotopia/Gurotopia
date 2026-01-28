@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: b4ed0c2c2e9a408b861ebd59058a6341fbbdd9e2 2026-1-26
+    @version perent SHA: a3a50bdc1caf76242f5de2e6ff614706de6e9428 2026-1-27
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -48,7 +48,7 @@ int main()
         im_data = compress_state(::state{
             .type = 0x10, 
             .peer_state = 0x08, 
-            .idk1 = size
+            .size = size
         });
 
         im_data.resize(im_data.size() + size); // @note resize to fit binary data

@@ -63,6 +63,8 @@
         signed netid{ 0 }; // @note peer's netid is world identity. this will be useful for many packet sending
         int user_id{}; // @note unqiue user id.
         std::array<std::string, 2zu> ltoken{}; // @note {growid, password}
+        std::string game_version{};
+        std::string country{};
         std::string prefix{ "w" }; // @note display name color, default: "w" (White)
         u_char role{};
         std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
@@ -135,15 +137,15 @@
         std::array<float, 2zu> speed{}; // @note player movement (velocity(x), gravity(y)), higher gravity = smaller jumps
         int idk{};
         ::pos punch{0,0}; // @note punching/placing position 2D {x, y}
-        int idk1{};
+        int size{};
     };
 
     enum packet_pos
     {
         P_INIT,
-        P_TYPE =       4zu,
-        P_NETID =      P_TYPE*2,
-        P_UID =        P_TYPE*3,
+        P_TYPE       = 4zu,
+        P_NETID      = P_TYPE*2,
+        P_UID        = P_TYPE*3,
         P_PEER_STATE = P_TYPE*4,
         P_COUNT      = P_TYPE*5,
         P_ID         = P_TYPE*6,
@@ -151,7 +153,7 @@
         P_SPEED      = P_TYPE*9, // @note 8 bit
         P_IDK        = P_TYPE*11,
         P_PUNCH      = P_TYPE*12, // @note 8 bit
-        P_IDK1       = P_TYPE*14
+        P_SIZE       = P_TYPE*14
     };
 
     extern state get_state(const std::vector<u_char> &&packet);

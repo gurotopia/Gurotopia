@@ -34,7 +34,7 @@
         ANIMATED = 0x15,
         SFX_BACKGROUND = 0x16,
         ART_WALL = 0x17,
-        BOUNCHY = 0x18,
+        BOUNCY = 0x18,
         STING_PAIN = 0x19,
         PORTAL = 0x1a,
         CHECKPOINT = 0x1b,

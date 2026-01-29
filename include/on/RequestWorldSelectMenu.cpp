@@ -35,10 +35,11 @@ void on::RequestWorldSelectMenu(ENetEvent& event)
             section(peer->my_worlds, "2147418367"), 
             section(peer->recent_worlds, "3417414143")
         ).c_str(), 
-        0
+        1
     });
     packet::create(*event.peer, false, 0, {
         "OnConsoleMessage", 
         std::format("Where would you like to go? (`w{}`` online)", peers().size()).c_str()
     });
+    packet::create(*event.peer, false, 0, { "OnClearItemTransforms" });
 }

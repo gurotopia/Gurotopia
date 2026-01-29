@@ -12,8 +12,11 @@ void item_activate(ENetEvent& event, state state)
     {
         float &cloth_type = peer->clothing[item.cloth_type];
 
-        peer->punch_effect = (cloth_type == state.id) ? 0 : get_punch_id(state.id); // @todo handle multiple effect equipped
-        cloth_type =         (cloth_type == state.id) ? 0 : state.id;
+        u_short punch_id = get_punch_id(state.id);
+
+        if (punch_id != 0)
+            peer->punch_effect = (cloth_type == state.id) ? 0 : punch_id; // @todo handle multiple effect equipped
+        cloth_type =             (cloth_type == state.id) ? 0 : state.id;
 
         packet::create(*event.peer, true, 0, { "OnEquipNewItem", state.id });
         on::SetClothing(*event.peer); // @todo

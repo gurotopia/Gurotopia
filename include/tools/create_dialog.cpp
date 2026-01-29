@@ -61,9 +61,19 @@ create_dialog& create_dialog::set_custom_spacing(short x, short y)
     _d.append(std::format("set_custom_spacing|x:{};y:{}|\n", x, y));
     return *this;
 }
+create_dialog& create_dialog::add_layout_spacer(std::string layout)
+{
+    _d.append(std::format("add_layout_spacer|{}|\n", layout));
+    return *this;
+}
 create_dialog& create_dialog::add_button(std::string btn_id, std::string btn_name)
 {
     _d.append(std::format("add_button|{}|{}|noflags|0|0|\n", btn_id, btn_name));
+    return *this;
+}
+create_dialog& create_dialog::add_image_button(std::string btn_id, std::string image, std::string layout, std::string link)
+{
+    _d.append(std::format("add_image_button|{}|{}|{}|{}|\n", btn_id, image, layout, link));
     return *this;
 }
 create_dialog& create_dialog::add_custom_button(std::string btn_id, std::string image)

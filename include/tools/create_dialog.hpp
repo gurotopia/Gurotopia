@@ -19,7 +19,9 @@ public:
     create_dialog& embed_data(std::string id, int data);
     create_dialog& add_spacer(std::string size);
     create_dialog& set_custom_spacing(short x, short y);
+    create_dialog& add_layout_spacer(std::string layout);
     create_dialog& add_button(std::string btn_id, std::string btn_name);
+    create_dialog& add_image_button(std::string btn_id, std::string image, std::string layout, std::string link);
     create_dialog& add_custom_button(std::string btn_id, std::string image);
     create_dialog& add_custom_label(std::string label, std::string pos);
     create_dialog& add_custom_break();

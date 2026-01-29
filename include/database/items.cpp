@@ -52,7 +52,14 @@ void cache_items()
         pos += *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short);
 
-        pos += sizeof(std::array<u_char, 13zu>);
+        pos += sizeof(int);
+        pos += sizeof(u_char);
+
+        shift_pos(im_data, pos, im.ingredient);
+        pos += sizeof(u_char);
+        pos += sizeof(u_char);
+        pos += sizeof(u_char);
+        pos += sizeof(u_char);
 
         shift_pos(im_data, pos, im.collision);
         shift_pos(im_data, pos, im.hits);

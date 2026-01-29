@@ -182,6 +182,7 @@
         u_char cat{};
         u_char type{};
         std::string raw_name{}; /* the exact name of the item including uppercases */
+        int ingredient{};
         u_char collision{};
         u_char hits{}; // @todo make it unsigned.
         int hit_reset{}; // @note in seconds

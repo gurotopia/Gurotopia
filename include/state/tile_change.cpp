@@ -231,8 +231,8 @@ void tile_change(ENetEvent& event, state state)
                             for (; gems >= i; gems -= i/* downgrade type */)
                                 add_drop(event, {112, i}, state.punch);
                     }
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 4 : 10}]) add_drop(event, ::slot(item.id, 1), state.punch);
                     if (!ransuu[{0, (rarity_to_gem > 1) ? 2 : 4}]) add_drop(event, ::slot(item.id + 1, 1), state.punch);
+                    else if (!ransuu[{0, (rarity_to_gem > 1) ? 4 : 8}]) add_drop(event, ::slot(item.id, 1), state.punch);
                 } /* ~gem drop */
 
                 peer->add_xp(event, std::trunc(1.0f + item.rarity / 5.0f));
@@ -522,6 +522,7 @@ void tile_change(ENetEvent& event, state state)
         }
         else // @note placing a block
         {
+            std::this_thread::sleep_for(130ms); // @todo add proper fix
             if (item.collision == collision::FULL)
             {
                 if (state.punch.x == state.pos.x && state.punch.y == state.pos.y) return; // @todo when moving avoid collision.

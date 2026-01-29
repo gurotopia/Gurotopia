@@ -117,7 +117,7 @@ peer& peer::read(const std::string& name)
     
     db.query("SELECT role, gems, lvl, xp FROM peers WHERE _n = ?", [this](sqlite3_stmt* stmt) 
     {
-        this->role = static_cast<char>(sqlite3_column_int(stmt, 0));
+        this->role = static_cast<u_char>(sqlite3_column_int(stmt, 0));
         this->gems = sqlite3_column_int(stmt, 1);
         this->level[0] = static_cast<u_short>(sqlite3_column_int(stmt, 2));
         this->level[1] = static_cast<u_short>(sqlite3_column_int(stmt, 3));
@@ -136,7 +136,7 @@ peer& peer::read(const std::string& name)
 
 peer::~peer() 
 {
-    if (ltoken[0].empty()) return;
+    if (this->ltoken[0].empty() && this->user_id == 0) return;
     
     peer_db db;
     db.begin_transaction();

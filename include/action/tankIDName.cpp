@@ -10,15 +10,13 @@ void action::tankIDName(ENetEvent& event, const std::string& header)
     std::vector<std::string> pipes = readch(header, '|');
     if (pipes.empty() || pipes.size() < 41zu) enet_peer_disconnect_later(event.peer, 0);
 
-    if (pipes[0zu] == "tankIDName") peer->ltoken[0] = pipes[1zu];
-    if (pipes[10zu] == "game_version") peer->game_version = pipes[11zu];
-    if (peer->game_version != "5.40")
+    for (std::size_t i = 0; i < pipes.size(); ++i) 
     {
-        // @todo add update client message
+        if      (pipes[i] == "tankIDName")   peer->ltoken[0] = pipes[i+1];
+        else if (pipes[i] == "game_version") peer->game_version = pipes[i+1];
+        else if (pipes[i] == "country")      peer->country = pipes[i+1];
+        else if (pipes[i] == "user")         peer->user_id = std::stoi(pipes[i+1]); // @todo validate user_id
     }
-    if (pipes[40zu] == "country") peer->country = pipes[41zu];
-    if (pipes[50zu] == "user") peer->user_id = std::stoi(pipes[51zu]); // @note validate user_id
-
     peer->read(peer->ltoken[0]);
 
     /* v5.40 */

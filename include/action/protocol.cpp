@@ -6,8 +6,7 @@
 
 void action::protocol(ENetEvent& event, const std::string& header)
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
-
+    std::string growid{}, password{};
     try 
     {
         std::vector<std::string> pipes = readch(header, '|');
@@ -21,27 +20,31 @@ void action::protocol(ENetEvent& event, const std::string& header)
             if (std::size_t pos = decoded.find("growId="); pos != std::string::npos) 
             {
                 pos += sizeof("growId=")-1zu;
-                peer->ltoken[0] = decoded.substr(pos, decoded.find('&', pos) - pos);
+                growid = decoded.substr(pos, decoded.find('&', pos) - pos);
             }
             if (std::size_t pos = decoded.find("password="); pos != std::string::npos) 
             {
                 pos += sizeof("password=")-1zu;
-                peer->ltoken[1] = decoded.substr(pos);
+                password = decoded.substr(pos);
             }
         } // @note delete decoded
+        if (growid.empty() || password.empty()) throw std::runtime_error("");
     }
-    catch (...) { packet::action(*event.peer, "logon_fail", ""); }
+    catch (...) { 
+        packet::action(*event.peer, "logon_fail", ""); 
+        throw;
+    }
 
-    packet::create(*event.peer, false, 0, {"SetHasGrowID", 1, peer->ltoken[0].c_str(), ""}); // @todo temp fix, i will change later.
+    packet::create(*event.peer, false, 0, {"SetHasGrowID", 1, growid.c_str(), ""}); // @todo temp fix, i will change later.
 
     packet::create(*event.peer, false, 0, {
         "OnSendToServer",
         (signed)g_server_data.port,
         8172597, // @todo
-        (signed)fnv1a(peer->ltoken[0]), // @todo downsize to 4 bit
+        (signed)fnv1a(growid), // @todo downsize to 4 bit
         std::format("{}|0|0260DCEB9063AC540552C15E90E9E639", g_server_data.server).c_str(),
         1,
-        peer->ltoken[0].c_str()
+        growid.c_str()
     });
     enet_peer_disconnect_later(event.peer, 0); // @note avoids this event.peer from lingering in the server.
 }

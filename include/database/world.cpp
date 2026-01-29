@@ -112,28 +112,28 @@ world::world(const std::string& name)
 
 world::~world() 
 {
-    if (name.empty()) return;
+    if (this->name.empty()) return;
     
     world_db db;
     db.begin_transaction();
     
     db.execute("REPLACE INTO worlds (_n, owner, pub) VALUES (?, ?, ?)", [this](sqlite3_stmt* stmt) 
     {
-            sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt,  2, owner);
-            sqlite3_bind_int(stmt,  3, _public);
+            sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,  2, this->owner);
+            sqlite3_bind_int(stmt,  3, this->_public);
     });
     
     db.execute("DELETE FROM blocks WHERE _n = ?", [this](auto stmt) {
-        sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
     });
     
-    for (std::size_t pos = 0; pos < blocks.size(); pos++) {
-        const block &b = blocks[pos];
+    for (std::size_t pos = 0; pos < this->blocks.size(); pos++) {
+        const block &b = this->blocks[pos];
         db.execute("INSERT INTO blocks (_n, _p, fg, bg, tick, l, s3, s4) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [this, &b, &pos](sqlite3_stmt* stmt) 
         {
             int i = 1;
-            sqlite3_bind_text(stmt,  i++, name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt,  i++, this->name.c_str(), -1, SQLITE_STATIC);
             sqlite3_bind_int(stmt,   i++, pos);
             sqlite3_bind_int(stmt,   i++, b.fg);
             sqlite3_bind_int(stmt,   i++, b.bg);
@@ -145,15 +145,15 @@ world::~world()
     }
 
     db.execute("DELETE FROM ifloats WHERE _n = ?", [this](auto stmt) {
-        sqlite3_bind_text(stmt, 1, name.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
     });
     
-    for (const auto &[uid, item] : ifloats) 
+    for (const auto &[uid, item] : this->ifloats) 
     {
         db.execute("INSERT INTO ifloats (_n, uid, i, c, x, y) VALUES (?, ?, ?, ?, ?, ?)", [&](sqlite3_stmt* stmt) 
         {
             int i = 1;
-            sqlite3_bind_text(stmt,   i++, name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt,   i++, this->name.c_str(), -1, SQLITE_STATIC);
             sqlite3_bind_int(stmt,    i++, uid);
             sqlite3_bind_int(stmt,    i++, item.id);
             sqlite3_bind_int(stmt,    i++, item.count);

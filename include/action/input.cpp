@@ -14,10 +14,12 @@ void action::input(ENetEvent& event, const std::string& header)
     if (pipes[3] != "text") return;
 
     std::string text = pipes[4];
+    if (text.empty()) return;
 
     if (text.front() == '\r' || std::ranges::all_of(text, ::isspace)) return;
     text.erase(text.begin(), std::find_if_not(text.begin(), text.end(), ::isspace));
     text.erase(std::find_if_not(text.rbegin(), text.rend(), ::isspace).base(), text.end());
+    if (text.empty()) return;
     
     steady_clock::time_point now = steady_clock::now();
     peer->messages.push_back(now);

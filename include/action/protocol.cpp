@@ -31,8 +31,8 @@ void action::protocol(ENetEvent& event, const std::string& header)
         if (growid.empty() || password.empty()) throw std::runtime_error("");
     }
     catch (...) { 
-        packet::action(*event.peer, "logon_fail", ""); 
-        throw;
+        packet::action(*event.peer, "logon_fail", "");
+        return; // @note stop processing invalid protocol data
     }
 
     packet::create(*event.peer, false, 0, {"SetHasGrowID", 1, growid.c_str(), ""}); // @todo temp fix, i will change later.

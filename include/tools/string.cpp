@@ -46,7 +46,8 @@ std::string base64_decode(const std::string& encoded)
     const int bio_read = BIO_read(bio, decode.data(), static_cast<int>(decode.size()));
     BIO_free_all(bio);
 
-    decode.resize(bio_read);
+    if (bio_read <= 0) return {};
+    decode.resize(static_cast<std::size_t>(bio_read));
     return decode;
 }
 

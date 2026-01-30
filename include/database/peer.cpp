@@ -142,6 +142,19 @@ peer& peer::read(const std::string& name)
     return *this;
 }
 
+bool peer::exists(const std::string& name)
+{
+    peer_db db;
+    bool found = false;
+
+    db.query("SELECT 1 FROM peers WHERE _n = ? LIMIT 1", [&found](sqlite3_stmt*)
+    {
+        found = true;
+    }, name);
+
+    return found;
+}
+
 peer::~peer() 
 {
     if (this->ltoken[0].empty() && this->user_id == 0) return;

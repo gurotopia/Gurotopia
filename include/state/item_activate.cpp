@@ -10,13 +10,21 @@ void item_activate(ENetEvent& event, state state)
     ::item &item = items[state.id];
     if (item.cloth_type != clothing::none) 
     {
-        float &cloth_type = peer->clothing[item.cloth_type];
+        float &current_cloth = peer->clothing[item.cloth_type]; // @note ID of the current clothing being changed
 
-        u_short punch_id = get_punch_id(state.id);
+        current_cloth = (current_cloth == state.id) ? 0 : state.id;
 
+        peer->punch_effect = 0;
+        for (float cloth : peer->clothing)
+        {
+            u_short punch_id = get_punch_id(static_cast<u_int>(cloth));
+            if (punch_id != 0)
+                peer->punch_effect = punch_id;
+        }
+        /* @note this is so we can add the latest punch effect (if any) */
+        u_short punch_id = get_punch_id(static_cast<u_int>(current_cloth));
         if (punch_id != 0)
-            peer->punch_effect = (cloth_type == state.id) ? 0 : punch_id; // @todo handle multiple effect equipped
-        cloth_type =             (cloth_type == state.id) ? 0 : state.id;
+            peer->punch_effect = punch_id;
 
         packet::create(*event.peer, true, 0, { "OnEquipNewItem", state.id });
         on::SetClothing(*event.peer); // @todo

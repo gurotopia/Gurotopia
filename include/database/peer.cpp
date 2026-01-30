@@ -74,7 +74,8 @@ public:
     {
         const char *sql = 
         "CREATE TABLE IF NOT EXISTS peers (_n TEXT PRIMARY KEY, role INTEGER, gems INTEGER, lvl INTEGER, xp INTEGER);"
-        "CREATE TABLE IF NOT EXISTS slots (_n TEXT, i INTEGER, c INTEGER, FOREIGN KEY(_n) REFERENCES peers(_n));";
+        "CREATE TABLE IF NOT EXISTS slots (_n TEXT, i INTEGER, c INTEGER, FOREIGN KEY(_n) REFERENCES peers(_n));"
+        "CREATE TABLE IF NOT EXISTS equip (_n TEXT, i INTEGER, FOREIGN KEY(_n) REFERENCES peers(_n));";
 
         sqlite3_exec(db, sql, nullptr, nullptr, nullptr);
     }
@@ -130,6 +131,13 @@ peer& peer::read(const std::string& name)
             sqlite3_column_int(stmt, 1)
         );
     }, name);
+
+    u_short i{};
+    db.query("SELECT i FROM equip WHERE _n = ?", [this, &i](sqlite3_stmt* stmt) 
+    {
+        this->clothing[i] = sqlite3_column_int(stmt, 0);
+        ++i;
+    }, name);
     
     return *this;
 }
@@ -141,7 +149,7 @@ peer::~peer()
     peer_db db;
     db.begin_transaction();
     
-    db.execute("REPLACE INTO peers (_n, role, gems, lvl, xp) VALUES (?, ?, ?, ?, ?)", [this](sqlite3_stmt* stmt) 
+    db.execute("INSERT OR REPLACE INTO peers (_n, role, gems, lvl, xp) VALUES (?, ?, ?, ?, ?)", [this](sqlite3_stmt* stmt) 
     {
         sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
         sqlite3_bind_int(stmt,  2, this->role);
@@ -153,7 +161,6 @@ peer::~peer()
     db.execute("DELETE FROM slots WHERE _n = ?", [this](auto stmt) {
         sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
     });
-    
     for (const ::slot &slot : this->slots) 
     {
         if (slot.count <= 0) continue;
@@ -162,6 +169,18 @@ peer::~peer()
             sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
             sqlite3_bind_int(stmt,  2, slot.id);
             sqlite3_bind_int(stmt,  3, slot.count);
+        });
+    }
+
+    db.execute("DELETE FROM equip WHERE _n = ?", [this](auto stmt) {
+        sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
+    });
+    for (const float &cloth : this->clothing)
+    {
+        db.execute("INSERT INTO equip (_n, i) VALUES (?, ?)", [this, &cloth](sqlite3_stmt* stmt) 
+        {
+            sqlite3_bind_text(stmt, 1, this->ltoken[0].c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,  2, cloth);
         });
     }
     db.commit();

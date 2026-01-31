@@ -25,4 +25,11 @@ void skin(ENetEvent& event, const std::string_view text)
             "`4Invalid input. ``id must be a `wnumber``."
         });
     }
+    catch (const std::out_of_range &ex)
+    {
+        packet::create(*event.peer, false, 0, {
+            "OnConsoleMessage",
+            "`4Invalid input. ``id is out of range."
+        });
+    }
 }

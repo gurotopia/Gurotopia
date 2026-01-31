@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "on/EmoticonDataChanged.hpp"
+#include "on/Spawn.hpp"
 #include "on/BillboardChange.hpp"
 #include "on/SetClothing.hpp"
 #include "on/CountryState.hpp"
@@ -205,6 +206,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             std::rotate(first, first + 1, peer->recent_worlds.end());
             peer->recent_worlds.back() = world.name;
         } // @note delete name, first
+        on::EmoticonDataChanged(event);
 
         if (!peer->role)
             peer->prefix.front() = 
@@ -213,47 +215,37 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
         ++world.visitors;
         peer->netid = ++world.netid_counter;
-        
-        constexpr std::string_view fmt = "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|`{}{}``\ncountry|us\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}";
-        
-        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &peer, &world, &fmt](ENetPeer& p) 
+        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &peer, &world](ENetPeer& p) 
         {
             ::peer *_p = static_cast<::peer*>(p.data);
             
             if (_p->user_id != peer->user_id)
             {
-                packet::create(*event.peer, false, -1/* ff ff ff ff */, {
-                    "OnSpawn", 
-                    std::format(fmt, 
-                        _p->netid, _p->user_id, _p->pos.x, _p->pos.y, _p->prefix, _p->ltoken[0], (_p->role) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", 
-                        ""
-                    ).c_str()
-                });
+                on::Spawn(*event.peer, _p->netid, _p->user_id, _p->pos, std::format("`{}{}", _p->prefix, _p->ltoken[0]), _p->country, (_p->role) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", false);
+                on::Spawn(p, peer->netid, peer->user_id, peer->rest_pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, (peer->role) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", false);
+                on::SetClothing(p);
                 packet::create(p, false, 0, {
                     "OnConsoleMessage",
-                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors - 1).c_str()
+                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors).c_str()
                 });
             }
-            packet::create(p, false, -1/* ff ff ff ff */, {
-                "OnSpawn", 
-                std::format(fmt,
-                    peer->netid, peer->user_id, std::round(peer->rest_pos.f_x()), std::round(peer->rest_pos.f_y()), peer->prefix, peer->ltoken[0], (peer->role) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", 
-                    (_p->user_id == peer->user_id) ? "type|local\n" : ""
-                ).c_str()
-            });
-            on::SetClothing(p);
 
-            /* the reason this is here is cause we need the peer's OnSpawn to happen before OnTalkBubble */
-            if (_p->user_id != peer->user_id)
+            if (_p->user_id != peer->user_id) // @note the reason this is here is cause we need the peer's OnSpawn to happen before OnTalkBubble
                 packet::create(p, false, 0, {
-                        "OnTalkBubble",
-                        peer->netid,
-                        std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors - 1).c_str(),
-                        1u
+                    "OnTalkBubble",
+                    peer->netid,
+                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors).c_str(),
+                    1u
                 });
         });
+        on::Spawn(*event.peer, peer->netid, peer->user_id, peer->rest_pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, (peer->role) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", true);
 
         if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
+
+        packet::create(*event.peer, true, 0, {
+            "OnSetPos", 
+            std::vector<float>{peer->rest_pos.f_x(), peer->rest_pos.f_y()}
+        });
 
         auto section = [](const auto& range) 
         {
@@ -262,8 +254,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             std::string list{};
             for (const auto &buff : range) 
                 list.append(std::format("{}``, ", buff));
-            list.pop_back();
-            list.pop_back(); // @note remove the ',' @todo improve
+            if (!list.empty())
+                list.erase(list.length() - 2); // @note erase the ", "
 
             return std::format(" `0[``{}`0]``", list);
         };
@@ -274,8 +266,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 world.name, section(buffs), world.visitors - 1, peers().size()
             ).c_str()
         });
-        on::EmoticonDataChanged(event);
-
+        on::SetClothing(*event.peer);
         on::CountryState(event);
     }
     catch (const std::exception& exc)

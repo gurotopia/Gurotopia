@@ -5,6 +5,7 @@
 #include "item_activate.hpp"
 #include "item_activate_object.hpp"
 #include "ping_reply.hpp"
+#include "disconnect.hpp"
 #include "__states.hpp"
 
 std::unordered_map<u_char, std::function<void(ENetEvent&, state)>> state_pool
@@ -14,5 +15,6 @@ std::unordered_map<u_char, std::function<void(ENetEvent&, state)>> state_pool
     {0x07, std::bind(&tile_activate, std::placeholders::_1, std::placeholders::_2)},
     {0x0a, std::bind(&item_activate, std::placeholders::_1, std::placeholders::_2)},
     {0x0b, std::bind(&item_activate_object, std::placeholders::_1, std::placeholders::_2)},
-    {0x15, std::bind(&ping_reply, std::placeholders::_1, std::placeholders::_2)}
+    {0x15, std::bind(&ping_reply, std::placeholders::_1, std::placeholders::_2)},
+    {0x1a, std::bind(&disconnect, std::placeholders::_1, std::placeholders::_2)}
 };

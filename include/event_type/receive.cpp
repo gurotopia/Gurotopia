@@ -16,6 +16,7 @@ void receive(ENetEvent& event)
             
             std::ranges::replace(header, '\n', '|');
             const std::vector<std::string> pipes = readch(header, '|');
+            if (pipes.empty() || pipes.size() < 2) break;
             
             const std::string action = 
                 (pipes[0zu] == "protocol") ? pipes[0zu] : 
@@ -27,7 +28,7 @@ void receive(ENetEvent& event)
         }
         case 4: 
         {
-            if (event.packet->dataLength < sizeof(::state)) return;
+            if (event.packet->dataLength < sizeof(::state)) break;
 
             ::state state = get_state({event.packet->data, event.packet->data + (event.packet->dataLength)});
 

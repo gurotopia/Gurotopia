@@ -40,11 +40,10 @@ void action::protocol(ENetEvent& event, const std::string& header)
     packet::create(*event.peer, false, 0, {
         "OnSendToServer",
         (signed)g_server_data.port,
-        8172597, // @todo
+        0,
         (signed)fnv1a(growid), // @todo downsize to 4 bit
-        std::format("{}|0|0260DCEB9063AC540552C15E90E9E639", g_server_data.server).c_str(),
+        std::format("{}|0|0", g_server_data.server).c_str(),
         1,
         growid.c_str()
-    });
-    enet_peer_disconnect_later(event.peer, 0); // @note avoids this event.peer from lingering in the server.
+    }); // @note  PACKET_DISCONNECT
 }

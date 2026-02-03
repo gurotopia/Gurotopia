@@ -19,6 +19,11 @@
 #include <tuple>
 #include <string_view>
 #include <span>
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <atomic>
+#include <thread>
 #if defined(__SSE2__) || defined(_M_X64) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2)
 #include <immintrin.h>
 #endif
@@ -720,6 +725,121 @@ namespace {
             draw_glyph(img, cursor, y, c, color);
             cursor += 6;
         }
+    }
+
+    bool cache_ready();
+
+    bool is_safe_zip_path(std::string_view name) {
+        if (name.empty()) return false;
+        if (name.find("..") != std::string_view::npos) return false;
+        if (name.find(':') != std::string_view::npos) return false;
+        if (name.front() == '/' || name.front() == '\\') return false;
+        return true;
+    }
+
+    std::string_view strip_cache_prefix(std::string_view name) {
+        constexpr std::string_view p1 = "render_cache/";
+        constexpr std::string_view p2 = "render_cache\\";
+        constexpr std::string_view p3 = "Cache/";
+        constexpr std::string_view p4 = "Cache\\";
+        if (name.size() >= p1.size() && name.substr(0, p1.size()) == p1) {
+            return name.substr(p1.size());
+        }
+        if (name.size() >= p2.size() && name.substr(0, p2.size()) == p2) {
+            return name.substr(p2.size());
+        }
+        if (name.size() >= p3.size() && name.substr(0, p3.size()) == p3) {
+            return name.substr(p3.size());
+        }
+        if (name.size() >= p4.size() && name.substr(0, p4.size()) == p4) {
+            return name.substr(p4.size());
+        }
+        return name;
+    }
+
+    bool verify_and_sync_cache(const std::string& r2_zip_url) {
+        const std::filesystem::path cache_root = "render_cache";
+        const std::filesystem::path target_dir = cache_root / "GTCache";
+        const std::filesystem::path alt_dir = cache_root / "cache";
+
+        if (std::filesystem::exists(target_dir) && !std::filesystem::is_empty(target_dir) &&
+            std::filesystem::exists(alt_dir) && !std::filesystem::is_empty(alt_dir)) {
+            return true;
+        }
+
+        std::error_code ec;
+        std::filesystem::create_directories(cache_root, ec);
+        if (ec) return false;
+
+        const std::filesystem::path zip_path = cache_root / "cache.zip";
+        const std::string cmd = std::format("curl -L -s -o \"{}\" \"{}\"", zip_path.string(), r2_zip_url);
+        if (std::system(cmd.c_str()) != 0) {
+            return cache_ready();
+        }
+
+        mz_zip_archive zip{};
+        if (!mz_zip_reader_init_file(&zip, zip_path.string().c_str(), 0)) {
+            std::filesystem::remove(zip_path, ec);
+            return false;
+        }
+
+        const mz_uint files = mz_zip_reader_get_num_files(&zip);
+        for (mz_uint i = 0; i < files; ++i) {
+            mz_zip_archive_file_stat st{};
+            if (!mz_zip_reader_file_stat(&zip, i, &st)) continue;
+            std::string_view name = st.m_filename ? st.m_filename : "";
+            name = strip_cache_prefix(name);
+            if (!is_safe_zip_path(name)) continue;
+
+            const std::filesystem::path out_path = cache_root / std::filesystem::path(std::string(name));
+            if (st.m_is_directory) {
+                std::filesystem::create_directories(out_path, ec);
+                continue;
+            }
+            if (out_path.has_parent_path()) {
+                std::filesystem::create_directories(out_path.parent_path(), ec);
+            }
+            mz_zip_reader_extract_to_file(&zip, i, out_path.string().c_str(), 0);
+        }
+        mz_zip_reader_end(&zip);
+        std::filesystem::remove(zip_path, ec);
+
+        return cache_ready();
+    }
+
+    struct cache_paths {
+        std::filesystem::path textures_root;
+        std::filesystem::path cache_root;
+    };
+
+    cache_paths resolve_cache_paths() {
+        const std::filesystem::path a_textures = "render_cache/GTCache";
+        const std::filesystem::path a_cache = "render_cache/cache";
+        if (std::filesystem::exists(a_textures) && !std::filesystem::is_empty(a_textures)) {
+            return { a_textures, a_cache };
+        }
+        const std::filesystem::path b_textures = "render_cache/Cache/GTCache";
+        const std::filesystem::path b_cache = "render_cache/Cache/cache";
+        if (std::filesystem::exists(b_textures) && !std::filesystem::is_empty(b_textures)) {
+            return { b_textures, b_cache };
+        }
+        return {};
+    }
+
+    bool cache_ready() {
+        const auto paths = resolve_cache_paths();
+        return !paths.textures_root.empty();
+    }
+
+    std::atomic<int> g_cache_state{0}; // 0 idle, 1 downloading, 2 ready, 3 failed
+
+    void ensure_cache_async(const std::string& url) {
+        int expected = 0;
+        if (!g_cache_state.compare_exchange_strong(expected, 1)) return;
+        std::thread([url]{
+            const bool ok = verify_and_sync_cache(url);
+            g_cache_state.store(ok ? 2 : 3);
+        }).detach();
     }
 
     void fill_image(image_rgba& img, rgba8 color) {
@@ -1734,9 +1854,35 @@ void renderworld(ENetEvent& event, const std::string_view)
         item_db_loaded = true;
     }
 
-    const std::filesystem::path textures_root = "render_cache\\GTCache";
-    const std::filesystem::path cache_root = "render_cache\\cache";
-    if (!std::filesystem::exists(textures_root)) {
+    const std::string cache_url = "https://pub-e5089e1bb0404a2e8a914b7da82071d8.r2.dev/cache.zip";
+    if (cache_ready()) {
+        g_cache_state.store(2);
+    } else {
+        const int state = g_cache_state.load();
+        if (state == 1) {
+            packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, "`6Cache is still downloading... try again shortly.``", 0u, 1u });
+            packet::create(*event.peer, false, 0, { "OnConsoleMessage", "Render cache is still downloading... try again shortly." });
+            packet::action(*event.peer, "log", "msg|`6Render cache still downloading...``");
+            return;
+        }
+        if (state == 3 && !cache_ready()) {
+            packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, "`4Cache download failed. Check server console.``", 0u, 1u });
+            packet::create(*event.peer, false, 0, { "OnConsoleMessage", "Render cache download failed. Check server console/URL." });
+            packet::action(*event.peer, "log", "msg|`4Render cache download failed.``");
+            std::cout << "[renderworld] cache download failed (state=failed). Check URL or permissions.\n";
+            return;
+        }
+        ensure_cache_async(cache_url);
+        packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, "`6Please wait while the cache is being downloaded for the first time... Try /renderworld again in a moment.``", 0u, 1u });
+        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "Downloading render cache for the first time... try again shortly." });
+        std::cout << "[renderworld] cache missing, starting background download.\n";
+        return;
+    }
+
+    const auto cache_paths = resolve_cache_paths();
+    const std::filesystem::path textures_root = cache_paths.textures_root;
+    const std::filesystem::path cache_root = cache_paths.cache_root;
+    if (textures_root.empty() || !std::filesystem::exists(textures_root)) {
         packet::action(*event.peer, "log", "msg|`4Render failed: render_cache assets not found.``");
         return;
     }

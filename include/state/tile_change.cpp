@@ -128,6 +128,8 @@ void tile_change(ENetEvent& event, state state)
                             b.state3 &= ~S_TOGGLE;
                     }
                     block.state3 ^= S_TOGGLE;
+                    world.cached_weather_id = (block.state3 & S_TOGGLE) ? static_cast<u_char>(get_weather_id(item.id)) : 0;
+                    world.cached_weather_valid = true;
                     
                     peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
@@ -157,6 +159,10 @@ void tile_change(ENetEvent& event, state state)
             if (block.hits.front() >= item.hits) block.fg = 0, block.hits.front() = 0;
             else if (block.hits.back() >= item.hits) block.bg = 0, block.hits.back() = 0;
             else return;
+
+            if (item.type == type::WEATHER_MACHINE) {
+                world.cached_weather_valid = false;
+            }
             
             /* @todo update these changes with tile_update() */
             block.label = "";

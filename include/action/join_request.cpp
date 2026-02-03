@@ -27,6 +27,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         auto [it, inserted] = worlds.try_emplace(big_name, big_name);
         ::world &world = it->second; // @note ::world will load from SQL if found. next line, if not.
         if (world.name.empty()) generate_world(world, big_name); // @note make a new world if not found.
+        refresh_world_weather_cache(world);
 
         std::vector<std::string> buffs{};
         {

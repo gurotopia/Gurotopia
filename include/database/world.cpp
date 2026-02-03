@@ -370,6 +370,8 @@ void generate_world(world &world, const std::string& name)
     }
     world.blocks = std::move(blocks);
     world.name = std::move(name);
+    world.cached_weather_id = 0;
+    world.cached_weather_valid = true;
 }
 
 bool door_mover(world &world, const ::pos &pos)

@@ -72,6 +72,21 @@ int get_weather_id(u_int item_id)
     return 0; // @note sunny
 }
 
+void refresh_world_weather_cache(::world& w)
+{
+    for (const ::block& b : w.blocks)
+    {
+        if (items[b.fg].type == type::WEATHER_MACHINE && (b.state3 & S_TOGGLE))
+        {
+            w.cached_weather_id = static_cast<u_char>(get_weather_id(b.fg));
+            w.cached_weather_valid = true;
+            return;
+        }
+    }
+    w.cached_weather_id = 0;
+    w.cached_weather_valid = true;
+}
+
 void weather(ENetEvent& event, const std::string_view text)
 {
     if (text.length() <= sizeof("weather ") - 1) 

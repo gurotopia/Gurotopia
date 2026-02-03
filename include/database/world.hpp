@@ -85,6 +85,8 @@
         std::vector<::door> doors;
         int ifloat_uid{0}; // @note floating item UID
         std::unordered_map<int, ifloat> ifloats{}; // @note (i)tem floating
+        u_char cached_weather_id{0};
+        bool cached_weather_valid{false};
         ~world();
     };
     extern std::unordered_map<std::string, world> worlds;

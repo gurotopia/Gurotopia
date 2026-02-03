@@ -62,13 +62,13 @@ void tile_activate(ENetEvent& event, state state)
                 if (items[b.fg].type == type::CHECKPOINT) 
                 {
                     b.state3 &= ~S_TOGGLE; // @note untoggle other checkpoints
-                    tile_update(event, ::state{.id = b.fg, .punch = {i % 100, i / 100}}, b, world);
+                    send_tile_update(event, ::state{.id = b.fg, .punch = {i % 100, i / 100}}, b, world);
                 }
                 ++i;
             }
             block.state3 |= S_TOGGLE; // @note toggle current checkpoint
 
-            tile_update(event, ::state{.id = block.fg, .punch = state.punch}, block, world);
+            send_tile_update(event, ::state{.id = block.fg, .punch = state.punch}, block, world);
             break;
         }
     }

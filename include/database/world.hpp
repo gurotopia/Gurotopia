@@ -30,6 +30,13 @@
         S_VANISH =   S_RED | S_YELLOW | S_GREEN | S_AQUA | S_BLUE | S_PURPLE | S_CHARCOAL
     };
 
+    enum lock_state : u_char
+    {
+        DISABLE_MUSIC = 0x10,
+        DISABLE_MUSIC_RENDER = 0x20,
+        RAINBOWS = 0x80
+    };
+
     struct block 
     {
         block(
@@ -60,9 +67,9 @@
         ::pos pos;
     };
 
-    struct ifloat 
+    struct object 
     {
-        ifloat(short _id, short _count, ::pos _pos) : id(_id), count(_count), pos(_pos) {}
+        object(short _id, short _count, ::pos _pos) : id(_id), count(_count), pos(_pos) {}
         short id{0};
         short count{0};
         ::pos pos;
@@ -76,15 +83,16 @@
 
         int owner{ 00 }; // @note owner of world using peer's user id.
         std::array<int, 6zu> admin{}; // @note admins (by user id). excluding owner. (6 is a experimental amount, if increase update me if any issue occur -leeendl)
-        bool _public{}; // @note checks if world is public to break/place
+        bool is_public{}; // @note checks if world is public to break/place
+        u_char lock_state{0x00}; // @note uses lock_state::
 
         u_char visitors{}; // @note the current number of peers in a world, excluding invisable peers
         u_char netid_counter{}; // @note a number that only increases, this value resets during ~world()
 
         std::vector<::block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
         std::vector<::door> doors;
-        int ifloat_uid{0}; // @note floating item UID
-        std::unordered_map<int, ifloat> ifloats{}; // @note (i)tem floating
+        int last_object_uid{0};
+        std::unordered_map<int, object> objects{};
         ~world();
     };
     extern std::unordered_map<std::string, world> worlds;
@@ -105,7 +113,7 @@
 
     void add_drop(ENetEvent& event, ::slot im, ::pos pos);
 
-    extern void tile_update(ENetEvent &event, state s, block &b, world& w);
+    extern void send_tile_update(ENetEvent &event, state s, block &b, world& w);
 
     extern void remove_fire(ENetEvent &event, state state, block &block, world& w);
 

@@ -14,6 +14,17 @@ std::vector<std::string> readch(const std::string &str, char c)
     return result;
 }
 
+std::string join(const std::vector<std::string>& range, const std::string& del) 
+{
+    std::string result;
+    for (size_t i = 0; i < range.size(); ++i) 
+    {
+        result += range[i];
+        if (i < range.size() - 1) result += del;
+    }
+    return result;
+}
+
 bool alpha(const std::string& str) 
 {
     return !str.empty() && std::ranges::all_of(str, ::isalpha);

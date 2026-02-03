@@ -19,7 +19,7 @@ void ageworld(ENetEvent& event, const std::string_view text)
         if (item.type == type::PROVIDER || item.type == type::SEED) // @todo
         {
             block.tick -= 86400s;
-            tile_update(event, 
+            send_tile_update(event, 
             {
                 .id = block.fg, 
                 .punch = ::pos{ (short)i % 100, (short)i / 100 }

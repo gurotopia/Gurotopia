@@ -48,8 +48,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             *reinterpret_cast<u_short*>(w_data) = static_cast<u_short>(world.blocks.size()); w_data += sizeof(u_short);
             w_data += 7; // @todo
 
-            u_short i = 0; // @note track the block position
-            for (const ::block &block : world.blocks)
+            for (u_short i = 0; const ::block &block : world.blocks)
             {
                 *reinterpret_cast<short*>(w_data) = block.fg; w_data += sizeof(short);
                 *reinterpret_cast<short*>(w_data) = block.bg; w_data += sizeof(short);
@@ -72,16 +71,17 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         break;
                     case type::LOCK: 
                     {
-                        std::size_t admins = std::ranges::count_if(world.admin, std::identity{});
+                        if (!is_tile_lock(block.fg)) world.is_public = (block.state3 & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
 
-                        data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + 4zu + (admins * 4zu));
+                        int admins = std::ranges::count_if(world.admin, std::identity{});
+                        data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + (admins * 4zu));
                         w_data = data.data() + offset;
 
                         *w_data++ = 0x03;
-                        *w_data++ = 0x00;
+                        *w_data++ = world.lock_state;
                         *reinterpret_cast<int*>(w_data) = world.owner; w_data += sizeof(int);
-                        *reinterpret_cast<int*>(w_data) = admins + 1; w_data += sizeof(int);
-                        *reinterpret_cast<int*>(w_data) = -100; w_data += sizeof(int);
+                        *reinterpret_cast<int*>(w_data) = admins; w_data += sizeof(int);
+                        // @todo minimal level
                         /* @todo admin list */
                         break;
                     }
@@ -182,13 +182,13 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             }
             w_data += 12; // @todo
 
-            *reinterpret_cast<int*>(w_data) = world.ifloat_uid; w_data += sizeof(int);
-            *reinterpret_cast<int*>(w_data) = world.ifloat_uid; w_data += sizeof(int);
-            for (const auto &[uid, ifloat] : world.ifloats) 
+            *reinterpret_cast<int*>(w_data) = world.last_object_uid; w_data += sizeof(int);
+            *reinterpret_cast<int*>(w_data) = world.last_object_uid; w_data += sizeof(int);
+            for (const auto &[uid, object] : world.objects) 
             {
-                const auto &[id, count, pos] = ifloat;
+                const auto &[id, count, pos] = object;
                 int offset = w_data - data.data();
-                data.resize(data.size() + sizeof(::ifloat) + 4zu/*@todo*/);
+                data.resize(data.size() + sizeof(::object) + 4zu/*@todo*/);
                 w_data = data.data() + offset;
                 
                 *reinterpret_cast<short*>(w_data) = id;        w_data += sizeof(short);
@@ -213,7 +213,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 (peer->user_id == world.owner) ? '2' : 
                 (std::ranges::contains(world.admin, peer->user_id)) ? 'c' : peer->prefix.front();
 
-        ++world.visitors;
         peer->netid = ++world.netid_counter;
         peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &peer, &world](ENetPeer& p) 
         {
@@ -221,14 +220,15 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             
             if (_p->user_id != peer->user_id)
             {
-                on::Spawn(*event.peer, _p->netid, _p->user_id, _p->pos, std::format("`{}{}", _p->prefix, _p->ltoken[0]), _p->country, (_p->role) ? "1" : "0", (_p->role >= DEVELOPER) ? "1" : "0", false);
-                on::Spawn(p, peer->netid, peer->user_id, peer->rest_pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, (peer->role) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", false);
+                on::Spawn(*event.peer, _p->netid, _p->user_id, _p->pos, std::format("`{}{}", _p->prefix, _p->ltoken[0]), _p->country, _p->role, _p->role >= DEVELOPER, false);
+                on::Spawn(p, peer->netid, peer->user_id, peer->rest_pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, peer->role, peer->role >= DEVELOPER, false);
                 on::SetClothing(p);
                 packet::create(p, false, 0, {
                     "OnConsoleMessage",
                     std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors).c_str()
                 });
             }
+            
 
             if (_p->user_id != peer->user_id) // @note the reason this is here is cause we need the peer's OnSpawn to happen before OnTalkBubble
                 packet::create(p, false, 0, {
@@ -238,7 +238,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     1u
                 });
         });
-        on::Spawn(*event.peer, peer->netid, peer->user_id, peer->rest_pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, (peer->role) ? "1" : "0", (peer->role >= DEVELOPER) ? "1" : "0", true);
+        on::Spawn(*event.peer, peer->netid, peer->user_id, peer->rest_pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, peer->role, peer->role >= DEVELOPER, true);
 
         if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
 
@@ -247,25 +247,15 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             std::vector<float>{peer->rest_pos.f_x(), peer->rest_pos.f_y()}
         });
 
-        auto section = [](const auto& range) 
-        {
-            if (range.empty()) return std::string{};
-            
-            std::string list{};
-            for (const auto &buff : range) 
-                list.append(std::format("{}``, ", buff));
-            if (!list.empty())
-                list.erase(list.length() - 2); // @note erase the ", "
-
-            return std::format(" `0[``{}`0]``", list);
-        };
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage", 
             std::format(
                 "World `w{}{}`` entered.  There are `w{}`` other people here, `w{}`` online.", 
-                world.name, section(buffs), world.visitors - 1, peers().size()
+                world.name, (buffs.empty()) ? "" : std::format(" `0[``{}`0]``", join(buffs, "``, ")), world.visitors, peers().size()
             ).c_str()
         });
+        ++world.visitors;
+
         on::SetClothing(*event.peer);
         on::CountryState(event);
     }

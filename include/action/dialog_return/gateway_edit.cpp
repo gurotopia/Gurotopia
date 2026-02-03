@@ -23,7 +23,7 @@ void gateway_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
         block.state3 |= stoi(pipes[11zu]) ? S_PUBLIC : S_LOCKED;
     }
 
-    tile_update(event, {
+    send_tile_update(event, {
         .id = block.fg,
         .punch = { tilex, tiley }
     }, block, it->second);

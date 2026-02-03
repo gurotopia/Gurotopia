@@ -36,8 +36,10 @@ void tile_change(ENetEvent& event, state state)
             }
 
         if (!(item.cat & CAT_PUBLIC)) // @note if block is public skip validating if peer is owner or admin
-            if ((world.owner && !world._public && !peer->role) &&
+            if ((world.owner && !world.is_public && !peer->role) &&
                 (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
+
+        bool lock_visuals{}; // @todo this looks sloppy
         
         if (state.id == 18) // @note punching a block
         {
@@ -62,6 +64,13 @@ void tile_change(ENetEvent& event, state state)
             {
                 case type::STRONG: throw std::runtime_error("It's too strong to break.");
                 case type::MAIN_DOOR: throw std::runtime_error("(stand over and punch to use)");
+                case type::LOCK:
+                {
+                    if (is_tile_lock(item.id)) break; // @todo seperate area for 'range_lock'
+                    
+                    if (world.owner != peer->user_id)
+                        throw std::runtime_error(std::format("`5[```w{}`` `$World Locked`` by (null)`5]``", world.name)); // @todo add owner name
+                }
                 case type::PROVIDER:
                 {
                     if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
@@ -104,7 +113,7 @@ void tile_change(ENetEvent& event, state state)
                             }
                         }
                         block.tick = steady_clock::now();
-                        tile_update(event, std::move(state), block, world); // @note update countdown on provider.
+                        send_tile_update(event, std::move(state), block, world); // @note update countdown on provider.
 
                         peer->add_xp(event, 1);
                         return;
@@ -415,7 +424,7 @@ void tile_change(ENetEvent& event, state state)
                     .speed = { color, particle }
                 });
             }
-            tile_update(event, std::move(state), block, world);
+            send_tile_update(event, std::move(state), block, world);
 
             modify_item_inventory(event, ::slot(item.id, -1));
             peer->add_xp(event, 1);
@@ -455,7 +464,7 @@ void tile_change(ENetEvent& event, state state)
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item.raw_name, item.id, state.punch.x, state.punch.y, to_char(world._public)
+                                item.raw_name, item.id, state.punch.x, state.punch.y, to_char(world.is_public)
                             ).c_str()
                         });
                     }
@@ -522,6 +531,7 @@ void tile_change(ENetEvent& event, state state)
         }
         else // @note placing a block
         {
+            if (item.type != type::SEED && (item.type != type::BACKGROUND && block.fg != 0)) return; // @todo hardcoded....
             std::this_thread::sleep_for(130ms); // @todo add proper fix
             if (item.collision == collision::FULL)
             {
@@ -536,15 +546,12 @@ void tile_change(ENetEvent& event, state state)
                     if (!world.owner)
                     {
                         world.owner = peer->user_id;
+                        lock_visuals = true;
                         if (!peer->role) 
                         {
                             peer->prefix.front() = '2';
                             on::NameChanged(event);
                         }
-                        state.type = 0x0f;
-                        state.netid = world.owner;
-                        state.peer_state = 0x08;
-                        state.id = state.id;
                         if (std::ranges::find(peer->my_worlds, world.name) == peer->my_worlds.end()) 
                         {
                             std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
@@ -599,17 +606,27 @@ void tile_change(ENetEvent& event, state state)
 
                     /* @todo change this */
                     block.fg = state.id;
-                    tile_update(event, std::move(state), block, world);
+                    send_tile_update(event, std::move(state), block, world);
 
                     break;
                 }
             }
             block.state3 |= (peer->facing_left) ? S_LEFT : S_RIGHT;
             (item.type == type::BACKGROUND) ? block.bg = state.id : block.fg = state.id;
-            modify_item_inventory(event, ::slot(item.id, -1));
+            peer->emplace(::slot(item.id, -1));
         }
-        if (state.netid != world.owner) state.netid = peer->netid;
+        state.netid = peer->netid; // @todo sometimes rgt has this as 0
         state_visuals(*event.peer, std::move(state)); // finished.
+        if (lock_visuals) 
+        {
+            state_visuals(*event.peer, ::state{
+                .type = 0x0f, // @note PACKET_SEND_LOCK
+                .netid = world.owner, 
+                .peer_state = 0x08, 
+                .id = state.id,
+                .punch = state.punch
+            });
+        }
     }
     catch (const std::exception& exc)
     {
@@ -621,5 +638,6 @@ void tile_change(ENetEvent& event, state state)
                 0u,
                 1u // @note message will be sent once instead of multiple times.
             });
+        return;
     }
 }

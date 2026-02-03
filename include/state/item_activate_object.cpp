@@ -9,27 +9,27 @@ void item_activate_object(ENetEvent& event, state state)
     if (!worlds.contains(peer->recent_worlds.back())) return;
     ::world &world = worlds.at(peer->recent_worlds.back());
 
-    auto it = world.ifloats.find(state.id);
-    if (it == world.ifloats.end()) return;
-    ::ifloat &ifloat = it->second;
+    auto it = world.objects.find(state.id);
+    if (it == world.objects.end()) return;
+    ::object &object = it->second;
 
-    ::item &item = items[ifloat.id];
+    ::item &item = items[object.id];
     if (item.type != type::GEM)
     {
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage",
             (item.rarity >= 999) ?
-                std::format("Collected `w{} {}``.", ifloat.count, item.raw_name).c_str() :
-                std::format("Collected `w{} {}``. Rarity: `w{}``", ifloat.count, item.raw_name, item.rarity).c_str()
+                std::format("Collected `w{} {}``.", object.count, item.raw_name).c_str() :
+                std::format("Collected `w{} {}``. Rarity: `w{}``", object.count, item.raw_name, item.rarity).c_str()
         });
-        ifloat.count = peer->emplace(slot{ifloat.id, ifloat.count});
+        object.count = peer->emplace(slot{object.id, object.count});
     }
     else 
     {
-        peer->gems += ifloat.count;
-        ifloat.count = 0;
+        peer->gems += object.count;
+        object.count = 0;
         on::SetBux(event);
     }
-    item_change_object(event, {ifloat.id, ifloat.count}, ifloat.pos, state.id/*@todo*/);
-    if (ifloat.count == 0) world.ifloats.erase(it);
+    item_change_object(event, {object.id, object.count}, object.pos, state.id/*@todo*/);
+    if (object.count == 0) world.objects.erase(it);
 }

@@ -23,7 +23,7 @@ public:
     void create_tables() 
     {
         const char* sql = 
-        "CREATE TABLE IF NOT EXISTS worlds (_n TEXT PRIMARY KEY, owner INTEGER, pub BOOLEAN);"
+        "CREATE TABLE IF NOT EXISTS worlds (_n TEXT PRIMARY KEY, owner INTEGER);"
 
         "CREATE TABLE IF NOT EXISTS blocks ("
             "_n TEXT, _p INTEGER, fg INTEGER, bg INTEGER, tick INTEGER, l TEXT, s3 INTEGER, s4 INTEGER,"
@@ -31,7 +31,7 @@ public:
             "FOREIGN KEY (_n) REFERENCES worlds(_n)"
         ");"
 
-        "CREATE TABLE IF NOT EXISTS ifloats ("
+        "CREATE TABLE IF NOT EXISTS objects ("
             "_n TEXT, uid INTEGER, i INTEGER, c INTEGER, x REAL, y REAL,"
             "PRIMARY KEY (_n, uid),"
             "FOREIGN KEY (_n) REFERENCES worlds(_n)"
@@ -75,10 +75,9 @@ world::world(const std::string& name)
 {
     world_db db;
     
-    db.query("SELECT owner, pub FROM worlds WHERE _n = ?", [this, &name](sqlite3_stmt* stmt) 
+    db.query("SELECT owner FROM worlds WHERE _n = ?", [this, &name](sqlite3_stmt* stmt) 
     {
         this->owner =   sqlite3_column_int(stmt, 0);
-        this->_public = sqlite3_column_int(stmt, 1);
         this->name = name;
     }, name);
 
@@ -95,10 +94,10 @@ world::world(const std::string& name)
             sqlite3_column_int(stmt, 6)
         );
     }, name);
-     db.query("SELECT uid, i, c, x, y FROM ifloats WHERE _n = ?", [this](sqlite3_stmt* stmt) 
+     db.query("SELECT uid, i, c, x, y FROM objects WHERE _n = ?", [this](sqlite3_stmt* stmt) 
      {
         int uid = sqlite3_column_int(stmt, 0);
-        ifloats.emplace(uid, ifloat(
+        objects.emplace(uid, object(
             sqlite3_column_int(stmt, 1),
             sqlite3_column_int(stmt, 2),
             ::pos{
@@ -106,7 +105,7 @@ world::world(const std::string& name)
                 static_cast<float>(sqlite3_column_double(stmt, 4)) // @todo
             }
         ));
-        ifloat_uid = std::max(ifloat_uid, uid);
+        last_object_uid = std::max(last_object_uid, uid);
     }, name);
 }
 
@@ -117,11 +116,10 @@ world::~world()
     world_db db;
     db.begin_transaction();
     
-    db.execute("INSERT OR REPLACE INTO worlds (_n, owner, pub) VALUES (?, ?, ?)", [this](sqlite3_stmt* stmt) 
+    db.execute("INSERT OR REPLACE INTO worlds (_n, owner) VALUES (?, ?)", [this](sqlite3_stmt* stmt) 
     {
             sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
             sqlite3_bind_int(stmt,  2, this->owner);
-            sqlite3_bind_int(stmt,  3, this->_public);
     });
     
     db.execute("DELETE FROM blocks WHERE _n = ?", [this](auto stmt) {
@@ -143,12 +141,12 @@ world::~world()
         });
     }
 
-    db.execute("DELETE FROM ifloats WHERE _n = ?", [this](auto stmt) {
+    db.execute("DELETE FROM objects WHERE _n = ?", [this](auto stmt) {
         sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
     });
-    for (const auto &[uid, item] : this->ifloats) 
+    for (const auto &[uid, item] : this->objects) 
     {
-        db.execute("INSERT INTO ifloats (_n, uid, i, c, x, y) VALUES (?, ?, ?, ?, ?, ?)", [&](sqlite3_stmt* stmt) 
+        db.execute("INSERT INTO objects (_n, uid, i, c, x, y) VALUES (?, ?, ?, ?, ?, ?)", [&](sqlite3_stmt* stmt) 
         {
             int i = 1;
             sqlite3_bind_text(stmt,   i++, this->name.c_str(), -1, SQLITE_STATIC);
@@ -215,10 +213,10 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
     auto w = worlds.find(peer->recent_worlds.back());
     if (w == worlds.end()) return -1;
 
-    auto f = std::find_if(w->second.ifloats.begin(), w->second.ifloats.end(), [&](const std::pair<const int, ifloat>& entry) {
+    auto f = std::find_if(w->second.objects.begin(), w->second.objects.end(), [&](const std::pair<const int, object>& entry) {
         return uid == 0 && entry.second.id == slot.id && entry.second.pos == pos;
     });
-    if (f != w->second.ifloats.end()) // @note merge drop
+    if (f != w->second.objects.end()) // @note merge drop
     {
         f->second.count += slot.count;
         state.netid = -3; // @note fd ff ff ff
@@ -235,7 +233,7 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
     }
     else // @note add new drop
     {
-        auto it = w->second.ifloats.emplace(++w->second.ifloat_uid, ifloat{slot.id, slot.count, pos}); // @note a iterator ahead of time
+        auto it = w->second.objects.emplace(++w->second.last_object_uid, object{slot.id, slot.count, pos}); // @note a iterator ahead of time
         state.netid = -1;
         state.uid = it.first->first;
         state.count = static_cast<float>(slot.count);
@@ -256,13 +254,13 @@ void add_drop(ENetEvent& event, ::slot im, ::pos pos)
     });
 }
 
-void tile_update(ENetEvent &event, state state, block &block, world& w) 
+void send_tile_update(ENetEvent &event, state state, block &block, world& w) 
 {
     state.type = 05; // @note PACKET_SEND_TILE_UPDATE_DATA
     state.peer_state = 0x08;
     std::vector<u_char> data = compress_state(state);
 
-    short pos = sizeof(::state);
+    short pos = sizeof(::state); // @note start after state bytes (as every packet has)
     data.resize(pos + 8zu); // @note {2} {2} 00 00 00 00
     
     *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
@@ -273,6 +271,20 @@ void tile_update(ENetEvent &event, state state, block &block, world& w)
     data[pos++] = block.state4;
     switch (items[block.fg].type)
     {
+        case type::LOCK:
+        {
+            if (!is_tile_lock(block.fg)) w.is_public = (block.state3 & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
+
+            std::size_t admins = std::ranges::count_if(w.admin, std::identity{});
+            data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + 4zu + (admins * 4zu));
+
+            data[pos++] = 0x03;
+            data[pos++] = w.lock_state;
+            *reinterpret_cast<int*>(&data[pos]) = w.owner; pos += sizeof(int);
+            *reinterpret_cast<int*>(&data[pos]) = admins; pos += sizeof(int);
+            /* @todo admin list */
+            break;
+        }
         case type::DOOR:
         case type::PORTAL:
         {
@@ -333,7 +345,7 @@ void remove_fire(ENetEvent &event, state state, block &block, world& w)
     });
 
     block.state4 &= ~S_FIRE;
-    tile_update(event, state, block, w);
+    send_tile_update(event, state, block, w);
 
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 

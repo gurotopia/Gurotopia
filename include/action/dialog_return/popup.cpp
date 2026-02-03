@@ -68,4 +68,11 @@ void popup(ENetEvent& event, const std::vector<std::string> &&pipes)
             ).c_str()
         });
     }
+    else if (pipes[11zu] == "seed_diary_customization")
+    {
+        packet::create(*event.peer, false, 0, {
+            "OnDialogRequestRML",
+            "show_seed_diary_ui"
+        });
+    }
 }

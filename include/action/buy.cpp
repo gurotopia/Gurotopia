@@ -121,7 +121,7 @@ void action::buy(ENetEvent& event, const std::string& header)
                     shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
             }
             std::string received{};
-            for (std::pair<short, short> &im : shouhin.im)
+            for (const auto &im : shouhin.im)
             {
                 if (im.first == 9412) peer->slot_size += 10; // @note 9412 is the id for increase backpack sprite, but peer wont actually be given that item.
                 else modify_item_inventory(event, {im.first, im.second});

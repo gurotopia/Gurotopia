@@ -9,6 +9,8 @@
     */
     extern std::vector<std::string> readch(const std::string &str, char c);
 
+    extern std::string join(const std::vector<std::string>& range, const std::string& del);
+
     /*
         @return true if string contains ONLY alphabet [a, b, c] or number [1, 2, 3] 
     */

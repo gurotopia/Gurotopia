@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer item="ITEM_ID_HAIR_OF_FIONN">
+	<Data>
+		<Sprite name="item_Sprite" fileName="game/particles_large12.rttex" textureSize="64"/>
+		
+		<Animations>
+			<SpriteAnimation name="item_animation" autoPlay="true" sprite="item_Sprite" isLoop="true" animTime="1200">
+				<Frame>8,13</Frame>
+				<Frame>9,13</Frame>
+				<Frame>10,13</Frame>
+				<Frame>11,13</Frame>
+				<Frame>12,13</Frame>
+				<Frame>13,13</Frame>
+			</SpriteAnimation>
+		</Animations>
+		
+	</Data>
+
+	<RenderRules>
+		<RenderHair>
+			<SpriteRender name="item_Sprite" alignment="DOWN_CENTER" blend="PREMULTIPLIED_ALPHA"/>
+		</RenderHair>
+	</RenderRules>
+</ItemRenderer>

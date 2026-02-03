@@ -1,0 +1,140 @@
+.icon-with-text {
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18dp;
+	sound-on-click: true;
+}
+
+.icon-with-text:not(.disabled):active {
+	filter: brightness(0.85);
+	transform: translateX(-50%) scale(0.95);
+}
+
+.icon-with-text.disabled {
+	pointer-events: none;
+	filter: opacity(0.5);
+	sound-on-click: false;
+}
+
+.icon-with-text .icon {
+    position: relative;
+    width: 60dp;
+    height: 60dp;
+    border-radius: 7dp;
+    background-color: rgba(0,0,0,128);
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 0dp;
+    top: -5dp;
+}
+
+.icon-with-text .icon .error {
+    display: block;
+    decorator: image(interface/large/gui_missing_item_border.rttex);
+    width: 100%;
+    height: 100%;
+    top: -6dp;
+    left: 7dp;
+    position: absolute;
+    z-index: 1;
+}
+
+@spritesheet item_icon_transmutation_sprites {
+    src: game/tiles_page14.rttex;
+    resolution: 1x;
+    temporal_sprite: 928px 320px 32px 32px;
+    permanent_sprite: 896px 320px 32px 32px;
+}
+
+.icon-with-text .icon .transmute {
+    display: block;
+    width: 18dp;
+    height: 18dp;
+    top: -6dp;
+    left: -6dp;
+    position: absolute;
+    z-index: 1;
+}
+
+.icon-with-text .icon .image {
+    display: block;
+    width: 60dp;
+    height: 60dp;
+    padding: 0dp;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+}
+
+.icon-with-text .icon .none-image {
+    decorator: image(interface/large/gui_empty_cosmetic.rttex);
+    display: block;
+    width: 30dp;
+    height: 30dp;
+    padding: 0dp;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+}
+
+.icon-with-text .icon-text {
+    padding: 0dp;
+    text-align: center;
+    word-break: break-word;
+    line-height: 16dp;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.icon-with-text .icon-text:not(.hidden), 
+.icon-with-text .icon-truncating-text:not(.hidden), 
+.icon-with-text .icon-header-text:not(.hidden) {
+    display: block;
+}
+
+.icon-with-text .icon-truncating-text {
+    padding: 0dp;
+    text-align: center;
+    white-space: nowrap;
+    line-height: 16dp;
+    width: 80dp;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.icon-with-text .icon-header-text {
+    padding: 0dp;
+    text-align: center;
+    font-size: 0.8em;
+    white-space: nowrap;
+    line-height: 16dp;
+    width: 70dp;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 6dp 6dp 0 0;
+    padding-bottom: 5dp;
+    margin-bottom: 2dp;
+}
+
+
+*.hidden {
+    display: none;
+}
+
+.orange-border {
+    border: 5dp rgba(252, 144, 70, 255);
+}
+
+.blue-border {
+    border: 5dp rgba(124, 187, 212, 255);
+}
+
+.white-border {
+    border: 5dp #fff;
+}

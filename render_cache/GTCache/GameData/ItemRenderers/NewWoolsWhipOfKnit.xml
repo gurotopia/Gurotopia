@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_woolFront" fileName="game/particles12.rttex" textureSize="32" frame="14,8" />
+    <Sprite name="s_woolBack" fileName="game/particles12.rttex" textureSize="32" frame="15,8" />
+    <Sprite name="s_backNeedle" fileName="game/player_longhanditem4.rttex" textureSize="64,32" frame="1,10" />
+    <Sprite name="s_thread" fileName="game/particles12.rttex" textureSize="32" frame="12,8" />
+    <Sprite name="s_smoke" fileName="game/particles12.rttex" textureSize="32" frame="14,7" />
+
+    <Animations>
+      <SpriteAnimation name="a_thread" sprite="s_thread">
+        <Frame>12,8</Frame>
+        <Frame>13,8</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_smoke" sprite="s_smoke" animTime="500">
+        <Frame>23,7</Frame>
+        <Frame>14,7</Frame>
+        <Frame>15,7</Frame>
+        <Frame>16,7</Frame>
+        <Frame>17,7</Frame>
+        <Frame>18,7</Frame>
+        <Frame>19,7</Frame>
+        <Frame>20,7</Frame>
+        <Frame>21,7</Frame>
+        <Frame>22,7</Frame>
+      </SpriteAnimation>
+    </Animations>
+    
+    <StateMachines>
+      <StateMachine name="Punch">
+        <States>
+          <State name="No" />
+          <State name="Yes" />
+        </States>
+        <Transitions>
+          <Transition to="No" from="Yes">
+            <Condition type="or">
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+              <IsZombified>true</IsZombified>
+            </Condition>
+          </Transition>
+          <Transition to="Yes" from="No">
+            <Condition type="and">
+              <IsAction>PUNCH</IsAction>
+              <IsZombified>false</IsZombified>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <ParticleSystems>
+      <ParticleSystem name="ps_punchProjectile" updateStage="RenderChestItem" updateState="Punch.Yes">
+        <Emitter attachment="handspotRoot">
+          <Set name="lifeTime">0.1</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+        </Emitter>
+        <Particle randomSpriteFrame="true">
+          <Set name="sprite">s_thread</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.1</Set>
+          <Set name="renderAlignment">LEFT_CENTER</Set>
+          <Random name="flipX" min="false" max="true"/>
+          <Set name="isBeamParticle">true</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_explosion" updateStage="OnPunchStart">
+        <Emitter attachment="targetPos">
+          <Set name="lifeTime">0.5</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="emissionInterval">0.15</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_smoke</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.5</Set>
+          <Random name="initialAngle" min="0" max="360"/>
+          <Set name="initialRotationRate">360</Set>
+          <Set name="initialScale">2,2</Set>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+
+
+    <RenderOptions>
+      <Default>
+        <Set name="IgnoreDefaultDamagedTileEffect">true</Set>
+        <Set name="IgnoreDefaultDestroyedTileEffect">true</Set>
+      </Default>
+    </RenderOptions>
+
+  </Data>
+  <RenderRules>
+    <OnPunchUpdate>
+      <AvatarTransform class="Face">
+        <Set name="face">MAD</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">0</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">1500</Set>
+        <Set name="isAdditive">true</Set>
+      </AvatarTransform>
+    </OnPunchUpdate>
+    <RenderChestItem>
+      <SpriteRender name="s_woolFront" offset="-15,-15.5" />
+      <StopIf>
+        <IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+      </StopIf>
+    </RenderChestItem>
+    <RenderChestBackItem>
+      <SpriteRender name="s_woolBack" offset="6,-16" />
+      <Rotate>22,0,0,1</Rotate>
+      <SpriteRender name="s_backNeedle" offset="5,-12" onState="Punch.No"/>
+    </RenderChestBackItem>
+  </RenderRules>
+</ItemRenderer>

@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_equipFront" fileName="game/player_cosmetics4.rttex" textureSize="32" frame="1,1"/>
+    <Sprite name="s_equip" fileName="game/particles_large16.rttex" textureSize="64" frame="7,8"/>
+    <Sprite name="s_equipGlow" fileName="game/particles_large16.rttex" textureSize="64" frame="8,8"/>
+    <Sprite name="s_muzzle" fileName="game/particles9.rttex" textureSize="32" frame="29,25"/>
+    <Sprite name="s_projectile" fileName="game/particles12.rttex" textureSize="32" frame="5,10"/>
+    <Sprite name="s_hit" fileName="game/particles12.rttex" textureSize="32" frame="6,10" />
+
+    <Animations>
+      <SpriteCurveAnimation name="a_equipGlow" isLoop="true" autoPlay="true" sprite="s_equipGlow" animTime="3000" playOnState="Motion.Idle">
+        <Curve name="alpha">
+          <KeyFrame>0.f, 0.f</KeyFrame>
+          <KeyFrame>0.5f, 1.f </KeyFrame>
+          <KeyFrame>1.f, 0.f</KeyFrame>
+        </Curve>
+      </SpriteCurveAnimation>
+      <SpriteAnimation name="a_idle" sprite="s_equip" isLoop="true" autoPlay="true" animTime="1000" playOnState="Motion.Idle">
+        <Frame>7,8</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_move" sprite="s_equip" isLoop="true" autoPlay="true" animTime="200" playOnState="Motion.Move">
+        <Frame>9,8</Frame>
+        <Frame>10,8</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_punch" sprite="s_equip" isLoop="true" autoPlay="true" animTime="1000" playOnState="Motion.Punch">
+        <Frame>11,8</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_punchMove" sprite="s_equip" isLoop="true" autoPlay="true" animTime="200" playOnState="Motion.PunchMove">
+        <Frame>12,8</Frame>
+        <Frame>13,8</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <StateMachines>
+      <StateMachine name="Motion">
+        <States>
+          <State name="Idle" />
+          <State name="Move" />
+          <State name="Punch" />
+          <State name="PunchMove" />
+        </States>
+        <Transitions>
+          <Transition to="Idle" from="Move|Punch|PunchMove">
+            <Condition type="and">
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="Move" from="Idle|Punch|PunchMove">
+            <Condition type="and">
+              <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="Punch" from="Idle|Move|PunchMove">
+            <Condition type="and">
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+              <IsAction>PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="PunchMove" from="Idle|Move|Punch">
+            <Condition type="and">
+              <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+              <IsAction>PUNCH</IsAction>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <ParticleSystems>
+      <ParticleSystem name="ps_projectile" updateStage="OnPunchStart">
+        <Emitter>
+          <Set name="lifeTime">0</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Select name="offset" input="punchCount">
+            <Item>0, -11</Item>
+            <Item>22, -11</Item>
+          </Select>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_projectile</Set>
+          <Set name="rotateWithVelocity">true</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>1, 1</KeyFrame>
+          </Curve>
+          <Set name="lifeTime">0.3</Set>
+          <VectorTo name="initialVelocity" source="targetPos" duration="lifeTime" x="1"/>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_muzzle" updateStage="OnPunchStart">
+        <Emitter>
+          <Set name="lifeTime">0</Set>
+          <Set name="offsetFacing">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Select name="offset" input="punchCount">
+            <Item>10, -11</Item>
+            <Item>32, -11</Item>
+          </Select>
+        </Emitter>
+        <Particle usePlayerFacing="true" >
+          <Set name="sprite">s_muzzle</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 0</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="lifeTime">0.2</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_hitFlash" updateStage="OnDamagedTile">
+        <Emitter>
+          <Set name="lifeTime">0</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_hit</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Curve name="initialScale">
+            <KeyFrame>0, 0.5,0.5</KeyFrame>
+            <KeyFrame>1, 1,1</KeyFrame>
+          </Curve>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="lifeTime">0.5</Set>
+          <Random name="initialAngle" min="0" max="360" />
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+
+    <RenderOptions>
+      <Default>
+        <Set name="IgnoreDefaultDamagedTileEffect">true</Set>
+      </Default>
+    </RenderOptions>
+    
+  </Data>
+
+  <RenderRules>
+    <RenderBackpack>
+      <StopIf>
+        <IsSleepingOnaBed>true</IsSleepingOnaBed>
+        <IsTrnsformed>true</IsTrnsformed>
+        <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_REBEL_RAIDER</IsWearing>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_IMPERIAL_ENFORCER</IsWearing>
+      </StopIf>
+      <Translate>0,-32,0</Translate>
+      <SpriteRender name="s_equip" blend="PREMULTIPLIED_ALPHA"/>
+      <SpriteRender name="s_equipGlow" blend="PREMULTIPLIED_ALPHA" drawShadow="false" onState="Motion.Idle"/>
+    </RenderBackpack>
+    <RenderInFront>
+      <StopIf>
+        <IsZombified>true</IsZombified>
+        <IsTrnsformed>true</IsTrnsformed>
+        <IsSleepingOnaBed>true</IsSleepingOnaBed>
+        <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_REBEL_RAIDER</IsWearing>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_IMPERIAL_ENFORCER</IsWearing>
+      </StopIf>
+      <SpriteRender name="s_equipFront" offset="-16,-16" blend="PREMULTIPLIED_ALPHA" onState="Motion.Punch|Motion.PunchMove"/>
+    </RenderInFront>
+    <OnPunchUpdate>
+      <AvatarTransform class="Face">
+        <Set name="face">MAD</Set>
+      </AvatarTransform>
+    </OnPunchUpdate>
+  </RenderRules>
+</ItemRenderer>

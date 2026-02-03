@@ -1,0 +1,100 @@
+.window {
+    width: 1000dp;
+}
+
+.window .bg {
+    overflow-y: auto;
+}
+
+#back-button {
+    display: block;
+    bottom: 0;
+    left: 0;
+    width: 100dp;
+    margin: 0;
+}
+
+/*------- WINDOW TITLE -------*/
+
+@spritesheet wardrobe_main_ui_title_sprites {
+    src: game/tiles_page17.rttex;
+    resolution: 1x;
+    wardrobe_main_title_icon: 992px 288px 32px 32px;
+}
+
+#window-title .title-icon {
+    decorator: image(wardrobe_main_title_icon);
+}
+
+/*--------------*/
+/*------- TABLE STYLE -------*/
+
+.full-width-table {
+    width: 100%;
+    margin: 20dp 0 20dp 0;
+    display: table;
+    row-gap: 10dp;
+}
+
+.full-width-table tr {
+    vertical-align: middle;
+    text-align: center;
+    height: 115dp; /* Fixed height to ensure uniformity */
+    padding: 0;
+}
+
+.full-width-table td {
+    vertical-align: middle;
+    text-align: center;
+    height: 115dp; /* Fixed height to ensure uniformity */
+}
+
+.central-cell {
+    vertical-align: middle;
+    padding: 0;
+    position: relative;
+    background-color: rgba(255,255,255,25);
+    border-radius: 6dp;
+}
+
+
+/*--------------*/
+/*------- PORTRAIT STYLE -------*/
+
+.portrait {
+    display:block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 420dp;
+    height: 315dp;
+}
+
+/*--------------*/
+/*------- UI BUTTONS STYLE -------*/
+
+#button-holder
+{
+    display: flex;
+    width: 100%;
+    margin: 15dp 0 0 0;
+    align-items: center;
+    justify-content: center;
+}
+
+#button-holder .img-button {
+    padding: 3dp 15dp 8dp 10dp; /* padding-top, padding-right, padding-bottom, padding-left */
+}
+
+#button-holder .img-button .label {
+    font-size: 20dp;
+}
+
+#button-holder .img-button:nth-child(2) {
+    margin: 0 10dp 0 10dp;
+}
+
+*.hidden {
+    display: none;
+}

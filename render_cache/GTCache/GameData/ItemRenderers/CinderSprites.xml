@@ -1,0 +1,175 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+	<Data>
+		<Sprite name="s_KetchupBottle" fileName="game/player_cosmetics4.rttex" textureSize="32" frame="4,1" />
+		<Sprite name="s_Pet" fileName="game/pets/p_cinder.rttex" textureSize="32" frame="0,0" />
+		<Animations>
+			<SpriteAnimation name="a_Attack" sprite="s_Pet" animTime="200" isLoop="true" playOnState="Motion.Punch">
+				<Frame>0,0</Frame>
+				<Frame>1,0</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_Fall" sprite="s_Pet" animTime="100" isLoop="true" playOnState="Motion.Down">
+				<Frame>7,0</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_Idle" sprite="s_Pet" animTime="300" isLoop="true" playOnState="Motion.None">
+				<Frame>0,0</Frame>
+				<Frame>1,0</Frame>
+				<Frame>2,0</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_Jump" sprite="s_Pet" animTime="100" isLoop="true" playOnState="Motion.Up">
+				<Frame>6,0</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_Move" sprite="s_Pet" animTime="300" isLoop="true" playOnState="Motion.Horizontal">
+				<Frame>3,0</Frame>
+				<Frame>4,0</Frame>
+				<Frame>5,0</Frame>
+			</SpriteAnimation>
+			<InterpolationVec3Animation name="FirstCinderPosOffsetAnimNone" variableName="FirstCinderPosOffset" targetVariableName="FirstCinderDesiredPos" isLoop="false" animTime="500" playOnState="Movement.Idle"/>
+			<InterpolationVec3Animation name="FirstCinderPosOffsetAnimMove" variableName="FirstCinderPosOffset" targetVariableName="FirstCinderDesiredPosWalk" isLoop="false" animTime="500" playOnState="Movement.Movement"/>			
+			
+			<InterpolationVec3Animation name="SecondCinderPosOffsetAnimNone" variableName="SecondCinderPosOffset" targetVariableName="SecondCinderDesiredPos" isLoop="false" animTime="500" playOnState="Movement.Idle"/>
+			<InterpolationVec3Animation name="SecondCinderPosOffsetAnimMove" variableName="SecondCinderPosOffset" targetVariableName="SecondCinderDesiredPosWalk" isLoop="false" animTime="500" playOnState="Movement.Movement"/>
+		</Animations>
+		<StateMachines>
+			<StateMachine name="Movement">
+				<States>
+					<State name="Idle"/>
+					<State name="Movement"/>
+				</States>
+				<Transitions>
+					<Transition to="Idle" from="Movement">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+					<Transition to="Movement" from="Idle">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="GreaterOrEqual" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="Motion">
+				<States>
+					<State name="None"/>
+					<State name="Up" />
+					<State name="Down" />
+					<State name="Horizontal"/>
+					<State name="Punch" />
+				</States>
+				<Transitions>
+					<Transition to="None" from="Punch|Up|Down|Horizontal">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.length" operator="Less" abs="true">0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Up" from="Punch|None|Down|Horizontal">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.y" operator="Less">-0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Down" from="Punch|None|Up|Horizontal">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.y" operator="Greater">0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Horizontal" from="Punch|None|Down|Up">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+							<IsVariableFloat name="pet.velocity.y" operator="Less" abs="true">0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Punch" from="None|Up|Down|Horizontal">
+						<Condition>
+							<IsAction>PUNCH</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="Facing">
+				<States>
+					<State name="Left" />
+					<State name="Right" />
+				</States>
+				<Transitions>
+					<Transition to="Left" from="Right">
+						<Condition>
+							<IsFacingLeft>true</IsFacingLeft>
+						</Condition>
+					</Transition>
+					<Transition to="Right" from="Left">
+						<Condition type="or">
+							<IsVariableBool name="isMannequin">true</IsVariableBool>
+							<IsFacingLeft>false</IsFacingLeft>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<RenderOptions>
+			<Default>
+				<Set name="NeedRenderPet">true</Set>
+				<Set name="PetOffsetDuplication">-17,0</Set>
+				<Set name="UsePetForceFaceTime">false</Set>
+				<Set name="IgnorePunchTypeCheck">true</Set>
+				<Set name="DefaultRenderMannequinHandItem">false</Set>
+			</Default>
+		</RenderOptions>
+		<VariableMap>
+			<Set name="FirstCinderDesiredPos">0,0,0</Set>
+			<Set name="FirstCinderDesiredPosWalk">-16,0,0</Set>
+			<Set name="FirstCinderPosOffset">-32,0,0</Set>
+			
+			<Set name="SecondCinderDesiredPos">0,0,0</Set>
+			<Set name="SecondCinderDesiredPosWalk">16,0,0</Set>
+			<Set name="SecondCinderPosOffset">32,0,0</Set>
+			
+			<Set name="facingVariable">0,0,0</Set>
+			<Set name="playerPositionVariable">0, 0, 0</Set>
+		</VariableMap>
+	</Data>
+	<RenderRules>
+		<RenderHandItem>
+			<SpriteRender name="s_KetchupBottle" rotationPoint="0,1" alignment="UPPER_CENTER" />
+		</RenderHandItem>
+		<OnPunchUpdate>
+			<AvatarTransform class="Face">
+				<Set name="face">MAD</Set>
+			</AvatarTransform>
+		</OnPunchUpdate>
+		<RenderPet>
+			<Group>
+				<Group onState="Movement.Idle">
+					<ArithmethicOperation LeftHandVariableName="FirstCinderDesiredPos" RightHandVariableName="48,0,0" OperationType="Set"/>
+				</Group>
+				<Group onState="Movement.Movement">
+					<ArithmethicOperation LeftHandVariableName="FirstCinderDesiredPosWalk" RightHandVariableName="24,0,0" OperationType="Set"/>
+				</Group>
+
+				<Translate>FirstCinderPosOffset</Translate>
+				<SpriteRender name="s_Pet" offset="0,0" alignment="DOWN_CENTER" />
+			</Group>
+			<Group>
+				<Group onState="Movement.Idle">
+					<ArithmethicOperation LeftHandVariableName="SecondCinderDesiredPos" RightHandVariableName="-16,0,0" OperationType="Set"/>
+				</Group>
+				<Group onState="Movement.Movement">
+					<ArithmethicOperation LeftHandVariableName="SecondCinderDesiredPosWalk" RightHandVariableName="-8,0,0" OperationType="Set"/>
+				</Group>
+				
+				<Translate>SecondCinderPosOffset</Translate>
+				<SpriteRender name="s_Pet" offset="0,0" alignment="DOWN_CENTER" />
+			</Group>
+		</RenderPet>
+		<UpdatePet>
+			<ContextUpdate type="SetPetWalkRunJump">
+				<Set name="PetWalkRunJump.minSpeed">500</Set>
+				<Set name="PetWalkRunJump.distSpeedMult">10</Set>
+			</ContextUpdate>
+		</UpdatePet>
+	</RenderRules>
+</ItemRenderer>

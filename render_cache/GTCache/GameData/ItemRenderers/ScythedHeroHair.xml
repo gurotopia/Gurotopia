@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+  <Data>
+    <StateMachines>
+      <StateMachine name="playerState">
+        <States>
+          <State name="Idle"/>
+          <State name="Move"/>
+          <State name="Fall"/>
+          <State name="Jump"/>
+        </States>
+        <Transitions>
+          <Transition from="Jump|Fall|Move" to="Idle" >
+            <Condition>
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="Jump|Fall|Idle" to="Move">
+            <Condition type="and">
+              <IsVariableFloat name="speed.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+              <IsVariableBool name="onGround">true</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition from="Fall|Move|Idle" to="Jump">
+            <Condition type="and">
+              <IsVariableFloat name="speed.y" operator="Less">-0.1</IsVariableFloat>
+              <IsVariableBool name="onGround">false</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition from="Jump|Idle|Move" to="Fall">
+            <Condition type="and">
+              <IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+              <IsVariableBool name="onGround">false</IsVariableBool>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <Sprite name="s_hair" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="9,31"/>
+    
+    <Animations>
+      <SpriteAnimation name="a_idle" playOnState="playerState.Idle" sprite="s_hair" isLoop="true" animTime="100">
+        <Frame>9,31</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_move" playOnState="playerState.Move" sprite="s_hair" isLoop="true" animTime="800">
+        <Frame>10,31</Frame>
+        <Frame>11,31</Frame>
+        <Frame>12,31</Frame>
+        <Frame>13,31</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_jump" playOnState="playerState.Jump" sprite="s_hair" isLoop="true" animTime="600">
+        <Frame>14,31</Frame>
+        <Frame>15,31</Frame>
+        <Frame>16,31</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_fall" playOnState="playerState.Fall" sprite="s_hair" isLoop="true" animTime="450">
+        <Frame>17,31</Frame>
+        <Frame>18,31</Frame>
+        <Frame>19,31</Frame>
+      </SpriteAnimation>
+    </Animations>
+  </Data>
+  <RenderRules>
+    <RenderHair>
+      <SpriteRender name="s_hair" offset="0,-15" alignment="DOWN_CENTER" blend="PREMULTIPLIED_ALPHA"/>
+    </RenderHair>
+  </RenderRules>
+</ItemRenderer>

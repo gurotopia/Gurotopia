@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer name="MoonGreatswordTileStamp">
+  <Data>
+    <Sprite name="s_mist" fileName="game/particles11.rttex" textureSize="32" frame="17,28" />
+
+    <ParticleSystems>
+      <ParticleSystem name="TileHitFire" updateStage="OnCreate">
+        <Emitter>
+          <Random name="emissionInterval" min="0.1" max="0.2" />
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_mist</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Set name="lifeTime">0.6</Set>
+          <Set name="initialVelocity">0,-16</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 0</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Random name="initialScale" min="0.4" max="1.2" />
+          <Random name="offset" min="-8, -7" max="8, 7" />
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+  </Data>
+</ItemRenderer>

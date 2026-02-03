@@ -1,0 +1,220 @@
+<?xml version="1.0"?>
+<ItemRenderer item="ITEM_ID_SOLAR_SURFER">
+  <Data>
+    <Sprite name="s_board1" fileName="game/player_feet16.rttex" textureSize="32" frame="30,12" />
+    <Sprite name="s_board2" fileName="game/player_feet16.rttex" textureSize="32" frame="30,13" />
+    <Sprite name="s_shoes1" fileName="game/player_feet16.rttex" textureSize="32" frame="31,12" />
+    <Sprite name="s_shoes2" fileName="game/player_feet16.rttex" textureSize="32" frame="31,13" />
+    <Sprite name="s_trail" fileName="game/particles10.rttex" textureSize="32" frame="31,31" />
+    <Sprite name="s_sail" fileName="game/particles_large13.rttex" textureSize="64"/>
+
+    <StateMachines>
+      <StateMachine name="Motion">
+        <States>
+          <State name="Idle" />
+          <State name="Move" />
+          <State name="Jump" />
+          <State name="Fall" />
+        </States>
+        <Transitions>
+          <Transition to="Idle" from="Fall|Move">
+            <Condition type="and">
+              <IsVariableBool name="onGround">true</IsVariableBool>
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition to="Move" from="Jump|Fall|Idle">
+            <Condition type="and">
+              <IsVariableBool name="onGround">true</IsVariableBool>
+              <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition to="Jump" from="Idle|Move">
+            <Condition type="and">
+              <IsVariableBool name="onGround">false</IsVariableBool>
+              <IsVariableFloat name="speed.y" operator="Less">-0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition to="Fall" from="Jump|Idle|Move">
+            <Condition type="and">
+              <IsVariableBool name="onGround">false</IsVariableBool>
+              <IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine name="TrailMotion">
+        <States>
+          <State name="Idle" />
+          <State name="Move" />
+        </States>
+        <Transitions>
+          <Transition to="Idle" from="Move">
+            <Condition>
+              <IsVariableFloat name="speed.x" operator="Less" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition to="Move" from="Idle">
+            <Condition>
+              <IsVariableFloat name="speed.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <VariableMap>
+      <Set name="sail_position">32, 24, 0</Set>
+      <Set name="sail_rotation">0, 0, 0, 1</Set>
+    </VariableMap>
+
+    <Animations>
+      <SpriteAnimation name="a_sailAnim" sprite="s_sail" animTime="500" autoPlay="true" isLoop="true">
+        <Frame>8,12</Frame>
+        <Frame>9,12</Frame>
+        <Frame>10,12</Frame>
+        <Frame>11,12</Frame>
+        <Frame>12,12</Frame>
+      </SpriteAnimation>
+      <InterpolationVec4Animation name="ia_idle" variableName="sail_rotation" targetValue="0, 0, 0, 1" animTime="2000" playOnState="Motion.Idle"/>
+      <InterpolationVec4Animation name="ia_move" variableName="sail_rotation" targetValue="-2.5, 0, 0, 1" animTime="2000" playOnState="Motion.Move"/>
+      <InterpolationVec4Animation name="ia_jump" variableName="sail_rotation" targetValue="-5, 0, 0, 1" animTime="2000" playOnState="Motion.Jump"/>
+      <InterpolationVec4Animation name="ia_fall" variableName="sail_rotation" targetValue="-7.5, 0, 0, 1" animTime="2000" playOnState="Motion.Fall"/>
+    </Animations>
+
+    <ParticleSystems>
+      <ParticleSystem name="ps_trail">
+        <Emitter>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+          <Set name="emissionInterval">0.035</Set>
+          <Set name="offset">-30,-5</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+        </Emitter>
+        <Particle usePlayerFacing="true">
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="sprite">s_trail</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.2</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialScale">
+            <KeyFrame>0, 2,1</KeyFrame>
+            <KeyFrame>1, 1,0.5</KeyFrame>
+          </Curve>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+
+    <RenderOptions>
+      <Default>
+        <Set name="ClothingOffsetFromShoes">-5</Set>
+        <Set name="ShoesShouldIgnoreRaptorLegsOffset">true</Set>
+        <Set name="ShouldHover">true</Set>
+        <Set name="UserNameOffset">26</Set>
+        <Set name="IncludeAllActions">true</Set>
+        <Set name="IgnorePunchTypeCheck">true</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+
+  <RenderRules>
+    <RenderBehind>
+      <StopIf type="or">
+        <IsZombified>true</IsZombified>
+        <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+        <IsSitting>true</IsSitting>
+        <IsSleepingOnaBed>true</IsSleepingOnaBed>
+      </StopIf>
+      <Group>
+        <Translate>sail_position</Translate>
+        <Rotate>sail_rotation</Rotate>
+        <SpriteRender name="s_sail" alignmentLeft="DOWN_LEFT" alignmentRight="DOWN_RIGHT"/>
+      </Group>
+
+      <StopIf>
+        <IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+      </StopIf>
+      <ParticleSystemRender name="ps_trail"/>
+    </RenderBehind>
+    <Update>
+      <StopIf>
+        <IsVariableBool name="isMannequin">false</IsVariableBool>
+      </StopIf>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">-125</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">0</Set>
+      </AvatarTransform>
+    </Update>
+    <RenderShoes>
+      <SpriteRender name="s_shoes2" alignment="DOWN_CENTER" />
+      <SpriteRender name="s_shoes1" alignment="DOWN_CENTER" />
+      <SpriteRender name="s_board1" offset="0,5.5" alignmentLeft="DOWN_LEFT" alignmentRight="DOWN_RIGHT" />
+      <SpriteRender name="s_board2" offset="0,5.5" alignmentLeft="DOWN_RIGHT" alignmentRight="DOWN_LEFT" />
+    
+      <Group>
+        <StopIf>
+          <IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+        </StopIf>
+        <ParticleSystemUpdate name="ps_trail" onState="TrailMotion.Move"/>
+      </Group>
+      
+      <StopIf type="or">
+        <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+        <IsAction>PUNCH</IsAction>
+        <IsAction>BUILD</IsAction>
+        <IsSitting>true</IsSitting>
+      </StopIf>
+      <AvatarTransform class="ArmAngle" onState="Motion.Idle">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">-125</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle" onState="Motion.Idle">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">0</Set>
+      </AvatarTransform>
+
+      <AvatarTransform class="ArmAngle" onState="Motion.Move">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">-120</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle" onState="Motion.Move">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">75</Set>
+      </AvatarTransform>
+
+      <AvatarTransform class="ArmAngle" onState="Motion.Jump">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">-115</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle" onState="Motion.Jump">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">75</Set>
+      </AvatarTransform>
+
+      <AvatarTransform class="ArmAngle" onState="Motion.Fall">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">-110</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle" onState="Motion.Fall">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">75</Set>
+      </AvatarTransform>
+
+      <AvatarTransform class="FootPosition">
+        <Set name="foot1dy">0</Set>
+        <Set name="foot2dy">0</Set>
+        <Set name="foot1y">0</Set>
+        <Set name="foot2y">0</Set>
+      </AvatarTransform>
+    </RenderShoes>
+  </RenderRules>
+</ItemRenderer>

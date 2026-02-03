@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer NPCType="DragonsBreath" NPCTypeID="11">
+	<Data>
+		<Sprite name="s_sprite" fileName="game/npc1.rttex" textureSize="32" frame="23,9"/>
+		<Sprite name="s_HitEffect" fileName="game/npc1.rttex" textureSize="32" frame="22,8" />
+		<Sprite name="s_MuzzleFlash" fileName="game/npc1.rttex" textureSize="32" frame="22,9" />
+		<StateMachines>
+			<StateMachine name="NPC" ServerOnly="true">
+				<States start="Stationary">
+					<NPCStationary name="Stationary"/>
+					<NPCPlatformAttack name="AttackProjectile" ExitTime="0.5">
+						<AttackSpeed>0</AttackSpeed>
+						<ProjectileName>"DragonsBreathProjectile"</ProjectileName>
+						<MinRangeToAttack>192</MinRangeToAttack>
+					</NPCPlatformAttack>	
+					<NPCAnticipation name="Anticipation" ExitTime="0.5"/>
+				</States>
+				<Transitions>							
+					<Transition to="Stationary" from="AttackProjectile">
+						<Condition>
+							<IsPlayerDistanceMatching operatorType="Greater">192</IsPlayerDistanceMatching>
+						</Condition>
+					</Transition>					
+					<Transition to="Anticipation" from="AttackProjectile|Stationary">
+						<Condition>
+							<IsPlayerDistanceMatching operatorType="LessOrEqual">192</IsPlayerDistanceMatching>
+						</Condition>
+					</Transition>				
+					<Transition to="AttackProjectile" from="Anticipation"/>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<Animations>
+			<SpriteAnimation name="a_sprite_static" playOnState="NPC.Stationary" sprite="s_sprite" isLoop="true">
+				<Frame>23, 9</Frame>
+			</SpriteAnimation>					
+			<SpriteAnimation name="a_sprite_anticipation" playOnState="NPC.Anticipation" sprite="s_sprite" isLoop="false">
+				<Frame>24, 9</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sprite_attack" playOnState="NPC.AttackProjectile" sprite="s_sprite" isLoop="true">
+				<Frame>25, 9</Frame>
+			</SpriteAnimation>			
+		</Animations>
+		<ParticleSystems>
+			<ParticleSystem name="ps_HitEffect" updateStage="OnDamaged">
+				<Emitter>
+					<Set name="particlesPerEmission">10</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">s_HitEffect</Set>
+					<Set name="rotateWithVelocity">true</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.4, 0</KeyFrame>
+						<KeyFrame>0.41, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="initialScale">0.5,0.5</Set>
+					<Set name="lifeTime">0.5</Set>
+					<Set name="initalRGB">0.8,0.8,0</Set>
+					<RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="30,90" />
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="ps_MuzzleFlash">
+				<Emitter>
+					<Set name="offset">20, 2</Set>
+					<Set name="lifeTime">0</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle usePlayerFacing="true">
+					<Set name="sprite">s_MuzzleFlash</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.5, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="lifeTime">0.15</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		<Components>
+			<Info/>
+			<MustKillNPC/>
+			<AttachmentSlotsCmp/>
+			<TintOverrideCmp/>
+			<Enemy>
+				<Set name="SoulsReward">2</Set>
+				<Set name="destroyTileId">4344</Set>
+			</Enemy>
+			<Movement/>
+			<Damage>
+				<Set name="damage">0</Set>
+			</Damage>
+			<StateMachine/>
+			<NPCRenderActionCmp/>
+			<Health>
+				<Set name="healthAmount">200</Set>
+				<Set name="maxHealth">200</Set>
+			</Health>
+			<CollisionBox>
+				<Set name="size">32,32</Set>
+				<Set name="CollisionFlag">"PLAYERS|PROJECTILES"</Set>
+				<Set name="CollisionType">"ENEMY_NPC"</Set>
+			</CollisionBox>
+			<DebugDraw/>
+		</Components>
+	</Data>
+	<RenderRules>
+		<Render>
+			<SpriteRender name="s_sprite"/>
+		</Render>
+		<Update>
+			<ParticleSystemUpdate name="ps_MuzzleFlash" onState="NPC.AttackProjectile" />
+		</Update>
+		<RenderInFront>
+			<Translate>0,-4,0</Translate>
+			<NPCHealthBarRender TexturePath="interface/large/gui_event_npchealth_bar.rttex" TextureSize="17,9" TextureCoordinates="0,0"/>
+		</RenderInFront>
+	</RenderRules>
+</ItemRenderer>

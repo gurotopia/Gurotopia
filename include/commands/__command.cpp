@@ -11,12 +11,13 @@
 #include "weather.hpp"
 #include "ghost.hpp"
 #include "ageworld.hpp"
+#include "renderworld.hpp"
 #include "__command.hpp"
 
 /* if you plan to use this outside of this file, please include in __command.hpp (^-^) - and just make it a void. */
 auto help_return = [](ENetEvent& event, const std::string_view text) 
 {
-    packet::action(*event.peer, "log", "msg|>> Commands: /find /warp {world} /edit {player} /punch {id} /skin {id} /sb {msg} /who /me {msg} /weather {id} /ghost /ageworld /wave /dance /love /sleep /facepalm /fp /smh /yes /no /omg /idk /shrug /furious /rolleyes /foldarms /stubborn /fold /dab /sassy /dance2 /march /grumpy /shy");
+    packet::action(*event.peer, "log", "msg|>> Commands: /find /warp {world} /edit {player} /punch {id} /skin {id} /sb {msg} /who /me {msg} /weather {id} /ghost /ageworld /renderworld /wave /dance /love /sleep /facepalm /fp /smh /yes /no /omg /idk /shrug /furious /rolleyes /foldarms /stubborn /fold /dab /sassy /dance2 /march /grumpy /shy");
 };
 
 std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::string_view)>> cmd_pool
@@ -34,6 +35,7 @@ std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::s
     {"weather", &weather},
     {"ghost", &ghost},
     {"ageworld", &ageworld},
+    {"renderworld", &renderworld},
     {"wave", &on::Action}, {"dance", &on::Action}, {"love", &on::Action}, {"sleep", &on::Action}, {"facepalm", &on::Action}, {"fp", &on::Action}, 
     {"smh", &on::Action}, {"yes", &on::Action}, {"no", &on::Action}, {"omg", &on::Action}, {"idk", &on::Action}, {"shrug", &on::Action}, 
     {"furious", &on::Action}, {"rolleyes", &on::Action}, {"foldarms", &on::Action}, {"fa", &on::Action}, {"stubborn", &on::Action}, {"fold", &on::Action}, 

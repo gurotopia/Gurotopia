@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="item_Sprite" fileName="game/particles_large16.rttex" textureSize="64" frame="10,9"/>
+    <Sprite name="sparkle_sprite" fileName="game/particles12.rttex" textureSize="32" frame="31,6"/>
+    <Sprite name="jump_trail_sprite" fileName="game/particles12.rttex" textureSize="32" frame="30,7"/>
+    <Sprite name="jump_heart_sprite" fileName="game/particles12.rttex" textureSize="32" frame="31,7"/>
+    <Sprite name="double_jump_particle_Sprite" fileName="game/particles12.rttex" textureSize="32"/>
+    <Animations>
+	    <SpriteAnimation name="double_jump_particle_Sprite_frames"  autoPlay="false" isLoop="false" sprite="double_jump_particle_Sprite"  animTime="100">
+		    <Frame>29,8</Frame>
+		    <Frame>30,8</Frame>
+		    <Frame>31,8</Frame>
+	    </SpriteAnimation>
+	 </Animations>
+    <ParticleSystems>
+	    <ParticleSystem name="double_jump_particle">
+		    <Emitter>
+			    <Set name="offset">24, 0</Set>
+			    <Set name="lifeTime">0</Set>
+			    <Set name="particlesPerEmission">9</Set>
+			    <Set name="delayTimer">0.1</Set>
+				<Set name="checkParticleNumToEmit">false</Set>
+		    </Emitter>
+		    <Particle randomSpriteFrame="true">
+			    <Set name="offset">0, -16</Set>
+			    <Set name="sprite">double_jump_particle_Sprite</Set>
+			    <Set name="blendingMode">ADDITIVE</Set>
+			    <Set name="isBackgroundParticle">true</Set>
+			    <Set name="initalRGB">1, 1, 1</Set>
+			    <Set name="relativeToEmitter">false</Set>
+			    <Set name="rotateWithVelocity">true</Set>
+			    <Set name="lifeTime">0.75</Set>
+			    <Random name="initialScale" min="0.2" max="0.5"/>
+			    <RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="50,100"/>
+		    </Particle>
+	    </ParticleSystem>
+		<ParticleSystem name="double_jump_particle2">
+		    <Emitter>
+			    <Set name="offset">-24, 0</Set>
+			    <Set name="lifeTime">0</Set>
+			    <Set name="particlesPerEmission">9</Set>
+			    <Set name="delayTimer">0.1</Set>
+				<Set name="checkParticleNumToEmit">false</Set>
+		    </Emitter>
+		    <Particle randomSpriteFrame="true">
+			    <Set name="offset">0, -16</Set>
+			    <Set name="sprite">double_jump_particle_Sprite</Set>
+			    <Set name="blendingMode">ADDITIVE</Set>
+			    <Set name="isBackgroundParticle">true</Set>
+			    <Set name="initalRGB">1, 1, 1</Set>
+			    <Set name="relativeToEmitter">false</Set>
+			    <Set name="rotateWithVelocity">true</Set>
+			    <Set name="lifeTime">0.75</Set>
+			    <Random name="initialScale" min="0.2" max="0.5"/>
+			    <RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="50,100"/>
+		    </Particle>
+	    </ParticleSystem>
+      <ParticleSystem name="sparklesParticle">
+        <Emitter>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+	
+          <Set name="particlesPerEmission">5</Set>
+	       <Set name="particlesToEmit">1</Set>
+          <Set name="offset">0,0</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">sparkle_sprite</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Set name="lifeTime">0.15</Set>
+	        <Set name="inSpecificOrder">true</Set>
+	        <Set name="relativeToEmitter">false</Set>
+	        <Select name="offset" input="randomNumber">
+		        <Item>-30, -26.5</Item>
+		        <Item>-24, -24</Item>
+		        <Item>-18, -20</Item>
+		        <Item>-12, -15.5</Item>
+
+				<Item>-29.5, -21</Item>
+		        <Item>-24, -17.5</Item>
+		        <Item>-18, -14.5</Item>
+				<Item>-12, -11</Item>
+
+				<Item>-27, -13</Item>
+		        <Item>-20.5, -9</Item>
+		        <Item>-12, -6</Item>
+
+				<Item>30, -27</Item>
+		        <Item>24, -24</Item>
+		        <Item>18, -20</Item>
+		        <Item>12, -16</Item>
+
+		        <Item>29, -22</Item>
+		        <Item>24, -18</Item>
+		        <Item>18, -14.5</Item>
+		        <Item>12, -12</Item>
+
+		        <Item>28, -14</Item>
+		        <Item>20.5, -10</Item>
+		        <Item>12, -7</Item>
+	        </Select>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.3, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+	        <Random name="initialAngle" min="0" max="360" />
+          <Set name="initialScale">0.5,0.5</Set>
+          <Random name="initialVelocity" min="-10,15" max="10,20"/>
+          <Random name="offset" min="-2, 0" max="2,0"/>
+        </Particle>
+      </ParticleSystem>
+      
+      <ParticleSystem name="jumpTrailParticle">
+        <Emitter>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="emissionInterval">0.025</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+          <Set name="offset">0,6</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">jump_trail_sprite</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.5</Set>
+          <Set name="initialScale">1,1</Set>
+		    <Set name="initialAngle">-90</Set>
+			<Set name="isBackgroundParticle">true</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.3, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="useGravity">true</Set>
+          <Set name="gravityVector">0, 250</Set>
+        </Particle>
+      </ParticleSystem>
+   
+      <ParticleSystem name="jumpHeartsParticle">
+        <Emitter>
+          <Set name="particlesPerEmission">3</Set>
+          <Set name="particlesToEmit">1</Set>
+          <Set name="offset">0,8</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">jump_heart_sprite</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Set name="lifeTime">0.75</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="useGravity">true</Set>
+          <Set name="gravityVector">0, 50</Set>
+          <Set name="interpolateScale">true</Set>
+          <Set name="initialScale">0.4,0.2</Set>
+          <Increment name="initialScale" source="particleIndex" multiplier="0.2,0.1"/>
+          <Set name="finalScale">1.2,0.6</Set>
+          <Increment name="finalScale" source="particleIndex" multiplier="0.4,0.2"/>
+          <Set name="offset">0,-30</Set>
+          <Increment name="worldPos" source="particleIndex" multiplier="0,12"/>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+
+    <RenderOptions>
+      <Default>
+        <Set name="HideParticlesOnTransform">true</Set>
+        <Set name="HideParticlesOnTheaterSeat">true</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+
+  <RenderRules>
+	<OnPunchUpdate>
+	    <AvatarTransform class="Face">
+	      <Set name="face">MAD</Set>
+	    </AvatarTransform>
+    </OnPunchUpdate>
+    <RenderBackpack>
+      <SpriteRender name="item_Sprite" offset="0,-32"/>
+      <ParticleSystemRender name="sparklesParticle" />
+    </RenderBackpack>
+    <AddClothingParticles>
+      <ParticleSystemUpdate name="sparklesParticle" onAction="IDLE|FALL|WALK|PUNCH|JUMP"/>
+      <ParticleSystemUpdate name="jumpTrailParticle" onAction="JUMP"/>
+      <ParticleSystemUpdate name="jumpHeartsParticle" onAction="JUMPSTART|JUMPDOUBLE"/>
+      <ParticleSystemUpdate name="double_jump_particle" onAction="FALL|JUMPDOUBLE"/>
+      <ParticleSystemUpdate name="double_jump_particle2" onAction="FALL|JUMPDOUBLE"/>
+    </AddClothingParticles>
+    <SwitchOffClothingParticles>
+      <ParticleSystemOff name="sparklesParticle"/>
+      <ParticleSystemOff name="jumpTrailParticle"/>
+      <ParticleSystemOff name="jumpHeartsParticle"/>
+	  <ParticleSystemOff name="double_jump_particle"/>
+	  <ParticleSystemOff name="double_jump_particle2"/>
+
+	</SwitchOffClothingParticles>
+  </RenderRules>
+</ItemRenderer>

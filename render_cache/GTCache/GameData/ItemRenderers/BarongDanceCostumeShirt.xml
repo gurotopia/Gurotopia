@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+	<Data>
+		<Sprite name="item_Sprite" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="27,29"/>
+	</Data>
+	<RenderRules>
+		<RenderShirt>
+			<SpriteRender name="item_Sprite" offset="-0.5,-20" blend="PREMULTIPLIED_ALPHA"/>
+		</RenderShirt>
+	</RenderRules>
+</ItemRenderer>

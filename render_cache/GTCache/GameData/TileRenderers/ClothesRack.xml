@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer itemID="ITEM_ID_CLOTHES_RACK">
+  <Data>
+    <Sprite name="s_backFrame" fileName="game/particles11.rttex" textureSize="32" frame="20,26" />
+    <Sprite name="s_frontframe" fileName="game/particles11.rttex" textureSize="32" frame="21,26" />
+  </Data>
+  <RenderRules>
+    <Render>
+      <SpriteRender name="s_backFrame" blend="PREMULTIPLIED_ALPHA"/>
+      <Group>
+        <Translate>-9,-13,0</Translate>
+        <Scale>1,1,1</Scale>
+        <ItemIdRender itemId="tile.extra.ownerId" blend="PREMULTIPLIED_ALPHA"/>
+      </Group>
+      <Group>
+        <Translate>-4,-13,0</Translate>
+        <Scale>1,1,1</Scale>
+        <ItemIdRender itemId="tile.extra.otherData" blend="PREMULTIPLIED_ALPHA"/>
+      </Group>
+      <Group>
+        <Translate>2,-13,0</Translate>
+        <Scale>1,1,1</Scale>
+        <ItemIdRender itemId="tile.extra.timer" blend="PREMULTIPLIED_ALPHA"/>
+      </Group>
+      <Group>
+        <Translate>7,-13,0</Translate>
+        <Scale>1,1,1</Scale>
+        <ItemIdRender itemId="tile.extra.growth" blend="PREMULTIPLIED_ALPHA"/>
+      </Group>
+      <SpriteRender name="s_frontframe" blend="PREMULTIPLIED_ALPHA"/>
+    </Render>
+  </RenderRules>
+</ItemRenderer>

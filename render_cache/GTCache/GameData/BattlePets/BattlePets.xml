@@ -1,0 +1,5121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BattlePets>
+
+
+	<Pet itemID="ITEM_ID_CALF">
+		<Name>"Calf"</Name>
+		<SubName>"moo"</SubName>
+		<EndName>"calf"</EndName>
+		<PowerName>"Trample"</PowerName>
+		<PowerDesc>"Ram the enemy, forcing them to swap out."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>10</Damage>
+		<Cooldown>7</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="FORCE_SWAP">
+				<Value>0</Value>
+				<Duration>1</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/moo.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BABY_CHICK">
+		<Name>"Chick"</Name>
+		<SubName>"chee"</SubName>
+		<EndName>"chick"</EndName>
+		<PowerName>"Chirp"</PowerName>
+		<PowerDesc>"Cheep adorably."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>9</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>1</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>22</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/bird3.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PIGLET">
+		<Name>"Piglet"</Name>
+		<SubName>"piggi"</SubName>
+		<EndName>"piggy"</EndName>
+		<PowerName>"Wallow"</PowerName>
+		<PowerDesc>"Wallow in the mud, healing yourself."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>20</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"HEAL"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"HOP_SPLAT"</AnimType>
+		<PowerParticle>35</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>"audio/squish.wav"</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BUTTERFLY">
+		<Name>"Butterfly"</Name>
+		<SubName>"butter"</SubName>
+		<EndName>"fly"</EndName>
+		<PowerName>"Acrobatics"</PowerName>
+		<PowerDesc>"Dodge all attacks for 5s."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="DODGE">
+				<Value>0</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"DANCE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/slash.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_DRAGON">
+		<Name>"Red Dragon"</Name>
+		<SubName>"draco"</SubName>
+		<EndName>"dragon"</EndName>
+		<PowerName>"Fire Breath"</PowerName>
+		<PowerDesc>"Ignite the target for 3 `8Fire`` Damage plus 3 more per second for 4s."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>3</Damage>
+		<Cooldown>6</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BURNING">
+				<Value>3</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>43</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_FRANK_REMOTE">
+		<Name>"Frankenguy"</Name>
+		<SubName>"franken"</SubName>
+		<EndName>"stein"</EndName>
+		<PowerName>"Supercharge"</PowerName>
+		<PowerDesc>"Charge up your next skill with +50% Damage."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="SUPERCHARGED">
+				<Value>50</Value>
+				<Duration>30</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SPLAT"</AnimType>
+		<PowerParticle>134</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/levelup2.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_TUMBLEWEED">
+		<Name>"Tumbleweed"</Name>
+		<SubName>"tumble"</SubName>
+		<EndName>"weed"</EndName>
+		<PowerName>"Needles"</PowerName>
+		<PowerDesc>"For 15s, inflict 5 `2Earth`` Damage when you are hit."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="THORNS">
+				<Value>5</Value>
+				<Duration>15</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SPLAT"</AnimType>
+		<PowerParticle>175</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/freeze.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_ZORBNIK_LEASH">
+		<Name>"Zorbnik"</Name>
+		<SubName>"zorb"</SubName>
+		<EndName>"nik"</EndName>
+		<PowerName>"Stun Ray"</PowerName>
+		<PowerDesc>"Stun the target for 3s, making them unable to act."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>10</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="STUNNED">
+				<Value>0</Value>
+				<Duration>3</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>10</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/laser.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_SPIRIT_RESONATOR">
+		<Name>"Spirit"</Name>
+		<SubName>"ecto"</SubName>
+		<EndName>"ghost"</EndName>
+		<PowerName>"Possession"</PowerName>
+		<PowerDesc>"Possess the target into using a random skill on the wrong target."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="POSSESSED">
+				<Value>0</Value>
+				<Duration>30</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>154</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/oracle.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BLACK_CAT">
+		<Name>"Black Cat"</Name>
+		<SubName>"kitti"</SubName>
+		<EndName>"kitty"</EndName>
+		<PowerName>"Bad Luck"</PowerName>
+		<PowerDesc>"Cross the target's path, making them do -25% Damage, and suffer +25% Damage, for 8s."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BAD_LUCK">
+				<Value>25</Value>
+				<Duration>8</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/hiss2.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_FAMILIAR_LEASH">
+		<Name>"Familiar"</Name>
+		<SubName>"fami"</SubName>
+		<EndName>"cat"</EndName>
+		<PowerName>"Black Magic"</PowerName>
+		<PowerDesc>"Curse the target's skills to fail 10% of the time for 20s."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>10</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>2</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="NIGHTMARES">
+				<Value>10</Value>
+				<Duration>20</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>61</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/oracle.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BAT_LEASH">
+		<Name>"Bat"</Name>
+		<SubName>"flappi"</SubName>
+		<EndName>"bat"</EndName>
+		<PowerName>"Sonic Burst"</PowerName>
+		<PowerDesc>"Blast sonic waves."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>9</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>2</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>163</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/peep.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BRIDE_REMOTE">
+		<Name>"Reanimated Bride"</Name>
+		<SubName>"franci"</SubName>
+		<EndName>"steina"</EndName>
+		<PowerName>"Reanimate"</PowerName>
+		<PowerDesc>"If beaten within 5s, resurrect with 50% life."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="REANIMATE">
+				<Value>50</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SPLAT"</AnimType>
+		<PowerParticle>61</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/skel.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>60</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_VIRUS_PET">
+		<Name>"Virus"</Name>
+		<SubName>"viro"</SubName>
+		<EndName>"virus"</EndName>
+		<PowerName>"Infect"</PowerName>
+		<PowerDesc>"Infect the target for 6 `1Water`` Damage per second lasting 7s."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="INFECTED">
+				<Value>6</Value>
+				<Duration>7</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>155</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/bubble_boil.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RETROVIRUS_PET">
+		<Name>"Retrovirus"</Name>
+		<SubName>"retro"</SubName>
+		<EndName>"virio"</EndName>
+		<PowerName>"Disco Fever"</PowerName>
+		<PowerDesc>"Infect the target to dance for 4s, unable to do anything other than swap out, and suffering 5 `8Fire`` Damage per second."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="DISCO_FEVER">
+				<Value>5</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>174</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/bubble_boil.wav"</PowerSound>
+		<PowerHitSound>"audio/fight_loop.wav"</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_MINI_MAMMOTH">
+		<Name>"Mini Mammoth"</Name>
+		<SubName>"mam"</SubName>
+		<EndName>"moth"</EndName>
+		<PowerName>"Mammoth Heart"</PowerName>
+		<PowerDesc>"Passive - maximum life is 30% higher."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>0</Cooldown>
+		<PowerType>"PASSIVE"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="PASSIVE_EXTRA_LIFE">
+				<Value>30</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_YEONNALLIGI">
+		<Name>"Yeonnalligi"</Name>
+		<SubName>"yeonn"</SubName>
+		<EndName>"alligi"</EndName>
+		<PowerName>"Soaring"</PowerName>
+		<PowerDesc>"Passive - 25% chance to dodge attacks."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>0</Cooldown>
+		<PowerType>"PASSIVE"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="PASSIVE_DODGE_CHANCE">
+				<Value>25</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_ICE_DRAGON">
+		<Name>"Ice Dragon"</Name>
+		<SubName>"iso"</SubName>
+		<EndName>"zard"</EndName>
+		<PowerName>"Frost Breath"</PowerName>
+		<PowerDesc>"Freeze the target for 2s. Frozen targets can't even swap out."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>10</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="FROZEN">
+				<Value>0</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>57</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>"audio/freeze.wav"</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_POLAR_BEAR_LEASH">
+		<Name>"Polar Bear"</Name>
+		<SubName>"ursa"</SubName>
+		<EndName>"bear"</EndName>
+		<PowerName>"Maul"</PowerName>
+		<PowerDesc>"Smash and slash!"</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>14</Damage>
+		<Cooldown>7</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>110</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/droar.wav"</PowerSound>
+		<PowerHitSound>"audio/slash.wav"</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_MINI_GROWTOPIAN">
+		<Name>"Mini Growtopian"</Name>
+		<SubName>"mini"</SubName>
+		<EndName>"topian"</EndName>
+		<PowerName>"Punch, Build, Grow"</PowerName>
+		<PowerDesc>"Punch hits for 8 `2Earth`` Damage. Build builds a wall that blocks attacks for 1s. Grow adds 4 Damage to Punch and 1s to Build, stacking up to 5 times."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>6</Cooldown>
+		<PowerType>"SPECIAL"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SPECIAL"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PET_LEPRECHAUN">
+		<Name>"Leprechaun"</Name>
+		<SubName>"lepre"</SubName>
+		<EndName>"chaun"</EndName>
+		<PowerName>"Get Lucky"</PowerName>
+		<PowerDesc>"Grants 25% chance of hitting for double Damage for 10s."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="CRITICAL">
+				<Value>25</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SPLAT"</AnimType>
+		<PowerParticle>124</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/slot_win.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PET_OWL">
+		<Name>"Mid-Pacific Owl"</Name>
+		<SubName>"hooti"</SubName>
+		<EndName>"owl"</EndName>
+		<PowerName>"Swoop"</PowerName>
+		<PowerDesc>"Attack, and dodge all attacks for 2s."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>15</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>4</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="DODGE">
+				<Value>0</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PET_BUNNY">
+		<Name>"Bunny"</Name>
+		<SubName>"hoppi"</SubName>
+		<EndName>"rabbit"</EndName>
+		<PowerName>"Big Sharp Pointy Teeth"</PowerName>
+		<PowerDesc>"Murder violently."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>30</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>110</PowerParticle>
+		<HitParticle>11</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/wscream.wav"</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_FIESTA_DRAGON">
+		<Name>"Fiesta Dragon"</Name>
+		<SubName>"festi"</SubName>
+		<EndName>"fiesta"</EndName>
+		<PowerName>"Party Breath"</PowerName>
+		<PowerDesc>"Attack, hitting both enemy pets at once."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>10</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>8</PowerFlags>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>68</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/cumbia_horns.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PET_BURRITO">
+		<Name>"Burrito"</Name>
+		<SubName>"burro"</SubName>
+		<EndName>"burro"</EndName>
+		<PowerName>"Stubborn"</PowerName>
+		<PowerDesc>"Passive - Suffers 25% less Damage from all attacks."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>0</Cooldown>
+		<PowerType>"PASSIVE"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="PASSIVE_ARMOR">
+				<Value>25</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PET_UNICORN">
+		<Name>"Unicorn"</Name>
+		<SubName>"uni"</SubName>
+		<EndName>"corn"</EndName>
+		<PowerName>"Rainbow Beam"</PowerName>
+		<PowerDesc>"Fire a blast of mythical colors."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>11</Damage>
+		<Cooldown>6</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>1</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>63</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/laser.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_SUMMER_KITE">
+		<Name>"Summer Kite"</Name>
+		<SubName>"summer"</SubName>
+		<EndName>"kite"</EndName>
+		<PowerName>"Windspeed"</PowerName>
+		<PowerDesc>"Passive - all Cooldowns are 2s shorter (minimum 1s)."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>0</Cooldown>
+		<PowerType>"PASSIVE"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="PASSIVE_COOLDOWN">
+				<Value>2</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PUPPY_LEASH">
+		<Name>"Puppy"</Name>
+		<SubName>"puppi"</SubName>
+		<EndName>"pup"</EndName>
+		<PowerName>"Pounce"</PowerName>
+		<PowerDesc>"Leap to strike!"</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>9</Damage>
+		<Cooldown>4</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_SPIRITFIRE_MASK">
+		<Name>"Fire Spirit"</Name>
+		<SubName>"pyro"</SubName>
+		<EndName>"spirit"</EndName>
+		<PowerName>"Spirit Swap"</PowerName>
+		<PowerDesc>"Force opponent to swap and transfer all status effects to the new enemy."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>10</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="FORCE_SWAP_STATUS">
+				<Value>0</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>154</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/oracle.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LEGEND_DRAGON">
+		<Name>"Legendary Dragon"</Name>
+		<SubName>"legend"</SubName>
+		<EndName>"legend"</EndName>
+		<PowerName>"BURNINATE!"</PowerName>
+		<PowerDesc>"Vaporize the target with a massive stream of flame."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>40</Damage>
+		<Cooldown>40</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>89</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/droar.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>10</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PROTODRAKE">
+		<Name>"Violet Protodrake"</Name>
+		<SubName>"proto"</SubName>
+		<EndName>"drake"</EndName>
+		<PowerName>"Purple Haze"</PowerName>
+		<PowerDesc>"Cover the world in burning haze for 10s, increasing all `8Fire`` Damage by 25%, and reducing all other Damage by 25%."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"WEATHER"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="WEATHER_HAZE">
+				<Value>25</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP_SPLAT"</AnimType>
+		<PowerParticle>94</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/levelup.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LION_WHIP">
+		<Name>"Lion"</Name>
+		<SubName>"leo"</SubName>
+		<EndName>"lion"</EndName>
+		<PowerName>"Claws Out"</PowerName>
+		<PowerDesc>"Strike back for 35 `8Fire`` Damage if hit within 4s."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="SLASH_THORNS">
+				<Value>35</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP"</AnimType>
+		<PowerParticle>110</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/slash.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_ICE_CALF_LEASH">
+		<Name>"Ice Calf"</Name>
+		<SubName>"ici"</SubName>
+		<EndName>"cow"</EndName>
+		<PowerName>"Ice Laser"</PowerName>
+		<PowerDesc>"Freeze the target for 5s. Frozen targets can't even swap out."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="FROZEN">
+				<Value>0</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>103</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/laser.wav"</PowerSound>
+		<PowerHitSound>"audio/freeze.wav"</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_ELECTRO_VIRUS">
+		<Name>"Electro virus"</Name>
+		<SubName>"elec"</SubName>
+		<EndName>"vira"</EndName>
+		<PowerName>"Shock Blast"</PowerName>
+		<PowerDesc>"Electrocute for a 1s stun."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>18</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="STUNNED">
+				<Value>0</Value>
+				<Duration>1</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>100</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/forcefield.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_DEATHS_SCARF">
+		<Name>"Death"</Name>
+		<SubName>"doom"</SubName>
+		<EndName>"mortis"</EndName>
+		<PowerName>"Doom"</PowerName>
+		<PowerDesc>"Mark the target for death in 20s."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="DOOMED">
+				<Value>0</Value>
+				<Duration>20</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>108</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/weird_hit.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_NIGHTMARE_VIRUS">
+		<Name>"Nightmare virus"</Name>
+		<SubName>"night"</SubName>
+		<EndName>"virii"</EndName>
+		<PowerName>"Nightmares"</PowerName>
+		<PowerDesc>"Terrify the target into messing up their skills 50% of the time for 6s."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>10</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="NIGHTMARES">
+				<Value>50</Value>
+				<Duration>6</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>106</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_SKELEDRAGON">
+		<Name>"Skeletal Dragon"</Name>
+		<SubName>"skele"</SubName>
+		<EndName>"skull"</EndName>
+		<PowerName>"Deathfire"</PowerName>
+		<PowerDesc>"Drain life from the target, healing you for the same amount."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>10</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>55</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PUDDY_LEASH">
+		<Name>"Puddy Cat"</Name>
+		<SubName>"puddi"</SubName>
+		<EndName>"kat"</EndName>
+		<PowerName>"Hairball"</PowerName>
+		<PowerDesc>"Launch a hairball. Gross."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>10</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>155</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/bloop.wav"</PowerSound>
+		<PowerHitSound>"audio/splat.wav"</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_COSMIC_UNICORN">
+		<Name>"Cosmic Unicorn"</Name>
+		<SubName>"cosmi"</SubName>
+		<EndName>"korn"</EndName>
+		<PowerName>"Cosmic Barrage"</PowerName>
+		<PowerDesc>"Crush the target with a comet from the heavens."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>36</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>2</PowerFlags>
+		<AnimType>"COMET_DROP"</AnimType>
+		<PowerParticle>182</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/boom.wav"</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_CRYSTAL_DRAGON">
+		<Name>"Black Crystal Dragon"</Name>
+		<SubName>"crysta"</SubName>
+		<EndName>"saurus"</EndName>
+		<PowerName>"Crystal Spikes"</PowerName>
+		<PowerDesc>"A blast of razor-sharp crystals."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>15</Damage>
+		<Cooldown>8</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>1</PowerFlags>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>115</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>"audio/firework1.wav"</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_REINDEER">
+		<Name>"Reindeer"</Name>
+		<SubName>"rein"</SubName>
+		<EndName>"deer"</EndName>
+		<PowerName>"Winter Gift"</PowerName>
+		<PowerDesc>"Give a gift to your teammate, healing them."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>30</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"HEAL_TEAMMATE"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SHOOT_TEAMMATE"</AnimType>
+		<PowerParticle>184</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/bell.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_REINDEER2">
+		<Name>"Magic Reindeer"</Name>
+		<SubName>"rudo"</SubName>
+		<EndName>"elk"</EndName>
+		<PowerName>"Glowing Nose"</PowerName>
+		<PowerDesc>"Ignite them with rays from your nose, doing 2 `8Fire`` Damage per second for 10s."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>10</Damage>
+		<Cooldown>12</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BURNING">
+				<Value>2</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>10</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/laser.wav"</PowerSound>
+		<PowerHitSound>"audio/burn.wav"</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_WINTER_FLU">
+		<Name>"Winter Flu"</Name>
+		<SubName>"winter"</SubName>
+		<EndName>"flu"</EndName>
+		<PowerName>"Influenza"</PowerName>
+		<PowerDesc>"Infect the target for 2 `1Water`` Damage per second over 25s."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="INFECTED">
+				<Value>2</Value>
+				<Duration>25</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>155</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/bubble_boil.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_DIAMOND_DRAGON">
+		<Name>"Diamond Dragon"</Name>
+		<SubName>"dima"</SubName>
+		<EndName>"saur"</EndName>
+		<PowerName>"Diamond Block"</PowerName>
+		<PowerDesc>"Prevent the target from swapping for 10s."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="NO_SWAP">
+				<Value>0</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>128</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>40</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_ONISIM">
+		<Name>"Onisim's Genie"</Name>
+		<SubName>"jini"</SubName>
+		<EndName>"genie"</EndName>
+		<PowerName>"Wish"</PowerName>
+		<PowerDesc>"Bring your dead partner back to life!"</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>30</Damage>
+		<Cooldown>999</Cooldown>
+		<PowerType>"RES_TEAMMATE"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SHOOT_TEAMMATE"</AnimType>
+		<PowerParticle>57</PowerParticle>
+		<HitParticle>48</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/sungate.wav"</PowerSound>
+		<PowerHitSound>"audio/gong.wav"</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BABY_BUNNY">
+		<Name>"Baby Bunny"</Name>
+		<SubName>"babi"</SubName>
+		<EndName>"bunny"</EndName>
+		<PowerName>"Hop"</PowerName>
+		<PowerDesc>"Hop."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>3</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"HOP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/jump.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>1</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_MARSHMALLOW_BASKET">
+		<Name>"Marshmallow Treat"</Name>
+		<SubName>"marsh"</SubName>
+		<EndName>"mallow"</EndName>
+		<PowerName>"Sugar Rush"</PowerName>
+		<PowerDesc>"For 10s, your abilities recharge twice as fast for both your pets."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>60</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="RUSH">
+				<Value>0</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"DANCE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/balloon.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_MUDDY_PANTS">
+		<Name>"Dirt"</Name>
+		<SubName>"mud"</SubName>
+		<EndName>"dirt"</EndName>
+		<PowerName>"Mud Glob"</PowerName>
+		<PowerDesc>"For 10s, the target's abilities recharge half as fast."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>20</Damage>
+		<Cooldown>40</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="MIRED">
+				<Value>0</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>143</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/splat.wav"</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_MICKEYMAY_LEASH">
+		<Name>"MickeyMay"</Name>
+		<SubName>"mickey"</SubName>
+		<EndName>"may"</EndName>
+		<PowerName>"Cower"</PowerName>
+		<PowerDesc>"Block all attacks for 7s."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>7</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/getpoint.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PINEAPPLE_KITE">
+		<Name>"Pineapple Kite"</Name>
+		<SubName>"pina"</SubName>
+		<EndName>"flyer"</EndName>
+		<PowerName>"Pineapple Bomb"</PowerName>
+		<PowerDesc>"Lob a heavy pineapple."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>18</Damage>
+		<Cooldown>9</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>137</PowerParticle>
+		<HitParticle>136</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/boom.wav"</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PENGUIN_LEASH">
+		<Name>"Penguin"</Name>
+		<SubName>"ping"</SubName>
+		<EndName>"guin"</EndName>
+		<PowerName>"Frosty Slide"</PowerName>
+		<PowerDesc>"Chill the target, making its abilities take 2s longer to recharge if used in the next 5s."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>9</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="CHILL">
+				<Value>2</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>85</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/squish_undo.wav"</PowerSound>
+		<PowerHitSound>"audio/ouch.wav"</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PHOENIX_PACIFIER">
+		<Name>"Baby Phoenix"</Name>
+		<SubName>"char"</SubName>
+		<EndName>"nix"</EndName>
+		<PowerName>"Firestorm"</PowerName>
+		<PowerDesc>"Ignite the planet! Everybody burns for 8 `8Fire`` Damage every 2s, lasting 10s."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>60</Cooldown>
+		<PowerType>"WEATHER"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="WEATHER_FIRESTORM">
+				<Value>8</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP_SPLAT"</AnimType>
+		<PowerParticle>43</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/terraform.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>40</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PET_WOLF">
+		<Name>"Wolf"</Name>
+		<SubName>"lupo"</SubName>
+		<EndName>"wolf"</EndName>
+		<PowerName>"Howl"</PowerName>
+		<PowerDesc>"Boost your Damage by 25% for 30s."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="MIGHT">
+				<Value>25</Value>
+				<Duration>30</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/snd037.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PET_SLIME">
+		<Name>"Slime"</Name>
+		<SubName>"goop"</SubName>
+		<EndName>"slime"</EndName>
+		<PowerName>"Regrowth"</PowerName>
+		<PowerDesc>"Heal 4 life every second for 10s."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="REGENERATION">
+				<Value>4</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP_SPLAT"</AnimType>
+		<PowerParticle>155</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/squish.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_STRAWBERRY_SLIME">
+		<Name>"Strawberry Slime"</Name>
+		<SubName>"straw"</SubName>
+		<EndName>"berry"</EndName>
+		<PowerName>"Corrosion"</PowerName>
+		<PowerDesc>"Spray acid that increases Damage taken by 10% for 10s. Stacks up to 20 times."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>6</Damage>
+		<Cooldown>4</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="CORROSION">
+				<Value>10</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>156</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/squish.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_MOOSE_CAP">
+		<Name>"Moose"</Name>
+		<SubName>"moos"</SubName>
+		<EndName>"moose"</EndName>
+		<PowerName>"Antler Bash"</PowerName>
+		<PowerDesc>"Smash them with your mighty antlers!"</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>22</Damage>
+		<Cooldown>12</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>1</PowerFlags>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/slash.wav"</PowerSound>
+		<PowerHitSound>"audio/fire_pop.wav"</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_MAGICAL_CARROT">
+		<Name>"Snowman"</Name>
+		<SubName>"snow"</SubName>
+		<EndName>"snow"</EndName>
+		<PowerName>"That's Cold"</PowerName>
+		<PowerDesc>"Freeze your teammate and throw their frozen body at the other team, hitting each for half your teammate's current health."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"SPECIAL"</PowerType>
+		<PowerFlags>8</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>186</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/freeze.wav"</PowerSound>
+		<PowerHitSound>"audio/boom.wav"</PowerHitSound>
+		<Rarity>60</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LOVEBIRD_PENDANT">
+		<Name>"Lovebird"</Name>
+		<SubName>"love"</SubName>
+		<EndName>"bird"</EndName>
+		<PowerName>"Enthrall"</PowerName>
+		<PowerDesc>"Mesmerize your enemy, so it can do nothing but swap out for 6s."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>10</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="ENTHRALLED">
+				<Value>0</Value>
+				<Duration>6</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>60</PowerParticle>
+		<HitParticle>6</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/heart.wav"</PowerSound>
+		<PowerHitSound>"audio/love_in.wav"</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LUCKY_PENDANT">
+		<Name>"Luck Dragon"</Name>
+		<SubName>"luck"</SubName>
+		<EndName>"lucky"</EndName>
+		<PowerName>"Lucky Strike"</PowerName>
+		<PowerDesc>"Blast the enemy for 1-40 `wAir`` Damage, randomly."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>55</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>40</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LEASHED_SILKWORM_RED">
+		<Name>"Red Silkworm"</Name>
+		<SubName>"rubi"</SubName>
+		<EndName>"silk"</EndName>
+		<PowerName>"Death Ray"</PowerName>
+		<PowerDesc>"If this beam destroys its target, it also hits the target's partner."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>24</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>139</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/sungate.wav"</PowerSound>
+		<PowerHitSound>"audio/spell1.wav"</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LEASHED_SILKWORM_GREEN">
+		<Name>"Green Silkworm"</Name>
+		<SubName>"verdi"</SubName>
+		<EndName>"worm"</EndName>
+		<PowerName>"Toxic Cloud"</PowerName>
+		<PowerDesc>"Spread poison over the whole battle, hurting everyone for 4 `2Earth`` Damage every 5s, lasting 60s."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>60</Cooldown>
+		<PowerType>"WEATHER"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="WEATHER_TOXIC_GAS">
+				<Value>4</Value>
+				<Duration>60</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP_SPLAT"</AnimType>
+		<PowerParticle>57</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/terraform.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LEASHED_SILKWORM_BLUE">
+		<Name>"Blue Silkworm"</Name>
+		<SubName>"blu"</SubName>
+		<EndName>"wormy"</EndName>
+		<PowerName>"Toss Cookies"</PowerName>
+		<PowerDesc>"Purge yourself of harmful effects, inflicting 10 `1Water`` Damage per effect removed."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>155</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/hiss4.wav"</PowerSound>
+		<PowerHitSound>"audio/squish.wav"</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LEASHED_SILKWORM_BLACK">
+		<Name>"Black Silkworm"</Name>
+		<SubName>"ebon"</SubName>
+		<EndName>"crawl"</EndName>
+		<PowerName>"Absorb"</PowerName>
+		<PowerDesc>"Absorb incoming energy for 2s - any attacks that would hurt you will heal you instead."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="ABSORB">
+				<Value>0</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP_SPLAT"</AnimType>
+		<PowerParticle>108</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/squish_undo.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LEASHED_SILKWORM_WHITE">
+		<Name>"White Silkworm"</Name>
+		<SubName>"pearl"</SubName>
+		<EndName>"pede"</EndName>
+		<PowerName>"Psyblade"</PowerName>
+		<PowerDesc>"Shoot a mind blade, causing psychic backlash to you for 4 Damage."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>12</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>122</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/laser.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LEASHED_SILKWORM_GREY">
+		<Name>"Grey Silkworm"</Name>
+		<SubName>"grok"</SubName>
+		<EndName>"wiggle"</EndName>
+		<PowerName>"Stoneform"</PowerName>
+		<PowerDesc>"Turn to stone, blocking attacks for 5s."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/rock_destroy.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LEASHED_SILKWORM_PURPLE">
+		<Name>"Purple Silkworm"</Name>
+		<SubName>"purpur"</SubName>
+		<EndName>"squirm"</EndName>
+		<PowerName>"Face Slap"</PowerName>
+		<PowerDesc>"Smack the target in the face, enraging them to inflict 25% more Damage for 10s. The rage stacks up to 20 times."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>12</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="STACK_MIGHT">
+				<Value>25</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/slap.wav"</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LEASHED_SILKWORM_YELLOW">
+		<Name>"Yellow Silkworm"</Name>
+		<SubName>"yella"</SubName>
+		<EndName>"verm"</EndName>
+		<PowerName>"Liquify"</PowerName>
+		<PowerDesc>"Melt down the enemy so they take 25% more Damage for 5s."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>15</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="MELTED">
+				<Value>25</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>61</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/blorb.wav"</PowerSound>
+		<PowerHitSound>"audio/sizzle.wav"</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LEASHED_SILKWORM_AQUA">
+		<Name>"Aqua Silkworm"</Name>
+		<SubName>"aqua"</SubName>
+		<EndName>"wurm"</EndName>
+		<PowerName>"Soothing Mist"</PowerName>
+		<PowerDesc>"Heal everyone for 6 life every 5s, lasting 30s."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>60</Cooldown>
+		<PowerType>"WEATHER"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="WEATHER_SOOTHING_MIST">
+				<Value>6</Value>
+				<Duration>30</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP_SPLAT"</AnimType>
+		<PowerParticle>57</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/terraform.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_THINKING_CAP">
+		<Name>"Floating Brain"</Name>
+		<SubName>"neuro"</SubName>
+		<EndName>"brain"</EndName>
+		<PowerName>"Mind Swap"</PowerName>
+		<PowerDesc>"Take all the positive effects on your opponent, and give all your negative effects to them."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"SPECIAL"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>52</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/magic.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>30</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PHLOGISTON">
+		<Name>"Living Flame"</Name>
+		<SubName>"burn"</SubName>
+		<EndName>"pyros"</EndName>
+		<PowerName>"Toasties"</PowerName>
+		<PowerDesc>"Summon a toasty friend who inflicts 2 `8Fire`` Damage every 3s."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>6</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TOASTY">
+				<Value>2</Value>
+				<Duration>60</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP_SPLAT"</AnimType>
+		<PowerParticle>43</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>30</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_TOY_LOCK_BOT">
+		<Name>"Toy Lock-Bot"</Name>
+		<SubName>"lock"</SubName>
+		<EndName>"bot"</EndName>
+		<PowerName>"Lockdown"</PowerName>
+		<PowerDesc>"Smack the target with a lock, keeping them from swapping out for 4s."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>17</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="NO_SWAP2">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>190</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/pop.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>40</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_DEMON_CONTROL_CAP">
+		<Name>"Demon Dog"</Name>
+		<SubName>"demon"</SubName>
+		<EndName>"dog"</EndName>
+		<PowerName>"Flaming Tongue"</PowerName>
+		<PowerDesc>"Lick your wounds, but then you burn for 5 `8Fire`` Damage per second for 7s."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>40</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"HEAL"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BURNING">
+				<Value>5</Value>
+				<Duration>7</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP_SPLAT"</AnimType>
+		<PowerParticle>43</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>50</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_HAUNTED_PANTS">
+		<Name>"Poltergeist"</Name>
+		<SubName>"polter"</SubName>
+		<EndName>"geist"</EndName>
+		<PowerName>"Phantom Pain"</PowerName>
+		<PowerDesc>"Inflict phantasmal Damage, which heals back over 10s."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>30</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="REGENERATION">
+				<Value>3</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>195</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/skel.wav"</PowerSound>
+		<PowerHitSound>"audio/wscream.wav"</PowerHitSound>
+		<Rarity>60</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RHINO_HORN">
+		<Name>"Baby Rhino"</Name>
+		<SubName>"rhino"</SubName>
+		<EndName>"ceros"</EndName>
+		<PowerName>"Charge"</PowerName>
+		<PowerDesc>"Ram the enemy, stunning yourself for 3s."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>16</Damage>
+		<Cooldown>6</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="STUNNED">
+				<Value>0</Value>
+				<Duration>3</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/belch4.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PINATA_PAL">
+		<Name>"Pinata Pal"</Name>
+		<SubName>"candy"</SubName>
+		<EndName>"pal"</EndName>
+		<PowerName>"Surprise!"</PowerName>
+		<PowerDesc>"Prepare a surprise: If the opponent swaps out in the next 4 seconds, hit both enemies for 25 `8Fire`` Damage."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>22</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>16</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="SURPRISE">
+				<Value>25</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LIL_SHEEPERS">
+		<Name>"Lil' Sheepers"</Name>
+		<SubName>"lil"</SubName>
+		<EndName>"sheep"</EndName>
+		<PowerName>"Count Sheep"</PowerName>
+		<PowerDesc>"Put everybody to sleep for 8 seconds."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>40</Cooldown>
+		<PowerType>"WEATHER"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="WEATHER_SHEEP">
+				<Value>0</Value>
+				<Duration>8</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>60</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_PTERO_PTERO">
+		<Name>"Red Pteranodon"</Name>
+		<SubName>"ptero"</SubName>
+		<EndName>"don"</EndName>
+		<PowerName>"Precision Strike F"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 25% more Damage."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>7</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>25</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_PTERO_APATO">
+		<Name>"Red Pterosaurus"</Name>
+		<SubName>"pteri"</SubName>
+		<EndName>"sorus"</EndName>
+		<PowerName>"Critical Strike F"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 50% more Damage."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>17</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>50</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_PTERO_REX">
+		<Name>"Red Pteranus Rex"</Name>
+		<SubName>"teri"</SubName>
+		<EndName>"reks"</EndName>
+		<PowerName>"Precision Crush F"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 10% more Damage."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>25</Damage>
+		<Cooldown>19</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>10</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_PTERO_TRICERA">
+		<Name>"Red Pteratops"</Name>
+		<SubName>"ptery"</SubName>
+		<EndName>"toppus"</EndName>
+		<PowerName>"Precision Attack F"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 17% more Damage."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>11</Damage>
+		<Cooldown>9</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>17</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_PTERO_PTERO">
+		<Name>"Green Pteranodon"</Name>
+		<SubName>"ptyro"</SubName>
+		<EndName>"donn"</EndName>
+		<PowerName>"Precision Strike W"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 25% more Damage."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>7</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>25</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_PTERO_APATO">
+		<Name>"Green Pterosaurus"</Name>
+		<SubName>"ptoro"</SubName>
+		<EndName>"serus"</EndName>
+		<PowerName>"Critical Strike W"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 50% more Damage."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>17</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>50</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_PTERO_REX">
+		<Name>"Green Pteranus Rex"</Name>
+		<SubName>"tyro"</SubName>
+		<EndName>"rexx"</EndName>
+		<PowerName>"Precision Crush W"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 10% more Damage."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>25</Damage>
+		<Cooldown>19</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>10</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_PTERO_TRICERA">
+		<Name>"Green Pteratops"</Name>
+		<SubName>"tero"</SubName>
+		<EndName>"tapas"</EndName>
+		<PowerName>"Precision Attack W"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 17% more Damage."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>11</Damage>
+		<Cooldown>9</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>17</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_PTERO_PTERO">
+		<Name>"Grey Pteranodon"</Name>
+		<SubName>"spyro"</SubName>
+		<EndName>"dhon"</EndName>
+		<PowerName>"Precision Strike A"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 25% more Damage."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>7</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>25</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_PTERO_APATO">
+		<Name>"Grey Pterosaurus"</Name>
+		<SubName>"terra"</SubName>
+		<EndName>"saarus"</EndName>
+		<PowerName>"Critical Strike A"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 50% more Damage."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>17</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>50</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_PTERO_REX">
+		<Name>"Grey Pteranus Rex"</Name>
+		<SubName>"terro"</SubName>
+		<EndName>"tyrus"</EndName>
+		<PowerName>"Precision Crush A"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 10% more Damage."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>25</Damage>
+		<Cooldown>19</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>10</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_PTERO_TRICERA">
+		<Name>"Grey Pteratops"</Name>
+		<SubName>"ptyra"</SubName>
+		<EndName>"topps"</EndName>
+		<PowerName>"Precision Attack A"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 17% more Damage."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>11</Damage>
+		<Cooldown>9</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>17</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_PTERO_PTERO">
+		<Name>"Brown Pteranodon"</Name>
+		<SubName>"pterra"</SubName>
+		<EndName>"nodon"</EndName>
+		<PowerName>"Precision Strike E"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 25% more Damage."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>7</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>25</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_PTERO_APATO">
+		<Name>"Brown Pterosaurus"</Name>
+		<SubName>"tera"</SubName>
+		<EndName>"apatus"</EndName>
+		<PowerName>"Critical Strike E"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 50% more Damage."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>17</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>50</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_PTERO_REX">
+		<Name>"Brown Pteranus Rex"</Name>
+		<SubName>"tyra"</SubName>
+		<EndName>"sorex"</EndName>
+		<PowerName>"Precision Crush E"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 10% more Damage."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>25</Damage>
+		<Cooldown>19</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>10</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_PTERO_TRICERA">
+		<Name>"Brown Pteratops"</Name>
+		<SubName>"pterano"</SubName>
+		<EndName>"trix"</EndName>
+		<PowerName>"Precision Attack E"</PowerName>
+		<PowerDesc>"If the opponent attempts to dodge or block, hits for 17% more Damage."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>11</Damage>
+		<Cooldown>9</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_IF_BLOCKDODGE">
+				<Value>17</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_APATO_PTERO">
+		<Name>"Red Apatodon"</Name>
+		<SubName>"apatto"</SubName>
+		<EndName>"dahn"</EndName>
+		<PowerName>"Dino Dive F"</PowerName>
+		<PowerDesc>"Against an `2Earth`` opponent, inflicts +50% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>10</Damage>
+		<Cooldown>6</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>50</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_APATO_APATO">
+		<Name>"Red Apatosaurus"</Name>
+		<SubName>"apato"</SubName>
+		<EndName>"sarus"</EndName>
+		<PowerName>"Dino Slam F"</PowerName>
+		<PowerDesc>"Against an `2Earth`` opponent, inflicts +100% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>15</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>100</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_APATO_REX">
+		<Name>"Red Apatos Rex"</Name>
+		<SubName>"appato"</SubName>
+		<EndName>"recks"</EndName>
+		<PowerName>"Dino Chomp F"</PowerName>
+		<PowerDesc>"Against an `2Earth`` opponent, inflicts +25% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>18</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>25</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_APATO_TRICERA">
+		<Name>"Red Apatoceratops"</Name>
+		<SubName>"apo"</SubName>
+		<EndName>"cereops"</EndName>
+		<PowerName>"Dino Charge F"</PowerName>
+		<PowerDesc>"Against an `2Earth`` opponent, inflicts +60% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>14</Damage>
+		<Cooldown>8</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>60</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_APATO_PTERO">
+		<Name>"Green Apatodon"</Name>
+		<SubName>"apto"</SubName>
+		<EndName>"donon"</EndName>
+		<PowerName>"Dino Dive W"</PowerName>
+		<PowerDesc>"Against a `8Fire`` opponent, inflicts +50% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>10</Damage>
+		<Cooldown>6</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>50</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_APATO_APATO">
+		<Name>"Green Apatosaurus"</Name>
+		<SubName>"apoto"</SubName>
+		<EndName>"shorus"</EndName>
+		<PowerName>"Dino Slam W"</PowerName>
+		<PowerDesc>"Against a `8Fire`` opponent, inflicts +100% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>15</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>100</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_APATO_REX">
+		<Name>"Green Apatos Rex"</Name>
+		<SubName>"hapato"</SubName>
+		<EndName>"frex"</EndName>
+		<PowerName>"Dino Chomp W"</PowerName>
+		<PowerDesc>"Against a `8Fire`` opponent, inflicts +25% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>18</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>25</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_APATO_TRICERA">
+		<Name>"Green Apatoceratops"</Name>
+		<SubName>"appo"</SubName>
+		<EndName>"trops"</EndName>
+		<PowerName>"Dino Charge W"</PowerName>
+		<PowerDesc>"Against a `8Fire`` opponent, inflicts +60% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>14</Damage>
+		<Cooldown>8</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>60</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_APATO_PTERO">
+		<Name>"Grey Apatodon"</Name>
+		<SubName>"alpo"</SubName>
+		<EndName>"dron"</EndName>
+		<PowerName>"Dino Dive A"</PowerName>
+		<PowerDesc>"Against a `1Water`` opponent, inflicts +50% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>10</Damage>
+		<Cooldown>6</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>50</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_APATO_APATO">
+		<Name>"Grey Apatosaurus"</Name>
+		<SubName>"apito"</SubName>
+		<EndName>"snorus"</EndName>
+		<PowerName>"Dino Slam A"</PowerName>
+		<PowerDesc>"Against a `1Water`` opponent, inflicts +100% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>15</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>100</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_APATO_REX">
+		<Name>"Grey Apatos Rex"</Name>
+		<SubName>"appoto"</SubName>
+		<EndName>"drex"</EndName>
+		<PowerName>"Dino Chomp A"</PowerName>
+		<PowerDesc>"Against a `1Water`` opponent, inflicts +25% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>18</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>25</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_APATO_TRICERA">
+		<Name>"Grey Apatoceratops"</Name>
+		<SubName>"upato"</SubName>
+		<EndName>"reops"</EndName>
+		<PowerName>"Dino Charge A"</PowerName>
+		<PowerDesc>"Against a `1Water`` opponent, inflicts +60% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>14</Damage>
+		<Cooldown>8</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>60</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_APATO_PTERO">
+		<Name>"Brown Apatodon"</Name>
+		<SubName>"umpato"</SubName>
+		<EndName>"dun"</EndName>
+		<PowerName>"Dino Dive E"</PowerName>
+		<PowerDesc>"Against an `wAir`` opponent, inflicts +50% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>10</Damage>
+		<Cooldown>6</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>50</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_APATO_APATO">
+		<Name>"Brown Apatosaurus"</Name>
+		<SubName>"potato"</SubName>
+		<EndName>"torus"</EndName>
+		<PowerName>"Dino Slam E"</PowerName>
+		<PowerDesc>"Against an `wAir`` opponent, inflicts +100% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>15</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>100</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_APATO_REX">
+		<Name>"Brown Apatos Rex"</Name>
+		<SubName>"pato"</SubName>
+		<EndName>"tyranus"</EndName>
+		<PowerName>"Dino Chomp E"</PowerName>
+		<PowerDesc>"Against an `wAir`` opponent, inflicts +25% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>18</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>25</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_APATO_TRICERA">
+		<Name>"Brown Apatoceratops"</Name>
+		<SubName>"aparto"</SubName>
+		<EndName>"keratops"</EndName>
+		<PowerName>"Dino Charge E"</PowerName>
+		<PowerDesc>"Against an `wAir`` opponent, inflicts +60% Damage (on top of normal bonus)."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>14</Damage>
+		<Cooldown>8</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_ON_BAD_ELEMENT">
+				<Value>60</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_REX_PTERO">
+		<Name>"Red Tyranodon"</Name>
+		<SubName>"tyrini"</SubName>
+		<EndName>"nodun"</EndName>
+		<PowerName>"Piercing Jaws F"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 4 seconds."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>15</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_REX_APATO">
+		<Name>"Red Tyranopatos"</Name>
+		<SubName>"tyrani"</SubName>
+		<EndName>"patos"</EndName>
+		<PowerName>"Grinding Jaws F"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 30 seconds."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>3</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>30</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_REX_REX">
+		<Name>"Red Tyrannosaurus"</Name>
+		<SubName>"tyranno"</SubName>
+		<EndName>"sauros"</EndName>
+		<PowerName>"Crushing Jaws F"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 3 seconds."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>29</Damage>
+		<Cooldown>16</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>3</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_REX_TRICERA">
+		<Name>"Red Tyranotops"</Name>
+		<SubName>"tyrauno"</SubName>
+		<EndName>"tox"</EndName>
+		<PowerName>"Crushing Beak F"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 7 seconds."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>19</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>7</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_REX_PTERO">
+		<Name>"Green Tyranodon"</Name>
+		<SubName>"tira"</SubName>
+		<EndName>"nadun"</EndName>
+		<PowerName>"Piercing Jaws W"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 4 seconds."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>15</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_REX_APATO">
+		<Name>"Green Tyranopatos"</Name>
+		<SubName>"tyranna"</SubName>
+		<EndName>"potus"</EndName>
+		<PowerName>"Grinding Jaws W"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 30 seconds."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>3</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>30</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_REX_REX">
+		<Name>"Green Tyrannosaurus"</Name>
+		<SubName>"tiranno"</SubName>
+		<EndName>"rex"</EndName>
+		<PowerName>"Crushing Jaws W"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 3 seconds."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>29</Damage>
+		<Cooldown>16</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>3</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_REX_TRICERA">
+		<Name>"Green Tyranotops"</Name>
+		<SubName>"tyrant"</SubName>
+		<EndName>"topik"</EndName>
+		<PowerName>"Crushing Beak W"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 7 seconds."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>19</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>7</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_REX_PTERO">
+		<Name>"Brown Tyranodon"</Name>
+		<SubName>"kyrano"</SubName>
+		<EndName>"dawn"</EndName>
+		<PowerName>"Piercing Jaws E"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 4 seconds."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>15</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_REX_APATO">
+		<Name>"Brown Tyranopatos"</Name>
+		<SubName>"gyrano"</SubName>
+		<EndName>"pots"</EndName>
+		<PowerName>"Grinding Jaws E"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 30 seconds."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>3</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>30</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_REX_REX">
+		<Name>"Brown Tyrannosaurus"</Name>
+		<SubName>"tyran"</SubName>
+		<EndName>"trex"</EndName>
+		<PowerName>"Crushing Jaws E"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 3 seconds."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>29</Damage>
+		<Cooldown>16</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>3</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_REX_TRICERA">
+		<Name>"Brown Tyranotops"</Name>
+		<SubName>"torano"</SubName>
+		<EndName>"thops"</EndName>
+		<PowerName>"Crushing Beak E"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 7 seconds."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>19</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>7</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_REX_PTERO">
+		<Name>"Grey Tyranodon"</Name>
+		<SubName>"torino"</SubName>
+		<EndName>"dom"</EndName>
+		<PowerName>"Piercing Jaws A"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 4 seconds."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>15</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_REX_APATO">
+		<Name>"Grey Tyranopatos"</Name>
+		<SubName>"teranno"</SubName>
+		<EndName>"portus"</EndName>
+		<PowerName>"Grinding Jaws A"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 30 seconds."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>3</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>30</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_REX_REX">
+		<Name>"Grey Tyrannosaurus"</Name>
+		<SubName>"trano"</SubName>
+		<EndName>"grex"</EndName>
+		<PowerName>"Crushing Jaws A"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 3 seconds."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>29</Damage>
+		<Cooldown>16</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>3</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_REX_TRICERA">
+		<Name>"Grey Tyranotops"</Name>
+		<SubName>"turano"</SubName>
+		<EndName>"flops"</EndName>
+		<PowerName>"Crushing Beak A"</PowerName>
+		<PowerDesc>"Causes Trauma, preventing the target from healing for 7 seconds."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>19</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>7</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_TRICERA_PTERO">
+		<Name>"Red Triceradon"</Name>
+		<SubName>"trisera"</SubName>
+		<EndName>"dohn"</EndName>
+		<PowerName>"Defensive Flurry F"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 2 seconds."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>12</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_TRICERA_APATO">
+		<Name>"Red Tripatosaurus"</Name>
+		<SubName>"tripato"</SubName>
+		<EndName>"sorrus"</EndName>
+		<PowerName>"Defensive Bash F"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 7 seconds."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>10</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>7</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_TRICERA_REX">
+		<Name>"Red Tricerus Rex"</Name>
+		<SubName>"triseri"</SubName>
+		<EndName>"recs"</EndName>
+		<PowerName>"Defensive Bite F"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 2 seconds."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>22</Damage>
+		<Cooldown>18</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RED_TRICERA_TRICERA">
+		<Name>"Red Triceratops"</Name>
+		<SubName>"tricera"</SubName>
+		<EndName>"tops"</EndName>
+		<PowerName>"Defensive Gore F"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 4 seconds."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>16</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_TRICERA_PTERO">
+		<Name>"Green Triceradon"</Name>
+		<SubName>"tritera"</SubName>
+		<EndName>"dahan"</EndName>
+		<PowerName>"Defensive Flurry W"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 2 seconds."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>12</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_TRICERA_APATO">
+		<Name>"Green Tripatosaurus"</Name>
+		<SubName>"tripati"</SubName>
+		<EndName>"starus"</EndName>
+		<PowerName>"Defensive Bash W"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 7 seconds."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>10</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>7</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_TRICERA_REX">
+		<Name>"Green Tricerus Rex"</Name>
+		<SubName>"triseru"</SubName>
+		<EndName>"brex"</EndName>
+		<PowerName>"Defensive Bite W"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 2 seconds."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>22</Damage>
+		<Cooldown>18</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREEN_TRICERA_TRICERA">
+		<Name>"Green Triceratops"</Name>
+		<SubName>"dricera"</SubName>
+		<EndName>"cops"</EndName>
+		<PowerName>"Defensive Gore W"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 4 seconds."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>16</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_TRICERA_PTERO">
+		<Name>"Brown Triceradon"</Name>
+		<SubName>"tresera"</SubName>
+		<EndName>"dahon"</EndName>
+		<PowerName>"Defensive Flurry E"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 2 seconds."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>12</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_TRICERA_APATO">
+		<Name>"Brown Tripatosaurus"</Name>
+		<SubName>"tropato"</SubName>
+		<EndName>"sarrus"</EndName>
+		<PowerName>"Defensive Bash E"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 7 seconds."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>10</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>7</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_TRICERA_REX">
+		<Name>"Brown Tricerus Rex"</Name>
+		<SubName>"trecera"</SubName>
+		<EndName>"prex"</EndName>
+		<PowerName>"Defensive Bite E"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 2 seconds."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>22</Damage>
+		<Cooldown>18</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BROWN_TRICERA_TRICERA">
+		<Name>"Brown Triceratops"</Name>
+		<SubName>"thricera"</SubName>
+		<EndName>"tahps"</EndName>
+		<PowerName>"Defensive Gore E"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 4 seconds."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>16</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_TRICERA_PTERO">
+		<Name>"Grey Triceradon"</Name>
+		<SubName>"thrisera"</SubName>
+		<EndName>"dunn"</EndName>
+		<PowerName>"Defensive Flurry A"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 2 seconds."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>12</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_TRICERA_APATO">
+		<Name>"Grey Tripatosaurus"</Name>
+		<SubName>"tripoto"</SubName>
+		<EndName>"sarris"</EndName>
+		<PowerName>"Defensive Bash A"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 7 seconds."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>10</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>7</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_TRICERA_REX">
+		<Name>"Grey Tricerus Rex"</Name>
+		<SubName>"trycera"</SubName>
+		<EndName>"rech"</EndName>
+		<PowerName>"Defensive Bite A"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 2 seconds."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>22</Damage>
+		<Cooldown>18</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GREY_TRICERA_TRICERA">
+		<Name>"Grey Triceratops"</Name>
+		<SubName>"tracera"</SubName>
+		<EndName>"clops"</EndName>
+		<PowerName>"Defensive Gore A"</PowerName>
+		<PowerDesc>"Strike and then block attacks for 4 seconds."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>16</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BLOCK">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/gate_close.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_FLOWERSAURUS_REX">
+		<Name>"Flowersaurus Rex"</Name>
+		<SubName>"flora"</SubName>
+		<EndName>"flor"</EndName>
+		<PowerName>"Pollen Barrage"</PowerName>
+		<PowerDesc>"Spew pollen. Consumes all your positive effects to add 15 Damage per effect."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>15</Damage>
+		<Cooldown>12</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>175</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/burn.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>30</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_EYE_OF_GROWGANOTH">
+		<Name>"Eye Of Growganoth"</Name>
+		<SubName>"ocu"</SubName>
+		<EndName>"stare"</EndName>
+		<PowerName>"Gift of Growganoth"</PowerName>
+		<PowerDesc>"Passive - Heal 7 Life every 5 seconds when not active."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>0</Cooldown>
+		<PowerType>"PASSIVE"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="PASSIVE_HEAL_IN_BACK">
+				<Value>7</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>175</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>20</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PET_FOX">
+		<Name>"Fox"</Name>
+		<SubName>"foxi"</SubName>
+		<EndName>"fox"</EndName>
+		<PowerName>"Desperate Bite"</PowerName>
+		<PowerDesc>"Inflicts 1% more Damage for every 1% of life you are missing."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>10</Damage>
+		<Cooldown>7</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"LEAP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/clatter2.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>3</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PET_PENG">
+		<Name>"Mini-Peng"</Name>
+		<SubName>"peng"</SubName>
+		<EndName>"nguyen"</EndName>
+		<PowerName>"Trick Escape"</PowerName>
+		<PowerDesc>"If struck in the next 4 seconds, avoid it completely and swap out instead (if able to swap). The smoke left behind helps your teammate dodge all attacks for 4 seconds."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>16</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="SWAP_IF_HIT">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>1</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>20</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BETTY_BLUETOOTH">
+		<Name>"Betty Bluetooth"</Name>
+		<SubName>"betti"</SubName>
+		<EndName>"doll"</EndName>
+		<PowerName>"Static Charge"</PowerName>
+		<PowerDesc>"Each time you take Damage, gain 1 static charge (up to 10). This skill launches them all at once, for 5 Damage each."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>3</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SPECIAL"</AnimType>
+		<PowerParticle>52</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/sizzle.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>30</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GHOST_WOLF_MONOCLE">
+		<Name>"Ghost Wolf"</Name>
+		<SubName>"howl"</SubName>
+		<EndName>"howl"</EndName>
+		<PowerName>"Mist Form"</PowerName>
+		<PowerDesc>"Become ethereal for 10s, reducing all Damage taken by 50%."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="ETHEREAL">
+				<Value>50</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/hiss2.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>60</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PARTY_FOWL">
+		<Name>"Party Fowl"</Name>
+		<SubName>"parti"</SubName>
+		<EndName>"fowl"</EndName>
+		<PowerName>"Party Foul"</PowerName>
+		<PowerDesc>"It's a major party foul to attack when inactive!"</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>5</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>32</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>24</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/peep.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LIVING_DEAD_REMOTE">
+		<Name>"Living Dead"</Name>
+		<SubName>"zom"</SubName>
+		<EndName>"zom"</EndName>
+		<PowerName>"Dawn of the Dead"</PowerName>
+		<PowerDesc>"If your partner is dead when you die, they resurrect with 20% life."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>999</Cooldown>
+		<PowerType>"PASSIVE"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="PASSIVE_DAWN_OF_DEAD">
+				<Value>20</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/skel.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>60</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RAINBOW_KITE">
+		<Name>"Rainbow Kite"</Name>
+		<SubName>"rain"</SubName>
+		<EndName>"bow"</EndName>
+		<PowerName>"Taste The Rainbow"</PowerName>
+		<PowerDesc>"Blast a rainbow beam that inflicts Damage of a random Element."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>16</Damage>
+		<Cooldown>8</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>63</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/laser.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_ZOMBIE_DOG">
+		<Name>"Zombie Hound"</Name>
+		<SubName>"zombi"</SubName>
+		<EndName>"hound"</EndName>
+		<PowerName>"Bursting Spores"</PowerName>
+		<PowerDesc>"Bite, infecting with spores that burst after 6 seconds for 15 Damage."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>10</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BURSTING_SPORES">
+				<Value>15</Value>
+				<Duration>6</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>26</PowerParticle>
+		<HitParticle>26</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/hiss3.wav"</PowerSound>
+		<PowerHitSound>"audio/punch_organic.wav"</PowerHitSound>
+		<Rarity>50</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+	
+	<Pet itemID="ITEM_ID_UNEARTHLY_SYNTHOID">
+		<Name>"Unearthly Synthoid"</Name>
+		<SubName>"synth"</SubName>
+		<EndName>"synth"</EndName>
+		<PowerName>"Unearthly Beam"</PowerName>
+		<PowerDesc>"Shoot a beam. If the enemy has any negative effects, one is vaporized for an extra 15 Damage."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>10</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="NONE">
+				<Value>15</Value>
+				<Duration>0</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>10</PowerParticle>
+		<HitParticle>11</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/laser.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RADIOACTIVE_SYNTHOID">
+		<Name>"Radioactive Synthoid"</Name>
+		<SubName>"radio"</SubName>
+		<EndName>"sinth"</EndName>
+		<PowerName>"Radiation Beam"</PowerName>
+		<PowerDesc>"Fizzles unless you have a positive effect on you. Consumes the effect to fire a beam."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>30</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>10</PowerParticle>
+		<HitParticle>11</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/laser.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_MYSTERIOUS_SYNTHOID">
+		<Name>"Mysterious Synthoid"</Name>
+		<SubName>"myst"</SubName>
+		<EndName>"synt"</EndName>
+		<PowerName>"Mysterious Beam"</PowerName>
+		<PowerDesc>"Drain your molecules to shoot a beam. This leaves you ethereal for 4 seconds, taking 50% less Damage."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>10</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="ETHEREAL">
+				<Value>50</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>10</PowerParticle>
+		<HitParticle>11</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/laser.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_HAUNTED_SYNTHOID">
+		<Name>"Haunted Synthoid"</Name>
+		<SubName>"hanta"</SubName>
+		<EndName>"sin"</EndName>
+		<PowerName>"Draining Beam"</PowerName>
+		<PowerDesc>"Drain the enemy. Any skills they have on Cooldown will take 3s longer to recharge."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>5</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="EXTEND_COOLDOWN">
+				<Value>3</Value>
+				<Duration>1</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>10</PowerParticle>
+		<HitParticle>11</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/laser.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_LADYBUG_LEAF">
+		<Name>"Ladybug"</Name>
+		<SubName>"lady"</SubName>
+		<EndName>"bug"</EndName>
+		<PowerName>"Exoskeleton"</PowerName>
+		<PowerDesc>"Negative effects on you have 2s shorter Duration (minimum 1s)."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>0</Cooldown>
+		<PowerType>"PASSIVE"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="PASSIVE_SHORTEN_BAD_EFFECT">
+				<Value>2</Value>
+				<Duration>1</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_MINI_MALLARD">
+		<Name>"Mallard"</Name>
+		<SubName>"duck"</SubName>
+		<EndName>"duck"</EndName>
+		<PowerName>"Duck's Back"</PowerName>
+		<PowerDesc>"Automatically resist a negative effect completely."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"PASSIVE"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="PASSIVE_RESIST_BAD_EFFECT">
+				<Value>0</Value>
+				<Duration>30</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_HOTPANTS">
+		<Name>"Jalapeño"</Name>
+		<SubName>"jala"</SubName>
+		<EndName>"peno"</EndName>
+		<PowerName>"Pepper"</PowerName>
+		<PowerDesc>"Pepper your foes with this rapid-fire attack."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>6</Damage>
+		<Cooldown>3</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>43</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PINEAPPLE_LEASH">
+		<Name>"Pineapple Spider"</Name>
+		<SubName>"arachno"</SubName>
+		<EndName>"spider"</EndName>
+		<PowerName>"Sticky Pineapple Web"</PowerName>
+		<PowerDesc>"Wrap your enemy in sticky webs for 5s. They suffer 4 Damage per second, and can't swap."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="WEBBED">
+				<Value>4</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>137</PowerParticle>
+		<HitParticle>141</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/hiss4.wav"</PowerSound>
+		<PowerHitSound>"audio/splat.wav"</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PET_FROG">
+		<Name>"Frog"</Name>
+		<SubName>"frog"</SubName>
+		<EndName>"frog"</EndName>
+		<PowerName>"Spit Mud"</PowerName>
+		<PowerDesc>"For 5s, the target's abilities recharge half as fast."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>20</Damage>
+		<Cooldown>12</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="MIRED">
+				<Value>0</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>143</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/splat.wav"</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_FIRE_SPRITE">
+		<Name>"Fire Sprite"</Name>
+		<SubName>"spri"</SubName>
+		<EndName>"sprite"</EndName>
+		<PowerName>"Playful Fire"</PowerName>
+		<PowerDesc>"Grants you a 10% chance to do double Damage for 5 seconds."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>15</Damage>
+		<Cooldown>8</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="CRITICAL">
+				<Value>10</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>43</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_WATER_SPRITE">
+		<Name>"Water Sprite"</Name>
+		<SubName>"wet"</SubName>
+		<EndName>"drop"</EndName>
+		<PowerName>"Playful Water"</PowerName>
+		<PowerDesc>"Grants you a 20% chance to do double Damage for 4 seconds."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>10</Damage>
+		<Cooldown>6</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="CRITICAL">
+				<Value>20</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>237</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_WIND_SPRITE">
+		<Name>"Wind Sprite"</Name>
+		<SubName>"spry"</SubName>
+		<EndName>"spryte"</EndName>
+		<PowerName>"Playful Wind"</PowerName>
+		<PowerDesc>"Grants you a 15% chance to do double Damage for 8 seconds."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>6</Damage>
+		<Cooldown>4</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="CRITICAL">
+				<Value>15</Value>
+				<Duration>8</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>94</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_WOOD_SPRITE">
+		<Name>"Wood Sprite"</Name>
+		<SubName>"wood"</SubName>
+		<EndName>"wood"</EndName>
+		<PowerName>"Playtime"</PowerName>
+		<PowerDesc>"Grants you a 30% chance to do double Damage for 4 seconds."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>5</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="CRITICAL">
+				<Value>30</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>55</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_FLOATY_BALLOON_LEASH_RED">
+		<Name>"Red Balloon"</Name>
+		<SubName>"red"</SubName>
+		<EndName>"floater"</EndName>
+		<PowerName>"Floaty Bomb"</PowerName>
+		<PowerDesc>"Lob a heavy balloon at your foes."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>18</Damage>
+		<Cooldown>9</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>11</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/splat.wav"</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_FLOATY_BALLOON_LEASH_GREEN">
+		<Name>"Green Balloon"</Name>
+		<SubName>"boon"</SubName>
+		<EndName>"bloon"</EndName>
+		<PowerName>"Pumped Up"</PowerName>
+		<PowerDesc>"Pump yourself up to regenerate health."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>30</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"HEAL"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"HOP"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>235</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/balloon.wav"</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_FLOATY_BALLOON_LEASH_BLUE">
+		<Name>"Blue Balloon"</Name>
+		<SubName>"bloo"</SubName>
+		<EndName>"bouncer"</EndName>
+		<PowerName>"Bouncy Barrier"</PowerName>
+		<PowerDesc>"Bounce attacks back for 25 Damage if hit within 4s."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>11</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="SLASH_THORNS">
+				<Value>25</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP"</AnimType>
+		<PowerParticle>25</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>"audio/trampoline.wav"</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_CLOUD_RABBIT">
+		<Name>"Cloud Rabbit"</Name>
+		<SubName>"rabid"</SubName>
+		<EndName>"giver"</EndName>
+		<PowerName>"Self Sacrifice"</PowerName>
+		<PowerDesc>"If struck in the next 4 seconds, avoid it completely and swap out instead (if able to swap). The smoke left behind helps your teammate dodge all attacks for 4 seconds."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>16</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="SWAP_IF_HIT">
+				<Value>0</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>1</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>20</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_DRYAD">
+		<Name>"Dryad"</Name>
+		<SubName>"dry"</SubName>
+		<EndName>"nymph"</EndName>
+		<PowerName>"Draining Roots"</PowerName>
+		<PowerDesc>"Drain life from the target, healing you for the same amount."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>30</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="REGENERATION">
+				<Value>30</Value>
+				<Duration>1</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>165</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/flame_go.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GINGERBREAD_MAN">
+		<Name>"Gingerbread Man"</Name>
+		<SubName>"baked"</SubName>
+		<EndName>"sweet"</EndName>
+		<PowerName>"Ginger Blast"</PowerName>
+		<PowerDesc>"Deal 25% more Damage. Cooldowns go twice as fast."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="BONUS_DAMAGE_AND_COOLDOWN">
+				<Value>25</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>47</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/swoosh.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_RAYMAN_FISTS">
+		<Name>"Globox"</Name>
+		<SubName>"glo"</SubName>
+		<EndName>"boxer"</EndName>
+		<PowerName>"Super Slap"</PowerName>
+		<PowerDesc>"Stun the target for 5 seconds, making them unable to act."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>20</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="STUNNED">
+				<Value>0</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>53</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/slap.wav"</PowerSound>
+		<PowerHitSound>"audio/bird3.wav"</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BATTLE_GAR">
+		<Name>"Battle Gar"</Name>
+		<SubName>"snappy"</SubName>
+		<EndName>"jaws"</EndName>
+		<PowerName>"Snappy Jaws"</PowerName>
+		<PowerDesc>"A Bite that causes trauma and prevents the target from healing for 10 seconds."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>15</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="TRAUMA">
+				<Value>0</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"CHARGE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>"audio/ch_slash.wav"</PowerHitSound>
+		<Rarity>6</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_BATTLE_MUTANT_FISH">
+		<Name>"Battle Mutant Fish"</Name>
+		<SubName>"3eyed"</SubName>
+		<EndName>"spit"</EndName>
+		<PowerName>"Acid Spit"</PowerName>
+		<PowerDesc>"Spray acid that burns the target for 10 `8Fire`` Damage per second lasting for 5 seconds."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="INFECTED">
+				<Value>10</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>155</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/sizzle.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_MAIDMARE">
+		<Name>"Maidmare"</Name>
+		<SubName>"siren"</SubName>
+		<EndName>"wet"</EndName>
+		<PowerName>"Slime Kiss"</PowerName>
+		<PowerDesc>"Terrify the target to have a 100% chance of messing up their skills for 10 seconds."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="NIGHTMARES">
+				<Value>100</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>60</PowerParticle>
+		<HitParticle>6</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/wscream.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>	
+
+	<Pet itemID="ITEM_ID_PRICKLY_PET">
+		<Name>"Cactus"</Name>
+		<SubName>"cactu"</SubName>
+		<EndName>"spike"</EndName>
+		<PowerName>"Spikey Shield"</PowerName>
+		<PowerDesc>"Strike back for 20 `4Earth`` Damage if hit within 8s."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="SLASH_THORNS">
+				<Value>20</Value>
+				<Duration>8</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP"</AnimType>
+		<PowerParticle>110</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/slash.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_DISCOBALL_COMPANION">
+		<Name>"Discoball Companion"</Name>
+		<SubName>"disco"</SubName>
+		<EndName>"groovy"</EndName>
+		<PowerName>"Just Dance!"</PowerName>
+		<PowerDesc>"Infect the target to dance for 4s, unable to do anything other than swap out, and suffering 5 `wAir`` Damage per second."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="DISCO_FEVER">
+				<Value>5</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>174</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/bubble_boil.wav"</PowerSound>
+		<PowerHitSound>"audio/fight_loop.wav"</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_ROBO_SHARK">
+		<Name>"Robo Shark"</Name>
+		<SubName>"chomp"</SubName>
+		<EndName>"afin"</EndName>
+		<PowerName>"Laserbeam!"</PowerName>
+		<PowerDesc>"Fires a laserbeam dealing `1Water`` Damage!"</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>30</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>10</PowerParticle>
+		<HitParticle>11</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/laser.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+	
+	<Pet itemID="ITEM_ID_FLYING_BELL">
+		<Name>"Flying Bell"</Name>
+		<SubName>"flying"</SubName>
+		<EndName>"bell"</EndName>
+		<PowerName>"Sound Blast!"</PowerName>
+		<PowerDesc>"Blast sound waves to deal 9 `wAir`` damage!"</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>9</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>2</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="STUNNED">
+				<Value>0</Value>
+				<Duration>1</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>163</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/peep.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PET_HATCHLEY">
+		<Name>"Pet Hatchley"</Name>
+		<SubName>"hatch"</SubName>
+		<EndName>"ley"</EndName>
+		<PowerName>"Musically Stunned!"</PowerName>
+		<PowerDesc>"Sings to deal 10 `wAir`` Damage and stuns the target for 8s, making them unable to act."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>10</Damage>
+		<Cooldown>10</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="STUNNED">
+				<Value>0</Value>
+				<Duration>8</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>22</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/bird3.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+		
+	<Pet itemID="ITEM_ID_CAPTAIN_BARK">
+		<Name>"Captain Bark"</Name>
+		<SubName>"capi"</SubName>
+		<EndName>"bark"</EndName>
+		<PowerName>"Supercharge"</PowerName>
+		<PowerDesc>"Charge up your next skill with +50% Damage."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>30</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="SUPERCHARGED">
+				<Value>50</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SPLAT"</AnimType>
+		<PowerParticle>134</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/levelup2.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_ROYAL_CAPTAIN_BARK">
+		<Name>"Royal Captain Bark"</Name>
+		<SubName>"roya"</SubName>
+		<EndName>"bark"</EndName>
+		<PowerName>"Supercharge"</PowerName>
+		<PowerDesc>"Charge up your next skill with +80% Damage."</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>0</Damage>
+		<Cooldown>20</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="SUPERCHARGED">
+				<Value>80</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SPLAT"</AnimType>
+		<PowerParticle>134</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/levelup2.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>	
+	
+	<Pet itemID="ITEM_ID_PINEAPPLE_BLUMP_PET">
+		<Name>"Pineapple Blump Pet"</Name>
+		<SubName>"pineapple"</SubName>
+		<EndName>"blump"</EndName>
+		<PowerName>"Spikey Shield"</PowerName>
+		<PowerDesc>"Strike back for 20 `wAir`` Damage if hit within 8s."</PowerDesc>
+		<Element>"AIR"</Element>
+		<Damage>0</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="SLASH_THORNS">
+				<Value>20</Value>
+				<Duration>8</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"HOP"</AnimType>
+		<PowerParticle>204</PowerParticle>
+		<HitParticle>9</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/slash.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+	
+	<Pet itemID="ITEM_ID_MECHASAURUS_REX">
+		<Name>"Mechasaurus Rex"</Name>
+		<SubName>"mecha"</SubName>
+		<EndName>"rex"</EndName>
+		<PowerName>"Ratatata!"</PowerName>
+		<PowerDesc>"Fires several shots dealing `8Fire`` Damage!"</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>30</Damage>
+		<Cooldown>13</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<AnimType>"STREAM"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>206</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/ratatat.wav"</PowerSound>
+		<PowerHitSound>"audio/firework1.wav"</PowerHitSound>
+		<Rarity>90</Rarity>
+		<EnableOnServer>true</EnableOnServer>	
+
+		<BattleAnimation file="game/pets/p_mechasaurus_rex.rttex" frameSize="32,32">
+		<Animation type="Idle" frameInterval="100">
+			<Frame>0,0</Frame>
+			<Frame>1,0</Frame>
+			<Frame>2,0</Frame>
+		  </Animation>
+		  <Animation type="Attack" frameInterval="100">
+			<Frame>0,1</Frame>
+		  </Animation>
+		  <Animation type="GetHit" frameInterval="100">
+			<Frame>0,0</Frame>
+		  </Animation>
+		  <Animation type="Dead" frameInterval="100">
+			<Frame>0,0</Frame>
+		  </Animation>
+		</BattleAnimation>
+		<CageIcon file="game/pets/p_mechasaurus_rex.rttex" frameSize="32,32" frame="0,0"/>
+		
+	</Pet>
+
+
+	<Pet itemID="ITEM_ID_LANTERNS_CHORONOREAPER">
+		<Name>"Lantern's ChronoReaper Pet"</Name>
+		<SubName>"chrono"</SubName>
+		<EndName>"reaper"</EndName>
+		<PowerName>"To the Shadow Realm!"</PowerName>
+		<PowerDesc>"Open a portal dealing 10 `8Fire`` Damage to the enemy banishing them for 10s!"</PowerDesc>
+		<Element>"FIRE"</Element>
+		<Damage>10</Damage>
+		<Cooldown>7</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="FORCE_SWAP">
+				<Value>0</Value>
+				<Duration>1</Duration>
+			</PowerStatus>		
+			<PowerStatus type="NO_SWAP">
+				<Value>0</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"SHOOT"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>108</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/weird_hit.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+		
+		<BattleAnimation file="game/pets/p_chronoReaper.rttex" frameSize="32,32">
+		<Animation type="Idle" frameInterval="100">
+			<Frame>0,0</Frame>
+			<Frame>1,0</Frame>
+			<Frame>2,0</Frame>
+		  </Animation>
+		  <Animation type="Attack" frameInterval="100">
+			<Frame>3,0</Frame>
+		  </Animation>
+		  <Animation type="GetHit" frameInterval="100">
+			<Frame>0,0</Frame>
+		  </Animation>
+		  <Animation type="Dead" frameInterval="100">
+			<Frame>0,0</Frame>
+		  </Animation>
+		</BattleAnimation>
+		<CageIcon file="game/pets/p_chronoReaper.rttex" frameSize="32,32" frame="0,0"/>
+		
+	</Pet>
+
+	<Pet itemID="ITEM_ID_COOL_CAPYBARA">
+		<Name>"Cool Capybara"</Name>
+		<SubName>"cool"</SubName>
+		<EndName>"capybara"</EndName>
+		<PowerName>"Fortunate Fame!"</PowerName>
+		<PowerDesc>"Dodge all attacks for 10s."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>15</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="DODGE">
+				<Value>0</Value>
+				<Duration>10</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"DANCE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/slash.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_GROWMOJIS_LITTLE_PARTNER">
+		<Name>"Growmoji's Little Partner"</Name>
+		<SubName>"little"</SubName>
+		<EndName>"partner"</EndName>
+		<PowerName>"Adorable Eyes... and Claw"</PowerName>
+		<PowerDesc>"Fool your foe with your adorableness scratching them harshly and bringing their partner forward."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>35</Damage>
+		<Cooldown>40</Cooldown>
+		<PowerType>"ATTACK"</PowerType>
+		<PowerFlags>3</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="FORCE_SWAP">
+				<Value>0</Value>
+				<Duration>1</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"DANCE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/slash.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>100</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+	<Pet itemID="ITEM_ID_PASSIONATE_PAINTER_PAINTBRUSH_PET">
+		<Name>"Passionate Painter Paintbrush Pet"</Name>
+		<SubName>"paint"</SubName>
+		<EndName>"brush"</EndName>
+		<PowerName>"Hit by Inspiration"</PowerName>
+		<PowerDesc>"For 4 seconds, you take in your surroundings to paint a picture converting any incoming damage to health."</PowerDesc>
+		<Element>"WATER"</Element>
+		<Damage>0</Damage>
+		<Cooldown>25</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="ABSORB">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>		<PowerStatus type="STUNNED">
+				<Value>0</Value>
+				<Duration>4</Duration>
+			</PowerStatus>
+
+		</PowerStatusGroup>
+		<AnimType>"HOP_SPLAT"</AnimType>
+		<PowerParticle>108</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>"audio/squish_undo.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>70</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+	</Pet>
+
+
+	<Pet itemID="ITEM_ID_14DEVILS_FRIENDLY_DOGGY_LEASH">
+		<Name>"14DEViL's Friendly Doggy Leash"</Name>
+		<SubName>"friendly"</SubName>
+		<EndName>"doggy"</EndName>
+		<PowerName>"Lockjaw!"</PowerName>
+		<PowerDesc>"Bite its opponent for 5 `2Earth`` Damage holding on. If your opponent retreats, it lashes out for 40 `2Earth`` Damage."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>5</Damage>
+		<Cooldown>12</Cooldown>
+		<PowerType>"ATTACK_AND_SELF_STATUS"</PowerType>
+		<PowerFlags>16</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="SURPRISE">
+				<Value>40</Value>
+				<Duration>2</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"NONE"</AnimType>
+		<PowerParticle>0</PowerParticle>
+		<HitParticle>0</HitParticle>
+		<PowerParticleV2>0</PowerParticleV2>
+		<HitParticleV2>0</HitParticleV2>
+		<PowerSound>""</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>80</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+		<CageIcon file="game/pets/p_friendly_dog.rttex" frameSize="32,32" frame="0,0"/>
+	</Pet>
+
+	
+	
+	<Pet itemID="ITEM_ID_CINDER_SPRTIES">
+		<Name>"Cinder Sprites"</Name>
+		<SubName>"cinder"</SubName>
+		<EndName>"sprites"</EndName>
+		<PowerName>"Multiply"</PowerName>
+		<PowerDesc>"Summon a friend for 5s. If beaten, it takes the hit instead, reviving you with 5% life."</PowerDesc>
+		<Element>"EARTH"</Element>
+		<Damage>0</Damage>
+		<Cooldown>5</Cooldown>
+		<PowerType>"SELF_STATUS"</PowerType>
+		<PowerFlags>0</PowerFlags>
+		<PowerStatusGroup>
+			<PowerStatus type="REANIMATE">
+				<Value>5</Value>
+				<Duration>5</Duration>
+			</PowerStatus>
+		</PowerStatusGroup>
+		<AnimType>"DANCE"</AnimType>
+		<PowerParticle>1</PowerParticle>
+		<HitParticle>1</HitParticle>
+		<PowerParticleV2>1</PowerParticleV2>
+		<HitParticleV2>1</HitParticleV2>
+		<PowerSound>"audio/mlaunch.wav"</PowerSound>
+		<PowerHitSound>""</PowerHitSound>
+		<Rarity>20</Rarity>
+		<EnableOnServer>true</EnableOnServer>
+		<BattleAnimation file="game/pets/p_cinder.rttex" frameSize="32,32">
+			<Animation type="Idle" frameInterval="100">
+				<Frame>0,0</Frame>
+				<Frame>1,0</Frame>
+				<Frame>2,0</Frame>
+			</Animation>
+			<Animation type="Attack" frameInterval="100">
+				<Frame>6,0</Frame>
+			</Animation>
+			<Animation type="GetHit" frameInterval="100">
+				<Frame>0,0</Frame>
+			</Animation>
+			<Animation type="Dead" frameInterval="100">
+				<Frame>0,0</Frame>
+			</Animation>
+		</BattleAnimation>
+		<CageIcon file="game/pets/p_cinder.rttex" frameSize="32,32" frame="0,0"/>
+	</Pet>
+
+</BattlePets>

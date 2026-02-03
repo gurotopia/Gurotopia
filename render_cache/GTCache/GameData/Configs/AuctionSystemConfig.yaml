@@ -1,0 +1,9 @@
+bidDelayTime: '2'
+possibleBids:
+- 1
+- 5
+- 10
+possibleDurations:
+- 1
+- 3
+- 12

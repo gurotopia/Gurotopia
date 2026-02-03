@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+	<Data>
+		<Sprite name="s_BeachCircle" fileName="game/particles_large9.rttex" textureSize="64" frame="13,13" />
+		<Sprite name="s_Cloud1" fileName="game/particles11.rttex" textureSize="32" frame="17,20" />
+		<Sprite name="s_Cloud2" fileName="game/particles11.rttex" textureSize="32" frame="17,20" />
+		<Sprite name="s_Cloud3" fileName="game/particles11.rttex" textureSize="32" frame="17,20" />
+		<Sprite name="s_Sandtopian1" fileName="game/particles11.rttex" textureSize="32" frame="14,20" />
+		<Sprite name="s_Sandtopian2" fileName="game/particles11.rttex" textureSize="32" frame="15,20" />
+		<Sprite name="s_Sandtopian3" fileName="game/particles11.rttex" textureSize="32" frame="16,20" />
+		<Sprite name="s_Sun" fileName="game/particles11.rttex" textureSize="32" frame="18,20" />
+		<Animations>
+			<SpriteSinPulseAnimation name="a_Cloud1" sprite="s_Cloud1" autoPlay="true">
+				<Parameter name="pos.y">
+					<Set name="period">4000</Set>
+					<Set name="scale">2</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+			<SpriteSinPulseAnimation name="a_Cloud2" sprite="s_Cloud2" autoPlay="true">
+				<Parameter name="pos.y">
+					<Set name="period">4500</Set>
+					<Set name="scale">2</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+			<SpriteSinPulseAnimation name="a_Cloud3" sprite="s_Cloud3" autoPlay="true">
+				<Parameter name="pos.y">
+					<Set name="period">5000</Set>
+					<Set name="scale">1</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+			<SpriteCurveAnimation name="a_Cloud1_alpha" isLoop="true" sprite="s_Cloud1" animTime="5000" autoPlay="true">
+				<Curve name="alpha">
+					<KeyFrame>0, 0.0</KeyFrame>
+					<KeyFrame>0.5, 1</KeyFrame>
+					<KeyFrame>1, 0.0</KeyFrame>
+				</Curve>
+			</SpriteCurveAnimation>
+			<SpriteCurveAnimation name="a_Cloud2_alpha" isLoop="true" sprite="s_Cloud2" animTime="4500" autoPlay="true">
+				<Curve name="alpha">
+					<KeyFrame>0, 0.0</KeyFrame>
+					<KeyFrame>0.5, 1</KeyFrame>
+					<KeyFrame>1, 0.0</KeyFrame>
+				</Curve>
+			</SpriteCurveAnimation>
+			<SpriteCurveAnimation name="a_Cloud3_alpha" isLoop="true" sprite="s_Cloud3" animTime="5500" autoPlay="true">
+				<Curve name="alpha">
+					<KeyFrame>0, 0.0</KeyFrame>
+					<KeyFrame>0.5, 1</KeyFrame>
+					<KeyFrame>1, 0.0</KeyFrame>
+				</Curve>
+			</SpriteCurveAnimation>
+			<SequenceAnimation name="a_Sandtopian_fadeIn" playOnState="Motion.Idle">
+				<SpriteCurveAnimation sprite="s_Sandtopian1" animTime="1" >
+					<Curve name="alpha">
+						<KeyFrame>0, 0.0</KeyFrame>
+					</Curve>
+				</SpriteCurveAnimation>
+				<SpriteCurveAnimation sprite="s_Sandtopian2" animTime="1">
+					<Curve name="alpha">
+						<KeyFrame>0, 0.0</KeyFrame>
+					</Curve>
+				</SpriteCurveAnimation>
+				<SpriteCurveAnimation sprite="s_Sandtopian3" animTime="1">
+					<Curve name="alpha">
+						<KeyFrame>0, 0.0</KeyFrame>
+					</Curve>
+				</SpriteCurveAnimation>
+				<DelayAnimation delayTime="1000"/>
+				<SpriteCurveAnimation sprite="s_Sandtopian1" animTime="3000">
+					<Curve name="alpha">
+						<KeyFrame>0, 0.0</KeyFrame>
+						<KeyFrame>1, 1.0</KeyFrame>
+					</Curve>
+				</SpriteCurveAnimation>
+				<SpriteCurveAnimation sprite="s_Sandtopian2" animTime="3000">
+					<Curve name="alpha">
+						<KeyFrame>0, 0.0</KeyFrame>
+						<KeyFrame>1, 1.0</KeyFrame>
+					</Curve>
+				</SpriteCurveAnimation>
+				<SpriteCurveAnimation sprite="s_Sandtopian3" animTime="3000">
+					<Curve name="alpha">
+						<KeyFrame>0, 0.0</KeyFrame>
+						<KeyFrame>1, 1.0</KeyFrame>
+					</Curve>
+				</SpriteCurveAnimation>
+			</SequenceAnimation>
+		</Animations>
+		<StateMachines>
+			<StateMachine name="Motion">
+				<States>
+					<State name="Idle" />
+					<State name="Moving" />
+				</States>
+				<Transitions>
+					<Transition to="Idle" from="Moving">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+					<Transition to="Moving" from="Idle">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+	</Data>
+	<RenderRules>
+		<RenderBackpack>
+			<StopIf>
+				<IsZombified>true</IsZombified>
+			</StopIf>
+			<ContextUpdate type="SetFlip">
+				<Set name="flip">0,0</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_Cloud3" offset="-23,-27" scale="0.7,0.7" alignment="DOWN_CENTER" drawShadow="false" blend="PREMULTIPLIED_ALPHA" />
+			<SpriteRender name="s_BeachCircle" offset="0,8" alignment="DOWN_CENTER" drawShadow="false" blend="PREMULTIPLIED_ALPHA" />
+			<SpriteRender name="s_Sun" offset="20,-28" alignment="DOWN_CENTER" drawShadow="false" blend="PREMULTIPLIED_ALPHA" />
+			<SpriteRender name="s_Cloud1" offset="25,-16" alignment="DOWN_CENTER" drawShadow="false" blend="PREMULTIPLIED_ALPHA" />
+			<SpriteRender name="s_Cloud2" offset="-0,-31" scale="0.7,0.7" alignment="DOWN_CENTER" drawShadow="false" blend="PREMULTIPLIED_ALPHA" />
+		</RenderBackpack>
+		<RenderInFront value="playerGround">
+			<StopIf>
+				<IsZombified>true</IsZombified>
+				<IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+			</StopIf>
+			<SpriteRender name="s_Sandtopian1" offset="-22,0" scale="0.8,0.8" alignment="DOWN_CENTER" onState="Motion.Idle" />
+			<SpriteRender name="s_Sandtopian2" offset="-22,0" scale="0.8,0.8" alignment="DOWN_CENTER" onState="Motion.Idle" />
+			<SpriteRender name="s_Sandtopian3" offset="-22,0" scale="0.8,0.8" alignment="DOWN_CENTER" onState="Motion.Idle" />
+		</RenderInFront>
+	</RenderRules>
+</ItemRenderer>

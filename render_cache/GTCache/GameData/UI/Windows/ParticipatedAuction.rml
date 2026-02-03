@@ -1,0 +1,31 @@
+<rml>
+    <head>
+        <title>ParticipatedAuction</title>
+        <link type="text/template" href="Base/BasePopup.rml" />
+        <link type="text/rcss" href="Base/WindowTitle.rcss" />
+        <link type="text/rcss" href="ParticipatedAuction.rcss" />
+    </head>
+    <body template="BasePopup">
+        <div data-model="ParticipatedAuctionModel" id="ParticipatedAuction-popup" class="font-content">
+            <div class="font-contentnormal">
+                <div class="top-panel">
+                    <div id="window-title">
+                        <div class="title-text font-title label">
+							Reward Details
+						</div>
+                    </div>
+					<div class="top-padding itemname-panel">
+						<div class="itemIdIcon" data-style-decorator="'itemidimage('+ParticipatedAuctionModel.ItemId+')'" />
+						<div data-rml="ItemNameCount(ParticipatedAuctionModel.ItemId, ParticipatedAuctionModel.Count)"/>
+					</div>
+					<div class="top-padding font-contentnormal" data-rml="ItemDesc(ParticipatedAuctionModel.ItemId)"/>
+				</div>
+				<div class="top-padding buttons-panel" >
+					<div onclick="OnEvent(event, 'mailbox.OnBack')" class="button button-light-default-color">
+						<span class="label">Back</span>
+					</div>
+				</div>
+            </div>
+        </div>
+    </body>
+</rml>

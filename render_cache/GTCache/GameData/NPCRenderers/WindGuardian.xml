@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer NPCType="WindGuardian">
+  <Data>
+    <Sprite name="s_sprite" fileName="game/npc2.rttex" textureSize="64" frame="0,5" />
+    <Sprite name="s_HitEffect" fileName="game/particles.rttex" textureSize="32" frame="10,9" />
+    <Sprite name="s_curvedFeather" fileName="game/particles5.rttex" textureSize="32" frame="6,6"/>
+    <Animations>
+      <SpriteAnimation name="a_patrol" sprite="s_sprite" isLoop="true" animTime="800" playOnState="NPC.FlyPatrol|NPC.Chase|NPC.Anticipation">
+        <Frame>0,5</Frame>
+        <Frame>1,5</Frame>
+        <Frame>2,5</Frame>
+        <Frame>3,5</Frame>
+        <Frame>4,5</Frame>
+        <Frame>5,5</Frame>
+        <Frame>6,5</Frame>
+        <Frame>7,5</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_attack" sprite="s_sprite" isLoop="true" animTime="800" playOnState="NPC.AttackProjectile">
+        <Frame>0,6</Frame>
+        <Frame>1,6</Frame>
+        <Frame>2,6</Frame>
+        <Frame>3,6</Frame>
+        <Frame>4,6</Frame>
+        <Frame>5,6</Frame>
+        <Frame>6,6</Frame>
+        <Frame>7,6</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="feather" sprite="s_curvedFeather" isLoop="false" animTime="50" autoPlay="false">
+        <Frame>6,6</Frame>
+        <Frame>7,6</Frame>
+      </SpriteAnimation>
+    </Animations>
+    <ParticleSystems>
+      <ParticleSystem name="ps_damageFeathers" updateStage="OnDamaged">
+        <Emitter>
+          <Set name="lifeTime">0.1</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">10</Set>
+          <Set name="emissionInterval">0.01</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="offset">0,0</Set>
+        </Emitter>
+        <Particle randomSpriteFrame="true">
+          <Random name="offset" min="-10,-10" max="10.2,10.1"/>
+          <Set name="sprite">s_curvedFeather</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">2</Set>
+          <Set name="useGravity">true</Set>
+          <Set name="gravityVector">0, 30</Set>
+          <Set name="initalRGB">1,1,1</Set>
+          <Set name="initialScale">0.5,0.5</Set>
+          <Random name="flipX" min="false" max="true"/>
+          <Set name="renderAlignment">UPPER_CENTER</Set>
+          <Curve name="initialAngle">
+            <KeyFrame>0, 0</KeyFrame>
+            <KeyFrame>0.2, -15</KeyFrame>
+            <KeyFrame>0.4, 15</KeyFrame>
+            <KeyFrame>0.6, -15</KeyFrame>
+            <KeyFrame>0.8, 15</KeyFrame>
+            <KeyFrame>1, 0, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialVelocity">
+            <KeyFrame>0, 0</KeyFrame>
+            <KeyFrame>0.2, -40, 0</KeyFrame>
+            <KeyFrame>0.4, 50, 0</KeyFrame>
+            <KeyFrame>0.6, -50, 0</KeyFrame>
+            <KeyFrame>0.8, 50, 0</KeyFrame>
+            <KeyFrame>1, 0, 0</KeyFrame>
+          </Curve>
+          <Set name="interpolateAlpha">true</Set>
+          <Set name="initialAlpha">1</Set>
+          <Set name="finalAlpha">0</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_destroyFeathers" updateStage="OnDie">
+        <Emitter>
+          <Set name="lifeTime">0.1</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">50</Set>
+          <Set name="emissionInterval">0.002</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="offset">0,0</Set>
+        </Emitter>
+        <Particle randomSpriteFrame="true">
+          <Random name="offset" min="-10,-10" max="10.2,10.1"/>
+          <Set name="sprite">s_curvedFeather</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">2</Set>
+          <Set name="useGravity">true</Set>
+          <Set name="gravityVector">0, 30</Set>
+          <Set name="initalRGB">1,1,1</Set>
+          <Set name="initialScale">0.5,0.5</Set>
+          <Random name="flipX" min="false" max="true"/>
+          <Set name="renderAlignment">UPPER_CENTER</Set>
+          <Curve name="initialAngle">
+            <KeyFrame>0, 0</KeyFrame>
+            <KeyFrame>0.2, -15</KeyFrame>
+            <KeyFrame>0.4, 15</KeyFrame>
+            <KeyFrame>0.6, -15</KeyFrame>
+            <KeyFrame>0.8, 15</KeyFrame>
+            <KeyFrame>1, 0, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialVelocity">
+            <KeyFrame>0, 0</KeyFrame>
+            <KeyFrame>0.2, -40, 0</KeyFrame>
+            <KeyFrame>0.4, 50, 0</KeyFrame>
+            <KeyFrame>0.6, -50, 0</KeyFrame>
+            <KeyFrame>0.8, 50, 0</KeyFrame>
+            <KeyFrame>1, 0, 0</KeyFrame>
+          </Curve>
+          <Set name="interpolateAlpha">true</Set>
+          <Set name="initialAlpha">1</Set>
+          <Set name="finalAlpha">0</Set>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+    <StateMachines>
+      <StateMachine name="NPC" ServerOnly="true">
+        <States start="ShieldOn">
+          <NPCSpawn name="ShieldOn" IsTemporary="true">
+            <NpcTypeToSpawn>"WindGuardianShield"</NpcTypeToSpawn>
+            <NpcSpawnQuantity>1</NpcSpawnQuantity>
+          </NPCSpawn>
+          <NPCFlyingPatrol name="FlyPatrol">
+            <PatrolSpeed>50</PatrolSpeed>
+            <PatrolRange>160</PatrolRange>
+            <StayHome>false</StayHome>
+          </NPCFlyingPatrol>
+          <NPCFlyingChase name="Chase">
+            <ChaseSpeed>100</ChaseSpeed>
+          </NPCFlyingChase>
+          <NPCFlyingAttack name="AttackProjectile" ExitTime="0.8">
+            <AttackTimeoutInSeconds>0</AttackTimeoutInSeconds>
+            <ProjectileName>"WindGuardianProjectile"</ProjectileName>
+          </NPCFlyingAttack>
+          <NPCAnticipation name="Anticipation" ExitTime="0.5"/>
+        </States>
+        <Transitions>
+          <Transition to="Chase" from="FlyPatrol">
+            <Condition type="and">
+              <IsPlayerDistanceMatching operatorType="Less">250</IsPlayerDistanceMatching>
+              <IsPlayerDistanceMatching operatorType="Greater">200</IsPlayerDistanceMatching>
+            </Condition>
+          </Transition>
+          <Transition to="Chase" from="AttackProjectile">
+            <Condition type="or">
+              <IsPlayerDistanceMatching operatorType="Greater">200</IsPlayerDistanceMatching>
+              <IsCollidableBetweenTarget Width="32">true</IsCollidableBetweenTarget>
+            </Condition>
+          </Transition>
+          <Transition to="FlyPatrol" from="Chase|AttackProjectile|Anticipation">
+            <Condition>
+              <IsPlayerDistanceMatching operatorType="Greater">250</IsPlayerDistanceMatching>
+            </Condition>
+          </Transition>
+          <Transition to="Anticipation" from="AttackProjectile|Chase">
+            <Condition type="and">
+              <IsPlayerDistanceMatching operatorType="LessOrEqual">200</IsPlayerDistanceMatching>
+              <IsCollidableBetweenTarget Width="32">false</IsCollidableBetweenTarget>
+            </Condition>
+          </Transition>
+          <Transition to="AttackProjectile" from="Anticipation"/>
+          <Transition to="FlyPatrol" from="ShieldOn"/>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+    <Components>
+      <Info/>
+      <MustKillNPC/>
+      <AttachmentSlotsCmp/>
+	<TintOverrideCmp/>
+      <Enemy>
+        <Set name="SoulsReward">8</Set>
+        <Set name="destroyTileId">3452</Set>
+      </Enemy>
+      <Movement/>
+      <Damage>
+        <Set name="damage">10</Set>
+      </Damage>
+      <NPCRenderActionCmp/>
+      <StateMachine/>
+      <Physics>
+        <Set name="acceleration">0, 0</Set>
+        <Set name="mass">20</Set>
+        <Set name="drag">1.25, 1.25</Set>
+      </Physics>
+      <Health>
+        <Set name="healthAmount">250</Set>
+        <Set name="maxHealth">250</Set>
+      </Health>
+      <CollisionBox>
+        <Set name="size">32,32</Set>
+        <Set name="CollisionFlag">"PLAYERS|PROJECTILES"</Set>
+        <Set name="CollisionType">"ENEMY_NPC"</Set>
+      </CollisionBox>
+      <DebugDraw/>
+    </Components>
+  </Data>
+  <RenderRules>
+    <Render>
+      <SpriteRender name="s_sprite" scale="0.75,0.75"/>
+      <Translate>0,-16,0</Translate>
+      <NPCHealthBarRender TexturePath="interface/large/gui_event_npchealth_bar.rttex" TextureSize="17,9" TextureCoordinates="0,0"/>
+    </Render>
+  </RenderRules>
+</ItemRenderer>

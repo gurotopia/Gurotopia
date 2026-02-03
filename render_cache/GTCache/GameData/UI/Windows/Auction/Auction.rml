@@ -1,0 +1,86 @@
+<rml>
+  <head>
+    <title>Auction</title>
+    <link type="text/template" href="../Base/BasePopup.rml" />
+    <link type="text/template" href="../Templates/AuctionListItem.rml" />
+    <link type="text/rcss" href="../Base/WindowTitle.rcss" />
+    <link type="text/rcss" href="Auction.rcss" />
+    <script src="../Base/Utils.lua"/>
+    <script lang="text/lua">
+      
+          AuctionCellActionName = 'Auction.GoToWorld'
+    </script>
+  </head>
+  <body template="BasePopup">
+    <div data-model="AuctionModel" id="generic-popup" class="font-content">
+      <div class="content">
+        <div class="top-panel">
+          <div id="window-title">
+            <div class="title-icon" />
+            <div class="title-text font-title label">
+              Auction Search
+            </div>
+          </div>
+          <div class="info-panel color_dreamsicle">
+            <div id="search-container">
+              <div onclick="OnEvent(event, 'Auction.OpenItemSearch')" class="img-button button-default-color">
+                <span class="label">Search</span>
+              </div>
+              <div onclick="OnEvent(event, 'Auction.ClearItemSearch')" class="img-button button-default-color" data-class-disabled="AuctionModel.SearchItem == 0">
+                <span class="label">Clear</span>
+              </div>
+              <div class="sort-options-container">
+                <div id="sort-label">Sort:</div>
+                <select id="sort-options" class="select">
+                  <option value="sort-wl-asc" data-class-selected="AuctionModel.SortType == 'WlAsc'" sort-type="WlAsc" onclick="OnEvent(event, 'Auction.ApplySort')">
+                    <div id="sort-wl-asc" class="img-button"/>Price: Low To High
+                  </option>
+                  <option value="sort-wl-des" data-class-selected="AuctionModel.SortType == 'WlDes'" sort-type="WlDes" onclick="OnEvent(event, 'Auction.ApplySort')">
+                    <div id="sort-wl-des" class="img-button"/>Price: High To Low
+                  </option>
+                  <option value="sort-time-asc" data-class-selected="AuctionModel.SortType == 'TimeAsc'" sort-type="TimeAsc" onclick="OnEvent(event, 'Auction.ApplySort')">
+                    <div id="sort-time-asc" class="img-button"/>Time Remaining: Low To High
+                  </option>
+                  <option value="sort-time-des" data-class-selected="AuctionModel.SortType == 'TimeDes'" sort-type="TimeDes" onclick="OnEvent(event, 'Auction.ApplySort')">
+                    <div id="sort-time-des" class="img-button"/>Time Remaining: High To Low
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div id="count-text" data-rml="ToRMLText(Localize('[AUC_MAIN_UI_DESC]', AuctionModel.TotalCount != 1 ? 'are' : 'is',
+                 MoneyString(AuctionModel.TotalCount),
+                 AuctionModel.TotalCount != 1 ? 's' : '',
+                 AuctionModel.SearchItem == 0 ? '' : ' for `5' + ItemName(AuctionModel.SearchItem) + '``'))"/>
+          </div>
+        </div>
+        <div id="messages-list" class="message-table show-scrollbar wondow-content-full wondow-content-horizontal" data-attr-onscroll="'CheckEndOfTable(event, document, element, \'div.auction\', \'Auction.OnRequestNextPage\', '+AuctionModel.Auctions.size+')'"  onlistupdated="CalculateListSize(document, element, 'messages-list', 'message-table', '')">
+          <div class="message-table" id="message-table"  data-class-centered="AuctionModel.Auctions.size == 0">
+            <div data-for="Auction : AuctionModel.Auctions">
+              <div data-alias-it_index="it_index"
+                   data-alias-item_icon="Auction.Icon"
+                   data-alias-current_bid="Auction.CurrentBid"
+                   data-alias-end_time="Auction.EndTime"
+                   data-alias-can_warp="Auction.CanWarp">
+                <template src="AuctionListItem" />
+              </div>
+            </div>
+            <div class="error-msg" data-class-hidden="AuctionModel.TimedOut ||AuctionModel.Auctions.size > 0 || AuctionModel.NewPageRequested == 1">
+              No auctions to display.
+            </div>
+            <div class="error-msg" data-class-hidden="!AuctionModel.TimedOut">
+              Server is taking too long to respond. Please try again later.
+            </div>
+            <div class="dots-container" data-class-hidden="AuctionModel.TimedOut || AuctionModel.NewPageRequested == 0">
+              <div style="margin-right: 15dp; display: inline-block;">Loading</div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</rml>

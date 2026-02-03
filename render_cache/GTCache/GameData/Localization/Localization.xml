@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<Resources>
+	<String id="[TEST_TITLE]">`6Growtopia``</String>
+	<String id="[TEST_TEXT]">`3line 1``
+	`5line 2
+	`7line 3````</String>
+	<String id="[TEST_BTN1]">Cancel</String>
+	<String id="[TEST_BTN2]">Ok</String>
+	<String id="[TEST_DESCR]">Descr str</String>
+	<String id="[FEATURE_WELCOME_TITLE]">You've got `2Grow-Mail``!</String>
+	<String id="[FEATURE_WELCOME_DESCR]">Join the fun with your fellow Growtopians!</String>
+	<String id="[FEATURE_WELCOME_BODY]">
+		`oThe `2Mailbox`` has arrived! Sealed with fun, stamped with surprises, and always first-class!
+		&nbsp;
+		&nbsp;
+		Hey there, Growtopian!
+		Introducing the brand-new `2Mailbox``, your all-in-one hub for `wofficial messages`` and `8surprise rewards`` from the `6Growtopia Team``!
+		&nbsp;
+		&nbsp;
+		Whether it's a nifty `5gift``, a `4system update``, or a little something just because - it'll all be delivered straight to your `2Mailbox``! No more missed messages, no more reward rush! Each message or reward comes with an expiry timer, so you can grab them when you feel ready (just make sure you've got some inventory space before claiming, nobody likes a packed pocket!).
+		&nbsp;
+		And don't worry, this box is strictly business (no Growtopian fan mails just yet).
+		&nbsp;
+		So what are you waiting for? Pop open your `2Mailbox`` and see what's inside! Who knows what surprises are envelope-ing you!?
+		&nbsp;
+		Signed, Sealed, Delivered - it's all yours!
+		&nbsp;
+		~ `6The Growtopia Team```
+	</String>
+
+  <!--FashionShow Bouncer Strings-->
+  <String id="[BOUNCER_POPUP_UI_DESC]">Welcome to Growtopia's Fashion Show!</String>
+  <String id="[BOUNCER_POPUP_UI_THEME_TEXT]">Theme for the next show: `#{}``</String>
+  <String id="[BOUNCER_POPUP_UI_CURRENT_THEME_TEXT]">Theme: `#{}``</String>
+  <String id="[BOUNCER_POPUP_UI_TICKET_COUNT]">Fashion Show Tickets: {}</String>
+  <String id="[BOUNCER_POPUP_UI_TICKET_COUNT_RED]">Fashion Show Tickets: `4{}``</String>
+  <String id="[BOUNCER_POPUP_UI_ACTIVE_ROUND_WARNING]">There is an active Fashion Show in progress. Go to the Voting Ballots to vote for who you think best matches the theme: `#{}``</String>
+  <String id="[BOUNCER_POPUP_UI_ACTIVE_ROUND_WARNING_SECOND_LINE]">If you'd like to participate in one, come back when this one is over.</String>
+  <String id="[BOUNCER_POPUP_UI_LEVEL_AND_PLAYTIME_ERROR]">If you would like to participate, you must be Level {} and you must have been a Growtopian for {} days.</String>
+  <String id="[BOUNCER_POPUP_UI_EQUIPMENT_ERROR]">Looks like you don't have enough clothes to take part in the fashion show.
+	  &nbsp;
+	  You must wear at least {} different items to participate.
+  </String>
+  <String id="[BOUNCER_POPUP_UI_DISCLAIMER_TEXT]">
+	Note: You will be entering with the clothes you are currently wearing. &nbsp; 
+	You won't be able to change clothes until the end of the show.
+  </String>
+  <String id="[VOTING_POPUP_DE_ACTIVE_UI_TEXT]">Which participant would you like to vote for?</String>
+  <String id="[VOTING_POPUP_ACTIVE_UI_TEXT]">Which participant would you like to vote for?</String>>
+  <String id="[VOTING_POPUP_ALREADY_VOTED_WARNING]">You already have voted for a player in this show, if you vote again then your previous vote gets removed.</String>>
+  
+	<!--************************-->
+  <!--Wardrobe Feature Strings-->
+  
+  <String id="[WARDROBE_MAIN_UNEQUIP_BTN]">Unequip All</String>
+  <String id="[WARDROBE_MAIN_SAVE_BTN]">Save Outfit</String>
+  <String id="[WARDROBE_MAIN_LOAD_BTN]">Load Outfit</String>
+  <String id="[WARDROBE_MAIN_ERROR_MSG]">You can't change clothes as you are currently participating in a Fashion Show.</String>
+  
+  <String id="[WARDROBE_SAVE_UI_DESC]">Pick a preset to save your outfit to. Make sure you don't overwrite the one you want to keep.</String>
+  <String id="[WARDROBE_SAVE_UI_BTN_1]">Save as Outfit 1</String>
+  <String id="[WARDROBE_SAVE_UI_BTN_2]">Save as Outfit 2</String>
+  
+  <String id="[WARDROBE_LOAD_UI_DESC]">Equip a saved preset. This will only equip items that are also in your inventory.</String>
+  <String id="[WARDROBE_LOAD_UI_WARNING]">Note: There is clothing in your saved outfits that is not in your inventory. Choosing to equip the outfit will ignore that clothing.</String>
+  <String id="[WARDROBE_LOAD_UI_BTN_1]">Equip Outfit 1</String>
+  <String id="[WARDROBE_LOAD_UI_BTN_2]">Equip Outfit 2</String>
+  
+  
+  <String id="[WARDROBE_CHANGE_UI_DESC]">Pick which {} item you want your Growtopian to wear.</String>
+  
+  <!--************************-->
+
+	<!--Auction Block-->
+	<String id="[AUC_BLOCK_SETUP_DESCRIPTION]">Sell your items through auction. Once the auction starts you will not be able to cancel the auction. When the auction ends, whatever the final bid ends up being will be the sale price so choose your starting bid carefully.&#10; </String>
+	<String id="[AUC_BLOCK_SETUP_INCOMPLETE]">You need to fill all the above sections before you can begin this auction.</String>
+	<String id="[AUC_BLOCK_SETUP_INVALID_ITEM]">That item can't be sold at auction! Please try another item.</String>
+	<String id="[AUC_BLOCK_NON_OWNER_SETUP]">Only the owner can setup the auction.</String>
+	<String id="[AUC_BLOCK_BID_DESCRIPTION]">Buy items through this auction block.&#10;&#10;Place your bids but remember, the final bid when the auction ends will be the sale price so choose your bid carefully. Once placed you can't withdraw your bid until the auction ends.&#10; </String>
+	<String id="[AUC_BLOCK_BID_OWNER]">&#10;The owner can't bid on their own auction.</String>
+	<String id="[AUC_BLOCK_BID_NONE]">No Bid Placed</String>
+	<String id="[AUC_MAIN_UI_DESC]">There {} currently `5{}`` auction{}{}.</String>
+	
+
+	<String id="[mail_auctionfail_title]">Auction Failed!</String>
+	<String id="[mail_auctionfail_desc]">There were no bids for your `2{}`` in {}.</String>
+	<String id="[mail_auctionfail_body]">There were no bids for your auction.&#10;&#10;`2 {}`` was not sold in {}.&#10;&#10;Reclaim your item now.</String>
+	<String id="[mail_auctionsuccess_title]">Auction Won!</String>
+	<String id="[mail_auctionsuccess_desc]">`2 {}`` bought for `5{} WL``!</String>
+	<String id="[mail_auctionsuccess_body]">You were the winning bid for the`2{}`` in {}.&#10;&#10;`5{} WL`` have been transferred from your World Lock Bank to the Seller.&#10;&#10;Claim your item now.</String>
+	<String id="[mail_auctionsuccessowner_title]">Auction Item Sold!</String>
+	<String id="[mail_auctionsuccessowner_desc]">`2{}`` was successfully sold for `5{} WL`` in {}.</String>
+	<String id="[mail_auctionsuccessowner_body]">`2{}`` was successfully sold for `5{} WL`` in {}.&#10;&#10;The world locks have been added to your World Lock Bank.</String>
+	<String id="[mail_auctionfailbidder_title]">Auction Ended!</String>
+	<String id="[mail_auctionfailbidder_desc]">You were not the winning bid.</String>
+	<String id="[mail_auctionfailbidder_body]">You were not the winning bid.&#10;&#10;`5{} WL`` have been unblocked in your World Lock Bank for use in another auction.</String>
+	
+	<String id="[mail_mailharv2025_body]">Hey Growtopian,&#10; &#10;`8HarvestFest`` is here—jump in today to harvest trees under the moonlight, gather Mooncakes & Songpyeons, and craft them into festive treasures! &#10;It's the season to celebrate together and enjoy one of Growtopia's most cherished traditions.  This year, don't miss the exclusive Gromoji's Little Partner—only during HarvestFest! &#10;Need an extra boost? Use Mooncake Magnificence to increase your Mooncake drops!&#10;Or create your very own harvest world with Harvest Blast, filled with 99 random trees and even rare Cherry Blossoms for Purity Mooncakes! &#10;&#10;`2We've prepared a little gift to kick things off—enjoy the Harvest moon and start celebrating today! ``&#10; &#10;Growtopia Team</String>
+	<String id="[mail_mailharv2025_title]">A Gift Awaits You This HarvestFest</String>
+	<String id="[mail_mailharv2025_desc]">Jump in now, harvest trees, and discover new surprises—only during this year's festival!</String>
+
+	<String id="[mail_fashion2025_body]">Dear Growtopian,&#10;&#10;As the curtains close on `5Growtopia Fashion Weekend``, we celebrate you - the star who brought flair and imagination to the runway.&#10;&#10;To honor your unique style, we're delighted to present the `2Glamorous Crown``. `1Perfect for a Mr. Growtopia or Miss Growtopia``, it's a sparkling reminder that fashion is more than looks - `eit's how you Express in Style``.&#10;&#10;Stay Stylish,&#10;The Growtopia Team</String>
+	<String id="[mail_fashion2025_title]">A Crown for a Star</String>
+	<String id="[mail_fashion2025_desc]">Your Glamorous Crown Awaits - Express in Style</String>
+	
+	<String id="[mail_wonder2025_body]">Hi Growtopians,&#10;&#10;Haven't joined `5Wonder Week`` yet? Now's your chance! We're giving you`2 5 FREE Wonder Providers``, so you can dive right in.&#10;&#10;Every day this week, a new Store item awaits, tied to fun Growtopia activities. And for even rarer finds, the Chest of Wonders guarantees 1 wonder from past years.&#10;&#10;Use your free `2Wonder Providers`` - explore Wonder Week today!&#10;&#10;Growtopia Team</String>
+	<String id="[mail_wonder2025_title]">Discover Wonder Week with Free Gifts!</String>
+	<String id="[mail_wonder2025_desc]">5 Wonder Providers inside - claim now!</String>
+	
+	<String id="[mail_livestreamrewards_body]">Hi Growtopians,&#10;&#10;We loved spending time with you! &#10;Enjoy your reward and see you soon!&#10;&#10;Growtopia Team</String>
+	<String id="[mail_livestreamrewards_title]">Thanks for Joining Growtopia Live! </String>
+	<String id="[mail_livestreamrewards_desc]">Rewards inside</String>
+	
+	<String id="[mail_dungeons2025_body]">Hi Growtopians,&#10;&#10;The Dungeons have changed-new boss, new powers, new dangers! Use the exclusive code `4DNMAGIC25`` to claim 70 Scrolls, power up your strength, and confront the mysterious `qMagic Crystal Ball Boss``! Sharpen your skills and conquer the challenge before it's too late!&#10;&#10;The Growtopia Team</String>
+	<String id="[mail_dungeons2025_title]">A New Dungeon Challenge Awaits! Code inside!</String>
+	<String id="[mail_dungeons2025_desc]">Take your 70 Scrolls and dive in!</String>
+	
+	<String id="[mail_halloween2025_body]">Hi Growtopians,&#10;&#10;The Dark King calls once more! Venture into the `8Tomb of Growganoth``, brave vanishing platforms, and make your offerings to the `8Maw`` for haunting treasures. Use your `2Dark Tickets, Sigils``, and `2Dark King's Offerings`` to begin your ritual-and don't forget your `2Fashion Show Tickets`` to celebrate in spooky style. The shadows won't wait forever!&#10;&#10;The Growtopia Team</String>
+	<String id="[mail_halloween2025_title]">The Dark King Awaits Your Tribute!</String>
+	<String id="[mail_halloween2025_desc]">Claim gifts and face Growganoth's wrath!</String>
+
+	<String id="[SEED_DIARY_PAGE]">Page {}/{}</String>
+	<String id="[SEED_DIARY_DISCOVERED]">`oDiscovered: `` `5{}/{}``</String>
+	<String id="[SEED_DIARY_GROWN]">`oPlanted: `` `5{}/{}``</String>
+	<String id="[SEED_DIARY_MAKE_INFO]">`oSeed can be used to make:``</String>
+	<String id="[SEED_DIARY_NO_SELECT_INFO]">Select an item to view details.</String>
+	<String id="[SEED_DIARY_NO_ITEMS_INFO_1]">`wNo items discovered.``</String>
+	<String id="[SEED_DIARY_NO_ITEMS_INFO_2]">Collect `5items`` or `5seeds`` to reveal more items.</String>
+
+	<String id="[mail_thanksgiving2025_body]">Hi Growtopians,&#10;&#10;The worlds are filling with Turkeys and rewards - come join the fun! Ring your Bell, gather Turkeys, and take on Sgt. Stuffins for exclusive treasures. &#10;Redeem code `2THXGIVING25GT-A`` to pick up your free Organic Turkey, Turkey Sucker, and Thanksgiving Bell. Jump in and celebrate the season with everyone!&#10;&#10;The Growtopia Team</String>
+	<String id="[mail_thanksgiving2025_title]">Thanksgiving Gift code Inside!</String>
+	<String id="[mail_thanksgiving2025_desc]">Grab your gifts and join the hunt!</String>
+	
+</Resources>

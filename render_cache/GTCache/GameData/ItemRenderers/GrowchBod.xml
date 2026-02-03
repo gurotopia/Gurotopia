@@ -1,0 +1,353 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_frontArm" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="29,25" />
+    <Sprite name="s_backArm" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="31,25" />
+    <Sprite name="s_landingParticleFront" fileName="game/particles11.rttex" textureSize="32" frame="28,29" />
+    <Sprite name="s_landingParticleBack" fileName="game/particles11.rttex" textureSize="32" frame="30,29" />
+    <Sprite name="s_punchSlash" fileName="game/particles11.rttex" textureSize="32" frame="31,30" />
+    <Sprite name="s_hitFlash" fileName="game/particles11.rttex" textureSize="32" frame="30,30" />
+
+    <StateMachines>
+      <StateMachine name="Motion">
+        <States>
+          <State name="Idle" />
+          <State name="Dance" />
+          <State name="Punch" />
+        </States>
+        <Transitions>
+          <Transition to="Idle" from="Dance|Punch">
+            <Condition type="and">
+              <IsDancing>false</IsDancing>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="Dance" from="Idle|Punch">
+            <Condition type="and">
+              <IsDancing>true</IsDancing>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="Punch" from="Idle|Dance">
+            <Condition>
+              <IsAction>PUNCH</IsAction>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine name="LandingParticle">
+        <States>
+          <State name="OnGround" />
+          <State name="InAir" />
+          <State name="AirToGround" />
+        </States>
+        <Transitions>
+          <Transition to="OnGround" from="AirToGround">
+            <Condition>
+              <IsVariableBool name="onGround">true</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition to="InAir" from="OnGround">
+            <Condition>
+              <IsVariableBool name="onGround">false</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition to="AirToGround" from="InAir">
+            <Condition>
+              <IsVariableBool name="onGround">true</IsVariableBool>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <VariableMap>
+      <Set name="frontArmRotation">0, 0, 0, 1</Set>
+      <Set name="backArmRotation">0, 0, 0, 1</Set>
+    </VariableMap>
+
+    <Animations>
+      <SpriteCurveAnimation name="backArmPunchScaled" sprite="s_backArm" isLoop="true" playOnState="Motion.Punch" animTime="100">
+        <Curve name="scale">
+          <KeyFrame>0.f, 1.5f, 1.5f</KeyFrame>
+          <KeyFrame>1.f, 1.5f, 1.5f</KeyFrame>
+        </Curve>
+      </SpriteCurveAnimation>
+      <SpriteCurveAnimation name="backArmPunchScaledIdle" sprite="s_backArm" isLoop="true" playOnState="Motion.Idle|Motion.Dance" animTime="100">
+        <Curve name="scale">
+          <KeyFrame>0.f, 1.f, 1.f</KeyFrame>
+          <KeyFrame>1.f, 1.f, 1.f</KeyFrame>
+        </Curve>
+      </SpriteCurveAnimation>
+      <CurveAnimationVec4 name="backArmRotDance" isLoop="true" playOnState="Motion.Dance" animTime="500">
+        <Curve name="backArmRotation">
+          <KeyFrame>0, 30, 0,0,1</KeyFrame>
+          <KeyFrame>0.5, -30, 0,0,1</KeyFrame>
+          <KeyFrame>1, 30, 0,0,1</KeyFrame>
+        </Curve>
+      </CurveAnimationVec4>
+      <CurveAnimationVec4 name="frontArmRotDance" isLoop="true" playOnState="Motion.Dance" animTime="500">
+        <Curve name="frontArmRotation">
+          <KeyFrame>0, 30, 0,0,1</KeyFrame>
+          <KeyFrame>0.5, -30, 0,0,1</KeyFrame>
+          <KeyFrame>1, 30, 0,0,1</KeyFrame>
+        </Curve>
+      </CurveAnimationVec4>
+      <SpriteAnimation name="a_landingParticlesFront" sprite="s_landingParticleFront" isLoop="true" animTime="200" autoPlay="true">
+        <Frame>28,29</Frame>
+        <Frame>29,29</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_landingParticlesBack" sprite="s_landingParticleBack" isLoop="true" animTime="200" autoPlay="true">
+        <Frame>30,29</Frame>
+        <Frame>31,29</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <ParticleSystems>
+      <ParticleSystem name="ps_landingParticlesRightFront" updateStage="AddClothingParticles"  updateState="LandingParticle.AirToGround">
+        <Emitter>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="offset">0,5</Set>
+          <Set name="useCharacterPos">true</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_landingParticleFront</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="renderAlignment">DOWN_CENTER</Set>
+          <Set name="lifeTime">1</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Random name="initialVelocity" min="25, 0" max="50, 0" />
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="offset">18,0</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_landingParticlesLeftFront" updateStage="AddClothingParticles"  updateState="LandingParticle.AirToGround">
+        <Emitter>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="offset">0,5</Set>
+          <Set name="useCharacterPos">true</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_landingParticleFront</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="renderAlignment">DOWN_CENTER</Set>
+          <Set name="lifeTime">1</Set>
+          <Set name="flipX">true</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Random name="initialVelocity" min="-25, 0" max="-50, 0" />
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="offset">-18,0</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_landingParticlesRightBack" updateStage="AddClothingParticles" renderStage="RenderBehind" updateState="LandingParticle.AirToGround">
+        <Emitter>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="offset">0,6</Set>
+          <Set name="useCharacterPos">true</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_landingParticleBack</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="renderAlignment">DOWN_CENTER</Set>
+          <Set name="lifeTime">1</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Random name="initialVelocity" min="20, 0" max="30, 0" />
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="offset">18,0</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_landingParticlesLeftBack" updateStage="AddClothingParticles" renderStage="RenderBehind" updateState="LandingParticle.AirToGround">
+        <Emitter>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="offsetFacing">false</Set>
+          <Set name="offset">0,6</Set>
+          <Set name="useCharacterPos">true</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_landingParticleBack</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="renderAlignment">DOWN_CENTER</Set>
+          <Set name="lifeTime">1</Set>
+          <Set name="flipX">true</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="offset">-18,0</Set>
+          <Random name="initialVelocity" min="-20, 0" max="-30, 0" />
+          <Set name="inSpecificOrder">true</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_punchSlash" updateStage="AddClothingParticles" updateState="Motion.Punch">
+        <Emitter>
+          <Set name="offset">10,-12</Set>
+          <Set name="emissionInterval">0.2</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">10</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_punchSlash</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Curve name="initialScale">
+            <KeyFrame>0, 0, 0</KeyFrame>
+            <KeyFrame>0.1, 0, 0</KeyFrame>
+            <KeyFrame>0.1, 0.5, 0.5</KeyFrame>
+            <KeyFrame>1, 1.5, 1.5</KeyFrame>
+          </Curve>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 0.15</KeyFrame>
+            <KeyFrame>0.5, 0.15</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="lifeTime">0.6</Set>
+          <Set name="rotateWithVelocity">true</Set>
+          <VectorTo name="initialVelocity" source="targetPos"  duration="lifeTime" x="1"/>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_hitFlash">
+        <Emitter>
+          <Set name="lifeTime">0</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_hitFlash</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Curve name="initialScale">
+            <KeyFrame>0, 1, 1</KeyFrame>
+            <KeyFrame>1, 1.3, 1.3</KeyFrame>
+          </Curve>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="lifeTime">0.75</Set>
+          <Random name="initialAngle" min="0" max="360" />
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+
+    <RenderOptions>
+      <Default>
+        <Set name="PunchSoundOverride">HAND</Set>
+        <Set name="PlayDefaultPunchAudio">false</Set>
+        <Set name="IncludeAllActions">true</Set>
+        <Set name="IgnoreDefaultDamagedTileEffect">true</Set>
+        <Set name="RenderBackArmInfected">false</Set>
+        <Set name="RenderBackArmBuild">true</Set>
+        <Set name="DefaultRenderMannequinHandItem">false</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+
+  <RenderRules>
+    <RenderBackHandItem>
+      <StopIf>
+        <IsDancing>true</IsDancing>
+        <IsAction>BUILD</IsAction>
+      </StopIf>
+      <StopIf type="and">
+        <IsZombified>true</IsZombified>
+        <IsAction>PUNCH</IsAction>
+      </StopIf>
+      <SpriteRender name="s_backArm" offset="-2,-7" blend="PREMULTIPLIED_ALPHA" alignment="UPPER_CENTER" rotateOffset="true" rotationPoint="0,0"/>
+    </RenderBackHandItem>
+    <RenderHandItem>
+      <StopIf>
+        <IsDancing>true</IsDancing>
+      </StopIf>
+      <SpriteRender name="s_frontArm" offset="0,-2" blend="PREMULTIPLIED_ALPHA" alignment="UPPER_CENTER" rotateOffset="true" rotationPoint="0,0" />
+    </RenderHandItem>
+    <OnPunchUpdate>
+      <StopIf>
+        <IsZombified>true</IsZombified>
+      </StopIf>
+      <AvatarTransform class="Face">
+        <Set name="face">MAD</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">1200</Set>
+        <Set name="isAdditive">true</Set>
+        <Set name="pointTowardsPunchTarget">false</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">0</Set>
+      </AvatarTransform>
+    </OnPunchUpdate>
+
+    <RenderInFront>
+      <ParticleSystemRender name="ps_landingParticlesLeftFront"/>
+      <ParticleSystemRender name="ps_landingParticlesRightFront"/>
+      <StopIf>
+        <IsDancing>false</IsDancing>
+      </StopIf>
+      <StopIf>
+        <IsZombified>true</IsZombified>
+        <IsTrnsformed>true</IsTrnsformed>
+        <IsSleepingOnaBed>true</IsSleepingOnaBed>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_REBEL_RAIDER</IsWearing>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_IMPERIAL_ENFORCER</IsWearing>
+      </StopIf>
+      <Group>
+        <StopIf>
+          <IsFacingLeft>true</IsFacingLeft>
+        </StopIf>
+        <Group>
+          <Rotate>frontArmRotation</Rotate>
+          <SpriteRender name="s_frontArm" offset="-8,-16" blend="PREMULTIPLIED_ALPHA" alignment="UPPER_CENTER" rotateOffset="true" rotationPoint="-8,-14" />
+        </Group>
+        <Group onState="Motion.Dance">
+          <Rotate>backArmRotation</Rotate>
+          <SpriteRender name="s_backArm" offset="8,-16" blend="PREMULTIPLIED_ALPHA" flip="1,0" alignment="UPPER_CENTER" rotateOffset="true" rotationPoint="8,-14" />
+        </Group>
+      </Group>
+      <Group>
+        <StopIf>
+          <IsFacingLeft>false</IsFacingLeft>
+        </StopIf>
+        <Group>
+          <Rotate>frontArmRotation</Rotate>
+          <SpriteRender name="s_frontArm" offset="-8,-16" blend="PREMULTIPLIED_ALPHA" alignment="UPPER_CENTER" rotateOffset="true" rotationPoint="8,-14" />
+        </Group>
+        <Group onState="Motion.Dance">
+          <Rotate>backArmRotation</Rotate>
+          <SpriteRender name="s_backArm" offset="8,-16" blend="PREMULTIPLIED_ALPHA" flip="1,0" alignment="UPPER_CENTER" rotateOffset="true" rotationPoint="-8,-14" />
+        </Group>
+      </Group>
+    </RenderInFront>
+    <OnDamagedTile>
+      <ParticleSystemUpdate name="ps_hitFlash"/>
+    </OnDamagedTile>
+  </RenderRules>
+</ItemRenderer>

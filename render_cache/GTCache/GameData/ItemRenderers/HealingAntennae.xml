@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+	<Data>
+		<Sprite name="s_HealthCross" fileName="game/particles2.rttex" textureSize="32" frame="15,8" />
+		<Sprite name="s_antenna" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="19,28" />
+		<Sprite name="s_antenna_glow" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="20,28" />
+		<Sprite name="s_antenna_glow2" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="20,28" />
+		<Sprite name="s_antenna_skin" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="18,28" />
+		<Sprite name="s_aura" fileName="game/particles_large15.rttex" textureSize="64" frame="7,9" />
+		<Animations>
+			<SpriteCurveAnimation name="a_antenna_glow" isLoop="true" autoPlay="true" sprite="s_antenna_glow" animTime="3000">
+				<Curve name="alpha">
+					<KeyFrame>0.f, 0.f</KeyFrame>
+					<KeyFrame>0.2f, 0.f </KeyFrame>
+					<KeyFrame>0.4f, 1.f</KeyFrame>
+					<KeyFrame>0.8f, 1.f</KeyFrame>
+					<KeyFrame>1.f, 0.f</KeyFrame>
+				</Curve>
+			</SpriteCurveAnimation>
+		</Animations>
+		<StateMachines>
+			<StateMachine name="Action">
+				<States>
+					<State name="None" />
+					<State name="Punch" />
+				</States>
+				<Transitions>
+					<Transition to="None" from="Punch">
+						<Condition>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Punch" from="None">
+						<Condition>
+							<IsAction>PUNCH</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<RenderOptions>
+			<Default>
+				<Set name="IgnorePunchTypeCheck">true</Set>
+				<Set name="UserNameOffset">7</Set>
+			</Default>
+		</RenderOptions>
+		<ParticleSystems>
+			<ParticleSystem name="ps_Aura" updateStage="AddClothingParticles" updateState="Action.Punch">
+				<Emitter>
+					<Set name="offset">0, -10</Set>
+					<Set name="emissionInterval">0.15</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">s_aura</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Random name="offset" min="-3, 3" max="0, 0" />
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>0.4, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="isBackgroundParticle">true</Set>
+					<Curve name="initialScale">
+						<KeyFrame>0, 0.75, 0.75</KeyFrame>
+						<KeyFrame>1, 1, 1.25</KeyFrame>
+					</Curve>
+					<Set name="lifeTime">0.3</Set>
+					<Set name="initialVelocity">0, -100</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="ps_HealthCross" updateStage="AddClothingParticles" updateState="Action.Punch">
+				<Emitter>
+					<Set name="offset">16, -20</Set>
+					<Set name="offsetFacing">false</Set>
+					<Random name="emissionInterval" min="0.2" max="0.4" />
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">2</Set>
+				</Emitter>
+				<Particle usePlayerFacing="true" usePlayerFacing="true">
+					<Set name="sprite">s_HealthCross</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Random name="offset" min="-32, 32" max="0, 0" />
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.1, 1</KeyFrame>
+						<KeyFrame>0.5, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Random name="initialScale" min="0.5" max="1" />
+					<Random name="lifeTime" min="0.6" max="1" />
+					<Set name="initialVelocity">0, -50</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+	</Data>
+	<RenderRules>
+		<RenderFaceItem>
+			<SpriteRender name="s_antenna_skin" offset="0,-15.5" alignment="DOWN_CENTER" tintOverride="SKIN" />
+			<Group onState="Action.Punch">
+				<SpriteRender name="s_antenna_glow2" offset="0,-15.5" alignment="DOWN_CENTER" blend="PREMULTIPLIED_ALPHA" drawShadow="false"/>
+			</Group>
+			<Group onState="Action.None">
+				<SpriteRender name="s_antenna" offset="0,-15.5" alignment="DOWN_CENTER" blend="PREMULTIPLIED_ALPHA"/>
+				<SpriteRender name="s_antenna_glow" offset="0,-15.5" alignment="DOWN_CENTER" blend="PREMULTIPLIED_ALPHA" drawShadow="false"/>
+			</Group>
+		</RenderFaceItem>
+	</RenderRules>
+</ItemRenderer>

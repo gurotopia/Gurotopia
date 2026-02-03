@@ -1,0 +1,20 @@
+//A script for RTPack.exe to make an .rtfont file.  To run it, do this:  RTPack.exe -make_font <filename of this file.txt>
+
+//Font image - if it's not already a .rttex, it will automatically convert to .rttex using -pvrt4444
+image|font_ubisoft_sans_0.png
+
+//a .fnt data file created by Well Oiled Font Maker or Bitmap Font Generator, at the same time it makes the .bmp
+fnt_file|font_ubisoft_sans.fnt
+
+blank_space_width|8
+
+//outputfile will automatically be <filename of this file>.rtfont
+
+`format code specifications for inline font formatting (SANSI for those that remember the BBS days)
+
+//add_format_color|<character code>,r,g,b
+add_format_color|0|255, 255,255|//default
+add_format_color|1|0, 0, 0|//black
+add_format_color|w|255, 255,255|//white
+add_format_color|b|0, 0,0|//black
+

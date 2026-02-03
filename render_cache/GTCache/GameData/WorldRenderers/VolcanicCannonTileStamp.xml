@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer name="VolcanicCannonTileStamp">
+  <Data>
+    <Sprite name="TileDamageSprite" fileName="game/particles12.rttex" textureSize="32" />
+    
+    <Animations>
+      <SpriteAnimation name="tile_fire_animation" sprite="TileDamageSprite" animTime="600" autoPlay="true" isLoop="true">
+        <Frame>23,0</Frame>
+        <Frame>24,0</Frame>
+        <Frame>25,0</Frame>
+        <Frame>26,0</Frame>
+        <Frame>27,0</Frame>
+        <Frame>28,0</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <ParticleSystems>
+      <ParticleSystem name="TileHitFire" updateStage="OnCreate">
+        <Emitter>
+          <Random name="emissionInterval" min="0.05" max="0.1" />
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">TileDamageSprite</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Set name="lifeTime">0.6</Set>
+          <Set name="initialVelocity">0,-32</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Random name="initialScale" min="0.4" max="1.2" />
+          <Random name="offset" min="-8, -7" max="8, 7" />
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+  </Data>
+</ItemRenderer>

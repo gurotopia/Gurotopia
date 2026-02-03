@@ -1,0 +1,159 @@
+<rml>
+  <head>
+    <title>WardrobeSaveLoad</title>
+    <link type="text/template" href="../Base/BasePopup.rml" />
+    <link type="text/template" href="../Templates/ItemIconWithText.rml" />
+    <link type="text/rcss" href="../Base/WindowTitle.rcss" />
+    <link type="text/rcss" href="WardrobeSaveLoad.rcss" />
+  </head>
+  <body template="BasePopup" class=" show-scrollbar">
+    <div data-model="WardrobeSaveLoadModel" id="wardrobe-load-popup" class="font-content">
+      <div class="content">
+        <div id="window-title">
+          <div class="title-icon" />
+          <div class="title-text font-title label">
+            <span data-class-hidden="WardrobeSaveLoadModel.IsSaveUi">Load Outfit</span>
+          </div>
+          <div class="title-text font-title label" data-class-hidden="!WardrobeSaveLoadModel.IsSaveUi">
+            <span data-class-hidden="!WardrobeSaveLoadModel.IsSaveUi">Save Outfit</span>
+          </div>
+        </div>
+        <div class="color_dreamsicle"
+             style="font-size: 24dp;"
+             data-class-hidden="WardrobeSaveLoadModel.IsSaveUi">
+          <p data-rml="ToRMLText(Localize('[WARDROBE_LOAD_UI_DESC]'))"/>
+          <p class="color_brown" 
+                data-class-hidden="!WardrobeSaveLoadModel.ShowMissingClothError"
+                data-rml="ToRMLText(Localize('[WARDROBE_LOAD_UI_WARNING]'))"/>
+        </div>
+        <p class="color_dreamsicle" 
+              style="font-size: 24dp;"
+              data-class-hidden="!WardrobeSaveLoadModel.IsSaveUi"
+              data-rml="ToRMLText(Localize('[WARDROBE_SAVE_UI_DESC]'))"/>
+        <div class="table-holder wondow-content-full wondow-content-horizontal">
+          <table class="full-width-table" rows="2" columns="9">
+            <tr class="item-row">
+              <td class="central-cell" colspan="4" rowspan="2">
+                <RenderPlayer class="portrait" data-attr-clothing="WardrobeSaveLoadModel.PresetOneStr"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetOne[9]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetOne[0]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetOne[7]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetOne[1]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetOne[5]">
+                <template src="ItemIconWithText"/>
+              </td>
+            </tr>
+            <tr class="item-row">
+              <!-- Central cell is already merged -->
+            
+              <td data-alias-model="WardrobeSaveLoadModel.PresetOne[6]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetOne[4]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetOne[8]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetOne[2]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetOne[3]">
+                <template src="ItemIconWithText"/>
+              </td>
+            </tr>
+            <tr class="button-row">
+              <td class="button-cell" colspan="4">
+                <div onclick="OnEvent(event, 'WardrobeSaveLoad.PresetOne')" class="equip-button img-button button-default-color">
+                  <div class="label">
+                    <span data-class-hidden="WardrobeSaveLoadModel.IsSaveUi"
+                          data-rml="ToRMLText(Localize('[WARDROBE_LOAD_UI_BTN_1]'))"/>
+                    <span data-class-hidden="!WardrobeSaveLoadModel.IsSaveUi"
+                          data-rml="ToRMLText(Localize('[WARDROBE_SAVE_UI_BTN_1]'))"/>
+                  </div>
+                </div>
+              </td>
+              <td/>
+              <td/>
+              <td/>
+              <td/>
+              <td/>
+            </tr>
+          </table>
+        </div>
+        <div class="table-holder wondow-content-full wondow-content-horizontal" style="margin-top: 20dp;">
+          <table class="full-width-table" rows="2" columns="9">
+            <tr class="item-row">
+              <td class="central-cell" colspan="4" rowspan="2">
+                <RenderPlayer class="portrait" data-attr-clothing="WardrobeSaveLoadModel.PresetTwoStr"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetTwo[9]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetTwo[0]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetTwo[7]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetTwo[1]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetTwo[5]">
+                <template src="ItemIconWithText"/>
+              </td>
+            </tr>
+            <tr class="item-row">
+              <!-- Central cell is already merged -->
+
+              <td data-alias-model="WardrobeSaveLoadModel.PresetTwo[6]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetTwo[4]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetTwo[8]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetTwo[2]">
+                <template src="ItemIconWithText"/>
+              </td>
+              <td data-alias-model="WardrobeSaveLoadModel.PresetTwo[3]">
+                <template src="ItemIconWithText"/>
+              </td>
+            </tr>
+            <tr class="button-row">
+              <td class="button-cell" colspan="4">
+                <div onclick="OnEvent(event, 'WardrobeSaveLoad.PresetTwo')" class="equip-button img-button button-default-color">
+                  <div class="label">
+                    <span data-class-hidden="WardrobeSaveLoadModel.IsSaveUi"
+                          data-rml="ToRMLText(Localize('[WARDROBE_LOAD_UI_BTN_2]'))"/>
+                    <span data-class-hidden="!WardrobeSaveLoadModel.IsSaveUi"
+                          data-rml="ToRMLText(Localize('[WARDROBE_SAVE_UI_BTN_2]'))"/>
+                  </div>
+                </div>
+              </td>
+              <td/>
+              <td/>
+              <td/>
+              <td/>
+              <td/>
+            </tr>
+          </table>
+        </div>
+        <div id="back-button" onclick="OnEvent(event, 'WardrobeSaveLoad.OnBack')" class="img-button button-default-color">
+          <span class="label">Back</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</rml>

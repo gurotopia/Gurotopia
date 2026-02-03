@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer NPCType="HealingAura" NPCTypeID="15">
+	<Data>
+		<Sprite name="sprite" fileName="game/bb_page1.rttex" textureSize="128" frame="4,4"/>
+		<Sprite name="sprite_shield" fileName="game/particles_large9.rttex" textureSize="64" frame="15,5"/>
+		<ParticleSystems>
+			<ParticleSystem name="healingArea">
+				<Emitter>
+					<Set name="offset">0, 0</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="checkParticleNumToEmit">false</Set>
+					<Set name="emissionInterval">3.9</Set>
+					<Set name="particlesPerEmission">3</Set>
+					<Set name="particlesToEmit">1</Set>
+				</Emitter>
+				<Particle usePlayerFacing="true">
+					<Set name="offset">0,0</Set>
+					<Set name="sprite">sprite_shield</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="renderAlignment">CENTER</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="collisionDamageAmount">-5</Set>
+					<Set name="destroyOnCollision">false</Set>
+					<Set name="collisionSize">352,352</Set>
+					<Set name="isCollisionDamageSecondsBased">true</Set>
+					<Set name="lifeTime">4</Set>
+					<Set name="interpolateScale">true</Set>
+					<Set name="initialScale">0.5,0.5</Set>
+					<Set name="finalScale">5,5</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.4, 0</KeyFrame>
+						<KeyFrame>0.41, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="collisionType">
+						<CollisionType>PROJECTILES</CollisionType>
+					</Set>
+					<Set name="collisionFlag">
+						<CollisionFlag>PLAYERS</CollisionFlag>
+					</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		<Components>
+			<Info/>
+			<Movement>
+				<Set name="IsStatic">true</Set>
+			</Movement>
+			<NPCRenderActionCmp/>
+			<AttachmentCmp/>
+			<Enemy>
+				<Set name="SoulsReward">0</Set>
+				<Set name="destroyTileId">0</Set>
+			</Enemy>			
+			<PlayerXMLAttachmentCmp>
+				<Set name="AttachmentName">"HealingAura"</Set>
+			</PlayerXMLAttachmentCmp>
+			<DebugDraw/>
+		</Components>
+	</Data>
+	<RenderRules>
+		<Update>
+			<ParticleSystemUpdate name="healingArea"/>
+		</Update>
+		<SwitchOffClothingParticles>
+			<ParticleSystemOff name="healingArea"/>
+		</SwitchOffClothingParticles>
+	</RenderRules>
+</ItemRenderer>

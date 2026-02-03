@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+	<Data>
+		<Sprite name="s_Wing" fileName="game/particles12.rttex" textureSize="32" frame="12,0" />
+	
+		<StateMachines>
+			<StateMachine name="Action">
+				<States>
+					<State name="Idle" />
+					<State name="JumpStraight" />
+					<State name="FallStraight" />
+				</States>
+				<Transitions>
+					<Transition to="Idle" from="FallStraight">
+						<Condition>
+							<IsVariableFloat name="speed.y" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>					
+					<Transition to="JumpStraight" from="Idle|FallStraight">
+						<Condition>
+							<IsVariableFloat name="speed.y" operator="Less">-0.1</IsVariableFloat>
+						</Condition>
+					</Transition>			
+					<Transition to="FallStraight" from="JumpStraight|Idle">
+						<Condition>
+							<IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>				
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<Animations>
+			<SpriteAnimation name="s_Wing_idle" sprite="s_Wing" animTime="50" isLoop="true" playOnState="Action.Idle">
+				<Frame>12,0</Frame>
+			</SpriteAnimation>		
+			
+			<SpriteAnimation name="s_Wing_jump" sprite="s_Wing" animTime="100" isLoop="true" playOnState="Action.JumpStraight|Action.FallStraight">
+				<Frame>10,0</Frame>
+				<Frame>11,0</Frame>
+			</SpriteAnimation>
+		</Animations>
+	</Data>
+	<RenderRules>
+		<RenderBackpack>
+			<StopIf>
+				<IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+			</StopIf>
+			<SpriteRender name="s_Wing" offset="-3.45,-13.6" blend="PREMULTIPLIED_ALPHA"/>
+		</RenderBackpack>
+	</RenderRules>
+</ItemRenderer>

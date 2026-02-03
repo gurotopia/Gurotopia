@@ -1,0 +1,209 @@
+<?xml version="1.0"?>
+<ItemRenderer item="ITEM_ID_ROYAL_AUGMENTED_WINGS">
+  <Data>
+    <Sprite name="s_WingFront" fileName="game/particles_large14.rttex" textureSize="64" frame="0,11"/>
+    <Sprite name="s_WingFrontGlow" fileName="game/particles_large14.rttex" textureSize="64" frame="1,11"/>
+    <Sprite name="s_WingBack" fileName="game/particles_large14.rttex" textureSize="64" frame="0,12"/>
+    <Sprite name="s_WingBackGlow" fileName="game/particles_large14.rttex" textureSize="64" frame="1,12"/>
+
+    <StateMachines>
+      <StateMachine name="Movement">
+        <States>
+          <State name="Idle"/>
+          <State name="Walk"/>
+          <State name="Jump"/>
+          <State name="Fall"/>
+          <State name="FallToGround"/>
+          <State name="GroundToFall"/>
+        </States>
+        <Transitions>
+          <Transition from="Idle|Jump" to="Walk">
+            <Condition type="and">
+              <IsVariableFloat name="speed.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+              <IsVariableBool name="onGround">true</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition from="Walk|Jump" to="Idle">
+            <Condition type="and">
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+              <IsVariableBool name="onGround">true</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition from="Walk|Idle|Fall|FallToGround" to="Jump">
+            <Condition type="and">
+              <IsAction>JUMP</IsAction>
+            </Condition>
+          </Transition>
+          <Transition from="Jump|FallToGround" to="Fall">
+            <Condition type="and">
+              <IsAction>FALL</IsAction>
+            </Condition>
+          </Transition>
+          <Transition from="Walk|Idle" to="GroundToFall">
+            <Condition type="and">
+              <IsAction>FALL</IsAction>
+            </Condition>
+          </Transition>
+          <Transition from="GroundToFall" to="Fall">
+            <Condition type="and">
+              <IsAction>FALL</IsAction>
+              <IsAnimationFinished>a_BackGroundToFall</IsAnimationFinished>
+            </Condition>
+          </Transition>
+          <Transition from="Fall" to="FallToGround">
+            <Condition>
+              <IsVariableBool name="onGround">true</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition from="FallToGround" to="Walk">
+            <Condition type="and">
+              <IsVariableFloat name="speed.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+              <IsVariableBool name="onGround">true</IsVariableBool>
+              <IsAnimationFinished>a_BackFallToGround</IsAnimationFinished>
+            </Condition>
+          </Transition>
+          <Transition from="FallToGround" to="Idle">
+            <Condition type="and">
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+              <IsVariableBool name="onGround">true</IsVariableBool>
+              <IsAnimationFinished>a_BackFallToGround</IsAnimationFinished>
+            </Condition>
+          </Transition>
+          <Transition from="GroundToFall" to="FallToGround">
+            <Condition type="and">
+              <IsVariableBool name="onGround">true</IsVariableBool>
+              <IsAnimationFinished>a_BackGroundToFall</IsAnimationFinished>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <Animations>
+      <SpriteAnimation name="a_FrontWalk" sprite="s_WingFront" animTime="500" isLoop="true" playOnState="Movement.Walk">
+        <Frame>2,11</Frame>
+        <Frame>3,11</Frame>
+        <Frame>4,11</Frame>
+        <Frame>5,11</Frame>
+        <Frame>6,11</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_BackFall" sprite="s_WingBack" animTime="100" isLoop="true" playOnState="Movement.Fall">
+        <Frame>10,11</Frame>
+      </SpriteAnimation>
+      <SequenceAnimation name="a_BackJump" playOnState="Movement.Jump">
+        <SpriteAnimation name="a_BackJump1" sprite="s_WingBack" animTime="200">
+          <Frame>7,11</Frame>
+          <Frame>9,11</Frame>
+          <Frame>7,11</Frame>
+        </SpriteAnimation>
+        <SpriteAnimation name="a_BackJump2" sprite="s_WingBack" animTime="200">
+          <Frame>7,11</Frame>
+          <Frame>8,11</Frame>
+          <Frame>9,11</Frame>
+          <Frame>10,11</Frame>
+        </SpriteAnimation>
+      </SequenceAnimation>
+      <SpriteAnimation name="a_BackFallToGround" sprite="s_WingBack" animTime="150" playOnState="Movement.FallToGround">
+        <Frame>9,11</Frame>
+        <Frame>8,11</Frame>
+        <Frame>7,11</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_BackGroundToFall" sprite="s_WingBack" animTime="150" playOnState="Movement.GroundToFall">
+        <Frame>7,11</Frame>
+        <Frame>8,11</Frame>
+        <Frame>9,11</Frame>
+        <Frame>10,11</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_BackWalk" sprite="s_WingBack" animTime="500" isLoop="true" playOnState="Movement.Walk">
+        <Frame>2,12</Frame>
+        <Frame>3,12</Frame>
+        <Frame>4,12</Frame>
+        <Frame>5,12</Frame>
+        <Frame>6,12</Frame>
+      </SpriteAnimation>
+      <SpriteCurveAnimation name="a_wingBackGlow" isLoop="true" playOnState="Movement.Idle" sprite="s_WingBackGlow" animTime="5000">
+        <Curve name="alpha">
+          <KeyFrame>0.f, 1.f</KeyFrame>
+          <KeyFrame>0.2f, 0.f </KeyFrame>
+          <KeyFrame>0.8f, 0.f</KeyFrame>
+          <KeyFrame>1.f, 1.f</KeyFrame>
+        </Curve>
+      </SpriteCurveAnimation>
+      <SpriteCurveAnimation name="a_wingFrontGlow" isLoop="true" playOnState="Movement.Idle" sprite="s_WingFrontGlow" animTime="5000">
+        <Curve name="alpha">
+          <KeyFrame>0.f, 1.f</KeyFrame>
+          <KeyFrame>0.2f, 0.f </KeyFrame>
+          <KeyFrame>0.8f, 0.f</KeyFrame>
+          <KeyFrame>1.f, 1.f</KeyFrame>
+        </Curve>
+      </SpriteCurveAnimation>
+
+      <SpriteAnimation name="a_backIdle" sprite="s_WingBack" animTime="100" playOnState="Movement.Idle">
+        <Frame>0,12</Frame>
+      </SpriteAnimation>
+
+      <SpriteAnimation name="a_frontIdle" sprite="s_WingFront" animTime="100" playOnState="Movement.Idle">
+        <Frame>0,11</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <RenderOptions>
+      <Default>
+        <Set name="EnableBobbingOffset">true</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+
+  <RenderRules>
+    <Update>
+      <StopIf  type="or">
+        <IsZombified>true</IsZombified>
+        <IsSleepingOnaBed>true</IsSleepingOnaBed>
+        <IsTrnsformed>true</IsTrnsformed>
+        <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_REBEL_RAIDER</IsWearing>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_IMPERIAL_ENFORCER</IsWearing>
+      </StopIf>
+      <AvatarTransform class="FootPosition" onState="Movement.Walk|Movement.Idle">
+        <Set name="foot1dy">0</Set>
+        <Set name="foot2dy">0</Set>
+        <Set name="foot1y">0</Set>
+        <Set name="foot2y">0</Set>
+      </AvatarTransform>
+    </Update>
+
+    <RenderBackpack>
+      <StopIf>
+        <IsSleepingOnaBed>true</IsSleepingOnaBed>
+        <IsTrnsformed>true</IsTrnsformed>
+        <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_REBEL_RAIDER</IsWearing>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_IMPERIAL_ENFORCER</IsWearing>
+      </StopIf>
+      <SpriteRender name="s_WingBack" offset="23,-17" blend="PREMULTIPLIED_ALPHA" onState="Movement.Walk|Movement.Idle"/>
+
+      <SpriteRender name="s_WingBack" offset="0,-17" alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER"  onState="Movement.Jump|Movement.Fall|Movement.GroundToFall"/>
+      <SpriteRender name="s_WingBack" offset="0,-17" flip="1,0" alignmentLeft="RIGHT_CENTER" alignmentRight="LEFT_CENTER"  onState="Movement.Jump|Movement.Fall|Movement.FallToGround|Movement.GroundToFall"/>
+
+      <SpriteRender name="s_WingBackGlow" offset="23,-17" blend="PREMULTIPLIED_ALPHA" drawShadow="false" onState="Movement.Idle"/>
+    </RenderBackpack>
+    <RenderInFront>
+      <StopIf>
+        <IsSleepingOnaBed>true</IsSleepingOnaBed>
+        <IsTrnsformed>true</IsTrnsformed>
+        <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_REBEL_RAIDER</IsWearing>
+        <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_IMPERIAL_ENFORCER</IsWearing>
+      </StopIf>
+      <SpriteRender name="s_WingFront" offset="-21,-16" blend="PREMULTIPLIED_ALPHA"  onState="Movement.Walk|Movement.Idle"/>
+      <SpriteRender name="s_WingFrontGlow" offset="-21,-16" blend="PREMULTIPLIED_ALPHA" drawShadow="false"  onState="Movement.Idle"/>
+      <SpriteRender name="s_WingBack" offset="0,-17" alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER" onState="Movement.FallToGround"/>
+      <StopIf>
+        <IsZombified>false</IsZombified>
+      </StopIf>
+      <SpriteRender name="s_WingFront" offset="-21,-16" blend="PREMULTIPLIED_ALPHA"  onState="Movement.Walk|Movement.Idle" tintOverride="111,217,45,255"/>
+      <SpriteRender name="s_WingFrontGlow" offset="-21,-16" blend="PREMULTIPLIED_ALPHA"  onState="Movement.Idle" drawShadow="false" tintOverride="111,217,45,255"/>
+      <SpriteRender name="s_WingBack" offset="0,-17" alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER" onState="Movement.FallToGround" tintOverride="111,217,45,255"/>
+    </RenderInFront>
+  </RenderRules>
+</ItemRenderer>

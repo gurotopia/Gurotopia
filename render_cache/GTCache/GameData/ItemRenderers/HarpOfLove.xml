@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer item="ITEM_ID_HARP_OF_LOVE">
+	<Data>
+		<Sprite name="item_Sprite" fileName="game/player_cosmetics3.rttex" textureSize="32"/>
+		<Sprite name="heart_Sprite" fileName="game/particles11.rttex" textureSize="32" frame="28,14"/>
+		<Sprite name="sparkle_Sprite" fileName="game/particles11.rttex" textureSize="32"/>
+		<Sprite name="musicNote_Sprite" fileName="game/particles11.rttex" textureSize="32" frame="29,14"/>
+		<Sprite name="musicStav_Sprite" fileName="game/particles11.rttex" textureSize="32" frame="24,15"/>
+		<Sprite name="hit_Sprite" fileName="game/particles11.rttex" textureSize="32"/>
+		<Sprite name="danceParticle_Sprite" fileName="game/particles11.rttex" textureSize="32" frame="29,14"/>
+		
+		<Animations>
+			<SpriteAnimation name="Idle_Anim" playOnAction="IDLE|WALK|JUMP|FALL" sprite="item_Sprite">
+				<Frame>16, 10</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="Punch_Anim" playOnAction="PUNCH|DANCE" sprite="item_Sprite" animTime="800" isLoop="true">
+				<Frame>17, 10</Frame>
+				<Frame>18, 10</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="MusicStav_Anim" playOnAction="PUNCH" sprite="musicStav_Sprite" animTime="800" isLoop="true">
+				<Frame>24, 15</Frame>
+				<Frame>25, 15</Frame>
+				<Frame>26, 15</Frame>
+				<Frame>27, 15</Frame>
+				<Frame>28, 15</Frame>
+				<Frame>29, 15</Frame>
+				<Frame>30, 15</Frame>
+				<Frame>31, 15</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="Sparkle_Anim" autoPlay="false" sprite="sparkle_Sprite">
+				<Frame>30, 14</Frame>
+				<Frame>31, 14</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="Hit_Anim" autoPlay="false" sprite="hit_Sprite">
+				<Frame>30,14</Frame>
+				<Frame>31,14</Frame>
+				<Frame>28,14</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="DanceParticle_Anim" autoPlay="false" sprite="danceParticle_Sprite">
+				<Frame>29,14</Frame>
+				<Frame>28,14</Frame>
+			</SpriteAnimation>
+		</Animations>
+		
+		<ParticleSystems>
+			<ParticleSystem name="note_particle">
+				<Emitter>
+					<Set name="infLifeTime">true</Set>
+					<Set name="infParticles">false</Set>
+					<Set name="particlesToEmit">1</Set>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="randomizeInterval">true</Set>
+					<Set name="intervalMin">0.1</Set>
+					<Set name="intervalMax">0.3</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true" autoLifeTimeToTarget="true">
+					<Set name="sprite">musicNote_Sprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="offset">0,-14</Set>
+					<Set name="initalRGB">1,1,1</Set>
+					<RandomRadial name="initialVelocity" angleRange="-10,10" radiusRange="150,160" baseAnglePosition="targetPos" baseOffset="0,16"/>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.2, 1</KeyFrame>
+						<KeyFrame>0.8, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialScale">
+						<KeyFrame>0, 0.6, 0.6</KeyFrame>
+						<KeyFrame>1, 1, 1</KeyFrame>
+					</Curve>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="heart_particle">
+				<Emitter>
+					<Set name="infLifeTime">true</Set>
+					<Set name="infParticles">false</Set>
+					<Set name="particlesToEmit">1</Set>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="randomizeInterval">true</Set>
+					<Set name="intervalMin">0.1</Set>
+					<Set name="intervalMax">0.3</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true" autoLifeTimeToTarget="true">
+					<Set name="sprite">heart_Sprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="initalRGB">1,1,1</Set>
+					<Set name="offset">0,-14</Set>
+					<RandomRadial name="initialVelocity" angleRange="-10,10" radiusRange="150,160" baseAnglePosition="targetPos" baseOffset="0,16"/>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.2, 1</KeyFrame>
+						<KeyFrame>0.8, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Select name="initialScale" input="punchCount">
+						<Item>0.5,0.5</Item>
+						<Item>1,1</Item>
+					</Select>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="sparkle_particle">
+				<Emitter>
+					<Set name="infLifeTime">true</Set>
+					<Set name="infParticles">false</Set>
+					<Set name="particlesToEmit">1</Set>
+					<Set name="particlesPerEmission">2</Set>
+					<Set name="randomizeInterval">true</Set>
+					<Set name="intervalMin">0.1</Set>
+					<Set name="intervalMax">0.3</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true" autoLifeTimeToTarget="true">
+					<Set name="sprite">sparkle_Sprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="offset">0,-14</Set>
+					<Set name="initalRGB">1,1,1</Set>
+					<RandomRadial name="initialVelocity" angleRange="-10,10" radiusRange="150,160" baseAnglePosition="targetPos" baseOffset="0,16"/>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.2, 1</KeyFrame>
+						<KeyFrame>0.8, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="initialScale">1,1</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="hit_particle">
+				<Emitter>
+					<Set name="offset">0,0</Set>
+					<Set name="lifeTime">0</Set>
+					<Set name="particlesPerEmission">10</Set>
+					<Set name="delayTimer">0.0</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true">
+					<Set name="sprite">hit_Sprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="lifeTime">0.5</Set>
+					<Set name="initalRGB">1,1,1</Set>
+					<Set name="initialScale">1,1</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>0.5, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="40,60"/>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="dance_particle">
+				<Emitter>
+					<Set name="offset">0,-26</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="particlesToEmit">1</Set>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="randomizeInterval">true</Set>
+					<Set name="intervalMin">0.3</Set>
+					<Set name="intervalMax">0.4</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true">
+					<Set name="sprite">danceParticle_Sprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="lifeTime">2</Set>
+					<Set name="initalRGB">1,1,1</Set>
+					<Random name="offset" min="-15,0" max="15,0"/>
+					<Random name="initialVelocity" min="-5,-10" max="5,-20"/>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.5, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialScale">
+						<KeyFrame>0, 1, 1</KeyFrame>
+						<KeyFrame>1, 0, 0</KeyFrame>
+					</Curve>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		
+		<RenderOptions>
+			<Default>
+				<Set name="PunchSoundOverride">HAND</Set>
+				<Set name="PlayDefaultPunchAudio">false</Set>
+				<Set name="IgnoreDefaultDamagedTileEffect">true</Set>
+				<Set name="IncludeAllActions">true</Set>
+			</Default>
+		</RenderOptions>
+		
+	</Data>
+
+	<RenderRules>
+		<RenderHandItem value="0,16">
+			<SpriteRender name="item_Sprite" offset="0,0" blend="PREMULTIPLIED_ALPHA" stretchToTarget="false"/>
+
+      <StopIf>
+        <IsZombified>true</IsZombified>
+      </StopIf>
+      <SpriteRender name="musicStav_Sprite" offset="0,0" onAction="PUNCH" blend="PREMULTIPLIED_ALPHA" stretchToTarget="true"
+                    alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER" drawShadow="false" flip="1,0" tintOverride="255,255,255,255"/>
+		</RenderHandItem>
+		<Update>
+			<MusicSource onAction="DANCE">
+				<Set name="MusicFile">audio/aibellharp.wav</Set>
+			</MusicSource>
+			<AvatarTransform class="Emotion" onAction="DANCE">
+				<Set name="emotion">CHILLED|CHILLED2</Set>
+				<Set name="interval">1000</Set>
+			</AvatarTransform>
+			<AvatarTransform class="ArmAngle" onAction="DANCE">
+				<Set name="armName">arm2Angle</Set>
+				<Set name="armAngle">-90</Set>
+			</AvatarTransform>
+			<AvatarTransform class="ArmAngle" onAction="DANCE">
+				<Set name="armName">arm1Angle</Set>
+				<Set name="armAngle">-90</Set>
+				<Set name="pulseArmScale">25</Set>
+				<Set name="pulseArmRate">500</Set>
+			</AvatarTransform>
+		</Update>
+		<AddClothingParticles>
+			<ParticleSystemUpdate name="dance_particle" onAction="DANCE"/>
+		</AddClothingParticles>
+		<OnPunchStart>
+ 			<ParticleSystemUpdate name="note_particle"/>
+ 			<ParticleSystemUpdate name="heart_particle"/>
+			<ParticleSystemUpdate name="sparkle_particle"/>
+		</OnPunchStart>
+		<OnPunchUpdate>
+			<AvatarTransform class="ArmAngle">
+				<Set name="armName">arm2Angle</Set>
+				<Set name="pointTowardsPunchTarget">true</Set>
+			</AvatarTransform>
+			<AvatarTransform class="ArmAngle">
+				<Set name="armName">arm1Angle</Set>
+				<Set name="pointTowardsPunchTarget">true</Set>
+				<Set name="pulseArmScale">25</Set>
+				<Set name="pulseArmRate">500</Set>
+			</AvatarTransform>
+			<AvatarTransform class="Emotion">
+				<Set name="emotion">CHILLED|CHILLED2</Set>
+				<Set name="interval">1000</Set>
+			</AvatarTransform>
+		</OnPunchUpdate>
+		<OnDamagedTile>
+			<ParticleSystemUpdate name="hit_particle"/>
+		</OnDamagedTile>
+		<SwitchOffClothingParticles>
+			<ParticleSystemOff name="hit_particle"/>
+			<ParticleSystemOff name="note_particle"/>
+			<ParticleSystemOff name="heart_particle"/>
+			<ParticleSystemOff name="sparkle_particle"/>
+			<ParticleSystemOff name="dance_particle"/>
+		</SwitchOffClothingParticles>
+	</RenderRules>
+</ItemRenderer>

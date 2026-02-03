@@ -1,0 +1,95 @@
+<rml>
+    <head>
+        <title>WorldLockStorageDepositWitdraw</title>
+        <link type="text/template" href="Base/BasePopup.rml" />
+        <link type="text/rcss" href="Base/WindowTitle.rcss" />
+        <link type="text/rcss" href="MailMessage.rcss" />
+        <link type="text/rcss" href="WorldLockStorageDepositWitdraw.rcss" />
+	</head>
+    <body template="BasePopup">
+        <div data-model="WorldLockStorageModel" id="WorldLockStorageDepositWitdraw-popup" class="font-content">
+            <div>
+                <div id="window-title">
+					<div class="title-icon"/>
+					<div data-class-hidden="!WorldLockStorageModel.IsDeposit">
+						<div class="title-text font-title label">
+							Add World Locks
+						</div>
+					</div>
+					<div data-class-hidden="WorldLockStorageModel.IsDeposit">
+						<div class="title-text font-title label">
+							Withdraw World Locks
+						</div>
+					</div>
+					
+                </div>
+                <div class="top-padding">
+					<div class="color_dreamsicle" data-class-hidden="!WorldLockStorageModel.IsDeposit">
+						You have {{NumWithSeparator(WorldLockStorageModel.WorldLocksInInventory)}} <span class="color_pinky_purple">World Locks</span> in your backpack.
+					</div>
+	                <div class="color_dreamsicle" data-class-hidden="WorldLockStorageModel.IsDeposit">
+						You have {{NumWithSeparator(WorldLockStorageModel.DepositedWorldLockCount)}} <span class="color_pinky_purple">World Locks</span> in your World Lock Bank.
+	                </div>
+	                <div data-class-hidden="!WorldLockStorageModel.IsDeposit">
+		                How many <span class="color_pinky_purple">World Locks</span> would you like to add?
+	                </div>
+	                <div data-class-hidden="WorldLockStorageModel.IsDeposit">
+		               How many <span class="color_pinky_purple">World Locks</span> would you like to withdraw?
+	                </div>
+				</div>
+				<div class="top-padding rewards-panel">
+					<div id="search-container" class="amount-container">
+						<div class="label color_dreamsicle">Amount:</div>
+						<input class="input" type="text" maxlength="7" onkeyup="OnEvent(event, 'worldLockStorageBalance.HandleSearchInput')" data-value="WorldLockStorageModel.WLBankModifiedValueTEXT"/>
+					</div>
+					<div class="wl-icons-group">
+						<div class="item-small" >
+							<div class ="item-icon" data-style-decorator="'itemidimage(7188)'">
+								<div class="wl-value">x{{WorldLockStorageModel.BGLValue}}</div>
+							</div>
+						</div>
+						<div class="item-small" >
+							<div class ="item-icon" data-style-decorator="'itemidimage(1796)'">
+								<div class="wl-value">x{{WorldLockStorageModel.DLValue}}</div>
+							</div>
+						</div>
+						<div class="item-small" >
+							<div class ="item-icon" data-style-decorator="'itemidimage(242)'">
+								<div class="wl-value">x{{WorldLockStorageModel.WLValue}}</div>
+							</div>
+						</div>
+					</div>
+					<div class="error-message color_crazy_red">
+					<div data-class-hidden="WorldLockStorageModel.IsDeposit||WorldLockStorageModel.CanFitAmountOfWLIntoInventory||WorldLockStorageModel.WLBankModifiedValue>WorldLockStorageModel.DepositedWorldLockCount">
+							<span>You don't have enough space in your backpack to withdraw this! Please free some space and try again.</span>
+					</div>
+					<div data-class-hidden="WorldLockStorageModel.IsDeposit||WorldLockStorageModel.DepositedWorldLockCount>=WorldLockStorageModel.WLBankModifiedValue||WorldLockStorageModel.WLBankModifiedValue==0">
+							<span>You don't have that many in your account!</span>
+					</div>
+					<div data-class-hidden="WorldLockStorageModel.IsTransactionButtonEnabled||WorldLockStorageModel.IsDeposit||!WorldLockStorageModel.CanFitAmountOfWLIntoInventory||WorldLockStorageModel.WLBankModifiedValue>WorldLockStorageModel.DepositedWorldLockCount">
+							<span>That's not a valid amount!</span>
+					</div>
+
+					<div data-class-hidden="!WorldLockStorageModel.IsDeposit||WorldLockStorageModel.WorldLocksInInventory>=WorldLockStorageModel.WLBankModifiedValue||WorldLockStorageModel.WLBankModifiedValue==0">
+							<span>You don't have that many in your inventory!</span>
+					</div>
+					<div data-class-hidden="WorldLockStorageModel.IsTransactionButtonEnabled||!WorldLockStorageModel.IsDeposit||WorldLockStorageModel.WLBankModifiedValue>WorldLockStorageModel.WorldLocksInInventory">
+							<span>That's not a valid amount!</span>
+						</div>
+					</div>
+				</div>
+				<div class="top-padding buttons-panel">
+					<div onclick="OnEvent(event, 'worldLockStorageBalance.OnBack')" class="img-button button-default-color">
+						<span class="label">Back</span>
+					</div>
+					<div id="add-remove-button" onclick="OnEvent(event, 'worldLockStorageBalance.OnAdd')" class="img-button button-default-color disabled" data-class-hidden="!WorldLockStorageModel.IsDeposit" data-class-disabled="!WorldLockStorageModel.IsTransactionButtonEnabled || WorldLockStorageModel.WLBankModifiedValue > WorldLockStorageModel.WorldLocksInInventory">
+						<span class="label">Add</span>
+					</div>
+					<div id="add-remove-button" onclick="OnEvent(event, 'worldLockStorageBalance.OnWithdraw')" class="img-button button-default-color disabled" data-class-hidden="WorldLockStorageModel.IsDeposit" data-class-disabled="!WorldLockStorageModel.IsTransactionButtonEnabled || WorldLockStorageModel.WLBankModifiedValue>WorldLockStorageModel.DepositedWorldLockCount">
+						<span class="label">Withdraw</span>
+					</div>
+				</div>
+            </div>
+        </div>
+    </body>
+</rml>

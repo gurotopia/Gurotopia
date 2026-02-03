@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_equip" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="3,23"/>
+    <Sprite name="s_sparkle" fileName="game/particles11.rttex" textureSize="32" frame="12,29"/>
+
+    <Animations>
+      <SpriteAnimation name="a_equip" autoPlay="true" sprite="s_equip" isLoop="true" animTime="1200">
+        <Frame>3,23</Frame>
+        <Frame>4,23</Frame>
+        <Frame>5,23</Frame>
+        <Frame>6,23</Frame>
+        <Frame>7,23</Frame>
+        <Frame>8,23</Frame>
+        <Frame>9,23</Frame>
+        <Frame>10,23</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_sparkle" sprite="s_sparkle" animTime="300" autoPlay="true" isLoop="true">
+        <Frame>12,29</Frame>
+        <Frame>13,29</Frame>
+        <Frame>14,29</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <StateMachines>
+      <StateMachine name="Motion">
+        <States>
+          <State name="Idle" />
+          <State name="Move" />
+        </States>
+        <Transitions>
+          <Transition to="Idle" from="Move">
+            <Condition>
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition to="Move" from="Idle">
+            <Condition>
+              <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+    
+    <ParticleSystems>
+      <ParticleSystem name="ps_Sparkles">
+        <Emitter>
+          <Set name="offset">0,0</Set>
+          <Set name="offsetFacing">true</Set>
+          <Random name="emissionInterval" min="0.4" max="0.8" />
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">2</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_sparkle</Set>
+          <Set name="relativeToEmitter">true</Set>
+          <Random name="offset" min="-10, -8" max="10, -2" />
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 0.8</KeyFrame>
+            <KeyFrame>0.8, 0.8</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Select name="lifeTime" input="randomNumber">
+            <Item>0.3</Item>
+            <Item>0.6</Item>
+          </Select>
+          <Random name="initialScale" min="0.5" max="0.8" />
+          <Random name="initialAngle" min="0" max="360" />
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_SparklesTrail">
+        <Emitter>
+          <Set name="offset">0,0</Set>
+          <Set name="offsetFacing">true</Set>
+          <Random name="emissionInterval" min="0.1" max="0.3" />
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">2</Set>
+          <Set name="particlesToEmit">2</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_sparkle</Set>
+          <Random name="offset" min="-18, -8" max="0, 0" />
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 0.8</KeyFrame>
+            <KeyFrame>0.8, 0.8</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+
+          <Select name="lifeTime" input="randomNumber">
+            <Item>0.3</Item>
+            <Item>0.6</Item>
+          </Select>
+          <Random name="initialScale" min="0.5" max="0.8" />
+          <Random name="initialAngle" min="0" max="360" />
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+
+  </Data>
+
+  <RenderRules>
+    <AddClothingParticles>
+      <ParticleSystemUpdate name="ps_Sparkles" />
+      <ParticleSystemUpdate name="ps_SparklesTrail" onState="Motion.Move"/>
+    </AddClothingParticles>
+    <RenderShirt>
+      <SpriteRender name="s_equip" alignment="DOWN_CENTER"/>
+      <ParticleSystemRender name="ps_Sparkles" />
+      <ParticleSystemRender name="ps_SparklesTrail"/>
+    </RenderShirt>
+  </RenderRules>
+</ItemRenderer>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer itemID="ITEM_ID_CONVEYOR_BLOCK">
+	<Data>
+		<Sprite name="s_sprite" fileName="game/tiles_page17.rttex" textureSize="32" frame="8,9" />
+		
+		<Animations>
+			<SpriteAnimation name="a_Right" sprite="s_sprite" isLoop="true" animTime="400" playOnState="Connect.Right_FR|Connect.Right_FL">
+				<Frame>12, 10</Frame>
+				<Frame>13, 10</Frame>
+				<Frame>14, 10</Frame>
+				<Frame>15, 10</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_LeftRight" sprite="s_sprite" isLoop="true" animTime="400" playOnState="Connect.LeftRight">
+				<Frame>16, 10</Frame>
+				<Frame>17, 10</Frame>
+				<Frame>18, 10</Frame>
+				<Frame>19, 10</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_Left" sprite="s_sprite" isLoop="true" animTime="400" playOnState="Connect.Left_FR|Connect.Left_FL">
+				<Frame>20, 10</Frame>
+				<Frame>21, 10</Frame>
+				<Frame>22, 10</Frame>
+				<Frame>23, 10</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_None" sprite="s_sprite" isLoop="true" animTime="400" playOnState="Connect.None">
+				<Frame>24, 10</Frame>
+				<Frame>25, 10</Frame>
+				<Frame>26, 10</Frame>
+				<Frame>27, 10</Frame>
+			</SpriteAnimation>
+		</Animations>
+		
+		<StateMachines>
+			<StateMachine name="Connect">
+				<States>
+					<State name="None"/>
+					<State name="Left_FR"/>
+					<State name="Right_FR"/>
+					<State name="LeftRight"/>
+					<State name="Left_FL"/>
+					<State name="Right_FL"/>
+				</States>
+				<Transitions>
+					<Transition to="None" from="Left_FR|Right_FR|LeftRight|Left_FL|Right_FL">
+						<Condition type="and">
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="-1,0">false</CheckTileId>
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="1,0">false</CheckTileId>
+						</Condition>
+					</Transition>
+					
+					<Transition to="Left_FR" from="None|Right_FR|LeftRight">
+						<Condition type="and">
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="-1,0">true</CheckTileId>
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="1,0">false</CheckTileId>
+							<IsFacingLeft>false</IsFacingLeft>
+						</Condition>
+					</Transition>
+					<Transition to="Right_FR" from="None|Left_FR|LeftRight">
+						<Condition type="and">
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="-1,0">false</CheckTileId>
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="1,0">true</CheckTileId>
+							<IsFacingLeft>false</IsFacingLeft>
+						</Condition>
+					</Transition>
+					<Transition to="LeftRight" from="None|Left_FR|Right_FR|Left_FL|Right_FL">
+						<Condition type="and">
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="-1,0">true</CheckTileId>
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="1,0">true</CheckTileId>
+						</Condition>
+					</Transition>
+					
+					<Transition to="Left_FL" from="None|Right_FL|LeftRight">
+						<Condition type="and">
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="-1,0">false</CheckTileId>
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="1,0">true</CheckTileId>
+							<IsFacingLeft>true</IsFacingLeft>
+						</Condition>
+					</Transition>
+					<Transition to="Right_FL" from="None|Left_FL|LeftRight">
+						<Condition type="and">
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="-1,0">true</CheckTileId>
+							<CheckTileId ItemId="ITEM_ID_CONVEYOR_BLOCK" Position="1,0">false</CheckTileId>
+							<IsFacingLeft>true</IsFacingLeft>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		
+	</Data>
+	<RenderRules>
+		<Render>
+			<SpriteRender name="s_sprite" blend="PREMULTIPLIED_ALPHA" />
+		</Render>
+	</RenderRules>
+</ItemRenderer>

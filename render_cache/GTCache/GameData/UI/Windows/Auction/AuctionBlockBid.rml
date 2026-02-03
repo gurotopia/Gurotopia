@@ -1,0 +1,102 @@
+<rml>
+    <head>
+        <title>AuctionBlockBid</title>
+        <link type="text/template" href="../Base/BasePopup.rml" />
+        <link type="text/rcss" href="../Base/WindowTitle.rcss" />
+        <link type="text/rcss" href="AuctionBlockBid.rcss" />
+    </head>
+    <body template="BasePopup" class="show-scrollbar wondow-content-full wondow-content-horizontal">
+		<div data-model="AuctionBlockModel" id="auctionblock-popup" class="font-content">
+			<div class="font-contentnormal">
+				<div class="top-panel">
+					<div id="window-title">
+						<div class="title-icon" data-style-decorator="'itemidimage(' + AuctionBlockModel.Icon +')'"/>
+						<div class="title-text font-title label">
+							Auction Block
+						</div>
+					</div>
+				</div>
+				<div class="font-contentnormal  color_dreamsicle">
+					<div data-rml="ToRMLText(Localize('[AUC_BLOCK_BID_DESCRIPTION]'))"/>
+				</div>
+				<table class="top-padding content-table color_dreamsicle">
+					<colgroup>
+						<col style="width:150dp;"/>
+						<col/>
+					</colgroup>
+					<tbody>
+						<tr>
+							<td class="row-bg">
+								<div>Item</div>
+							</td>
+							<td class="row-bg">
+								<div class="vertical-panel">
+									<div class="item-button" data-style-decorator="'itemidimage('+AuctionBlockModel.ItemId+')'"/>
+									<div class="font-itemname vcenter" data-rml="ItemName(AuctionBlockModel.ItemId)"></div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="row-bg">
+								<div>Current Bid</div>
+							</td>
+							<td class="row-bg">
+								<div data-class-hidden="!AuctionBlockModel.IsBidder">
+									<div class="vertical-panel">
+										<div class="color_green"
+											 data-rml="ToRMLText(AuctionBlockModel.HighName)"
+											 data-class-hidden="AuctionBlockModel.HighName == ''"/>
+										<div>{{AuctionBlockModel.HighBidLocks}} WL</div>
+									</div>
+								</div>
+								<div data-class-hidden="AuctionBlockModel.IsBidder">
+									<div data-rml="ToRMLText(Localize('[AUC_BLOCK_BID_NONE]'))" data-class-hidden="!AuctionBlockModel.IsOwner"/>
+									<div>{{AuctionBlockModel.StartingPrice}} WL</div>
+								</div>
+							</td>
+						</tr>
+						<tr>
+							<td class="row-bg">Place Bid</td>
+							<td class="row-bg">
+								<div class="horizontal-panel">
+									<div data-for="bid : AuctionBlockModel.PossibleBids">
+										<div data-attr-bid_value="bid" onclick="OnEvent(event, 'auction.OnBid')" class="img-button button-green-color" data-class-disabled="!AuctionBlockModel.CanBid || !AuctionBlockModel.IsActive || AuctionBlockModel.IsOwner || bid > AuctionBlockModel.AlreadyBidLocks + AuctionBlockModel.AvailableLocks - AuctionBlockModel.HighBidLocks">
+											<span class="label" data-class-hidden="!AuctionBlockModel.CanBid">+{{bid}}</span>
+											<div class="loader" data-class-hidden="AuctionBlockModel.CanBid">
+												<div class="bar1"></div>
+												<div class="bar2"></div>
+												<div class="bar3"></div>
+												<div class="bar4"></div>
+												<div class="bar5"></div>
+												<div class="bar6"></div>
+												<div class="bar7"></div>
+												<div class="bar8"></div>
+												<div class="bar9"></div>
+												<div class="bar10"></div>
+												<div class="bar11"></div>
+												<div class="bar12"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="font-contentnormal color_yellow" data-class-hidden="!AuctionBlockModel.IsOwner">
+									<div data-rml="ToRMLText(Localize('[AUC_BLOCK_BID_OWNER]'))"/>
+								</div>
+								<div class="top-padding">
+									<Timer data-attr-end-epoch="AuctionBlockModel.EndTime" sec-post-1m="true">
+										<active>
+											<span class="color_dreamsicle">Expires In: </span>
+											<timertext class="color_pinky_purple"/>
+										</active>
+										<expired>Expired</expired>
+									</Timer>
+								</div>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+				
+			</div>
+		</div>
+    </body>
+</rml>

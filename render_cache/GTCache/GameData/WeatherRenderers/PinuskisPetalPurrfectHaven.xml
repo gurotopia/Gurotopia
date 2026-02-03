@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer name="PINUSKI_PETAL_PURRFECT_HAVEN">
+	<Data>
+		<Sprite name="s_bg" fileName="game/bg_PPH_bg.rttex"/>
+		<Sprite name="s_frontLayer01" fileName="game/bg_PPH_frontLayer01.rttex"/>
+		<Sprite name="s_frontLayer02" fileName="game/bg_PPH_frontLayer02.rttex"/>
+		<Sprite name="s_frontRiver01" fileName="game/bg_PPH_frontRiver01.rttex"/>
+		<Sprite name="s_frontRiver02" fileName="game/bg_PPH_frontRiver02.rttex"/>
+		<Sprite name="s_backTrees" fileName="game/bg_PPH_BT.rttex"/>
+		<Sprite name="s_paw" fileName="game/bg_PPH_particle.rttex" textureSize="128" frame="0,0"/>
+		<Sprite name="s_cat1Tail" fileName="game/bg_PPH_Cat1-Tail.rttex" textureSize="100" frame="0,0"/>
+		<Sprite name="s_cat2Tail" fileName="game/bg_PPH_Cat2-Tail.rttex" textureSize="100" frame="0,0"/>
+		<Sprite name="s_cat3Tail" fileName="game/bg_PPH_Cat3-Tail.rttex" textureSize="100" frame="0,0"/>
+		
+		<Animations>
+      <SpriteAnimation name="a_catTail1" autoPlay="true" sprite="s_cat1Tail" animTime="1000" isLoop="true">
+        <Frame>0,0</Frame>
+        <Frame>1,0</Frame>
+        <Frame>2,0</Frame>
+        <Frame>3,0</Frame>
+        <Frame>4,0</Frame>
+        <Frame>5,0</Frame>
+        <Frame>6,0</Frame>
+        <Frame>7,0</Frame>
+        <Frame>8,0</Frame>
+        <Frame>9,0</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_catTail2" autoPlay="true" sprite="s_cat2Tail" animTime="1000" isLoop="true">
+        <Frame>0,0</Frame>
+        <Frame>1,0</Frame>
+        <Frame>2,0</Frame>
+        <Frame>3,0</Frame>
+        <Frame>4,0</Frame>
+        <Frame>5,0</Frame>
+        <Frame>6,0</Frame>
+        <Frame>7,0</Frame>
+        <Frame>8,0</Frame>
+        <Frame>9,0</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_catTail3" autoPlay="true" sprite="s_cat3Tail" animTime="1000" isLoop="true">
+        <Frame>0,0</Frame>
+        <Frame>1,0</Frame>
+        <Frame>2,0</Frame>
+        <Frame>3,0</Frame>
+        <Frame>4,0</Frame>
+        <Frame>5,0</Frame>
+        <Frame>6,0</Frame>
+        <Frame>7,0</Frame>
+        <Frame>8,0</Frame>
+        <Frame>9,0</Frame>
+      </SpriteAnimation>
+		</Animations>
+		<ParticleSystems>
+			<ParticleSystem name="ps_paw" updateStage="RenderBackground">
+				<Emitter>
+					<Set name="emissionInterval">0.2</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="inScreenSpace">true</Set>
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="sprite">s_paw</Set>
+					<Random name="offset" min="0, .01" max="1, 1"/>
+					
+					<Set name="lifeTime">10</Set>
+					<Random name="initialVelocity" min="0, -0.05" max="0, -0.1"/>
+					<Random name="initialScale" min="0.25" max="0.5"/>
+					<Random name="initialAngle" min="-30" max="30"/>
+	
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.2, 1</KeyFrame>
+						<KeyFrame>0.8, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+	</Data>
+	<RenderRules>
+		<RenderBackground>
+		
+			<ContextUpdate type="ScaleScreenHeight">
+				<Set name="sprite">s_bg</Set>
+			</ContextUpdate>
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_bg" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="ScaleScreenHeight">
+				<Set name="sprite">s_frontLayer02</Set>
+			</ContextUpdate>
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.05</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_backTrees" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+
+      <ContextUpdate type="ScaleScreenHeight">
+        <Set name="sprite">s_frontRiver02</Set>
+        <Set name="padding">1600</Set>
+      </ContextUpdate>
+      
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.1</Set>
+        <Set name="wrapHorizontal">true</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_frontRiver02" offset="0.5, 0.7" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.1</Set>
+        <Set name="wrapHorizontal">false</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_cat1Tail" offset="1.235, 0.505" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.1</Set>
+        <Set name="wrapHorizontal">false</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_cat2Tail" offset="1.07, 0.52" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.1</Set>
+        <Set name="wrapHorizontal">false</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_cat3Tail" offset="1.15, 0.52" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.1</Set>
+        <Set name="wrapHorizontal">false</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_frontRiver01" offset="0.5, 0.7" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+
+      <ContextUpdate type="ScaleScreenHeight">
+        <Set name="sprite">s_frontLayer02</Set>
+      </ContextUpdate>
+
+      <ContextUpdate type="PositionParallax">
+        <Set name="scale">0.2</Set>
+        <Set name="wrapHorizontal">true</Set>
+        <Set name="worldAttachmentType">Left</Set>
+      </ContextUpdate>
+      <SpriteRender name="s_frontLayer01" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+        <Set name="scale">0.2</Set>
+        <Set name="wrapHorizontal">false</Set>
+        <Set name="worldAttachmentType">Left</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_frontLayer02" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.2</Set>
+        <Set name="wrapHorizontal">true</Set>
+			</ContextUpdate>
+			<ParticleSystemRender name="ps_paw"/>
+			
+		</RenderBackground>
+	</RenderRules>
+</ItemRenderer>

@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_PomPom" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="18,27" />
+    <Animations>
+      <SpriteAnimation name="a_PomPomNonPunch" sprite="s_PomPom" animTime="300" autoPlay="true" isLoop="true" playOnState="Punch.False">
+        <Frame>18,27</Frame>
+        <Frame>19,27</Frame>
+        <Frame>20,27</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_PomPomPunch" sprite="s_PomPom" animTime="100" isLoop="true" playOnState="Punch.True">
+        <Frame>18,27</Frame>
+      </SpriteAnimation>
+    </Animations>
+    <StateMachines>
+      <StateMachine name="Punch">
+        <States>
+          <State name="True"/>
+          <State name="False"/>
+        </States>
+        <Transitions>
+          <Transition from="False" to="True">
+            <Condition type="and">
+              <IsAction>PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition from="True" to="False">
+            <Condition>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine name="Idle">
+        <States>
+          <State name="False" />
+          <State name="TriggerDab" />
+          <State name="True" />
+        </States>
+        <Transitions>
+          <Transition from="True" to="False">
+            <Condition type="or">
+              <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+              <IsSitting>true</IsSitting>
+              <IsAction>PUNCH</IsAction>
+              <IsAction>BUILD</IsAction>
+              <IsZombified >true</IsZombified>
+              <SubCondition type="and">
+                <IsAction>IDLE</IsAction>
+                <IsZombified>false</IsZombified>
+              </SubCondition>
+            </Condition>
+          </Transition>
+          <Transition from="False" to="TriggerDab">
+            <Condition type="and">
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+              <IsSitting>false</IsSitting>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+              <IsAction operatorType="NotEqual">BUILD</IsAction>
+              <IsZombified>false</IsZombified>
+            </Condition>
+          </Transition>
+          <Transition from="TriggerDab" to="True"/>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+    <RenderOptions>
+      <Default>
+        <Set name="IgnorePunchTypeCheck">true</Set>
+        <Set name="RenderBackArmInfected">true</Set>
+        <Set name="RenderFrontArmInfected">true</Set>
+        <Set name="RenderBackArmBuild">true</Set>
+        <Set name="IncludeAllActions">true</Set>
+        <Set name="DefaultRenderMannequinHandItem">false</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+  <RenderRules>
+    <Update>
+      <AvatarTransform class="NetAvatarAction" onState="Idle.TriggerDab">
+        <Set name="action">DANCE_DAB</Set>
+      </AvatarTransform>
+    </Update>
+    <SwitchOffClothingParticles>
+      <Group onState="Idle.True">
+      <AvatarTransform class="NetAvatarAction">
+        <Set name="action">IDLE</Set>
+      </AvatarTransform>
+      </Group>
+    </SwitchOffClothingParticles>
+    <RenderBackHandItem>
+      <StopIf>
+        <IsAction>BUILD</IsAction>
+      </StopIf>
+      <StopIf type="and">
+        <IsZombified>true</IsZombified>
+        <IsAction>PUNCH</IsAction>
+      </StopIf>
+      <SpriteRender name="s_PomPom" offset="-4,12" rotationPoint="0,1" alignment="CENTER" rotateOffset="true" blend="PREMULTIPLIED_ALPHA" onState="Punch.False"/>
+    </RenderBackHandItem>
+    <RenderHandItem>
+      <SpriteRender name="s_PomPom" offset="0,1" alignment="UPPER_CENTER" blend="PREMULTIPLIED_ALPHA" />
+    </RenderHandItem>
+  </RenderRules>
+</ItemRenderer>

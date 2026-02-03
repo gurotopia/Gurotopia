@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer itemID="ITEM_ID_WEATHER_MACHINE_ANCESTRAL_PLANE">
+	<Data>
+		<Sprite name="s_WeatherMachine" fileName="game/tiles_page17.rttex" textureSize="32" frame="29,11" />
+		
+		<StateMachines>
+			<StateMachine name="Toggle">
+				<States>
+					<State name="Off"/>
+					<State name="On"/>
+				</States>
+				<Transitions>
+					<Transition to="Off" from="On">
+						<Condition>
+							<IsWeatherType operatorType="NotEqual">ANCESTRAL_PLANE</IsWeatherType>
+						</Condition>
+					</Transition>
+					<Transition to="On" from="Off">
+						<Condition>
+							<IsWeatherType>ANCESTRAL_PLANE</IsWeatherType>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		
+		<Animations>
+			<SpriteAnimation name="a_WeatherMachineOn" sprite="s_WeatherMachine" animTime="1600" isLoop="true" playOnState="Toggle.On">
+				<Frame>30,11</Frame>
+				<Frame>31,11</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_WeatherMachineOff" sprite="s_WeatherMachine" animTime="100" isLoop="true" playOnState="Toggle.Off">
+				<Frame>29,11</Frame>
+			</SpriteAnimation>
+		</Animations>
+	</Data>
+	<RenderRules>
+		<Render>
+			<SpriteRender name="s_WeatherMachine" blend="PREMULTIPLIED_ALPHA" />
+		</Render>
+	</RenderRules>
+</ItemRenderer>

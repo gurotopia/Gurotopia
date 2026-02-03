@@ -1,0 +1,245 @@
+<?xml version="1.0"?>
+<ItemRenderer item="ITEM_ID_BLOATED_BULLFROG_BALLOON">
+	<Data>
+		<Sprite name="PunchFireSprite" fileName="game/particles11.rttex" textureSize="32" frame="6,30" />
+		<Sprite name="s_ballons" fileName="game/particles11.rttex" textureSize="32" frame="6,29" />
+		<StateMachines>
+			<StateMachine name="Floating">
+				<States>
+					<State name="None" />
+					<State name="Left" />
+					<State name="Right" />
+				</States>
+				<Transitions>
+					<Transition to="None" from="Left|Right">
+						<Condition type="or">
+							<IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+							<IsAction>DIE</IsAction>
+							<IsVariableBool name="isMannequin">true</IsVariableBool>
+						</Condition>
+					</Transition>
+					<Transition to="Left" from="None|Right">
+						<Condition type="and">
+							<IsAction operatorType="NotEqual">DIE</IsAction>
+							<IsFacingLeft>true</IsFacingLeft>
+							<IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+							<IsVariableBool name="isMannequin">false</IsVariableBool>
+						</Condition>
+					</Transition>
+					<Transition to="Right" from="None|Left">
+						<Condition type="and">
+							<IsAction operatorType="NotEqual">DIE</IsAction>
+							<IsFacingLeft>false</IsFacingLeft>
+							<IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+							<IsVariableBool name="isMannequin">false</IsVariableBool>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="Facing">
+				<States>
+					<State name="Left" />
+					<State name="Right" />
+				</States>
+				<Transitions>
+					<Transition to="Left" from="Right">
+						<Condition>
+							<IsFacingLeft>true</IsFacingLeft>
+						</Condition>
+					</Transition>
+					<Transition to="Right" from="Left">
+						<Condition type="or">
+							<IsVariableBool name="isMannequin">true</IsVariableBool>
+							<IsFacingLeft>false</IsFacingLeft>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="Action">
+				<States>
+					<State name="Dead" />
+					<State name="None" />
+					<State name="Move" />
+				</States>
+				<Transitions>
+					<Transition to="None" from="Dead|Move">
+						<Condition type="and">
+							<IsAction operatorType="NotEqual">DIE</IsAction>
+							<IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+							<IsVariableBool name="isMannequin">false</IsVariableBool>
+						</Condition>
+					</Transition>
+					<Transition to="Dead" from="None|Move">
+						<Condition type="or">
+							<IsAction>DIE</IsAction>
+							<IsVariableBool name="isMannequin">true</IsVariableBool>
+						</Condition>
+					</Transition>
+					<Transition to="Move" from="Dead|None">
+						<Condition type="and">
+							<IsAction operatorType="NotEqual">DIE</IsAction>
+							<IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+							<IsVariableBool name="isMannequin">false</IsVariableBool>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<Animations>
+			<CurveAnimationVec3 name="RightballonMoveStationary" isLoop="true" animTime="5000" playOnState="Floating.Right">
+				<Curve name="baloonOffset">
+					<KeyFrame>0, -48, -32, 0</KeyFrame>
+					<KeyFrame>0.5,  -24, -32, 0</KeyFrame>
+					<KeyFrame>1, -48, -32, 0</KeyFrame>
+				</Curve>
+			</CurveAnimationVec3>
+			<CurveAnimationVec3 name="LeftballonMoveStationary" isLoop="true" animTime="5000" playOnState="Floating.Left">
+				<Curve name="baloonOffset">
+					<KeyFrame>0, 48, -32, 0</KeyFrame>
+					<KeyFrame>0.5,  24, -32, 0</KeyFrame>
+					<KeyFrame>1, 48, -32, 0</KeyFrame>
+				</Curve>
+			</CurveAnimationVec3>
+			<InterpolationVec3Animation name="ballonMove" variableName="balloonPositionVariable" offsetVariableName="baloonOffsetEmpty" targetVariableName="playerPositionVariable" isLoop="false" animTime="30000" playOnState="Action.Move" />
+			<InterpolationVec3Animation name="ballonFloat" variableName="balloonPositionVariable" offsetVariableName="baloonOffset" targetVariableName="playerPositionVariable" isLoop="true" animTime="30000" playOnState="Action.None" />
+			<SpriteAnimation name="a_ballons_fire" sprite="PunchFireSprite" animTime="100">
+				<Frame>6,30</Frame>
+				<Frame>7,30</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_ballons_idle" sprite="s_ballons" animTime="100" playOnAction="IDLE|FALL|WALK|JUMP|JUMPSTART|JUMPDOUBLE">
+				<Frame>6,29</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_ballons_punch" sprite="s_ballons" animTime="100" playOnAction="PUNCH">
+				<Frame>7,29</Frame>
+			</SpriteAnimation>
+		</Animations>
+		<ParticleSystems>
+			<ParticleSystem name="PunchFire">
+				<Emitter>
+					<Set name="offset">6.1, 10</Set>
+					<Set name="offsetFacing">true</Set>
+					<Random name="emissionInterval" min="0.001" max="0.005" />
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true" autoLifeTimeToTarget="true">
+					<Set name="sprite">PunchFireSprite</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="renderAlignment">LEFT_CENTER</Set>
+					<Set name="rotateWithVelocity">true</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0.2</KeyFrame>
+						<KeyFrame>0.8, 0.1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialScale">
+						<KeyFrame>0, 1, 0.3</KeyFrame>
+						<KeyFrame>1, 1, 1</KeyFrame>
+					</Curve>
+					<RandomRadial name="initialVelocity" angleRange="-5,5" radiusRange="150,200" baseAnglePosition="targetPos" baseOffset="0,16" />
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		<RenderOptions>
+			<Default>
+				<Set name="IncludeAllActions">true</Set>
+				<Set name="UseActionsWithStates">true</Set>
+				<Set name="DefaultRenderMannequinHandItem">false</Set>
+			</Default>
+		</RenderOptions>
+		<VariableMap>
+			<Set name="baloonOffsetEmpty">0, 0, 0</Set>
+			<Set name="baloonOffset">-32, -32, 0</Set>
+			<Set name="baloonOffsetRight">-32, -32, 0</Set>
+			<Set name="baloonOffsetLeft">32, -32, 0</Set>
+			<Set name="playerPositionVariable">0, 0, 0</Set>
+			<Set name="balloonPositionVariable">0, 0, 0</Set>
+			<Set name="balloonPositionVariableTemp">0, 0, 0</Set>
+			<Set name="handSpotVariable">0, 0, 0</Set>
+			<Set name="facingVariable">1, 1, 1</Set>
+			<Set name="punchFacing">1, 1, 1</Set>
+			<Set name="ropeEnd">0, 0, 0</Set>
+			<Set name="ropeEndOffset">0, -10, 0</Set>
+			<Set name="ropeEndOffsetRight">7.9, -12.1, 0</Set>
+			<Set name="ropeEndOffsetLeft">-7.9, -12.1, 0</Set>
+			<Set name="sittingOffset">0, 0, 0</Set>
+			<Set name="localScale">1, 1, 1</Set>
+			<Set name="mannequinBaloonPos">-30, -27.1, 0</Set>
+			<Set name="mannequinBaloonOffset">-21.75,-39.05, 1</Set>
+			<Set name="mannequinBaloonHandOffset">-7.100, -6.500, 1</Set>
+		</VariableMap>
+	</Data>
+	<RenderRules>
+		<OnEnteredToWorld>
+			<ArithmethicOperation LeftHandVariableName="balloonPositionVariable" RightHandVariableName="playerPositionVariable" OperationType="Set" />
+		</OnEnteredToWorld>		
+		<OnRespawned>
+			<ArithmethicOperation LeftHandVariableName="balloonPositionVariable" RightHandVariableName="playerPositionVariable" OperationType="Set" />
+		</OnRespawned>
+		<OnItemEquipped>
+			<ArithmethicOperation LeftHandVariableName="balloonPositionVariable" RightHandVariableName="playerPositionVariable" OperationType="Set" />
+		</OnItemEquipped>
+		<OnPunchUpdate>
+			<AvatarTransform class="Face">
+				<Set name="face">MAD</Set>
+			</AvatarTransform>
+		</OnPunchUpdate>
+		<Update>
+			<StopIf>
+				<IsVariableBool name="isMannequin">true</IsVariableBool>
+			</StopIf>
+			<StopIf>
+				<IsAction>DIE</IsAction>
+				<IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+			</StopIf>
+			<ArithmethicOperation LeftHandVariableName="baloonOffsetEmpty" RightHandVariableName="baloonOffsetRight" OperationType="Set" onState="Facing.Right" />
+			<ArithmethicOperation LeftHandVariableName="baloonOffsetEmpty" RightHandVariableName="baloonOffsetLeft" OperationType="Set" onState="Facing.Left" />
+			<ArithmethicOperation LeftHandVariableName="ropeEndOffset" RightHandVariableName="ropeEndOffsetRight" OperationType="Set" onState="Facing.Right" />
+			<ArithmethicOperation LeftHandVariableName="ropeEndOffset" RightHandVariableName="ropeEndOffsetLeft" OperationType="Set" onState="Facing.Left" />
+			<ArithmethicOperation LeftHandVariableName="ropeEndOffset" RightHandVariableName="localScale" OperationType="Multiply" />
+			<ArithmethicOperation LeftHandVariableName="ropeEnd" RightHandVariableName="balloonPositionVariable" OperationType="Set" />
+			<ArithmethicOperation LeftHandVariableName="ropeEnd" RightHandVariableName="ropeEndOffset" OperationType="Add" />
+		</Update>
+		<RenderHandItem value="useWorldPos">
+			<StopIf>
+				<IsVariableBool name="isMannequin">true</IsVariableBool>
+			</StopIf>
+			<StopIf>
+				<IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+				<IsRenderMod>RENDER_MOD_SPIRIT_GUIDE</IsRenderMod>
+				<IsRenderMod>RENDER_MOD_RAINBOW_GUY</IsRenderMod>
+				<IsZombified>true</IsZombified>
+			</StopIf>
+			<Group>
+				<Translate>sittingOffset</Translate>
+				<Translate>balloonPositionVariable</Translate>
+				<Group>
+					<ParticleSystemUpdate name="PunchFire" onAction="PUNCH" />
+				</Group>
+				<SpriteRender name="s_ballons" blend="PREMULTIPLIED_ALPHA" />
+			</Group>
+			<StopIf>
+				<IsAction>DIE</IsAction>
+			</StopIf>
+			<Group>
+				<LineRender color="235,235,235,255" StartPointVariableName="handSpotVariable" EndPointVariableName="ropeEnd" />
+				<ParticleSystemRender name="PunchFire" />
+			</Group>
+		</RenderHandItem>
+		<RenderInFront>
+			<StopIf>
+				<IsVariableBool name="isMannequin">false</IsVariableBool>
+			</StopIf>
+			<LineRender color="235,235,235,255" StartPointVariableName="mannequinBaloonHandOffset" EndPointVariableName="mannequinBaloonOffset" />
+		</RenderInFront>
+		<RenderBehind>
+			<StopIf>
+				<IsVariableBool name="isMannequin">false</IsVariableBool>
+			</StopIf>
+			<Translate>mannequinBaloonPos</Translate>
+			<SpriteRender name="s_ballons" blend="PREMULTIPLIED_ALPHA" />
+		</RenderBehind>
+	</RenderRules>
+</ItemRenderer>

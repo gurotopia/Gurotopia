@@ -1,0 +1,133 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+	<Data>
+		<Sprite name="s_KetchupBottle" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="9,21" />
+		<Sprite name="s_Pet" fileName="game/pets/p_dackula.rttex" textureSize="32" frame="0,0" />
+		<Sprite name="s_Punch" fileName="game/particles_large11.rttex" textureSize="64" frame="15,2" />
+		<Animations>
+			<SpriteAnimation name="a_Attack" sprite="s_Pet" animTime="400" isLoop="true" playOnState="Motion.Punch">
+				<Frame>0,1</Frame>
+				<Frame>0,0</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_Fall" sprite="s_Pet" animTime="100" isLoop="true" playOnState="Motion.Down">
+				<Frame>7,0</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_Idle" sprite="s_Pet" animTime="300" isLoop="true" playOnState="Motion.None">
+				<Frame>0,0</Frame>
+				<Frame>1,0</Frame>
+				<Frame>2,0</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_Jump" sprite="s_Pet" animTime="100" isLoop="true" playOnState="Motion.Up">
+				<Frame>6,0</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_Move" sprite="s_Pet" animTime="300" isLoop="true" playOnState="Motion.Horizontal">
+				<Frame>3,0</Frame>
+				<Frame>4,0</Frame>
+				<Frame>5,0</Frame>
+			</SpriteAnimation>
+		</Animations>
+		<ParticleSystems>
+			<ParticleSystem name="PunchParticle">
+				<Emitter>
+					<Set name="offset">10, -16</Set>
+					<Set name="emissionInterval">0.2</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">s_Punch</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="rotateWithVelocity">false</Set>
+					<Curve name="initialScale">
+						<KeyFrame>0, 0.35, 0.35</KeyFrame>
+						<KeyFrame>1, 0.5, 0.5</KeyFrame>
+					</Curve>
+					<Set name="lifeTime">0.35</Set>
+					<VectorTo name="initialVelocity" source="targetPos" duration="lifeTime" x="1" />
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		<StateMachines>
+			<StateMachine name="Motion">
+				<States>
+					<State name="None" />
+					<State name="Up" />
+					<State name="Down" />
+					<State name="Horizontal" />
+					<State name="Punch" />
+				</States>
+				<Transitions>
+					<Transition to="None" from="Punch|Up|Down|Horizontal">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.length" operator="Less" abs="true">0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Up" from="Punch|None|Down|Horizontal">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.y" operator="Less">-0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Down" from="Punch|None|Up|Horizontal">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.y" operator="Greater">0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Horizontal" from="Punch|None|Down|Up">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+							<IsVariableFloat name="pet.velocity.y" operator="Less" abs="true">0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Punch" from="None|Up|Down|Horizontal">
+						<Condition>
+							<IsAction>PUNCH</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<RenderOptions>
+			<Default>
+				<Set name="NeedRenderPet">true</Set>
+				<Set name="PetOffsetDuplication">-32,0</Set>
+				<Set name="UsePetForceFaceTime">false</Set>
+				<Set name="HideParticlesOnTransform">false</Set>
+				<Set name="IgnorePunchTypeCheck">false</Set>
+			</Default>
+		</RenderOptions>
+	</Data>
+	<RenderRules>
+		<Update>
+			<AvatarTransform class="ArmAngle" onState="Motion.Punch">
+				<Set name="armName">arm1Angle</Set>
+				<Set name="pointTowardsPunchTarget">true</Set>
+			</AvatarTransform>
+		</Update>
+		<RenderHandItem>
+			<SpriteRender name="s_KetchupBottle" rotationPoint="0,1" alignment="UPPER_CENTER" />
+		</RenderHandItem>
+		<OnPunchUpdate>
+			<AvatarTransform class="Face">
+				<Set name="face">MAD</Set>
+			</AvatarTransform>
+		</OnPunchUpdate>
+		<RenderPet>
+			<SpriteRender name="s_Pet" offset="-16,0" alignment="DOWN_CENTER" />
+		</RenderPet>
+		<UpdatePet>
+			<ContextUpdate type="SetPetWalkRunJump">
+				<Set name="PetWalkRunJump.minSpeed">500</Set>
+				<Set name="PetWalkRunJump.distSpeedMult">10</Set>
+			</ContextUpdate>
+			<StopIf>
+				<IsTrnsformed>true</IsTrnsformed>
+			</StopIf>
+			<ParticleSystemUpdate name="PunchParticle" onState="Motion.Punch"/>
+		</UpdatePet>
+	</RenderRules>
+</ItemRenderer>

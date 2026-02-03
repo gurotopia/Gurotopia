@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer name="AxebeakBossEggProjectile" DungeonOnly="true">
+	<Data>
+		<Sprite name="sprite" fileName="game/npc1.rttex" textureSize="32" frame="31,6"/>
+		<Sprite name="hitSprite" fileName="game/npc1.rttex" textureSize="32" frame="28,5"/>
+
+		<Animations>
+			<SpriteAnimation name="shell" sprite="hitSprite" isLoop="false" animTime="50" autoPlay="false">
+				<Frame>28,5</Frame>
+				<Frame>29,5</Frame>
+				<Frame>30,5</Frame>
+				<Frame>31,5</Frame>
+			</SpriteAnimation>
+		</Animations>
+		
+		<ParticleSystems>
+			<ParticleSystem name="projectile_particle" updateStage="OnCreate">
+				<Emitter>
+					<Set name="offset">-19,4</Set>
+					<Set name="particlesPerEmission">6</Set>
+					<Set name="offsetFacing">true</Set>
+				</Emitter>
+				<Particle usePlayerFacing="true">
+					<Set name="sprite">sprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="useGravity">true</Set>
+					<Set name="collisionDamageAmount">100</Set>
+					<Set name="rotateWithVelocity">true</Set>
+					<Set name="lifeTime">10</Set>
+					<Set name="collisionSize">32,32</Set>
+					<Set name="renderAlignment">DOWN_CENTER</Set>
+					<Set name="initialScale">1,1</Set>
+					<Random name="initialRotationRate" min="-90" max="90" />
+					<Set name="destroyOnCollision">true</Set>
+					<RandomRadial name="initialVelocity" angleRange="150,200" radiusRange="300,400"/>
+					<Multiply name="offset" source="initialVelocity" scale="0.1,0"/>
+					<Set name="gravityVector">0, 90</Set>
+					<Set name="collisionType">
+						<CollisionType>PROJECTILES_ENEMY</CollisionType>
+					</Set>
+					<Set name="collisionFlag">
+						<CollisionFlag>PLAYERS</CollisionFlag>
+						<CollisionFlag>WORLD_TILES</CollisionFlag>
+					</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="hit_particle">
+				<Emitter>
+					<Set name="offset">0,0</Set>
+					<Set name="particlesPerEmission">6</Set>
+					<Set name="delayTimer">0.0</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true">
+					<Set name="sprite">hitSprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="rotateWithVelocity">true</Set>
+					<Set name="initialScale">0.5,0.5</Set>
+					<Set name="lifeTime">0.5</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="50,100"/>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+	</Data>
+	<RenderRules>
+		<OnHit>
+			<ParticleSystemUpdate name="hit_particle"/>
+			<SpawnNPC NpcType="Axebeak" SpawnChancePercentage ="50" MaxSpawnCount= "4" SpawnPosOffset="0, 0"/>
+		</OnHit>
+	</RenderRules>
+</ItemRenderer>

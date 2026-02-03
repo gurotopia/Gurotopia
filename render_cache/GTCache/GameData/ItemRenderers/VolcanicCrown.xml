@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+	<Data>	
+		<Sprite name="s_hat" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="16,14"/>
+		<Sprite name="s_hat_glow" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="17,14"/>
+		<Sprite name="smoke" fileName="game/particles11.rttex" textureSize="32" frame="20,20"/>
+		<Sprite name="ember" fileName="game/particles11.rttex" textureSize="32" frame="24,21"/>
+		<Sprite name="fire" fileName="game/particles11.rttex" textureSize="32" frame="24,18"/>
+		<Sprite name="meteor" fileName="game/particles11.rttex" textureSize="32" frame="25,18"/>
+		<Sprite name="HitSpark_Sprite" fileName="game/particles11.rttex" textureSize="32"/>
+		<Sprite name="trail_Sprite" fileName="game/particles.rttex" textureSize="32" frame="4,0"/>
+		<Animations>
+			<SpriteAnimation name="HitSpark_Anim" autoPlay="false" isLoop="false" sprite="HitSpark_Sprite"  animTime="200">
+				<Frame>30, 18</Frame>
+				<Frame>30, 19</Frame>
+			</SpriteAnimation>
+			<SpriteCurveAnimation name="hat" isLoop="true" autoPlay="true" sprite="s_hat_glow" animTime="5000">
+				<Curve name="alpha">
+					<KeyFrame>0.f, 0.f</KeyFrame>
+					<KeyFrame>0.2f, 0.f </KeyFrame>
+					<KeyFrame>0.4f, 1.f</KeyFrame>
+					<KeyFrame>0.8f, 1.f</KeyFrame>
+					<KeyFrame>1.f, 0.f</KeyFrame>
+				</Curve>
+			</SpriteCurveAnimation>	
+			<SpriteAnimation name="smoke_anim" autoPlay="true" sprite="smoke" animTime="800">
+				<Frame>20, 20</Frame>
+				<Frame>21, 20</Frame>
+				<Frame>22, 20</Frame>
+				<Frame>23, 20</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="trail_anim" autoPlay="true" sprite="trail_Sprite" animTime="1200">
+				<Frame>3, 0</Frame>
+				<Frame>4, 0</Frame>
+			</SpriteAnimation>
+		</Animations>
+		
+		<RenderOptions>
+			<Default>
+				<Set name="IncludeAllActions">true</Set>
+				<Set name="UserNameOffset">8</Set>
+				<Set name="HideParticlesOnTransform">false</Set>
+				<Set name="PunchSoundOverride">HAT</Set>
+				<Set name="PlayDefaultPunchAudio">false</Set>
+			</Default>
+		</RenderOptions>
+		<ParticleSystems>
+			<ParticleSystem name="ember_particle_left" updateStage="AddClothingParticles">
+				<Emitter>
+					<Set name="offset">-7, -40</Set>
+					<Set name="enable">true</Set>
+					<Set name="offsetFacing">false</Set>
+					<Set name="emissionInterval">0.6</Set>
+					<Set name="useCharacterPos">false</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">2</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">ember</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="isBackgroundParticle">false</Set>
+					<Set name="useGravity">true</Set>
+					<Set name="lifeTime">1</Set>
+					<Random name="initialScale" min="0.75" max="1.25"/>
+					<RandomRadial name="initialVelocity" angleRange="50,95" radiusRange="-20,-60"/>
+					<Set name="gravityVector">0, 45</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="ember_particle_right" updateStage="AddClothingParticles">
+				<Emitter>
+					<Set name="offset">7, -40</Set>
+					<Set name="enable">true</Set>
+					<Set name="offsetFacing">false</Set>
+					<Set name="emissionInterval">0.6</Set>
+					<Set name="useCharacterPos">false</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">2</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">ember</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="isBackgroundParticle">false</Set>
+					<Set name="useGravity">true</Set>
+					<Set name="lifeTime">1</Set>
+					<Random name="initialScale" min="0.75" max="1.25"/>
+					<RandomRadial name="initialVelocity" angleRange="-50,-95" radiusRange="20,60"/>
+					<Set name="gravityVector">0, 45</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="fire_particle">
+				<Emitter attachment="targetPos">
+					<Set name="infParticles">true</Set>
+					<Set name="offset">0,-38</Set>
+					<Set name="lifeTime">0.3</Set>
+					<Set name="emissionInterval">0.08</Set>
+					<Set name="particlesPerEmission">4</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">fire</Set>
+					<Select name="offset" input="punchCount">
+						<Item>-40, -36</Item>
+						<Item>40, -36</Item>
+						<Item>0, -46</Item>
+					</Select>
+					<Set name="blendingMode">ADDITIVE</Set>
+					<Set name="rotateWithVelocity">true</Set>
+					<Set name="initialAlpha">0.5</Set>
+					<Set name="finalAlpha">0.1</Set>
+					<Set name="interpolateAlpha">true</Set>
+					<Random name="lifeTime" min="0.3" max="0.5"/>
+					<Set name="interpolateScale">true</Set>
+					<Set name="initialScale">1.5,1.5</Set>
+					<Set name="finalScale">0.5,1.0</Set>
+					<VectorTo name="initialVelocity" source="targetPos" duration="lifeTime" x="1"/>
+				</Particle>
+			</ParticleSystem>	
+			<ParticleSystem name="meteor_particle">
+				<Emitter attachment="targetPos">
+					<Set name="offset">0,-48</Set>
+					<Set name="lifeTime">0.4</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">meteor</Set>
+					<Select name="offset" input="punchCount">
+						<Item>-40, -32</Item>
+						<Item>40, -32</Item>
+						<Item>0, -42</Item>
+					</Select>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="rotateWithVelocity">true</Set>
+					<Set name="lifeTime">0.4</Set>
+					<VectorTo name="initialVelocity" source="targetPos" duration="lifeTime" x="1"/>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="hitSpark_particle" secondary="trail_particle">
+				<Emitter>
+					<Set name="particlesPerEmission">8</Set>
+					<Set name="lifeTime">2</Set>
+					<Set name="useTargetTileColorForTint">true</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true">
+					<Set name="sprite">HitSpark_Sprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="useGravity">true</Set>
+					<Set name="interpolateScale">true</Set>
+					<Set name="initialScale">2,2</Set>
+					<Random name="finalScale" min="0.1" max="0.4"/>
+					<Set name="lifeTime">1</Set>
+					<RandomRadial name="initialVelocity" angleRange="30,330" radiusRange="80,200"/>
+					<Set name="gravityVector">0, 100</Set>
+					<Random name="initialRotationRate" min="-300" max="300"/>
+					<Random name="posOffset" min="0.1, 0" max="16.1, 16.3"/>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="trail_particle">
+				<Emitter>
+					<Set name="lifeTime">1</Set>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="particlesToEmit">80</Set>
+					<Set name="emissionInterval">0.2</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">trail_Sprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="lifeTime">1.2</Set>
+					<Set name="initialRotationRate">150</Set>
+					<Curve name="initialScale">
+						<KeyFrame>0, 0, 0</KeyFrame>
+						<KeyFrame>0.4, 1, 1</KeyFrame>
+						<KeyFrame>0.8, 0.3, 0.3</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0.5</KeyFrame>
+						<KeyFrame>0.8, 0</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="initialVelocity">0,0</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="smoke_particle" updateStage="AddClothingParticles">
+				<Emitter>
+					<Set name="offset">1.5, -49</Set>
+					<Random name="emissionInterval" min="0.5" max="2"/>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">smoke</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="isBackgroundParticle">true</Set>
+					<Set name="initalRGB">1, 1, 1</Set>
+					<Set name="initialAlpha">1</Set>
+					<Set name="finalAlpha">0</Set>
+					<Set name="interpolateAlpha">true</Set>
+					<Set name="interpolateScale">true</Set>
+					<Set name="initialScale">1, 1</Set>
+					<Set name="finalScale">2, 2</Set>
+					<Set name="lifeTime">1</Set>
+					<Set name="initialVelocity">0, -40</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		<TileStampData>
+			<Set name="FileName">game/particles11.rttex</Set>
+			<Set name="EndFrame">29,18</Set>
+			<Set name="FrameCount">4</Set>
+		</TileStampData>
+	</Data>
+	<RenderRules>		
+		<OnPunchUpdate>
+			<AvatarTransform class="Face">
+				<Set name="face">MAD</Set>
+			</AvatarTransform>
+			<AvatarTransform class="ArmAngle">
+				<Set name="armName">arm1Angle</Set>
+				<Set name="pointTowardsPunchTarget">true</Set>
+			</AvatarTransform>
+		</OnPunchUpdate>
+		<OnPunchStart>
+			<ParticleSystemUpdate name="fire_particle"/>
+			<ParticleSystemUpdate name="meteor_particle"/>
+		</OnPunchStart>
+		<AddClothingParticles>
+			<StopIf>
+				<IsZombified>true</IsZombified>
+				<IsTrnsformed>true</IsTrnsformed>
+				<IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+			</StopIf>
+			<ParticleSystemUpdate name="smoke_particle"/>
+			<ParticleSystemUpdate name="ember_particle_left"/>
+			<ParticleSystemUpdate name="ember_particle_right"/>
+		</AddClothingParticles>
+		<SwitchOffClothingParticles>
+			<ParticleSystemOff name="punch_particleTrail"/>
+			<ParticleSystemOff name="hitSpark_particle"/>
+			<ParticleSystemOff name="ember_particle_left"/>
+			<ParticleSystemOff name="ember_particle_right"/>
+			<ParticleSystemOff name="smoke_particle"/>
+			<ParticleSystemOff name="fire_particle"/>
+			<ParticleSystemOff name="meteor_particle"/>
+		</SwitchOffClothingParticles>
+		<OnDestroyedTile>
+			<ParticleSystemUpdate name="hitSpark_particle"/>
+		</OnDestroyedTile>
+		<RenderHat>
+			<SpriteRender name="s_hat" offset="0,-16" alignment="DOWN_CENTER"/>
+			<SpriteRender name="s_hat_glow" offset="0,-16" alignment="DOWN_CENTER"/>
+		</RenderHat>
+	</RenderRules>
+</ItemRenderer>

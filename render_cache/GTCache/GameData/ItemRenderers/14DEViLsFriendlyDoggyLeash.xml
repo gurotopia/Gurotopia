@@ -1,0 +1,174 @@
+<?xml version="1.0" ?>
+<ItemRenderer>
+    <Data>
+        <Sprite name="s_Pants" fileName="game/player_cosmetics4.rttex" textureSize="32,32" frame="0,0" />
+        <Sprite name="s_Dog" fileName="game/pets/p_friendly_dog.rttex" textureSize="32,32" frame="0,0" />
+		<Sprite name="s_Punch" fileName="game/particles12.rttex" textureSize="32" frame="31,3" />
+		<StateMachines>
+			<StateMachine name="Motion">
+				<States>
+					<State name="None" />
+					<State name="Up" />
+					<State name="Down" />
+					<State name="Horizontal" />
+					<State name="Punch" />
+					<State name="Death" />
+					<State name="Sleep" />
+				</States>
+				<Transitions>
+					<Transition to="None" from="Punch|Up|Down|Horizontal|Sleep|Death">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.length" operator="Less" abs="true">0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+							<IsAction operatorType="NotEqual">SLEEP</IsAction>
+							<IsAction operatorType="NotEqual">DIE</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Up" from="Punch|None|Down|Horizontal">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.y" operator="Less">-0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Down" from="Punch|None|Up|Horizontal">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.y" operator="Greater">0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Horizontal" from="Punch|None|Down|Up">
+						<Condition type="and">
+							<IsVariableFloat name="pet.velocity.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+							<IsVariableFloat name="pet.velocity.y" operator="Less" abs="true">0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Punch" from="None|Up|Down|Horizontal|Sleep">
+						<Condition>
+							<IsAction>PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Sleep" from="None">
+						<Condition>
+							<IsAction>SLEEP</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Death" from="None|Punch|Up|Down|Horizontal|Sleep">
+						<Condition>
+							<IsAction>DIE</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="SleepParticle">
+				<States>
+					<State name="On" />
+					<State name="Off" ExitTime="2"/>
+				</States>
+				<Transitions>
+					<Transition to="On" from="Off">
+						<Condition>
+							<IsAction>SLEEP</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Off" from="On"/>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+        <Animations>
+            <SpriteAnimation name="s_Dog_Idle" sprite="s_Dog" isLoop="true" animTime="400" playOnState="Motion.None">
+                <Frame>0,0</Frame>
+                <Frame>1,0</Frame>
+                <Frame>2,0</Frame>
+                <Frame>3,0</Frame>
+            </SpriteAnimation>
+            <SpriteAnimation name="s_Dog_Death" sprite="s_Dog" isLoop="false" animTime="2000" playOnState="Motion.Death">
+                <Frame>4,1</Frame>
+                <Frame>5,1</Frame>
+            </SpriteAnimation>
+			<SpriteAnimation name="s_Dog_Sleep" sprite="s_Dog" isLoop="true" animTime="100" playOnState="Motion.Sleep">
+                <Frame>3,1</Frame>
+            </SpriteAnimation>
+			<SpriteAnimation name="s_Dog_Jump" sprite="s_Dog" isLoop="true" animTime="100" playOnState="Motion.Up">
+                <Frame>7,0</Frame>
+            </SpriteAnimation>
+			<SpriteAnimation name="s_Dog_Fall" sprite="s_Dog" isLoop="true" animTime="100" playOnState="Motion.Down">
+                <Frame>0,1</Frame>
+            </SpriteAnimation>
+            <SpriteAnimation name="s_Dog_Move" sprite="s_Dog" isLoop="true" animTime="300" playOnState="Motion.Horizontal">
+                <Frame>4,0</Frame>
+                <Frame>5,0</Frame>
+                <Frame>6,0</Frame>
+            </SpriteAnimation>
+            <SpriteAnimation name="s_Dog_Punch" sprite="s_Dog" isLoop="true" animTime="400" playOnState="Motion.Punch">
+                <Frame>1,1</Frame>
+                <Frame>2,1</Frame>
+            </SpriteAnimation>
+        </Animations>
+		<RenderOptions>
+			<Default>
+				<Set name="NeedRenderPet">true</Set>
+				<Set name="PetOffsetDuplication">-32,0</Set>
+				<Set name="UsePetForceFaceTime">false</Set>
+				<Set name="HideParticlesOnTransform">false</Set>
+				<Set name="IncludeAllActions">true</Set>
+				<Set name="IgnorePunchTypeCheck">true</Set>
+			</Default>
+		</RenderOptions>
+        <ParticleSystems>
+			<ParticleSystem name="PunchParticle">
+				<Emitter>
+					<Set name="offset">10, -16</Set>
+					<Set name="emissionInterval">0.2</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">s_Punch</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="rotateWithVelocity">false</Set>
+					<Curve name="initialScale">
+						<KeyFrame>0, 0.8, 0.8</KeyFrame>
+						<KeyFrame>1, 1.2, 1.2</KeyFrame>
+					</Curve>
+					<Set name="lifeTime">0.5</Set>
+					<VectorTo name="initialVelocity" source="targetPos" duration="lifeTime" x="1" />
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+    </Data>
+    <RenderRules>
+		<Update>
+      <StopIf type="or">
+				<IsZombified>true</IsZombified>
+        <IsVariableBool name="isBattleLeash">true</IsVariableBool>
+			</StopIf>
+			<AvatarTransform class="ArmAngle" onState="Motion.Punch">
+				<Set name="armName">arm1Angle</Set>
+				<Set name="pointTowardsPunchTarget">true</Set>
+			</AvatarTransform>
+		</Update>
+		<RenderPet>
+			<Translate>-16,0,0</Translate>
+            <SpriteRender name="s_Dog" alignment="DOWN_CENTER"/>
+			<StopIf type="or">
+				<IsTrnsformed>true</IsTrnsformed>
+        <IsVariableBool name="isBattleLeash">true</IsVariableBool>
+			</StopIf>
+			<ParticleSystemUpdate name="PunchParticle" onState="Motion.Punch"/>
+			<Group onState="SleepParticle.On">
+				<ParticleSystemLegacy type="5"/>
+			</Group>
+        </RenderPet>
+		<UpdatePunch>
+			
+		</UpdatePunch>
+		<UpdatePet>
+			<ContextUpdate type="SetPetWalkRunJump">
+				<Set name="PetWalkRunJump.minSpeed">500</Set>
+				<Set name="PetWalkRunJump.distSpeedMult">10</Set>
+			</ContextUpdate>
+		</UpdatePet>
+    </RenderRules>
+</ItemRenderer>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_circlet" fileName="game/particles_large9.rttex" textureSize="64" frame="13,15"/>
+
+    <Animations>
+      <SpriteAnimation name="a_circlet" sprite="s_circlet" animTime="600" isLoop="true" autoPlay="true">
+        <Frame>13,15</Frame>
+        <Frame>14,15</Frame>
+        <Frame>15,15</Frame>
+        <Frame>15,14</Frame>
+      </SpriteAnimation>
+      <SpriteCurveAnimation name="a_circletFloat" sprite="s_circlet" animTime="1400" autoPlay="true" isLoop="true">
+        <Curve name="pos.y">
+          <KeyFrame>0.f, -4</KeyFrame>
+          <KeyFrame>0.5f, 0</KeyFrame>
+          <KeyFrame>1.f, -4</KeyFrame>
+        </Curve>
+      </SpriteCurveAnimation>
+    </Animations>
+  </Data>
+
+  <RenderRules>
+    <RenderBackHat>
+      <SpriteRender name="s_circlet" offset="-5,0" alignment="DOWN_CENTER" drawShadow="false"/>
+    </RenderBackHat>
+  </RenderRules>
+</ItemRenderer>

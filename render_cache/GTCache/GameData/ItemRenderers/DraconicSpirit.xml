@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer item="ITEM_ID_DRACONIC_SPIRIT">
+	<Data>
+		<Sprite name="foot1_Sprite" fileName="game/player_feet_large1.rttex" textureSize="64"/>
+		<Sprite name="foot2_Sprite" fileName="game/player_feet_large1.rttex" textureSize="64"/>
+		
+		<Animations>
+			<SpriteAnimation name="foot1_Idle" playOnAction="IDLE" sprite="foot1_Sprite" animTime="800" isLoop="true">
+				<Frame>3,4</Frame>
+				<Frame>4,4</Frame>
+				<Frame>5,4</Frame>
+				<Frame>6,4</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="foot2_Idle" playOnAction="IDLE" sprite="foot2_Sprite" animTime="800" isLoop="true">
+				<Frame>3,5</Frame>
+				<Frame>4,5</Frame>
+				<Frame>5,5</Frame>
+				<Frame>6,5</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="foot1_Walk" playOnAction="WALK" sprite="foot1_Sprite" animTime="600" isLoop="true">
+				<Frame>7,4</Frame>
+				<Frame>8,4</Frame>
+				<Frame>9,4</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="foot2_Walk" playOnAction="WALK" sprite="foot2_Sprite" animTime="600" isLoop="true">
+				<Frame>7,5</Frame>
+				<Frame>8,5</Frame>
+				<Frame>9,5</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="foot1_Jump" playOnAction="JUMP" sprite="foot1_Sprite">
+				<Frame>10,4</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="foot2_Jump" playOnAction="JUMP" sprite="foot2_Sprite">
+				<Frame>10,5</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="foot1_Fall" playOnAction="FALL" sprite="foot1_Sprite">
+				<Frame>11,4</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="foot2_Fall" playOnAction="FALL" sprite="foot2_Sprite">
+				<Frame>11,5</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="foot1_Punch" playOnAction="PUNCH|JUMPEND" sprite="foot1_Sprite">
+				<Frame>12,4</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="foot2_Punch" playOnAction="PUNCH|JUMPEND" sprite="foot2_Sprite">
+				<Frame>12,5</Frame>
+			</SpriteAnimation>
+			<SpriteSinPulseAnimation name="foot1_Stretch" playOnAction="IDLE" sprite="foot1_Sprite">
+				<Parameter name="scale.x">
+					<Set name="offset">1</Set>
+					<Set name="period">3000</Set>
+					<Set name="scale">0.05</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+			<SpriteSinPulseAnimation name="foot2_Stretch" playOnAction="IDLE" sprite="foot2_Sprite">
+				<Parameter name="scale.x">
+					<Set name="offset">1</Set>
+					<Set name="period">3000</Set>
+					<Set name="scale">0.05</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+		</Animations>
+		
+		<RenderOptions>
+			<Default>
+				<Set name="JumpEndStateRange">100</Set>
+				<Set name="ClothingOffsetFromShoes">-20</Set>
+				<Set name="IsRidingBird">true</Set>
+				<Set name="IsVehicle">true</Set>
+				<Set name="IsPulseShoes">true</Set>
+				<Set name="IsHorse">true</Set>
+				<Set name="IgnorePunchTypeCheck">true</Set>
+				<Set name="UserNameOffset">23</Set>
+				<Set name="RenderShoesWithMermaidTail">true</Set>
+			</Default>
+			<Override overrideOnAction="IDLE">
+				<Set name="IsPulseShoes">false</Set>
+			</Override>
+		</RenderOptions>
+		
+	</Data>
+
+	<RenderRules>
+		<RenderShoes>
+			<SpriteRender name="foot1_Sprite" offset="0,24" alignmentLeft="DOWN_LEFT" alignmentRight="DOWN_RIGHT" blend="ADDITIVE" drawShadow="false"/>
+			<SpriteRender name="foot2_Sprite" offset="0,24" alignmentLeft="DOWN_RIGHT" alignmentRight="DOWN_LEFT" blend="ADDITIVE" drawShadow="false"/>
+		</RenderShoes>
+	</RenderRules>
+</ItemRenderer>

@@ -1,0 +1,377 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+	<Data>
+		<Sprite name="ColorWingSprite" fileName="game/player_cosmetics4.rttex" textureSize="32" frame="27,2" />
+		<Sprite name="ShardsSprite" fileName="game/particles12.rttex" textureSize="32" frame="11,11" />
+		<Sprite name="SmokeSprite" fileName="game/particles12.rttex" textureSize="32" frame="13,11" />
+		<Sprite name="TrailSprite" fileName="game/particles12.rttex" textureSize="32" frame="10,11" />
+		<Sprite name="WingSprite" fileName="game/player_cosmetics4.rttex" textureSize="32" frame="19,2" />
+		<StateMachines>
+			<StateMachine name="FallState">
+				<States>
+					<State name="Fall" />
+					<State name="NotFall" />
+				</States>
+				<Transitions>
+					<Transition from="Fall" to="NotFall">
+						<Condition>
+							<IsVariableFloat name="speed.y" operator="LessOrEqual">0</IsVariableFloat>
+						</Condition>
+					</Transition>
+					<Transition from="NotFall" to="Fall">
+						<Condition>
+							<IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="IdleState">
+				<States>
+					<State name="Idle" />
+					<State name="NotIdle" />
+				</States>
+				<Transitions>
+					<Transition from="Idle" to="NotIdle">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+					<Transition from="NotIdle" to="Idle">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<Animations>
+			<SpriteCurveAnimation name="randomPosAnim" sprite="ColorWingSprite" autoPlay="true" isLoop="true" animTime="1000">
+				<Curve name="pos">
+					<KeyFrame>0.f, 1.5f, 1.5f</KeyFrame>
+					<KeyFrame>0.2f, 1.5f, 1.5f</KeyFrame>
+					<KeyFrame>0.2f, -1.5f, -1.5f</KeyFrame>
+					<KeyFrame>0.4f, -1.5f, -1.5f</KeyFrame>
+					<KeyFrame>0.4f, 1.5f, -1.5f</KeyFrame>
+					<KeyFrame>0.6f, 1.5f, -1.5f</KeyFrame>
+					<KeyFrame>0.6f, -1.5f, 1.5f</KeyFrame>
+					<KeyFrame>0.8f, -1.5f, 1.5f</KeyFrame>
+					<KeyFrame>0.8f, 1.5f, -1.5f</KeyFrame>
+					<KeyFrame>1.0f, 1.5f, -1.5f</KeyFrame>
+					<KeyFrame>1.0f, 1.5f, 1.5f</KeyFrame>
+				</Curve>
+			</SpriteCurveAnimation>
+			<SequenceAnimation name="glitch_sequence" autoPlay="true" isLoop="true">
+				<SpriteAnimation sprite="WingSprite">
+					<Frame>19,2</Frame>
+				</SpriteAnimation>
+				<DelayAnimation delayTime="1000" />
+				<SpriteAnimation sprite="WingSprite" animTime="200">
+					<Frame>20,2</Frame>
+					<Frame>21,2</Frame>
+				</SpriteAnimation>
+				<SpriteAnimation sprite="WingSprite">
+					<Frame>19,2</Frame>
+				</SpriteAnimation>
+				<DelayAnimation delayTime="500" />
+				<SpriteAnimation sprite="WingSprite">
+					<Frame>22,2</Frame>
+				</SpriteAnimation>
+				<DelayAnimation delayTime="100" />
+			</SequenceAnimation>
+			<SpriteAnimation name="ShardsAnimation" sprite="ShardsSprite" animTime="200">
+				<Frame>11,11</Frame>
+				<Frame>12,11</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="SmokeAnimation" sprite="SmokeSprite" animTime="800">
+				<Frame>13,11</Frame>
+				<Frame>14,11</Frame>
+				<Frame>15,11</Frame>
+				<Frame>16,11</Frame>
+				<Frame>17,11</Frame>
+				<Frame>18,11</Frame>
+				<Frame>19,11</Frame>
+				<Frame>20,11</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="multiColourAnim" sprite="ColorWingSprite" animTime="400" autoPlay="true" isLoop="true">
+				<Frame>27,2</Frame>
+				<Frame>28,2</Frame>
+			</SpriteAnimation>
+		</Animations>
+		<ParticleSystems>
+			<ParticleSystem name="LeftWingAnimatedSmokeStatic">
+				<Emitter>
+					<Set name="offset">-22, -15</Set>
+					<Set name="emissionInterval">0.4</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle usePlayerFacing="true">
+					<Set name="sprite">SmokeSprite</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialScale">
+						<KeyFrame>0, 0.5, 0.5</KeyFrame>
+						<KeyFrame>1, 1, 1</KeyFrame>
+					</Curve>
+					<Set name="lifeTime">0.8</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="LeftWingShards">
+				<Emitter>
+					<Set name="offset">-20, -20</Set>
+					<Set name="emissionInterval">0.1</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true">
+					<Set name="sprite">ShardsSprite</Set>
+					<Set name="relativeToEmitter">false</Set>
+					<Random name="offset" min="-7, -4" max="7, 4" />
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">ADDITIVE</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>0.3, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="initialScale">0.5, 0.5</Set>
+					<Set name="lifeTime">0.75</Set>
+					<Set name="initialVelocity">0, 20</Set>
+					<Random name="initialAngle" min="0" max="360" />
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="LeftWingStaticSmoke">
+				<Emitter>
+					<Set name="offset">-20, -10</Set>
+					<Set name="emissionInterval">0.05</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">TrailSprite</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialScale">
+						<KeyFrame>0, 1, 1</KeyFrame>
+						<KeyFrame>1, 0.5, 0.5</KeyFrame>
+					</Curve>
+					<Set name="lifeTime">0.2</Set>
+					<Set name="initialAngle">90</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="LeftWingTrailSmoke">
+				<Emitter>
+					<Set name="offset">-20, -15</Set>
+					<Set name="emissionInterval">0.025</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle angleRelativeToPlayerSpeed="true">
+					<Set name="sprite">TrailSprite</Set>
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0.5</KeyFrame>
+						<KeyFrame>0.3, 0.5</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialScale">
+						<KeyFrame>0, 1, 1</KeyFrame>
+						<KeyFrame>1, 1, 0.25</KeyFrame>
+					</Curve>
+					<Set name="lifeTime">0.5</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="RightWingAnimatedSmokeStatic">
+				<Emitter>
+					<Set name="offset">22, -15</Set>
+					<Set name="emissionInterval">0.4</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle usePlayerFacing="true">
+					<Set name="sprite">SmokeSprite</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialScale">
+						<KeyFrame>0, 0.5, 0.5</KeyFrame>
+						<KeyFrame>1, 1, 1</KeyFrame>
+					</Curve>
+					<Set name="lifeTime">0.8</Set>
+					<Set name="flipX">true</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="RightWingShards">
+				<Emitter>
+					<Set name="offset">20, -20</Set>
+					<Set name="emissionInterval">0.1</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true">
+					<Set name="sprite">ShardsSprite</Set>
+					<Set name="relativeToEmitter">false</Set>
+					<Random name="offset" min="-7, -4" max="7, 4" />
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">ADDITIVE</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>0.3, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="initialScale">0.5, 0.5</Set>
+					<Set name="lifeTime">0.75</Set>
+					<Set name="initialVelocity">0, 20</Set>
+					<Random name="initialAngle" min="0" max="360" />
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="RightWingStaticSmoke">
+				<Emitter>
+					<Set name="offset">20, -10</Set>
+					<Set name="emissionInterval">0.05</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">TrailSprite</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialScale">
+						<KeyFrame>0, 1, 1</KeyFrame>
+						<KeyFrame>1, 0.5, 0.5</KeyFrame>
+					</Curve>
+					<Set name="lifeTime">0.2</Set>
+					<Set name="initialAngle">90</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="RightWingTrailSmoke">
+				<Emitter>
+					<Set name="offset">20, -15</Set>
+					<Set name="emissionInterval">0.025</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle angleRelativeToPlayerSpeed="true">
+					<Set name="sprite">TrailSprite</Set>
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0.5</KeyFrame>
+						<KeyFrame>0.3, 0.5</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialScale">
+						<KeyFrame>0, 1, 1</KeyFrame>
+						<KeyFrame>1, 1, 0.25</KeyFrame>
+					</Curve>
+					<Set name="lifeTime">0.5</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		<RenderOptions>
+			<Default>
+				<Set name="HideParticlesOnTransform">true</Set>
+				<Set name="HideParticlesOnTheaterSeat">true</Set>
+			</Default>
+		</RenderOptions>
+	</Data>
+	<RenderRules>
+	<OnDrawCustomOutline>
+      <AvatarTransform class="RenderData">
+        <Set name="saturation">getCurrent</Set>
+        <Set name="brightness">getCurrent</Set>
+        <Set name="contrast">getCurrent</Set>
+      </AvatarTransform>
+      <AvatarTransform class="Scale">
+        <Set name="targetScale">getCurrent</Set>
+      </AvatarTransform>
+		<AvatarTransform class="RenderData">
+			<Set name="saturation">1.5</Set>
+			<Set name="brightness">0.8</Set>
+			<Set name="contrast">0.15</Set>
+		</AvatarTransform>
+		<ContextUpdate type="SetTintFromSlot">
+			<Set name="slot">BACKPACK</Set>
+			<Set name="seedFG">false</Set>
+		</ContextUpdate>
+		<AvatarOutline startScale="1,1" endScale="1.1,1.1" duration="1500" contextColor="true">
+			<Colours />
+		</AvatarOutline>
+      <AvatarTransform class="RenderData">
+        <Set name="saturation">reset</Set>
+        <Set name="brightness">reset</Set>
+        <Set name="contrast">reset</Set>
+      </AvatarTransform>
+      <AvatarTransform class="Scale">
+        <Set name="targetScale">reset</Set>
+      </AvatarTransform>
+    </OnDrawCustomOutline>
+    <RenderBackpack>
+			<SpriteRender name="ColorWingSprite" offset="-4,-16" alignmentLeft="LEFT_CENTER" drawShadow="false" alignmentRight="RIGHT_CENTER" />
+			<SpriteRender name="ColorWingSprite" offset="4,-16" flip="1,0" alignmentLeft="RIGHT_CENTER" drawShadow="false" alignmentRight="LEFT_CENTER" />
+			<SpriteRender name="WingSprite" offset="-4,-16" alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER" />
+			<SpriteRender name="WingSprite" offset="4,-16" flip="1,0" alignmentLeft="RIGHT_CENTER" alignmentRight="LEFT_CENTER" />
+		</RenderBackpack>
+		<AddClothingParticles>
+			<ParticleSystemUpdate name="LeftWingTrailSmoke" onState="IdleState.NotIdle"/>
+			<ParticleSystemUpdate name="RightWingTrailSmoke"  onState="IdleState.NotIdle"/>
+			<ParticleSystemUpdate name="LeftWingShards" />
+			<ParticleSystemUpdate name="RightWingShards" />
+			<ParticleSystemUpdate name="LeftWingStaticSmoke" onState="IdleState.Idle" />
+			<ParticleSystemUpdate name="RightWingStaticSmoke" onState="IdleState.Idle" />
+			<ParticleSystemUpdate name="LeftWingAnimatedSmokeStatic" />
+			<ParticleSystemUpdate name="RightWingAnimatedSmokeStatic" />
+		</AddClothingParticles>
+		<RenderBehind>
+			<StopIf>
+				<IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+			</StopIf>
+			<ParticleSystemRender name="LeftWingTrailSmoke" />
+			<ParticleSystemRender name="RightWingTrailSmoke" />
+			<ParticleSystemRender name="LeftWingStaticSmoke" />
+			<ParticleSystemRender name="RightWingStaticSmoke" />
+			<ParticleSystemRender name="LeftWingAnimatedSmokeStatic" />
+			<ParticleSystemRender name="RightWingAnimatedSmokeStatic" />
+			<ParticleSystemRender name="LeftWingShards" />
+			<ParticleSystemRender name="RightWingShards" />
+		</RenderBehind>
+		<SwitchOffClothingParticles>
+			<ParticleSystemOff name="RightWingAnimatedSmokeStatic" />
+			<ParticleSystemOff name="LeftWingAnimatedSmokeStatic" />
+			<ParticleSystemOff name="LeftWingTrailSmoke" />
+			<ParticleSystemOff name="RightWingTrailSmoke" />
+			<ParticleSystemOff name="LeftWingStaticSmoke" />
+			<ParticleSystemOff name="RightWingStaticSmoke" />
+			<ParticleSystemOff name="LeftWingShards" />
+			<ParticleSystemOff name="RightWingShards" />
+		</SwitchOffClothingParticles>
+	</RenderRules>
+</ItemRenderer>

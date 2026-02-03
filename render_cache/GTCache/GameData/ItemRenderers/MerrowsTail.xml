@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer item="ITEM_ID_MERROWS_TAIL">
+  <Data>
+    <Sprite name="item_sprite" fileName="game/particles_large12.rttex" textureSize="64"/>
+    <Sprite name="aura_sprite" fileName="game/particles_large12.rttex" textureSize="64"/>
+
+    <Animations>
+      <SpriteAnimation name="equip_anim" sprite="item_sprite" animTime="800" isLoop="true" playOnAction="IDLE">
+        <Frame>8, 12</Frame>
+        <Frame>9, 12</Frame>
+        <Frame>10, 12</Frame>
+        <Frame>11, 12</Frame>
+        <Frame>12, 12</Frame>
+        <Frame>13, 12</Frame>
+        <Frame>14, 12</Frame>
+        <Frame>15, 12</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="punch_anim" sprite="item_sprite" animTime="400" isLoop="true" playOnAction="PUNCH">
+        <Frame>8, 12</Frame>
+        <Frame>9, 12</Frame>
+        <Frame>10, 12</Frame>
+        <Frame>11, 12</Frame>
+        <Frame>12, 12</Frame>
+        <Frame>13, 12</Frame>
+        <Frame>14, 12</Frame>
+        <Frame>15, 12</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="move_anim" sprite="item_sprite" animTime="400" isLoop="true" playOnAction="WALK|JUMP|FALL">
+        <Frame>11, 11</Frame>
+        <Frame>12, 11</Frame>
+        <Frame>13, 11</Frame>
+        <Frame>14, 11</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="aura_anim" sprite="aura_sprite" animTime="800" isLoop="true" playOnAction="PUNCH">
+        <Frame>8, 15</Frame>
+        <Frame>9, 15</Frame>
+        <Frame>10, 15</Frame>
+        <Frame>11, 15</Frame>
+        <Frame>12, 15</Frame>
+        <Frame>13, 15</Frame>
+        <Frame>14, 15</Frame>
+        <Frame>15, 15</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <RenderOptions>
+      <Default>
+        <Set name="PunchSoundOverride">SHOES</Set>
+        <Set name="PlayDefaultPunchAudio">false</Set>
+        <Set name="IsToRenderPants">false</Set>
+        <Set name="ShoesHidesBodyLegs">true</Set>
+        <Set name="ShoesShouldIgnoreRaptorLegsOffset">true</Set>
+        <Set name="IsSurfboard">true</Set>
+        <Set name="ClothingOffsetFromShoes">-7</Set>
+        <Set name="ShouldHover">true</Set>
+        <Set name="UserNameOffset">8</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+
+  <RenderRules>
+    <RenderShoes>
+      <SpriteRender name="item_sprite" offset="0,-9" tintOverride="PANTS"/>
+    </RenderShoes>
+    <OnPunchUpdate>
+      <AvatarTransform class="Face">
+        <Set name="face">JUMP_UP</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">120</Set>
+        <Set name="pulseArmScale">5</Set>
+        <Set name="pulseArmRate">250</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">-120</Set>
+        <Set name="pulseArmScale">5</Set>
+        <Set name="pulseArmRate">250</Set>
+      </AvatarTransform>
+    </OnPunchUpdate>
+    <RenderBehind value="playerCenter">
+      <StopIf>
+        <IsZombified>true</IsZombified>
+      </StopIf>
+      <SpriteRender name="aura_sprite" offset="0,-20" onAction="PUNCH"/>
+    </RenderBehind>
+    <Update>
+      <StopIf>
+        <IsZombified>true</IsZombified>
+      </StopIf>
+      <AvatarTransform class="ArmAngle" onAction="IDLE">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">45</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle" onAction="IDLE">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">310</Set>
+      </AvatarTransform>
+    </Update>
+  </RenderRules>
+</ItemRenderer>

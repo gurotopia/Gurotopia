@@ -1,0 +1,607 @@
+.window {
+    width: 970dp;
+    max-width: 100%;
+}
+
+.window .bg {
+    overflow-y: auto;
+}
+
+@spritesheet seed_diary_ui_title_sprites {
+    src: game/tiles_page17.rttex;
+    resolution: 1x;
+    seed_diary_title_icon: 960px 384px 32px 32px;
+}
+
+@spritesheet checkbox_sprites {
+    src: game/interface/checkbox.rttex;
+    resolution: 1x;
+    checkbox_off_icon: 0px 0px 32px 32px;
+    checkbox_on_icon: 32px 0px 32px 32px;
+}
+
+#window-title .title-icon {
+    decorator: image(seed_diary_title_icon);
+}
+
+#seed-diary-popup .top-padding
+{
+	padding-top: 10dp;
+}
+
+#seed-diary-popup .horizontal-panel {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 100%;
+        height: auto;
+        gap: 15dp;
+    }
+
+#seed-diary-popup .vcenter {
+		vertical-align: middle;
+	}
+
+#seed-diary-popup .content-table {
+        row-gap: 20dp;
+        column-gap: 5dp;
+    }
+
+#panel-top-level {
+    height: 420dp;
+}
+
+.items-panel {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 26dp;
+    justify-content: flex-start;
+    align-items: flex-start;
+    align-content: flex-start;
+    padding-bottom: 10dp;
+    padding-left: 0dp;
+}
+
+
+.items-panel #question-mark {
+    position: absolute;
+    top: 16dp;
+    left: 18dp;
+    width: 40dp;
+    height: 40dp;
+    decorator: image(interface/large/gui_question.rttex);
+    z-index: 2;
+    flex: 0 0 auto;
+}
+
+.items-panel #overlay-complete {
+    position: absolute;
+    top: 12dp;
+    left: 12dp;
+    width: 64dp;
+    height: 64dp;
+    decorator: image(interface/large/gui_complete_item_border.rttex);
+    z-index: 3;
+    flex: 0 0 auto;
+}
+
+.items-panel #border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 64dp;
+    height: 64dp;
+    border: 5dp rgb(150,150,150);
+    border-radius: 10dp;
+    background-color: rgba(0,0,0,128);
+    z-index: 1;
+}
+
+.items-panel #border-blue {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 64dp;
+    height: 64dp;
+    border: 5dp rgb(136,184,203);
+    border-radius: 10dp;
+    background-color: rgba(0,0,0,128);
+    z-index: 1;
+}
+
+.items-panel #image-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 64dp;
+    height: 64dp;
+    border: 5dp rgb(136,184,203);
+    border-radius: 10dp;
+    background-color: rgba(0,0,0,128);
+    z-index: 1;
+}
+
+.items-panel #image-border-sel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 64dp;
+    height: 64dp;
+    border: 5dp rgb(243,142,73);
+    border-radius: 10dp;
+    background-color: rgba(0,0,0,128);
+    z-index: 1;
+}
+
+.items-panel #image {
+    display: block;
+    width: 64dp;
+    height: 64dp;
+    padding: 0dp;
+    z-index: 2;
+}
+
+.items-panel .overlay-container {
+    position: relative;
+    width: 64dp;
+    height: 64dp;
+    padding:5dp;
+    sound-on-click: true;
+}
+
+.items-panel .overlay-container:active {
+    filter: brightness(0.85);
+    transform: scale(0.95);
+}
+
+.selected-item .overlay-container:active {
+    filter: brightness(0.85);
+    transform: scale(0.95);
+}
+
+.selected-item .overlay-container {
+    position: relative;
+    width: 50dp;
+    height: 50dp;
+    sound-on-click: true;
+}
+
+.selected-item #question-mark {
+    position: absolute;
+    top: 16dp;
+    left: 16dp;
+    width: 30dp;
+    height: 30dp;
+    decorator: image(interface/large/gui_question.rttex);
+    z-index: 2;
+}
+
+.selected-item #mystery-seed {
+    display: block;
+    width: 32dp;
+    height: 32dp;
+    padding: 0dp;
+    z-index: 2;
+    top: 7dp;
+    left: -4dp;
+    position: relative;
+}
+
+.selected-item #overlay-complete {
+    position: absolute;
+    top: 12dp;
+    left: 12dp;
+    width: 50dp;
+    height: 50dp;
+    decorator: image(interface/large/gui_complete_item_border.rttex);
+    z-index: 3;
+}
+
+.selected-item #border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50dp;
+    height: 50dp;
+    border: 5dp rgb(150,150,150);
+    border-radius: 10dp;
+    background-color: rgba(0,0,0,128);
+    z-index: 1;
+}
+
+.selected-item #image-border {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50dp;
+    height: 50dp;
+    border: 5dp rgb(136,184,203);
+    border-radius: 10dp;
+    background-color: rgba(0,0,0,128);
+    z-index: 1;
+}
+
+.selected-item #image {
+    display: block;
+    width: 50dp;
+    height: 50dp;
+    padding: 0dp;
+    z-index: 2;
+}
+
+.image-prev {
+    width: 56dp;
+    height: 56dp;
+    decorator: image(interface/large/gui_left_arrow_btn.rttex);
+    sound-on-click: true;
+}
+
+.image-next {
+    width: 56dp;
+    height: 56dp;
+    decorator: image(interface/large/gui_right_arrow_btn.rttex);
+    sound-on-click: true;
+}
+
+.image-next:active, .image-prev:active {
+		filter: brightness(0.85);
+		transform: scale(0.95);
+	}
+
+#seed-diary-popup .horizontal-panel {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: auto;
+    height: auto;
+    gap:15dp;
+    flex-shrink: 0;
+    flex-grow: 1;
+}
+
+.green-bg {
+  background-color: rgba(102,170,67, 178);
+  border-radius: 8pt;
+  border: 4dp rgb(136,200,98);
+}
+
+.green2-bg {
+  background-color: rgb(48,99,61);
+  border-radius: 8pt;
+  
+  padding-left: 0dp;
+}
+
+.green-gradient-bg {
+    border-radius: 8dp;
+    border: 4dp;
+    border-color: rgb(102, 170, 67);
+    decorator: vertical-gradient(rgb(67,154,49) rgb(22,86,62));
+    width: 100%;
+    height: 100%;
+}
+
+.dark-green-bg {
+  background-color: rgb(25,69,59);
+  border-radius: 8dp;
+  border: 4dp;
+  border-color: rgb(102, 170, 67);
+}
+
+.dark-green2-bg {
+  background-color: rgb(20,49,41);
+  border-radius: 8dp;
+}
+
+.blue-bg {
+  background-color: rgba(27,57,47, 178);
+  border-radius: 8pt;
+}
+
+.table-cell {
+  padding: 10dp;
+}
+
+.table-row {
+  padding: 10dp;
+}
+
+.item-table-row {
+  padding: 0dp;
+}
+
+.table-column {
+  padding: 5dp;
+}
+
+.search-container {
+  display: flex;
+  align-items: center; /* Vertically center label and input */
+  gap: 10dp;            /* Space between label and input */
+}
+
+.search-container input {
+  flex: 1; /* Makes the input take up remaining space */
+  width: 100%; /* Ensures it stretches fully */
+}
+
+.sort-container {
+  display: flex;
+  align-items: center; /* Vertically center label and input */
+  gap: 10dp;            /* Space between label and input */
+}
+
+.item-info-container {
+  display: flex;
+  gap: 50dp;            /* Space between label and input */
+  justify-content: center;
+  align-items: center;
+  padding-bottom: 10dp;
+  font-size: 20dp;
+}
+
+.selected-item {
+  display: flex;
+  align-items: center; /* Vertically center label and input */
+  gap: 10dp;            /* Space between label and input */
+}
+
+.selected-item .overlay-container {
+    position: relative;
+    width: 100%;
+    padding:5dp;
+}
+
+.selected-item .overlay-container2 {
+    position: relative;
+    width: 100%;
+    padding:5dp;
+}
+
+.selected-item .image {
+    position: absolute;
+    top: 0dp;
+    left: 0dp;
+    position: relative;
+    width: 48dp;
+    height: 48dp;
+    padding: 0dp;
+}
+
+.selected-item .question-mark {
+    position: absolute;
+    top: 0dp;
+    left: 0dp;
+    position: relative;
+    width: 48dp;
+    height: 48dp;
+    padding: 0dp;
+    decorator: image(interface/large/gui_question.rttex);
+}
+
+.selected-item .image-border {
+    position: relative;
+    width: 48dp;
+    height: 48dp;
+    padding: 0dp;
+    border: 5dp white;
+    border-radius: 10dp;
+}
+
+.selected-item .title {
+    position: absolute;
+    top: 12dp;
+    left: 0dp;
+    margin-left: 60dp;
+    font-size: 26dp;
+    color: white;
+    width: 100%; /* Ensures it stretches fully */
+    align-items: center;
+    text-align: left;
+    justify-content: center;
+}
+
+    .selected-item .holiday {
+        position: absolute;
+        top: -27dp;
+        left: 225dp;
+        font-size: 20dp;
+        font-effect: shadow(1dp 1dp #000);
+        color: white;
+        width: auto; /* Ensures it stretches fully */
+        align-items: center;
+        text-align: center;
+        padding: 2dp 5dp 2dp 5dp;
+        justify-content: center;
+        border: 1dp white;
+        border-radius: 2dp;
+        decorator: horizontal-gradient(rgb(179,85,186) rgb(104,162,239));
+    }
+
+.selected-item .seed-name {
+    font-size: 26dp;
+    width: 100%; /* Ensures it stretches fully */
+    text-align: left;
+    padding-left:10dp;
+    justify-content: center;
+}
+
+.small-border-top {
+  padding-top: 5dp;
+}
+
+.vcenter {
+    vertical-align: middle;
+}
+
+.hcenter {
+	display: flex;
+    align-items: center; 
+    justify-content: center; 
+}
+
+.nav-container {
+    display: flex;
+    align-items: center; /* Vertically center label and input */
+    gap: 10dp; /* Space between label and input */
+    padding: 14dp 10dp 10dp 10dp;
+}
+
+.nav-container .page {
+  width: 350dp; /* Ensures it stretches fully */
+  text-align: center;
+    justify-content: center;
+    font-size: 20dp;
+    color: white;
+}
+
+.scroll-container {
+    width: 100%;
+    height: 100%;
+    
+    overflow-y: auto;
+}
+
+.scroll-container scrollbarvertical {
+    width: 10dp;
+    background-color: rgba(0,0,0,0);
+}
+
+.scroll-container scrollbarvertical sliderbar {
+    background-color: rgb(79,148,73);
+    border-radius: 8dp; /* Adjust the value to your preference */
+}
+
+.sort-filter-wrapper {
+  display: flex;
+  align-items: center; /* vertically center items */
+  gap: 10dp; /* optional spacing between the two divs */
+}
+
+.sort-options-container
+{
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    align-self: center;
+    align-content: center;
+    z-index: 4;
+    width: 100dp;
+    vertical-align: middle;
+}
+
+#sort-options #sort-rarity-asc {
+    decorator: image(interface/large/gui_sorting_rarity_low_to_high.rttex);
+    width: 50dp;
+    height: 23dp;
+}
+
+#sort-options #sort-rarity-des {
+    decorator: image(interface/large/gui_sorting_rarity_high_to_low.rttex);
+    width: 50dp;
+    height: 23dp;
+}
+
+#sort-options #sort-alpha-asc {
+    decorator: image(interface/large/gui_sorting_alpha_a_to_z.rttex);
+    width: 50dp;
+    height: 23dp;
+}
+
+#sort-options #sort-alpha-des {
+    decorator: image(interface/large/gui_sorting_alpha_z_to_a.rttex);
+    width: 50dp;
+    height: 23dp;
+}
+
+
+.test-scroll-container {
+    width: 400dp;
+    height: 50dp;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    
+    padding: 0dp;
+    margin: 0dp;
+}
+
+.test-scroll-text {
+    position: absolute;
+    white-space: nowrap;
+    font-size: 24dp;
+    color: white;
+    padding: 0dp;
+    margin: 0dp;
+}
+
+
+.scroll-container2 {
+        width: 300dp;
+        height: 50dp;
+        overflow-x: scroll;
+        overflow-y: hidden;
+        white-space: nowrap;
+        padding: 5dp;
+        position: relative;
+      }
+
+.popup {
+  position: absolute;
+  top: 183dp;
+  left: 464dp;
+  width: 180dp;
+  background-color: rgb(60,137,166);
+  border-radius: 4pt;
+  border: 2dp rgb(136,184,203);
+  padding: 0dp;
+  z-index: 100;
+  font-size: 20dp;
+}
+
+.hidden {
+  display: none;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    width: 100%;
+    height: auto;
+    gap:5dp;
+    padding: 10dp;
+}
+
+.checkbox-group .label {
+    padding-left: 0dp;
+    margin-left: 30dp;
+    vertical-align: top;
+}
+
+.checkbox {
+    height: 16dp;
+    width: 16dp;
+    display: inline-block;
+    padding: 5dp;
+    text-align: center;
+    vertical-align: middle;
+    align-items: center;
+    justify-content: center;
+    sound-on-click: true;
+    decorator: image(checkbox_off_icon);
+    sound-on-click: true;
+}
+    .checkbox:checked {
+        decorator: image(checkbox_on_icon);
+    }
+
+#panel-item-select {
+    height: 170dp;
+    width: 495dp;
+    padding: 0dp 0dp 0dp 25dp;
+}

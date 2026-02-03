@@ -1,0 +1,26 @@
+
+.window {
+    min-width: 400dp;
+    max-width: 658dp;
+    min-height: 100dp;
+    max-height: 85vh;
+}
+
+#generic-popup {
+}
+
+    #generic-popup .content {
+        margin-bottom: 24dp;
+    }
+
+    #generic-popup .button {
+        margin-left: 5dp;
+        margin-right: 5dp;
+    }
+
+    #generic-popup .buttons-panel {
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        font-size: 36dp;
+    }

@@ -1,0 +1,140 @@
+<?xml version="1.0" ?>
+<ItemRenderer>
+    <Data>
+        <Sprite name="s_front" fileName="game/player_cosmetics4.rttex" textureSize="32,32" frame="17,1" />
+        <Sprite name="s_back" fileName="game/player_cosmetics4.rttex" textureSize="32,32" frame="18,1" />
+        <Sprite name="s_exhaust" fileName="game/particles12.rttex" textureSize="32,32" frame="29,6" />
+        <Animations />
+        <ParticleSystems>
+            <ParticleSystem name="ps_exhaust1">
+                <Emitter needsHandItemActive="false">
+                    <Set name="delayTimer">0</Set>
+                    <Set name="infLifeTime">false</Set>
+                    <Set name="infParticles">true</Set>
+                    <Set name="lifeTime">0.01</Set>
+                    <Set name="offset">-14,-4</Set>
+                    <Set name="emissionInterval">0.08</Set>
+                    <Set name="particlesToEmit">0</Set>
+                    <Set name="checkParticleNumToEmit">false</Set>
+                    <Set name="particlesPerEmission">1</Set>
+                </Emitter>
+                <Particle>
+                    <Set name="renderAlignment">CENTER</Set>
+                    <Curve name="initialAlpha">
+                        <KeyFrame>0,0.5</KeyFrame>
+                        <KeyFrame>1,0</KeyFrame>
+                    </Curve>
+                    <Set name="initialAngle">0</Set>
+                    <Set name="blendingMode">ADDITIVE</Set>
+                    <Set name="initalRGB">1,0.02,0.008</Set>
+                    <Set name="inSpecificOrder">true</Set>
+                    <Set name="flipX">true</Set>
+                    <Set name="flipY">false</Set>
+                    <Random name="lifeTime" min="0.3" max="0.4" />
+                    <Set name="relativeToEmitter">false</Set>
+                    <Set name="offset">0,0</Set>
+                    <Set name="rotateWithVelocity">true</Set>
+                    <Set name="initialRotationRate">0</Set>
+                    <Random name="initialScale" min="1.5,0.9" max="4,1.1" />
+                    <Set name="sprite">s_exhaust</Set>
+                    <Set name="initialVelocity" source="exhaust.vel"/>
+                </Particle>
+            </ParticleSystem>
+			<ParticleSystem name="ps_exhaust2">
+                <Emitter needsHandItemActive="false">
+                    <Set name="delayTimer">0</Set>
+                    <Set name="infLifeTime">false</Set>
+                    <Set name="infParticles">true</Set>
+                    <Set name="lifeTime">0.01</Set>
+                    <Set name="offset">-6,-4</Set>
+                    <Set name="emissionInterval">0.08</Set>
+                    <Set name="particlesToEmit">0</Set>
+                    <Set name="checkParticleNumToEmit">false</Set>
+                    <Set name="particlesPerEmission">1</Set>
+                </Emitter>
+                <Particle>
+                    <Set name="renderAlignment">CENTER</Set>
+                    <Curve name="initialAlpha">
+                        <KeyFrame>0,0.5</KeyFrame>
+                        <KeyFrame>1,0</KeyFrame>
+                    </Curve>
+                    <Set name="initialAngle">0</Set>
+                    <Set name="blendingMode">ADDITIVE</Set>
+                    <Set name="initalRGB">1,0.02,0.008</Set>
+                    <Set name="inSpecificOrder">true</Set>
+                    <Set name="flipX">true</Set>
+                    <Set name="flipY">false</Set>
+                    <Random name="lifeTime" min="0.3" max="0.4" />
+                    <Set name="relativeToEmitter">false</Set>
+                    <Set name="offset">0,0</Set>
+                    <Set name="rotateWithVelocity">true</Set>
+                    <Set name="initialRotationRate">0</Set>
+                    <Random name="initialScale" min="1.5,0.9" max="4,1.1" />
+                    <Set name="sprite">s_exhaust</Set>
+                    <Set name="initialVelocity" source="exhaust.vel"/>
+                </Particle>
+            </ParticleSystem>
+        </ParticleSystems>
+		<VariableMap>
+			<Set name="exhaust.vel">0, 0</Set>
+		</VariableMap>
+		<StateMachines>
+			<StateMachine name="Idle">
+				<States>
+					<State name="No" />
+					<State name="Yes" />
+				</States>
+				<Transitions>
+					<Transition to="No" from="Yes">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+					<Transition to="Yes" from="No">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="Facing">
+				<States>
+					<State name="Left"/>
+					<State name="Right"/>
+				</States>
+				<Transitions>
+					<Transition to="Left" from="Right">
+						<Condition>
+							<IsFacingLeft>true</IsFacingLeft>
+						</Condition>
+					</Transition>
+					<Transition to="Right" from="Left">
+						<Condition>
+							<IsFacingLeft>false</IsFacingLeft>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+    </Data>
+    <RenderRules>
+        <RenderChestItem>
+			<Translate>0,-1,0</Translate>
+            <SpriteRender name="s_front" alignment="DOWN_CENTER" drawShadow="true" />
+        </RenderChestItem>
+        <RenderChestBackItem>
+			<Translate>2,-1,0</Translate>
+            <ParticleSystemRender name="ps_exhaust1" />
+			<ParticleSystemRender name="ps_exhaust2" />
+            <SpriteRender name="s_back" alignment="DOWN_CENTER" drawShadow="true" />
+        </RenderChestBackItem>
+        <AddClothingParticles>
+			<Group onState="Idle.No">
+				<ArithmethicOperation LeftHandVariableName="exhaust.vel" RightHandVariableName="-50,60" OperationType="Set"/>
+				<ArithmethicOperation LeftHandVariableName="exhaust.vel.x" RightHandVariableName="-1" OperationType="Multiply" onState="Facing.Left"/>
+				<ParticleSystemUpdate name="ps_exhaust1" />
+				<ParticleSystemUpdate name="ps_exhaust2" />
+			</Group>
+        </AddClothingParticles>
+    </RenderRules>
+</ItemRenderer>

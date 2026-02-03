@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_item" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="19,22"/>
+    <Sprite name="s_notes" fileName="game/particles11.rttex" textureSize="32" frame="9,28"/>
+
+    <Animations>
+      <SpriteAnimation name="a_notes" sprite="s_notes">
+        <Frame>9,28</Frame>
+        <Frame>10,28</Frame>
+        <Frame>11,28</Frame>
+        <Frame>12,28</Frame>
+      </SpriteAnimation>
+    </Animations>
+    <StateMachines>
+      <StateMachine name="Dance">
+        <States>
+          <State name="False" />
+          <State name="True" />
+        </States>
+        <Transitions>
+          <Transition from="False" to="True">
+            <Condition>
+              <IsDancing>true</IsDancing>
+            </Condition>
+          </Transition>
+          <Transition from="True" to="False">
+            <Condition>
+              <IsDancing>false</IsDancing>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+    <ParticleSystems>
+      <ParticleSystem name="ps_note" updateStage="AddClothingParticles" updateState="Dance.True">
+        <Emitter>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Random name="emissionInterval" min="0.1" max="0.5" />
+          <Set name="particlesPerEmission">1</Set>
+          <Random name="offset" min="-20,-25" max="20,-25" />
+        </Emitter>
+        <Particle randomSpriteFrame="true">
+          <Set name="sprite">s_notes</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">2</Set>
+          <Random name="initialVelocity" min="-10,-20" max="10,-20" />
+          <Random name="finalVelocity" min="-10,-30" max="10,-30" />
+          <Set name="interpolateVelocity">true</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialScale">
+            <KeyFrame>0, 1, 1</KeyFrame>
+            <KeyFrame>1, 0.5, 0.5</KeyFrame>
+          </Curve>
+          <Random name="initialRotationRate" min="-45" max="45"/>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+  </Data>
+
+  <RenderRules>
+    <RenderFaceItem>
+      <SpriteRender name="s_item" offset="1,-1.8" alignment="DOWN_CENTER"/>
+    </RenderFaceItem>
+  </RenderRules>
+</ItemRenderer>

@@ -1,0 +1,100 @@
+<rml>
+    <head>
+        <title>MailBox</title>
+        <link type="text/template" href="Base/BasePopup.rml" />
+        <link type="text/rcss" href="Base/WindowTitle.rcss" />
+        <link type="text/rcss" href="MailBox.rcss" />
+        <script src="Base/Utils.lua"/>
+    </head>
+    <body template="BasePopup" onshow="CalculateListSize(document, element, 'messages-list', 'messages-list', '')">
+        <div data-model="MailBoxModel" id="generic-popup" class="font-content">
+            <div class="content font-contentnormal">
+                <div class="top-panel">
+                    <div id="window-title">
+                        <div class="title-icon" />
+                        <div class="title-text font-title label">
+                            Mailbox
+                        </div>
+                    </div>
+                    <div class="info-panel color_dreamsicle">
+                        <div>
+                            You have <span class="color_crazy_orange">{{MailBoxModel.UnreadTotal}}</span> unread message.
+                        </div>
+                        <div data-class-hidden="MailBoxModel.UnreadTotal == 0">
+                            <div onclick="OnEvent(event, 'mailbox.OnClaimAll')" class="button button-green-color">
+                                <span class="label">Claim All</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="messages-list" class="message-table show-scrollbar wondow-content-full wondow-content-horizontal" 
+                     data-attr-onscroll="'CheckEndOfTable(event, document, element,\'tr.message\', \'mailbox.OnRequestNextPage\', '+ MailBoxModel.Messages.size+ ')'">
+                    <table class="message-table" id="message-table">
+                        <colgroup>
+                            <col />
+                            <col />
+                            <col />
+                        </colgroup>
+                        <tbody data-for="Message : MailBoxModel.Messages">
+                            <tr data-attr-message_index="it_index" class="message" onclick="OnEvent(event, 'mailbox.OnMessage')"
+                                data-class-hidden="Message.Status == 2"
+                                data-class-read="Message.Status == 1"
+                                data-class-hasresult="MailBoxModel.Messages.size > 0"
+                                >
+                                <td class="left">
+                                    <div class="icon" width="64dp" height="64dp" data-style-decorator="'itemidimage(' + Message.Icon +')'">
+                                        <div id="notification-icon" data-class-hidden="Message.Reward.size == 0 || Message.Status > 0"></div>
+                                    </div>
+                                </td>
+                                <td class="middle-container">
+                                    <div class="split">
+                                        <div class="title font-body1" data-rml="ToRMLText(Localize(Message.Title))"></div>
+                                        <div class="descr font-body2 color_dreamsicle" data-rml="ToRMLText(Localize(Message.DescrShort))"></div>
+                                    </div>
+                                </td>
+                                <td class="right">
+                                    <div class="split">
+                                        <div class="action">
+                                            <button data-visible="Message.Reward.size > 0 && Message.Status == 0"
+                                                    data-attr-message_index="it_index"
+                                                    onmousedown="event:StopPropagation() element:SetClass('active', true)"
+                                                    onmousemove="element:SetClass('active', false)"
+                                                    onclick="event:StopPropagation() element:SetClass('active', false) OnEvent(event, 'mailbox.OnClaim')"
+                                                    class="button button-green-color">
+                                                <span class="label">Claim</span>
+                                            </button>
+                                        </div>
+                                        <div class="timeleft">
+                                            <span class="font-body2 color_dreamsicle">{{TimeLeftFormat(Message.Duration, 'Expires in {}', 'Expired')}}</span>
+                                        </div>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr data-class-hidden="MailBoxModel.Messages.size > 0 || MailBoxModel.NewPageRequested == 1">
+                                <td colspan="3" style="min-height: 60dp; height: 100%; margin: 0; padding: 0;">
+                                    <div class="empty-message font-body1">You don't have any messages.</div>
+                                </td>
+                            </tr>
+                            <tr data-class-hidden="MailBoxModel.NewPageRequested == 0">
+                                <td colspan="3" style="min-height: 60dp; height: 100%; margin: 0; padding: 0;">
+                                    <section class="dots-container">
+                                        <div style="margin-right: 15dp">Loading</div>
+                                        <div class="dot"></div>
+                                        <div class="dot"></div>
+                                        <div class="dot"></div>
+                                        <div class="dot"></div>
+                                        <div class="dot"></div>
+                                    </section>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+            </div>
+    </body>
+</rml>

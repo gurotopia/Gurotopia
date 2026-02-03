@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer name="DiamondDestructoProjectile" index="13" DungeonOnly="true">
+	<Data>
+		<Sprite name="fireballSprite" fileName="game/npc1.rttex" textureSize="32" frame="26,8"/>
+		<Sprite name="s_hit" fileName="game/npc1.rttex" textureSize="32" frame="28,8"/>
+		<Animations>
+			<SpriteAnimation name="animRotate" isLoop="true" autoPlay="true" sprite="fireballSprite" animTime="200">
+				<Frame>27,8</Frame>
+				<Frame>26,8</Frame>
+			</SpriteAnimation>
+		</Animations>
+		<ParticleSystems>
+			<ParticleSystem name="ps_projectile" updateStage="OnCreate">
+				<Emitter>
+					<Set name="offset">0,0</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">8</Set>
+					<Set name="checkParticleNumToEmit">true</Set>
+					<Set name="particlesToEmit">1</Set>
+				</Emitter>
+				<Particle>
+					<Select name="offset" input="particleIndex">
+						<Item>64,0</Item>
+						<Item>48,48</Item>
+						<Item>0,64</Item>
+						<Item>-48,48</Item>
+						<Item>-64,0</Item>
+						<Item>-48,-48</Item>
+						<Item>0,-64</Item>
+						<Item>48,-48</Item>
+					</Select>
+					<Select name="initialVelocity" input="particleIndex">
+						<Item>192,0</Item>
+						<Item>144,144</Item>
+						<Item>0,192</Item>
+						<Item>-144,144</Item>
+						<Item>-192,0</Item>
+						<Item>-144,-144</Item>
+						<Item>0,-192</Item>
+						<Item>144,-144</Item>
+					</Select>
+					<Set name="rotateWithVelocity">true</Set>
+					<Set name="sprite">fireballSprite</Set>
+					<Set name="collisionDamageAmount">120</Set>
+					<Set name="destroyOnCollision">true</Set>
+					<Set name="collisionSize">32,32</Set>
+					<Set name="initialScale">2,2</Set>
+					<Set name="lifeTime">10</Set>
+					<Set name="collisionType">
+						<CollisionType>PROJECTILES_ENEMY</CollisionType>
+					</Set>
+					<Set name="collisionFlag">
+						<CollisionFlag>PLAYERS</CollisionFlag>
+						<CollisionFlag>WORLD_TILES</CollisionFlag>
+					</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="ps_hit" updateStage="OnHit">
+				<Emitter>
+					<Set name="lifeTime">0</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">s_hit</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="lifeTime">0.5</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+	</Data>
+</ItemRenderer>

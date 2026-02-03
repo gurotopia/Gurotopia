@@ -1,0 +1,77 @@
+#right_menu_panel {
+/*    width: 80dp;*/
+    padding: 0dp;
+    display: flex;
+
+/*    background-color: rgb(76, 255, 0);*/
+}
+
+#main_buttons {
+    width: 76dp;
+}
+
+.menu-button {
+    width: 76dp;
+    height: 76dp;
+    margin-bottom: 12dp;
+	sound-on-click: true;
+}
+
+    .menu-button:active {
+        transform: scale(0.9);
+        filter: brightness(0.7);
+    }
+
+.menuopen-button {
+    decorator: image("interface/large/menu_button.rttex" contain);
+}
+
+.chat-button {
+    decorator: image("interface/large/chat_button.rttex" contain);
+}
+
+.friend-button {
+    decorator: image("interface/large/friend_button.rttex" contain);
+}
+
+.shop-button {
+    decorator: image("interface/large/shop_button.rttex" contain);
+}
+
+.photo-button {
+    margin-right: 10dp;
+    decorator: image("interface/large/PhotomodeOff.rttex" contain);
+}
+
+    .hide .photo-button {
+        decorator: image("interface/large/PhotomodeOn.rttex" contain);
+    }
+
+.petbattle-hide .menuopen-button,
+.petbattle-hide .shop-button,
+.petbattle-hide .photo-button,
+.petbattle-hide .friend-button,
+.ftue-hide .menuopen-button,
+.ftue-hide .chat-button,
+.ftue-hide .shop-button,
+.ftue-hide .photo-button,
+.ftue-hide .friend-button {
+    display: none;
+}
+
+#right_panel {
+    display: block;
+    position: absolute;
+    top: 12dp;
+    right: 8dp;
+    transition: margin-right 0.2s linear-in;
+    margin-right: 0dp;
+}
+
+.hide #right_panel {
+    margin-right: -84dp;
+}
+
+.full-hide #right_panel {
+    margin-right: -160dp;
+}

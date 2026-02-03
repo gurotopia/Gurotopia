@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+	<Data>
+		<StateMachines>
+			<StateMachine name="Motion1">
+				<States>
+					<State name="OnGround"/>
+					<State name="InAir"/>
+				</States>
+				<Transitions>
+					<Transition to="OnGround" from="InAir">
+						<Condition>
+							<IsVariableBool name="onGround">true</IsVariableBool>
+						</Condition>
+					</Transition>
+					<Transition to="InAir" from="OnGround">
+						<Condition>
+							<IsVariableBool name="onGround">false</IsVariableBool>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="Motion2">
+				<States>
+					<State name="Idle"/>
+					<State name="Moving"/>
+				</States>
+				<Transitions>
+					<Transition to="Idle" from="Moving">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+					<Transition to="Moving" from="Idle">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="Motion3">
+				<States>
+					<State name="Idle"/>
+					<State name="Walk"/>
+					<State name="Jump"/>
+					<State name="Fall"/>
+					<State name="Sleep"/>
+					<State name="Dance"/>
+				</States>
+				<Transitions>
+					<Transition to="Idle" from="Walk|Fall|Sleep|Dance">
+						<Condition type="and">
+							<IsAction>IDLE</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Walk" from="Idle|Fall|Sleep|Dance">
+						<Condition>
+							<IsAction>WALK</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Jump" from="Idle|Walk">
+						<Condition>
+							<IsAction>JUMP</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Fall" from="Jump|Walk|Idle">
+						<Condition>
+							<IsAction>FALL</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Sleep" from="Idle|Dance">
+						<Condition>
+							<IsAction>SLEEP</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Dance" from="Idle|Sleep">
+						<Condition>
+							<IsAction>DANCE</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="Action1">
+				<States>
+					<State name="None"/>
+					<State name="Punch"/>
+				</States>
+				<Transitions>
+					<Transition to="None" from="Punch">
+						<Condition>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Punch" from="None">
+						<Condition>
+							<IsAction>PUNCH</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		
+		<!-- <Sprite name="s_ballons" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="23,13"/>
+		<Sprite name="s_ballons_pop" fileName="game/particles_large12.rttex" textureSize="64"/>
+		
+		<Animations>
+			<SpriteAnimation name="a_ballons_pop" sprite="s_ballons_pop" animTime="600">
+				<Frame>0,13</Frame>
+				<Frame>1,13</Frame>
+				<Frame>2,13</Frame>
+				<Frame>3,13</Frame>
+				<Frame>4,13</Frame>
+				<Frame>5,13</Frame>
+			</SpriteAnimation>
+		</Animations> -->
+		
+		<RenderOptions>
+			<Default>
+				<Set name="IncludeAllActions">true</Set>
+			</Default>
+		</RenderOptions>
+		
+		<ParticleSystems>
+		</ParticleSystems>
+	</Data>
+
+	<RenderRules>
+		<!-- <RenderChestItem>
+			<SpriteRender name="s_ballons" offset="0,-42" alignment="DOWN_CENTER"/>
+		</RenderChestItem> -->
+	</RenderRules>
+</ItemRenderer>

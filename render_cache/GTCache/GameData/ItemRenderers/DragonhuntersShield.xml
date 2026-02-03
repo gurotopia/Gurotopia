@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_FrontArm" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="10,26"/>
+    <Sprite name="s_PunchFireSprite" fileName="game/particles11.rttex" textureSize="32" frame="19,21" />
+    <Sprite name="s_idleFlame" fileName="game/particles9.rttex" textureSize="32" frame="0,8"/>
+    <Sprite name="s_emberHit" fileName="game/particles11.rttex" textureSize="32" frame="24,21" />
+
+    <StateMachines>
+      <StateMachine name="Punch">
+        <States>
+          <State name="True"/>
+          <State name="False"/>
+        </States>
+        <Transitions>
+          <Transition from="False" to="True">
+            <Condition type="and">
+              <IsAction>PUNCH</IsAction>
+              <IsZombified>false</IsZombified>
+            </Condition>
+          </Transition>
+          <Transition from="True" to="False">
+            <Condition>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine name="Motion">
+        <States>
+          <State name="Idle" />
+          <State name="Moving" />
+        </States>
+        <Transitions>
+          <Transition to="Idle" from="Moving">
+            <Condition>
+              <IsAction>IDLE</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="Moving" from="Idle">
+            <Condition>
+              <IsAction operatorType="NotEqual">IDLE</IsAction>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <Animations>
+      <SpriteAnimation name="a_PunchArm" sprite="s_FrontArm" animTime="100" isLoop="true" playOnState="Punch.False">
+        <Frame>10,26</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_NonPunchArm" sprite="s_FrontArm" animTime="100" isLoop="true" playOnState="Punch.True">
+        <Frame>11,26</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <RenderOptions>
+      <Default>
+        <Set name="PunchSoundOverride">HAND</Set>
+        <Set name="PlayDefaultPunchAudio">false</Set>
+        <Set name="DefaultRenderMannequinHandItem">false</Set>
+        <Set name="RenderFrontArmInfected">true</Set>
+        <Set name="IgnoreDefaultDamagedTileEffect">true</Set>
+      </Default>
+    </RenderOptions>
+
+    <TileStampData>
+      <Set name="FileName">game/particles11.rttex</Set>
+      <Set name="EndFrame">29,18</Set>
+      <Set name="FrameCount">4</Set>
+    </TileStampData>
+
+    <ParticleSystems>
+      <ParticleSystem name="ps_hitEmbers">
+        <Emitter>
+          <Set name="lifeTime">0.25</Set>
+          <Set name="particlesPerEmission">8</Set>
+          <Set name="particlesToEmit">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_emberHit</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">1</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialScale">
+            <KeyFrame>0, 1,1</KeyFrame>
+            <KeyFrame>1, 0.25,0.25</KeyFrame>
+          </Curve>
+          <Random name="initialRotationRate" min="5" max="15" />
+          <Random name="offset" min="-8" max="8" />
+          <Set name="useGravity">true</Set>
+          <Set name="gravityVector">0, 100</Set>
+          <RandomRadial name="initialVelocity" angleRange="45,315" radiusRange="40,100" />
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_breakSparkles">
+        <Emitter>
+          <Set name="lifeTime">0.25</Set>
+          <Set name="particlesPerEmission">16</Set>
+          <Set name="particlesToEmit">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_emberHit</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">1</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialScale">
+            <KeyFrame>0, 1,1</KeyFrame>
+            <KeyFrame>1, 0.25,0.25</KeyFrame>
+          </Curve>
+          <Random name="initialRotationRate" min="5" max="15" />
+          <Random name="offset" min="0" max="16" />
+          <Set name="useGravity">true</Set>
+          <Set name="gravityVector">0, 100</Set>
+          <RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="40,100" />
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_PunchFire" updateStage="AddClothingParticles" renderStage="RenderHandItem" updateState="Punch.True">
+        <Emitter attachment="handspotRoot">
+          <Set name="offset">-8, 2</Set>
+          <Random name="emissionInterval" min="0.001" max="0.005" />
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_PunchFireSprite</Set>
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="renderAlignment">LEFT_CENTER</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Set name="rotateWithVelocity">true</Set>
+          <Set name="lifeTime">0.5</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 0.5</KeyFrame>
+            <KeyFrame>0.8, 0.5</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialScale">
+            <KeyFrame>0, 1, 0.3</KeyFrame>
+            <KeyFrame>1, 1.5, 1.5</KeyFrame>
+          </Curve>
+          <Random name="targetPosOffset" min="-12,-8" max="12,8"/>
+          <VectorTo name="initialVelocity" source="targetPos" offset="targetPosOffset" duration="lifeTime" x="0.7" angleOutVar="projectile_angle"/>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_shieldFlames" updateStage="AddClothingParticles" renderStage="RenderHandItem" updateState="Motion.Idle">
+        <Emitter>
+          <Random name="offset" min="-8, -2" max="-6, -10" />
+          <Random name="emissionInterval" min="0.05" max="0.1" />
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_idleFlame</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Set name="lifeTime">1.2</Set>
+          <Set name="initialVelocity">0,-3</Set>
+          <Set name="inSpecificOrder">true</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 0</KeyFrame>
+            <KeyFrame>0.5, 0.4</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Random name="initialScale" min="0.1" max="0.3" />
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+  </Data>
+
+  <RenderRules>
+    <RenderHandItem>
+      <SpriteRender name="s_FrontArm" offset="-4,0" rotateOffset="true" rotationPoint="0,1" alignment="CENTER" blend="PREMULTIPLIED_ALPHA" onState="Punch.False"/>
+      <SpriteRender name="s_FrontArm" offset="-2,0" rotateOffset="true" rotationPoint="0,1" alignment="CENTER" blend="PREMULTIPLIED_ALPHA" onState="Punch.True"/>
+    </RenderHandItem>
+    <OnPunchUpdate>
+      <StopIf>
+        <IsZombified>true</IsZombified>
+      </StopIf>
+      <AvatarTransform class="Emotion">
+        <Set name="emotion">ANGRY</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="pointTowardsPunchTarget">true</Set>
+      </AvatarTransform>
+    </OnPunchUpdate>
+    <OnDamagedTile>
+      <ParticleSystemUpdate name="ps_hitEmbers" />
+    </OnDamagedTile>
+    <OnDestroyedTile>
+      <ParticleSystemUpdate name="ps_breakSparkles"/>
+    </OnDestroyedTile>
+  </RenderRules>
+</ItemRenderer>

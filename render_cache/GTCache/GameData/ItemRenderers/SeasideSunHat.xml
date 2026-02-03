@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer item="ITEM_ID_SEASIDE_SUN_HAT">
+  <Data>
+    <Sprite name="hatForegroundSprite" fileName="game/particles_large10.rttex" textureSize="64" frame="12,11"/>
+    <Sprite name="hatBackgroundSprite" fileName="game/particles_large10.rttex" textureSize="64" frame="11,11"/>
+  </Data>
+
+  <RenderRules>
+    <RenderBackHat>
+      <SpriteRender name="hatBackgroundSprite" alignment="DOWN_CENTER"/>
+    </RenderBackHat>
+    <RenderHat>
+      <SpriteRender name="hatForegroundSprite" alignment="DOWN_CENTER"/>
+    </RenderHat>
+  </RenderRules>
+</ItemRenderer>

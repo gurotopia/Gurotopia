@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<ItemRenderer>
+    <Data>
+        <Sprite name="Sprite33" fileName="game/particles_large16.rttex" textureSize="64,64" frame="0,8" />
+        <Animations>
+            <SpriteAnimation name="Animation34" sprite="Sprite33" isLoop="true" autoPlay="true" animTime="1200">
+                <Frame>0,8</Frame>
+                <Frame>1,8</Frame>
+                <Frame>2,8</Frame>
+                <Frame>3,8</Frame>
+                <Frame>4,8</Frame>
+                <Frame>5,8</Frame>
+            </SpriteAnimation>
+        </Animations>
+        <ParticleSystems />
+    </Data>
+    <RenderRules>
+        <RenderBackpack>
+            <ContextUpdate type="SetFlip">
+                <Set name="flip">false</Set>
+            </ContextUpdate>
+            <SpriteRender name="Sprite33" alignment="DOWN_CENTER" drawShadow="false" />
+        </RenderBackpack>
+    </RenderRules>
+</ItemRenderer>

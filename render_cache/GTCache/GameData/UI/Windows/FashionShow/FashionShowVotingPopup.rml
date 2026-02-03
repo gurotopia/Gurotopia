@@ -1,0 +1,102 @@
+<rml>
+  <head>
+    <title>FashionShowVotingPopup</title>
+    <link type="text/template" href="../Base/BasePopup.rml" />
+    <link type="text/template" href="../Templates/ItemIconWithText.rml" />
+    <link type="text/rcss" href="../Base/WindowTitle.rcss" />
+    <link type="text/rcss" href="../Wardrobe/WardrobeSaveLoad.rcss" />
+    <link type="text/rcss" href="FashionShowVotingPopup.rcss" />
+  </head>
+  <body template="BasePopup" class=" show-scrollbar">
+    <div data-model="FashionShowVotingUIModel" id="wardrobe-load-popup" class="font-content">
+      <div class="content">
+        <div id="window-title">
+          <div class="title-icon" />
+          <div class="title-text font-title label">
+            <span>Fashion Show - Voting Ballot</span>
+          </div>
+        </div>
+	      <div class="color_dreamsicle"
+	           data-rml="ToRMLText(Localize('[VOTING_POPUP_ACTIVE_UI_TEXT]'))"/>
+		  <div class="color_dreamsicle"
+		       style="font-size: 24dp; margin-top:20dp; height:36dp;"
+		       data-rml="ToRMLText(Localize('[BOUNCER_POPUP_UI_CURRENT_THEME_TEXT]', FashionShowVotingUIModel.RoomTheme))"/>
+        <div class="table-holder wondow-content-full wondow-content-horizontal">
+          <table class="full-width-table" rows="3" columns="5">
+            <tr class="item-row">
+              <td>
+				  <RenderPlayer class="portrait" data-attr-net-id="FashionShowVotingUIModel.Participants[0]" data-class-hidden="FashionShowVotingUIModel.Participants[0]==-1"/>
+              </td>
+              <td>
+				  <RenderPlayer class="portrait" data-attr-net-id="FashionShowVotingUIModel.Participants[1]" data-class-hidden="FashionShowVotingUIModel.Participants[1]==-1"/>
+              </td>
+              <td>
+				  <RenderPlayer class="portrait" data-attr-net-id="FashionShowVotingUIModel.Participants[2]" data-class-hidden="FashionShowVotingUIModel.Participants[2]==-1"/>
+              </td>
+              <td>
+				  <RenderPlayer class="portrait" data-attr-net-id="FashionShowVotingUIModel.Participants[3]" data-class-hidden="FashionShowVotingUIModel.Participants[3]==-1"/>
+              </td>
+              <td>
+				  <RenderPlayer class="portrait" data-attr-net-id="FashionShowVotingUIModel.Participants[4]" data-class-hidden="FashionShowVotingUIModel.Participants[4]==-1"/>
+              </td>
+            </tr>
+	          <tr class="item-row">
+		          <td>
+			          <TruncatingString class="player_name" lines="1" break-word="true" data-class-hidden="FashionShowVotingUIModel.Participants[0]==-1" data-attr-source="ToRMLText(FashionShowVotingUIModel.ParticipantNames[0])"/>
+			          <TruncatingString class="player_name" lines="1" break-word="true" data-class-hidden="FashionShowVotingUIModel.Participants[0]!=-1" data-attr-source="ToRMLText('`4[DISQUALIFIED]``')"/>
+		          </td>
+		          <td>
+			          <TruncatingString class="player_name" lines="1" break-word="true" data-class-hidden="FashionShowVotingUIModel.Participants[1]==-1" data-attr-source="ToRMLText(FashionShowVotingUIModel.ParticipantNames[1])"/>
+					  <TruncatingString class="player_name" lines="1" break-word="true" data-class-hidden="FashionShowVotingUIModel.Participants[1]!=-1" data-attr-source="ToRMLText('`4[DISQUALIFIED]``')"/>
+				  </td>
+		          <td>
+			          <TruncatingString class="player_name" lines="1" break-word="true" data-class-hidden="FashionShowVotingUIModel.Participants[2]==-1" data-attr-source="ToRMLText(FashionShowVotingUIModel.ParticipantNames[2])"/>
+			          <TruncatingString class="player_name" lines="1" break-word="true" data-class-hidden="FashionShowVotingUIModel.Participants[2]!=-1" data-attr-source="ToRMLText('`4[DISQUALIFIED]``')"/>
+				  </td>
+		          <td>
+			          <TruncatingString class="player_name" lines="1" break-word="true" data-class-hidden="FashionShowVotingUIModel.Participants[3]==-1" data-attr-source="ToRMLText(FashionShowVotingUIModel.ParticipantNames[3])"/>
+			          <TruncatingString class="player_name" lines="1" break-word="true" data-class-hidden="FashionShowVotingUIModel.Participants[3]!=-1" data-attr-source="ToRMLText('`4[DISQUALIFIED]``')"/>
+				  </td>
+		          <td>
+			          <TruncatingString class="player_name" lines="1" break-word="true" data-class-hidden="FashionShowVotingUIModel.Participants[4]==-1" data-attr-source="ToRMLText(FashionShowVotingUIModel.ParticipantNames[4])"/>
+					  <TruncatingString class="player_name" lines="1" break-word="true" data-class-hidden="FashionShowVotingUIModel.Participants[4]!=-1" data-attr-source="ToRMLText('`4[DISQUALIFIED]``')"/>
+				  </td>
+	          </tr>
+            <tr class="item-row">
+              <td>
+				  <div id="add-remove-button" data-attr-message_index="0" onclick="OnEvent(event, 'FashionShowVoteUi.OnVote')" class="img-button button-default-color disabled" data-class-disabled="FashionShowVotingUIModel.Participants[0]==-1||FashionShowVotingUIModel.CurrentlyVotedPlayerNetID==FashionShowVotingUIModel.Participants[0]">
+					  <span class="label">VOTE</span>
+				  </div>
+              </td>
+              <td>
+				  <div id="add-remove-button" data-attr-message_index="1" onclick="OnEvent(event, 'FashionShowVoteUi.OnVote')" class="img-button button-default-color disabled" data-class-disabled="FashionShowVotingUIModel.Participants[1]==-1||FashionShowVotingUIModel.CurrentlyVotedPlayerNetID==FashionShowVotingUIModel.Participants[1]">
+					  <span class="label">VOTE</span>
+				  </div>
+              </td>
+              <td>
+				  <div id="add-remove-button" data-attr-message_index="2" onclick="OnEvent(event, 'FashionShowVoteUi.OnVote')" class="img-button button-default-color disabled" data-class-disabled="FashionShowVotingUIModel.Participants[2]==-1||FashionShowVotingUIModel.CurrentlyVotedPlayerNetID==FashionShowVotingUIModel.Participants[2]">
+					  <span class="label">VOTE</span>
+				  </div>
+              </td>
+              <td>
+				  <div id="add-remove-button" data-attr-message_index="3" onclick="OnEvent(event, 'FashionShowVoteUi.OnVote')" class="img-button button-default-color disabled" data-class-disabled="FashionShowVotingUIModel.Participants[3]==-1||FashionShowVotingUIModel.CurrentlyVotedPlayerNetID==FashionShowVotingUIModel.Participants[3]">
+					  <span class="label">VOTE</span>
+				  </div>
+              </td>
+              <td>
+				  <div id="add-remove-button" data-attr-message_index="4" onclick="OnEvent(event, 'FashionShowVoteUi.OnVote')" class="img-button button-default-color disabled" data-class-disabled="FashionShowVotingUIModel.Participants[4]==-1||FashionShowVotingUIModel.CurrentlyVotedPlayerNetID==FashionShowVotingUIModel.Participants[4]">
+					  <span class="label">VOTE</span>
+				  </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+	    <div class="small_text color_crazy_orange"
+	         data-rml="ToRMLText(Localize('[VOTING_POPUP_ALREADY_VOTED_WARNING]'))" data-class-hidden="FashionShowVotingUIModel.CurrentlyVotedPlayerNetID==-1"/>
+        <div id="back-button" onclick="OnEvent(event, 'FashionShowVotingUI.OnClose')" class="img-button button-yellow-color">
+          <span class="label">Close</span>
+        </div>
+      </div>
+    </div>
+  </body>
+</rml>

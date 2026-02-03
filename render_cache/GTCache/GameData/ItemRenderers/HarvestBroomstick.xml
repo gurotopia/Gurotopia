@@ -1,0 +1,141 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_Left" fileName="game/player_feet16.rttex" textureSize="32" frame="27,22" />
+    <Sprite name="s_Right" fileName="game/player_feet16.rttex" textureSize="32" frame="27,23" />
+    <Sprite name="s_leaves" fileName="game/particles5.rttex" textureSize="32" frame="12,13" />
+    <Sprite name="s_legs" fileName="game/player_sit.rttex" textureSize="32" frame="1,0" />
+    <Animations>
+      <SpriteAnimation name="a_leaves" sprite="s_leaves">
+        <Frame>12,13</Frame>
+        <Frame>13,13</Frame>
+        <Frame>14,13</Frame>
+        <Frame>15,13</Frame>
+        <Frame>12,14</Frame>
+        <Frame>13,14</Frame>
+        <Frame>14,14</Frame>
+        <Frame>15,14</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_stick_left" sprite="s_Left" animTime="800" autoPlay="true" isLoop="true">
+        <Frame>27,22</Frame>
+        <Frame>28,22</Frame>
+        <Frame>29,22</Frame>
+        <Frame>30,22</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_stick_right" sprite="s_Right" animTime="800" autoPlay="true" isLoop="true">
+        <Frame>27,23</Frame>
+        <Frame>28,23</Frame>
+        <Frame>29,23</Frame>
+        <Frame>30,23</Frame>
+      </SpriteAnimation>
+    </Animations>
+    <Animations />
+    <RenderOptions>
+      <Default>
+        <Set name="PlayDefaultPunchAudio">true</Set>
+        <Set name="ClothingOffsetFromShoes">-6</Set>
+        <Set name="UserNameOffset">12</Set>
+        <Set name="RenderShoesWithMermaidTail">true</Set>
+        <Set name="ShoesHidesBodyLegs">true</Set>
+        <Set name="ShoesShouldIgnoreRaptorLegsOffset">true</Set>
+        <Set name="IsToRenderPants">false</Set>
+        <Set name="IsRidingBird">true</Set>
+        <Set name="IgnorePunchTypeCheck">true</Set>
+        <Set name="ShouldHover">true</Set>
+      </Default>
+    </RenderOptions>
+    <StateMachines>
+      <StateMachine name="Motion">
+        <States>
+          <State name="Idle" />
+          <State name="Moving" />
+        </States>
+        <Transitions>
+          <Transition to="Idle" from="Moving">
+            <Condition>
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition to="Moving" from="Idle">
+            <Condition>
+              <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+    <ParticleSystems>
+      <ParticleSystem name="ps_leaves">
+        <Emitter>
+          <Set name="offset">-20,0</Set>
+          <Set name="offsetFacing">true</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="lifeTime">0.8</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Random name="emissionInterval" min="0.025" max="0.1" />
+        </Emitter>
+        <Particle randomSpriteFrame="true">
+          <Set name="sprite">s_leaves</Set>
+          <Random name="offset" min="-8, -8" max="0, 0" />
+          <Set name="lifeTime">1.5</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.3, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Select name="initialRotationRate" input="randomNumber">
+            <Item>90</Item>
+            <Item>-90</Item>
+          </Select>
+          <Set name="useGravity">true</Set>
+          <Curve name="initialVelocity">
+            <KeyFrame>0, -10</KeyFrame>
+            <KeyFrame>0.2, -20, -10</KeyFrame>
+            <KeyFrame>0.4, 50, -10</KeyFrame>
+            <KeyFrame>0.6, -50, -10</KeyFrame>
+            <KeyFrame>0.8, 50, -10</KeyFrame>
+            <KeyFrame>1, 0, 0</KeyFrame>
+          </Curve>
+          <Set name="gravityVector">0, 50</Set>
+          <Random name="initialAngle" min="0" max="360" />
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+  </Data>
+  <RenderRules>
+    <Update>
+      <StopIf type="or">
+        <IsAction>PUNCH</IsAction>
+        <IsVariableBool name="onGround">false</IsVariableBool>
+        <IsZombified>true</IsZombified>
+      </StopIf>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">0</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">0</Set>
+      </AvatarTransform>
+    </Update>
+    
+    <RenderShoes>
+      <Group>
+        <Translate>0,10,0</Translate>
+        <SpriteRender name="s_Left" blend="PREMULTIPLIED_ALPHA" drawShadow="true" alignmentLeft="DOWN_LEFT" alignmentRight="DOWN_RIGHT" />
+        <SpriteRender name="s_Right" blend="PREMULTIPLIED_ALPHA" drawShadow="true" alignmentLeft="DOWN_RIGHT" alignmentRight="DOWN_LEFT" />
+      </Group>
+      
+      <Group>
+        <Translate>0,-7,0</Translate>
+        <SpriteRender name="s_legs" tintOverride="SKINORPANTS" />
+      </Group>
+      
+      <StopIf>
+        <IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+      </StopIf>
+      <ParticleSystemUpdate name="ps_leaves" onState="Motion.Moving"/>
+    </RenderShoes>
+  </RenderRules>
+</ItemRenderer>

@@ -1,0 +1,102 @@
+.auction {
+    decorator: ninepatch(button-bg, button-bg-inner);
+    image-color: rgba(80, 157, 188, 175);
+    margin: 0 0 6dp 0;
+    padding: 0 6dp 0 0;
+    width: 100%;
+    display: flex;
+}
+
+.auction  .split {
+    display: flex;
+    flex-direction: column;
+}
+
+/*------- LEFT COLUMN -------*/
+
+.message-table .col-left {
+    flex: 0 0 8%;
+    padding: 10dp;
+    margin: 0;
+}
+
+.message .icon {
+    position: relative;
+    width: 50dp;
+    height: 50dp;
+    border: 4dp rgba(124,187,212,255);
+    border-radius: 7dp;
+    background-color: rgba(0,0,0,128);
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+}
+
+.message .icon .image {
+    display: block;
+    width: 40dp;
+    height: 40dp;
+    padding: 0dp;
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translateY(-50%) translateX(-50%);
+}
+
+/*------- MIDDLE COLUMN -------*/
+
+.message .col-middle {
+    flex: 0 0 62%;
+}
+
+.col-middle .title {
+    padding: 7dp 0dp 0dp 0dp; /* padding-top, padding-right, padding-bottom, padding-left */
+}
+
+.col-middle .wl-count {
+    padding: 5dp 0dp 5dp 0dp; /* padding-top, padding-right, padding-bottom, padding-left */
+    margin: 0dp 0dp 5dp 0dp; /* padding-top, padding-right, padding-bottom, padding-left */
+}
+
+/*------- RIGHT COLUMN -------*/
+
+.message .col-right {
+    flex: 1 1 25%;
+}
+
+.col-right .split {
+    position: relative;
+    top: 50%;
+    right: 0%;
+    transform: translateY(-50%);
+    margin: 5dp 10dp 5dp 0dp; /* padding-top, padding-right, padding-bottom, padding-left */
+    text-align: right;
+}
+
+.col-right .img-button {
+    margin: 0;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 190dp;
+}
+
+.col-right .img-button:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
+.col-right .img-button.disabled:active {
+    transform: translateX(-50%) scale(1);
+}
+
+.col-right .img-button .label {
+    font-size: 28dp;
+}
+
+.col-right .timer-text {
+    padding: 0dp 0dp 5dp 0dp; /* padding-top, padding-right, padding-bottom, padding-left */
+    text-align: right;
+    font-size: 18dp;
+}

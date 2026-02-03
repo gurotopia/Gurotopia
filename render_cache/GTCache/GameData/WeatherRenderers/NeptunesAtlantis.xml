@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer name="NEPTUNES_ATLANTIS">
+	<Data>
+		<Sprite name="s_bg" fileName="game/bg_NWM_bg.rttex"/>
+		<Sprite name="s_shadow" fileName="game/bg_NWM_shadow.rttex"/>
+		<Sprite name="s_castle" fileName="game/bg_NWM_castle.rttex"/>
+		<Sprite name="s_backRays" fileName="game/bg_NWM_RaysBack.rttex"/>
+		<Sprite name="s_frontRays" fileName="game/bg_NWM_RaysFront.rttex"/>
+		<Sprite name="s_frontRock" fileName="game/bg_NWM_frontRock.rttex"/>
+		<Sprite name="s_frontLayer" fileName="game/bg_NWM_frontLayer.rttex"/>
+		<Sprite name="s_bubble" fileName="game/particles10.rttex" textureSize="32" frame="4,29"/>
+		
+		<Animations>
+			<SpriteSinPulseAnimation name="a_frontRays" sprite="s_frontRays" autoPlay="true" isLoop="true">
+				<Parameter name="alpha">
+					<Set name="period">3000</Set>
+					<Set name="scale">0.5</Set>
+					<Set name="offset">0.5</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+			<SpriteSinPulseAnimation name="a_backRays" sprite="s_backRays" autoPlay="true" isLoop="true">
+				<Parameter name="alpha">
+					<Set name="period">5000</Set>
+					<Set name="scale">0.5</Set>
+					<Set name="offset">0.5</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+		</Animations>
+		<ParticleSystems>
+			<ParticleSystem name="ps_Bubble" updateStage="RenderBackground">
+				<Emitter>
+					<Set name="emissionInterval">0.2</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="inScreenSpace">true</Set>
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="sprite">s_bubble</Set>
+					<Random name="offset" min="0, .01" max="1, 1"/>
+					
+					<Set name="lifeTime">10</Set>
+					<Random name="initialVelocity" min="0, -0.05" max="0, -0.1"/>
+					<Random name="initialScale" min="0.5" max="1.5"/>
+	
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.2, 1</KeyFrame>
+						<KeyFrame>0.8, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+	</Data>
+	<RenderRules>
+		<RenderBackground>
+			<ContextUpdate type="ScaleScreenHeight">
+				<Set name="sprite">s_bg</Set>
+			</ContextUpdate>
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_bg" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.05</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_shadow" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.15</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_castle" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			<ParticleSystemRender name="ps_Bubble"/>
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.35</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_backRays" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			<SpriteRender name="s_frontRays" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.7</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_frontRock" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+		</RenderBackground>
+		<RenderForeground>
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">2</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_frontLayer" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+		</RenderForeground>
+	</RenderRules>
+</ItemRenderer>

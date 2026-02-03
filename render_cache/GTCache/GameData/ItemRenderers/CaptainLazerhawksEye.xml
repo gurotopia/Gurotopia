@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer item="ITEM_ID_CAPTAIN_LAZERHAWKS_EYES">
+	<Data>
+		<StateMachines>
+			<StateMachine name="state">
+				<States>
+					<State name="Equip"/>
+					<State name="Punch"/>
+				</States>
+				<Transitions>
+					<Transition from="Punch" to="Equip">
+						<Condition>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition from="Equip" to="Punch">
+						<Condition>
+							<IsAction>PUNCH</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+
+		<Sprite name="equip_Sprite" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="21,13"/>
+		<Sprite name="equip_glow_Sprite" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="22,13"/>
+		<Sprite name="punch_Sprite" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="22,13"/>
+		
+		<Animations>
+			<SpriteCurveAnimation name="item_glow" isLoop="true" playOnState="state.Equip" sprite="equip_glow_Sprite" animTime="3000">
+				<Curve name="alpha">
+					<KeyFrame>0.f, 0.f</KeyFrame>
+					<KeyFrame>0.286f, 0.f </KeyFrame>
+					<KeyFrame>0.4286f, 1.f</KeyFrame>
+					<KeyFrame>0.7142f, 1.f</KeyFrame>
+					<KeyFrame>1.f, 0.f</KeyFrame>
+				</Curve>
+			</SpriteCurveAnimation>
+			<SpriteCurveAnimation name="item_glow_punch" isLoop="true" playOnState="state.Punch" sprite="equip_glow_Sprite" animTime="3000">
+				<Curve name="alpha">
+					<KeyFrame>0.f, 1.f</KeyFrame>
+					<KeyFrame>1.f, 1.f</KeyFrame>
+				</Curve>
+			</SpriteCurveAnimation>
+		</Animations>
+		
+		<RenderOptions>
+			<Default>
+				<Set name="IgnorePunchTypeCheck">true</Set>
+				<Set name="IsNightVision">true</Set>
+			</Default>
+		</RenderOptions>
+		
+	</Data>
+
+	<RenderRules>
+		<RenderFaceItem>
+			<SpriteRender name="equip_Sprite" alignment="DOWN_CENTER" blend="PREMULTIPLIED_ALPHA"/>
+			<SpriteRender name="equip_glow_Sprite" alignment="DOWN_CENTER" blend="PREMULTIPLIED_ALPHA"/>
+		</RenderFaceItem>
+	</RenderRules>
+</ItemRenderer>

@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer item="ITEM_ID_PARADE_FLOAT">
+	<Data>
+		<StateMachines>
+			<StateMachine name="playerState">
+				<States>
+					<State name="Idle"/>
+					<State name="Move"/>
+					<State name="Fall"/>
+					<State name="Jump"/>
+					<State name="SpiritGuide"/>
+				</States>
+				<Transitions>
+					<Transition from="SpiritGuide|Jump|Fall|Move" to="Idle" >
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+					<Transition from="SpiritGuide|Jump|Fall|Idle" to="Move">
+						<Condition type="and">
+							<IsWearing operatorType="NotEqual" slot="CHESTITEM">ITEM_ID_HAUNTED</IsWearing>
+							<IsAction>WALK</IsAction>
+						</Condition>
+					</Transition>				
+					<Transition from="Move|Jump|Fall|Idle" to="SpiritGuide">
+						<Condition type="and">
+							<IsWearing slot="CHESTITEM">ITEM_ID_HAUNTED</IsWearing>
+							<IsVariableFloat name="speed.length" operator="Greater" abs="true">0</IsVariableFloat>
+							<IsAction operatorType="NotEqual">FALL</IsAction>
+						</Condition>
+					</Transition>
+					<Transition from="SpiritGuide|Fall|Move|Idle" to="Jump">
+						<Condition type="and">
+							<IsWearing operatorType="NotEqual" slot="CHESTITEM">ITEM_ID_HAUNTED</IsWearing>
+							<IsAction>JUMP</IsAction>
+						</Condition>
+					</Transition>
+					<Transition from="SpiritGuide|Jump|Idle|Move" to="Fall">
+						<Condition type="and">
+							<IsVariableFloat name="speed.y" operator="Greater" abs="false">0.01</IsVariableFloat>
+							<IsAction>FALL</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+
+		<Sprite name="foot_front_Sprite" fileName="game/particles_large13.rttex" textureSize="64" frame="9,2"/>
+		<Sprite name="foot_back_Sprite" fileName="game/particles_large13.rttex" textureSize="64" frame="9,2"/>
+		<Sprite name="trail_Sprite" fileName="game/particles11.rttex" textureSize="32" frame="31,4"/>
+w
+		<Animations>
+			<SpriteAnimation name="foot1_Idle" playOnState="playerState.Idle|playerState.Jump|playerState.SpiritGuide" sprite="foot_front_Sprite" isLoop="true" animTime="100">
+				<Frame>9,2</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="foot1_Fall" playOnState="playerState.Fall" sprite="foot_front_Sprite" isLoop="true" animTime="100">
+				<Frame>11,2</Frame>
+			</SpriteAnimation>			
+			<SpriteAnimation name="foot1_Move" playOnState="playerState.Move" sprite="foot_front_Sprite" isLoop="true" animTime="100">
+				<Frame>9,2</Frame>
+				<Frame>10,2</Frame>
+			</SpriteAnimation>
+			
+			<SpriteAnimation name="foot2_Idle" playOnState="playerState.Idle|playerState.Jump|playerState.SpiritGuide" sprite="foot_back_Sprite" isLoop="true" animTime="100">
+				<Frame>9,3</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="foot2_Fall" playOnState="playerState.Fall" sprite="foot_back_Sprite" isLoop="true" animTime="100">
+				<Frame>11,3</Frame>
+			</SpriteAnimation>			
+			<SpriteAnimation name="foot2_Move" playOnState="playerState.Move" sprite="foot_back_Sprite" isLoop="true" animTime="100">
+				<Frame>10,3</Frame>
+				<Frame>9,3</Frame>
+			</SpriteAnimation>
+		</Animations>
+		
+		<ParticleSystems>
+			<ParticleSystem name="trail_particle">
+				<Emitter>
+					<Set name="lifeTime">1</Set>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="particlesToEmit">10</Set>
+					<Set name="emissionInterval">0.035</Set>
+					<Set name="checkParticleNumToEmit">true</Set>
+					<Set name="offset">-17,-2</Set>
+				</Emitter>
+				<Particle>
+					<Random name="offset" min="-15,-10" max="15,-5"/>
+					<Set name="sprite">trail_Sprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="lifeTime">1.2</Set>
+					<Set name="useGravity">true</Set>
+					<Set name="gravityVector">0, 30</Set>
+					<Set name="initalRGB">1,1,1</Set>
+					<Set name="initialScale">1,1</Set>
+					<Random name="flipX" min="false" max="true"/>
+					<Curve name="initialAngle">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.2, -15</KeyFrame>
+						<KeyFrame>0.4, 15</KeyFrame>
+						<KeyFrame>0.6, -15</KeyFrame>
+						<KeyFrame>0.8, 15</KeyFrame>
+						<KeyFrame>1, 0, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialVelocity">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.2, -20, 0</KeyFrame>
+						<KeyFrame>0.4, 50, 0</KeyFrame>
+						<KeyFrame>0.6, -50, 0</KeyFrame>
+						<KeyFrame>0.8, 50, 0</KeyFrame>
+						<KeyFrame>1, 0, 0</KeyFrame>
+					</Curve>
+					<Set name="interpolateAlpha">true</Set>
+					<Set name="initialAlpha">1</Set>
+					<Set name="finalAlpha">0</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		<RenderOptions>
+			<Default>
+				<Set name="PlayDefaultPunchAudio">true</Set>
+				<Set name="ClothingOffsetFromShoes">-5.4</Set>
+				<Set name="UserNameOffset">11</Set>
+				<Set name="IsRidingBird">true</Set>
+				<Set name="RenderShoesWithMermaidTail">true</Set>
+				<Set name="ShoesHidesBodyLegs">true</Set>
+				<Set name="ShoesShouldIgnoreRaptorLegsOffset">true</Set>
+				<Set name="IsToRenderPants">false</Set>
+			</Default>
+		</RenderOptions>
+	</Data>
+	<RenderRules>
+		<RenderShoes>
+			<SpriteRender name="foot_back_Sprite" offset="0,-24"/>
+			<SpriteRender name="foot_front_Sprite" offset="0,-24"/>
+			<StopIf>
+				<IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+			</StopIf>
+		</RenderShoes>
+		<OnPunchUpdate>
+			<AvatarTransform class="Face">
+				<Set name="face">MAD</Set>
+			</AvatarTransform>
+		</OnPunchUpdate>
+		<AddClothingParticles>
+			<ParticleSystemUpdate name="trail_particle" onState="playerState.Move|playerState.Fall|playerState.Jump|playerState.SpiritGuide"/>
+		</AddClothingParticles>
+		<SwitchOffClothingParticles>
+			<ParticleSystemOff name="trail_particle"/>
+		</SwitchOffClothingParticles>
+	</RenderRules>
+</ItemRenderer>

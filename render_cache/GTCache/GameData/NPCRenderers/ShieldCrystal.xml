@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer NPCType="ShieldCrystal" NPCTypeID="8">
+	<Data>
+		<Sprite name="sprite" fileName="game/particles11.rttex" textureSize="32" frame="8,5"/>
+		<Sprite name="line_sprite" fileName="game/particles11.rttex" textureSize="32" frame="15,24" cullingDisabled="true"/>
+		<Animations>
+			<SpriteAnimation name="a_sprite_anim" autoPlay="true" sprite="sprite" isLoop="true" animTime="800">
+				<Frame>8,5</Frame>
+				<Frame>9,5</Frame>
+				<Frame>10,5</Frame>
+				<Frame>11,5</Frame>
+				<Frame>12,5</Frame>
+				<Frame>13,5</Frame>
+				<Frame>14,5</Frame>
+				<Frame>15,5</Frame>
+			</SpriteAnimation>						
+		</Animations>
+		<Components>
+			<Info/>
+			<ShieldArtifactCmp/>
+			<Enemy>
+				<Set name="SoulsReward">0</Set>
+				<Set name="destroyTileId">548</Set>
+			</Enemy>
+			<Movement/>
+			<Health>
+				<Set name="healthAmount">400</Set>
+				<Set name="maxHealth">400</Set>
+			</Health>
+			<CollisionBox>
+				<Set name="size">32,32</Set>
+				<Set name="CollisionFlag">"PLAYERS|PROJECTILES"</Set>
+				<Set name="CollisionType">"ENEMY_NPC"</Set>
+			</CollisionBox>
+			<DebugDraw/>
+		</Components>
+		<VariableMap>
+			<Set name="lineStartPos">0, -16, 0</Set>
+			<Set name="DirectionVector">1, 1, 0</Set>
+			<Set name="DirectionSize">65, 65, 0</Set>
+			<Set name="TargetPos">0, 0, 0</Set>
+		</VariableMap>
+	</Data>
+	<RenderRules>
+		<Render>
+			<SpriteRender name="line_sprite" offset="0,0" stretchToTarget="true" alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER" drawShadow="false" flip="1,0"/>
+			<SpriteRender name="sprite" scale="0.75,0.75"/>
+		</Render>	
+		<Update>
+			<MovementCompValueGetter UseParentEntity="true" TargetVariableName="lineStartPos" TargetVariableIndex="0" />
+			<MovementCompValueGetter TargetEntityName="Shield" TargetVariableName="TargetPos" TargetVariableIndex="0" />
+			<ArithmethicOperation LeftHandVariableName="DirectionVector" RightHandVariableName="lineStartPos" OperationType="Set"/>
+			<ArithmethicOperation LeftHandVariableName="DirectionVector" RightHandVariableName="TargetPos" OperationType="Substract"/>
+			<ArithmethicOperation LeftHandVariableName="DirectionVector" RightHandVariableName="DirectionSize" OperationType="Normalize"/>
+			<ArithmethicOperation LeftHandVariableName="TargetPos" RightHandVariableName="DirectionVector" OperationType="Add"/>
+		</Update>
+		<RenderInFront>
+			<Translate>0,-4,0</Translate>
+			<NPCHealthBarRender TexturePath="interface/large/gui_event_npchealth_bar.rttex" TextureSize="17,9" TextureCoordinates="0,0"/>
+		</RenderInFront>
+	</RenderRules>
+</ItemRenderer>

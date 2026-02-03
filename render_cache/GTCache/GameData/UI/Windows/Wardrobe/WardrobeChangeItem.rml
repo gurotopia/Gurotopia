@@ -1,0 +1,57 @@
+<rml>
+  <head>
+    <title>WardrobeChangeItem</title>
+    <link type="text/template" href="../Base/BasePopup.rml" />
+    <link type="text/template" href="../Templates/ItemIconWithText.rml" />
+    <link type="text/template" href="../Templates/CircularLoader.rml" />
+    <link type="text/rcss" href="../Base/WindowTitle.rcss" />
+    <link type="text/rcss" href="WardrobeChangeItem.rcss" />
+    <script src="../Base/Utils.lua"/>
+    <script lang="text/lua">
+      ItemIconWithTextActionName = 'WardrobeChangeItemModel.ItemClick'
+    </script>
+  </head>
+  <body template="BasePopup">
+    <div data-model="WardrobeChangeItemModel" id="wardrobe-change-item-popup" class="font-content">
+      <div class="content">
+        <div id="window-title">
+          <div class="title-text font-title label">
+            {{WardrobeChangeItemModel.SlotName}} Item
+          </div>
+        </div>
+        <div id="equipped-item" data-class-hidden="WardrobeChangeItemModel.EquippedItem == 0">
+          <div class="equipped-item-icon" data-style-decorator="'itemidimage(' + WardrobeChangeItemModel.EquippedItem + ')'"/>
+          <div class="equipped-item-col">
+            <div class="equipped-item-text color_yellow">
+              {{ItemName(WardrobeChangeItemModel.EquippedItem)}}
+            </div>
+          </div>
+        </div>
+        <div id="search-container" class="info-panel color_dreamsicle">
+          <div id="search-label">Search:</div>
+          <input class="input" type="text" maxlength="120" onkeyup="OnEvent(event, 'WardrobeChangeItemModel.HandleSearchInput')"/>
+          <div data-class-hidden="!WardrobeChangeItemModel.ShowLoadingIcon">
+          <template src="CircularLoader"/>
+          </div>
+        </div>
+        <p class="color_dreamsicle" data-rml="ToRMLText(Localize('[WARDROBE_CHANGE_UI_DESC]', WardrobeChangeItemModel.SlotName))"/>
+        <div id="results-list" 
+             class="results-list show-scrollbar wondow-content-full wondow-content-horizontal"
+             onlistupdated="CalculateListSize(document, element, 'results-list', 'results-list', 'bottom-panel')">
+          <div class="grid">
+              <div data-for="Cloth : WardrobeChangeItemModel.AvailableClothes" class="cell">
+                  <div data-alias-model="Cloth">
+                      <template src="ItemIconWithText"/>
+                  </div>
+              </div>
+          </div>
+        </div>
+        <div id="bottom-panel">
+          <div id="back-button" onclick="OnEvent(event, 'WardrobeChangeItemModel.OnBack')" class="img-button button-default-color">
+            <span class="label">Back</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</rml>

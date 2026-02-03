@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_wing" fileName="game/particles_large14.rttex" textureSize="64" frame="15,0"/>
+    <Sprite name="s_smoke" fileName="game/particles_large14.rttex" textureSize="64" frame="10,3"/>
+
+    <Animations>
+      <SpriteAnimation name="a_smoke" autoPlay="true" sprite="s_smoke" isLoop="true" animTime="1400">
+        <Frame>10,3</Frame>
+        <Frame>11,3</Frame>
+        <Frame>12,3</Frame>
+        <Frame>13,3</Frame>
+        <Frame>14,3</Frame>
+        <Frame>15,3</Frame>
+        <Frame>10,5</Frame>
+        <Frame>11,5</Frame>
+        <Frame>12,5</Frame>
+        <Frame>13,5</Frame>
+        <Frame>14,5</Frame>
+        <Frame>15,5</Frame>
+        <Frame>10,7</Frame>
+        <Frame>11,7</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+  </Data>
+
+  <RenderRules>
+    <RenderBackpack>
+      <SpriteRender name="s_smoke" offset="0,-16" alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER" blend="PREMULTIPLIED_ALPHA" drawShadow="false"/>
+      <SpriteRender name="s_smoke" offset="0,-16" flip="1,0" alignmentLeft="RIGHT_CENTER" alignmentRight="LEFT_CENTER" blend="PREMULTIPLIED_ALPHA" drawShadow="false"/>
+      <SpriteRender name="s_wing" offset="0,-16" alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER"/>
+      <SpriteRender name="s_wing" offset="0,-16" flip="1,0" alignmentLeft="RIGHT_CENTER" alignmentRight="LEFT_CENTER"/>
+    </RenderBackpack>
+  </RenderRules>
+</ItemRenderer>

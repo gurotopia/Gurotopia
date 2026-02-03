@@ -1,0 +1,58 @@
+<rml>
+    <head>
+        <title>StartScreen</title>
+        <link type="text/rcss" href="StartScreen.rcss" />
+        <link type="text/template" href="BaseTemplate.rml" />
+        <script lang="text/lua">
+        function onShow(document)
+            buttonPanel = document:GetElementById('buttons-panel')
+            for i, child in ipairs(buttonPanel.child_nodes) do
+                child.style.transition = 'left 0.2s '.. (i-1) * 0.2 ..'s linear-in';
+                child:SetClass("display", true);
+            end
+            document:GetElementById('version-text'):SetClass("display", true);
+            document:GetElementById('login-panel'):SetClass("display", true);
+            document:GetElementById('logo'):SetClass("display", true);
+        end
+        </script>
+    </head>
+
+    <body template="BaseTemplate" class="start-screen" onshow="onShow(document)" data-model="AppContext">
+        <div id="backGround">
+          <div class="background-img" />
+        </div>
+        <div id="logo">
+            <div class="logo-img" />
+        </div>
+        <div id="buttons-panel">
+            <button id="start_button" class="button start-button scale-anim" 
+                    style="decorator: radial-gradient(80% 80%, rgb(34, 225, 66), #3AAA35FF); " 
+                    onclick="OnEvent(element, 'on-start-game')">
+                <span class="label">Play Online</span>
+            </button>
+            <div class="button button-themed-colour" onclick="OnEvent(event, 'on-options')">
+                <span class="label">Options</span>
+            </div>
+            <div class="button button-themed-colour" onclick="OnEvent(event, 'on-about')">
+                <span class="label">About</span>
+            </div>
+            <div id="quit_button" class="button button-themed-colour" onclick="OnEvent(event, 'on-quit')">
+                <span class="label">Quit</span>
+            </div>
+        </div>
+        <div id="login-panel" data-visible="AppContext.IsLoggedIn">
+            <div>
+                <div class="font-body1 start-screen-shadow-text">Logged in as:</div>
+                <div class="player-name">
+                    <div data-attr-class="'icon-img account-icon-' + AppContext.GetAccountType" />
+                    <span class="color_green font-body1 start-screen-shadow-text">{{AppContext.GetPlayerName}}</span>
+                </div>
+                <div class="button button-yellow-color" onclick="OnEvent(event, 'on-logout')">
+                    <span class="label" data-style-display="AppContext.IsUseUbiconnect?'block':'none'" data-rml="AppContext.GetAccountType == 'ubiconnect' ? 'Link' : 'Unlink'"></span>
+                    <span class="label" data-style-display="!AppContext.IsUseUbiconnect?'block':'none'">Logout</span>
+                </div>
+            </div>
+        </div>
+        <div id="version-text" class="font-body1 start-screen-shadow-text"><span>{{AppContext.GetVersionString}}</span></div>
+    </body>
+</rml>

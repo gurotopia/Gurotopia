@@ -1,0 +1,186 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_staff" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="3,16" />
+    <Sprite name="s_pet" fileName="game/pets/p_ancientlitch.rttex" textureSize="64" frame="0,0" />
+    <Sprite name="s_projectile" fileName="game/particles11.rttex" textureSize="32" frame="31,6" />
+
+    <Animations>
+      <SpriteAnimation name="a_Attack" sprite="s_pet" animTime="100" isLoop="true" playOnState="Motion.PunchRight|Motion.PunchLeft">
+        <Frame>8,0</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_Fall" sprite="s_pet" animTime="100" isLoop="true" playOnState="Motion.Down">
+        <Frame>7,0</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_Idle" sprite="s_pet" animTime="900" isLoop="true" playOnState="Motion.None">
+        <Frame>0,0</Frame>
+        <Frame>1,0</Frame>
+        <Frame>2,0</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_Jump" sprite="s_pet" animTime="100" isLoop="true" playOnState="Motion.Up">
+        <Frame>6,0</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_Move" sprite="s_pet" animTime="300" isLoop="true" playOnState="Motion.Horizontal">
+        <Frame>3,0</Frame>
+        <Frame>4,0</Frame>
+        <Frame>5,0</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_projectile" sprite="s_projectile" animTime="200" isLoop="true">
+        <Frame>31,6</Frame>
+        <Frame>31,7</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <StateMachines>
+      <StateMachine name="Motion">
+        <States>
+          <State name="None" />
+          <State name="Up" />
+          <State name="Down" />
+          <State name="Horizontal" />
+          <State name="PunchLeft" />
+          <State name="PunchRight" />
+        </States>
+        <Transitions>
+          <Transition to="None" from="PunchRight|PunchLeft|Up|Down|Horizontal">
+            <Condition type="and">
+              <IsVariableFloat name="pet.velocity.length" operator="Less" abs="true">0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="Up" from="PunchRight|PunchLeft|None|Down|Horizontal">
+            <Condition type="and">
+              <IsVariableFloat name="pet.velocity.y" operator="Less">-0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="Down" from="PunchRight|PunchLeft|None|Up|Horizontal">
+            <Condition type="and">
+              <IsVariableFloat name="pet.velocity.y" operator="Greater">0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="Horizontal" from="PunchRight|PunchLeft|None|Down|Up">
+            <Condition type="and">
+              <IsVariableFloat name="pet.velocity.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+              <IsVariableFloat name="pet.velocity.y" operator="Less" abs="true">0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="PunchLeft" from="None|Up|Down|Horizontal|PunchRight">
+            <Condition type="and">
+              <IsAction>PUNCH</IsAction>
+              <IsVariableBool name="pet.facingLeft">true</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition to="PunchRight" from="None|Up|Down|Horizontal|PunchLeft">
+            <Condition type="and">
+              <IsAction>PUNCH</IsAction>
+              <IsVariableBool name="pet.facingLeft">false</IsVariableBool>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <VariableMap>
+      <Set name="context.pos">0, 0</Set>
+    </VariableMap>
+
+    <ParticleSystems>
+      <ParticleSystem name="ps_punchProjectileRight">
+        <Emitter attachment="targetPos">
+          <Set name="lifeTime">0.3</Set>
+          <Set name="emissionInterval">0.05</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_projectile</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.3</Set>
+          <Set name="targetPos" source="context.pos"/>
+          <Set name="targetPosOffset">-32,-16</Set>
+          <VectorTo name="initialVelocity" source="targetPos" offset="targetPosOffset" duration="lifeTime" x="1"/>
+          <Curve name="initialScale">
+            <KeyFrame>0, 1.5,1.5</KeyFrame>
+            <KeyFrame>1, 0.5, 0.5</KeyFrame>
+          </Curve>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_punchProjectileLeft">
+        <Emitter attachment="targetPos">
+          <Set name="lifeTime">0.3</Set>
+          <Set name="emissionInterval">0.05</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_projectile</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.5</Set>
+          <Set name="targetPos" source="context.pos"/>
+          <Set name="targetPosOffset">32,-16</Set>
+          <VectorTo name="initialVelocity" source="targetPos" offset="targetPosOffset" duration="lifeTime" x="1"/>
+          <Curve name="initialScale">
+            <KeyFrame>0, 1.5,1.5</KeyFrame>
+            <KeyFrame>1, 0.5, 0.5</KeyFrame>
+          </Curve>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+    
+    <RenderOptions>
+      <Default>
+        <Set name="NeedRenderPet">true</Set>
+        <Set name="PetOffsetDuplication">-36,0</Set>
+        <Set name="UsePetForceFaceTime">false</Set>
+        <Set name="HideParticlesOnTransform">false</Set>
+        <Set name="IgnorePunchTypeCheck">false</Set>
+        <Set name="RenderFrontArmInfected">true</Set>
+        <Set name="RenderFrontArmInTheFront">true</Set>
+        <Set name="DefaultRenderMannequinHandItem">false</Set>
+      </Default>
+      <Override overrideOnState="Motion.PunchRight|Motion.PunchLeft">
+        <Set name="RenderFrontArmInTheFront">false</Set>
+      </Override>
+    </RenderOptions>
+  </Data>
+  <RenderRules>
+    <RenderHandItem>
+      <SpriteRender name="s_staff" rotationPoint="0,1" offset="0,8" rotateOffset="true" flip="1,0" onState="Motion.None|Motion.Up|Motion.Down|Motion.Horizontal"/>
+      <SpriteRender name="s_staff" rotationPoint="0,1" offset="-3.5,8" rotateOffset="true" flip="0,1" onState="Motion.PunchRight|Motion.PunchLeft"/>
+    </RenderHandItem>
+    <OnPunchUpdate>
+      <AvatarTransform class="Face">
+        <Set name="face">MAD</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle" onState="Motion.PunchRight|Motion.PunchLeft">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">270</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle" onState="Motion.PunchRight|Motion.PunchLeft">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">90</Set>
+      </AvatarTransform>
+    </OnPunchUpdate>
+    <RenderPet>
+      <SpriteRender name="s_pet" offset="-32,0" alignment="DOWN_CENTER" />
+      <StopIf>
+        <IsTrnsformed>true</IsTrnsformed>
+      </StopIf>
+      <ParticleSystemUpdate name="ps_punchProjectileRight" onState="Motion.PunchRight"/>
+      <ParticleSystemUpdate name="ps_punchProjectileLeft" onState="Motion.PunchLeft"/>
+    </RenderPet>
+    <UpdatePet>
+      <ContextUpdate type="SetPetWalkRunJump">
+        <Set name="PetWalkRunJump.minSpeed">500</Set>
+        <Set name="PetWalkRunJump.distSpeedMult">20</Set>
+      </ContextUpdate>
+    </UpdatePet>
+  </RenderRules>
+</ItemRenderer>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_waves" fileName="game/particles_large14.rttex" textureSize="64" frame="12,13" />
+    <Sprite name="s_wings" fileName="game/particles_large14.rttex" textureSize="64" frame="13,9" />
+    <Sprite name="s_droplet" fileName="game/particles12.rttex" textureSize="32" frame="24,3" />
+
+    <Animations>
+      <SpriteAnimation name="a_equip" sprite="s_wings" playOnState="Action.Idle" isLoop="true" animTime="300">
+        <Frame>13,9</Frame>
+        <Frame>14,9</Frame>
+        <Frame>15,9</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_jump" sprite="s_wings" animTime="400" playOnState="Action.Jump">
+        <Frame>11,2</Frame>
+        <Frame>12,2</Frame>
+        <Frame>13,2</Frame>
+        <Frame>12,2</Frame>
+        <Frame>13,2</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_fall" sprite="s_wings" animTime="300" isLoop="true" playOnState="Action.Fall">
+        <Frame>13,2</Frame>
+        <Frame>12,2</Frame>
+        <Frame>11,2</Frame>
+        <Frame>12,2</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_waves" sprite="s_waves" autoPlay="true" isLoop="true" animTime="300">
+        <Frame>12,13</Frame>
+        <Frame>13,13</Frame>
+        <Frame>14,13</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <StateMachines>
+      <StateMachine name="Action">
+        <States>
+          <State name="Idle" />
+          <State name="Jump" />
+          <State name="Fall" />
+        </States>
+        <Transitions>
+          <Transition to="Idle" from="Fall|Jump">
+            <Condition>
+              <IsVariableBool name="onGround">true</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition to="Jump" from="Idle|Fall">
+            <Condition type="and">
+              <IsVariableBool name="onGround">false</IsVariableBool>
+              <IsVariableFloat name="speed.y" operator="Less">-0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition to="Fall" from="Jump|Idle">
+            <Condition type="and">
+              <IsVariableBool name="onGround">false</IsVariableBool>
+              <IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <ParticleSystems>
+      <ParticleSystem name="ps_doubleJump">
+        <Emitter>
+          <Set name="offset">0, -24</Set>
+          <Set name="lifeTime">0.75</Set>
+          <Set name="particlesPerEmission">8</Set>
+          <Set name="particlesToEmit">8</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="delayTimer">0</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_droplet</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="isBackgroundParticle">true</Set>
+          <Set name="rotateWithVelocity">true</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="lifeTime">0.75</Set>
+          <Random name="initialScale" min="0.5" max="1"/>
+          <RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="100,150"/>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="drop_particles_left" updateStage="AddClothingParticles" renderStage="RenderBackpack">
+        <Emitter>
+          <Set name="offset">-20,-32</Set>
+          <Set name="emissionInterval">0.2</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle velocityRelativeToPlayerSpeed="true">
+          <Set name="sprite">s_droplet</Set>
+          <Random name="offset" min="-6, -8" max="6, 8"/>
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="rotateWithVelocity">true</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.8, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="useGravity">true</Set>
+          <Curve name="initialScale">
+            <KeyFrame>0, 0.5, 0.5</KeyFrame>
+            <KeyFrame>1, 1, 1</KeyFrame>
+          </Curve>
+          <Set name="lifeTime">0.8</Set>
+          <Set name="initialVelocity">-10, -40</Set>
+          <Set name="gravityVector">0, 100</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="drop_particles_right" updateStage="AddClothingParticles" renderStage="RenderBackpack">
+        <Emitter>
+          <Set name="offset">20,-32</Set>
+          <Set name="emissionInterval">0.2</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle velocityRelativeToPlayerSpeed="true">
+          <Set name="sprite">s_droplet</Set>
+          <Random name="offset" min="-6, -8" max="6, 8"/>
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="rotateWithVelocity">true</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.8, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="useGravity">true</Set>
+          <Curve name="initialScale">
+            <KeyFrame>0, 0.5, 0.5</KeyFrame>
+            <KeyFrame>1, 1, 1</KeyFrame>
+          </Curve>
+          <Set name="lifeTime">0.8</Set>
+          <Set name="initialVelocity">-10, -40</Set>
+          <Set name="gravityVector">0, 100</Set>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+
+    <RenderOptions>
+      <Default>
+        <Set name="IgnorePunchTypeCheck">true</Set>
+        <Set name="HideParticlesOnTransform">true</Set>
+        <Set name="HideParticlesOnTheaterSeat">true</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+
+  <RenderRules>
+
+    <RenderInFront value="playerGround">
+      <StopIf type="or">
+        <IsTrnsformed>true</IsTrnsformed>
+        <IsVariableBool name="isInvisible">true</IsVariableBool>
+        <IsZombified>true</IsZombified>
+      </StopIf>
+      <SpriteRender name="s_waves" alignment="CENTER" blend="PREMULTIPLIED_ALPHA" drawShadow="false" onState="Action.Idle"/>
+    </RenderInFront>
+
+    <RenderBackpack>
+      <SpriteRender name="s_wings" offset="-7,-13" alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER" blend="PREMULTIPLIED_ALPHA" />
+      <SpriteRender name="s_wings" offset="7,-13" flip="1,0" alignmentLeft="RIGHT_CENTER" alignmentRight="LEFT_CENTER" blend="PREMULTIPLIED_ALPHA" />
+    </RenderBackpack>
+
+    <AddClothingParticles>
+      <ParticleSystemUpdate name="ps_doubleJump" onAction="JUMPDOUBLE"/>
+    </AddClothingParticles>
+  </RenderRules>
+</ItemRenderer>

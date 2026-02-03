@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_shoe1" fileName="game/player_feet16.rttex" textureSize="32" frame="28,16" />
+    <Sprite name="s_shoe2" fileName="game/player_feet16.rttex" textureSize="32" frame="28,17" />
+    <Sprite name="s_shoe1Light" fileName="game/player_feet16.rttex" textureSize="32" frame="30,16" />
+    <Sprite name="s_shoe2Light" fileName="game/player_feet16.rttex" textureSize="32" frame="30,17" />
+    <Animations>
+      <SpriteAnimation name="a_shoe1Idle" sprite="s_shoe1" playOnState="Motion.Idle">
+        <Frame>28,16</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_shoe2Idle" sprite="s_shoe2" playOnState="Motion.Idle">
+        <Frame>28,17</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_shoe1LightIdle" sprite="s_shoe1Light" playOnState="Motion.Idle">
+        <Frame>30,16</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_shoe2LightIdle" sprite="s_shoe2Light" playOnState="Motion.Idle">
+        <Frame>30,17</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_shoe1Move" sprite="s_shoe1" animTime="200" isLoop="true" playOnState="Motion.Moving">
+        <Frame>28,16</Frame>
+        <Frame>29,16</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_shoe2Move" sprite="s_shoe2" animTime="200" isLoop="true" playOnState="Motion.Moving">
+        <Frame>28,17</Frame>
+        <Frame>29,17</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_shoe1LightMove" sprite="s_shoe1Light" animTime="200" isLoop="true" playOnState="Motion.Moving">
+        <Frame>30,16</Frame>
+        <Frame>31,16</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_shoe2LightMove" sprite="s_shoe2Light" animTime="200" isLoop="true" playOnState="Motion.Moving">
+        <Frame>30,17</Frame>
+        <Frame>31,17</Frame>
+      </SpriteAnimation>
+    </Animations>
+    <StateMachines>
+      <StateMachine name="Motion">
+        <States>
+          <State name="Idle" />
+          <State name="Moving" />
+        </States>
+        <Transitions>
+          <Transition to="Idle" from="Moving">
+            <Condition>
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition to="Moving" from="Idle">
+            <Condition>
+              <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine name="Tile">
+        <States>
+          <State name="Light" />
+          <State name="Dark" />
+        </States>
+        <Transitions>
+          <Transition to="Light" from="Dark">
+            <Condition>
+              <IsDarkTile>false</IsDarkTile>
+            </Condition>
+          </Transition>
+          <Transition to="Dark" from="Light">
+            <Condition>
+              <IsDarkTile>true</IsDarkTile>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+    <RenderOptions>
+      <Default>
+        <Set name="IgnorePunchTypeCheck">true</Set>
+        <Set name="ShoesShouldIgnoreRaptorLegsOffset">true</Set>
+        <Set name="UserNameOffset">2</Set>
+        <Set name="ClothingOffsetFromShoes">-8</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+  <RenderRules>
+    <RenderShoes>
+      <AvatarTransform class="FootPosition">
+        <Set name="foot1dy">0</Set>
+        <Set name="foot2dy">0</Set>
+        <Set name="foot1y">0</Set>
+        <Set name="foot2y">0</Set>
+      </AvatarTransform>
+      <SpriteRender name="s_shoe1" offset="1,8" alignmentLeft="DOWN_LEFT" alignmentRight="DOWN_RIGHT" onState="Tile.Light" />
+      <SpriteRender name="s_shoe2" offset="1,8" alignmentLeft="DOWN_RIGHT" alignmentRight="DOWN_LEFT" onState="Tile.Light" />
+      <SpriteRender name="s_shoe1Light" offset="1,8" alignmentLeft="DOWN_LEFT" alignmentRight="DOWN_RIGHT" onState="Tile.Dark" />
+      <SpriteRender name="s_shoe2Light" offset="1,8" alignmentLeft="DOWN_RIGHT" alignmentRight="DOWN_LEFT" onState="Tile.Dark" />
+    </RenderShoes>
+  </RenderRules>
+</ItemRenderer>

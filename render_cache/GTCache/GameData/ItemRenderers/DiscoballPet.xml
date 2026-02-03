@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+	<Data>
+		<Sprite name="s_Pet" fileName="game/pets/p_disco.rttex" textureSize="32,32" frame="0,0" />
+		<Sprite name="s_luteTrail" fileName="game/particles10.rttex" textureSize="32" frame="7,16"/>
+		<Sprite name="s_Hand" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="31,22" />
+		<Animations>
+			<SpriteAnimation name="a_luteTrail" sprite="s_luteTrail" isLoop="true" animTime="600">
+				<Frame>16,12</Frame>
+				<Frame>15,12</Frame>
+				<Frame>16,15</Frame>
+				<Frame>15,15</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_PetIdle" sprite="s_Pet" animTime="400" isLoop="true" playOnState="Action.None">
+				<Frame>0,0</Frame>
+				<Frame>1,0</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_PetPunch" sprite="s_Pet" animTime="200" isLoop="true" playOnState="Action.Punch">
+				<Frame>3,0</Frame>
+				<Frame>4,0</Frame>
+			</SpriteAnimation>
+		</Animations>
+		<StateMachines>
+			<StateMachine name="Action">
+				<States>
+					<State name="None" />
+					<State name="Punch" />
+				</States>
+				<Transitions>
+					<Transition to="None" from="Punch">
+						<Condition>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Punch" from="None">
+						<Condition>
+							<IsAction>PUNCH</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<RenderOptions>
+			<Default>
+				<Set name="NeedRenderPet">true</Set>
+				<Set name="PetOffsetDuplication">-48,0</Set>
+				<Set name="IncludeAllActions">true</Set>
+				<Set name="IgnorePunchTypeCheck">true</Set>
+				<Set name="IsPetWithLight">true</Set>
+			</Default>
+		</RenderOptions>
+		<ParticleSystems>
+			<ParticleSystem name="ps_luteTrail">
+				<Emitter>
+					<Set name="offset">0, 0</Set>
+					<Set name="emissionInterval">0.04</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true">
+					<Set name="sprite">s_luteTrail</Set>
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">ADDITIVE</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialRotationRate">
+						<KeyFrame>0, 15</KeyFrame>
+						<KeyFrame>1, 5</KeyFrame>
+					</Curve>
+					<Random name="initialAngle" min="0" max="360" />
+					<Random name="finalAngle" min="0" max="360" />
+					<Set name="interpolateAngle">true</Set>
+					<Set name="initialScale">0.6,0.6</Set>
+					<Random name="finalScale" min="0.3" max="0.6" />
+					<Set name="interpolateScale">true</Set>
+					<Random name="offset" min="-4,-6" max="4,6" />
+					<Set name="lifeTime">1</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+	</Data>
+	<RenderRules>
+		<OnPunchUpdate>
+			<AvatarTransform class="Face">
+				<Set name="face">MAD</Set>
+			</AvatarTransform>
+		</OnPunchUpdate>
+		<RenderHandItem>
+			<SpriteRender name="s_Hand" blend="PREMULTIPLIED_ALPHA" alignment="UPPER_CENTER" />
+		</RenderHandItem>
+		<RenderPet>
+      <ParticleSystemRender name="ps_luteTrail"/>
+			<ParticleSystemUpdate name="ps_luteTrail"/>
+			<SpriteRender name="s_Pet" blend="PREMULTIPLIED_ALPHA" drawShadow="false" scale="0.7,0.7"/>
+			<StopIf>
+				<IsSitting ItemID="ITEM_ID_THEATER_SEAT">false</IsSitting>
+			</StopIf>
+			<ParticleSystemRender name="ps_luteTrail"/>
+		</RenderPet>
+	</RenderRules>
+</ItemRenderer>

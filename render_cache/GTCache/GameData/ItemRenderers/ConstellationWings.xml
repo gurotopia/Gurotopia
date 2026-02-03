@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_wing" fileName="game/particles_large15.rttex" textureSize="64" frame="4,12"/>
+    <Sprite name="s_wingGlow" fileName="game/particles_large15.rttex" textureSize="64" frame="10,12"/>
+
+    <Animations>
+      <SpriteAnimation name="a_wingIdle" isLoop="true" sprite="s_wing" playOnState="Motion.Idle" animTime="900">
+        <Frame>4,12</Frame>
+        <Frame>5,12</Frame>
+        <Frame>6,12</Frame>
+        <Frame>7,12</Frame>
+        <Frame>8,12</Frame>
+        <Frame>9,12</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_wingJump" sprite="s_wing" playOnState="Motion.Jump" animTime="200">
+        <Frame>11,12</Frame>
+        <Frame>12,12</Frame>
+        <Frame>13,12</Frame>
+        <Frame>14,12</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_wingFall" sprite="s_wing" playOnState="Motion.Fall" animTime="100">
+        <Frame>14,12</Frame>
+      </SpriteAnimation>
+      <SpriteCurveAnimation name="a_wingGlow" isLoop="true" playOnState="Motion.Idle" sprite="s_wingGlow" animTime="3000">
+        <Curve name="alpha">
+          <KeyFrame>0.f, 0.f</KeyFrame>
+          <KeyFrame>0.5f, 1.f </KeyFrame>
+          <KeyFrame>1.f, 0.f</KeyFrame>
+        </Curve>
+      </SpriteCurveAnimation>
+      <SpriteCurveAnimation name="a_wing" isLoop="true" autoPlay="true" sprite="s_wing" animTime="3000">
+        <Curve name="alpha">
+          <KeyFrame>0.f, 0.8f</KeyFrame>
+          <KeyFrame>1.f, 0.8f</KeyFrame>
+        </Curve>
+      </SpriteCurveAnimation>
+    </Animations>
+
+    <StateMachines>
+      <StateMachine name="Motion">
+        <States>
+          <State name="Idle" />
+          <State name="Jump" />
+          <State name="Fall" />
+        </States>
+        <Transitions>
+          <Transition to="Idle" from="Fall|Jump">
+            <Condition>
+              <IsVariableBool name="onGround">true</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition to="Jump" from="Idle|Fall">
+            <Condition type="and">
+              <IsVariableBool name="onGround">false</IsVariableBool>
+              <IsVariableFloat name="speed.y" operator="Less">-0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition to="Fall" from="Jump|Idle">
+            <Condition type="and">
+              <IsVariableBool name="onGround">false</IsVariableBool>
+              <IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+  </Data>
+
+  <RenderRules>
+    <RenderBackpack>
+      <SpriteRender name="s_wing" offset="0,-16"  alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER" blend="PREMULTIPLIED_ALPHA" drawShadow="false"/>
+      <SpriteRender name="s_wing" offset="0,-16" flip="1,0" alignmentLeft="RIGHT_CENTER" alignmentRight="LEFT_CENTER" blend="PREMULTIPLIED_ALPHA" drawShadow="false" />
+      <SpriteRender name="s_wingGlow" offset="0,-16" alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER" drawShadow="false" onState="Motion.Idle" blend="PREMULTIPLIED_ALPHA"/>
+      <SpriteRender name="s_wingGlow" offset="0,-16" flip="1,0" alignmentLeft="RIGHT_CENTER" alignmentRight="LEFT_CENTER" drawShadow="false" onState="Motion.Idle" blend="PREMULTIPLIED_ALPHA"/>
+    </RenderBackpack>
+  </RenderRules>
+</ItemRenderer>

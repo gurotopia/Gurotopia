@@ -1,0 +1,171 @@
+<?xml version="1.0"?>
+<ItemRenderer item="ITEM_ID_HOLIDAY_LIGHTS_SCARF">
+	<Data>
+		<Sprite name="s_scarf" fileName="game/particles_large14.rttex" textureSize="64" frame="7,14" />
+		<Sprite name="s_scarfGlow" fileName="game/particles_large14.rttex" textureSize="64" frame="7,15" />
+		<Sprite name="s_sleeve" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="24,23" />
+		<Sprite name="s_sleeveGlow" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="24,24" />
+		<Sprite name="s_sparkles" fileName="game/particles11.rttex" textureSize="32" frame="21,27" />
+		<StateMachines>
+			<StateMachine name="playerState">
+				<States>
+					<State name="Idle" />
+					<State name="Fall" />
+					<State name="Jump" />
+				</States>
+				<Transitions>
+					<Transition from="Jump|Fall" to="Idle">
+						<Condition>
+							<IsVariableFloat name="speed.y" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+					<Transition from="Fall|Idle" to="Jump">
+						<Condition>
+							<IsAction>JUMP</IsAction>
+						</Condition>
+					</Transition>
+					<Transition from="Jump|Idle" to="Fall">
+						<Condition>
+							<IsAction>FALL</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<Animations>
+			<SpriteCurveAnimation name="a_glowingSleeve" isLoop="true" autoPlay="true" sprite="s_sleeveGlow" animTime="1000">
+				<Curve name="alpha">
+					<KeyFrame>0.f, 0.f</KeyFrame>
+					<KeyFrame>0.2f, 0.f </KeyFrame>
+					<KeyFrame>0.4f, 1.f</KeyFrame>
+					<KeyFrame>0.8f, 1.f</KeyFrame>
+					<KeyFrame>1.f, 0.f</KeyFrame>
+				</Curve>
+			</SpriteCurveAnimation>
+			<SpriteCurveAnimation name="a_glowingScarf" isLoop="true" autoPlay="true" sprite="s_scarfGlow" animTime="1000">
+				<Curve name="alpha">
+					<KeyFrame>0.f, 0.f</KeyFrame>
+					<KeyFrame>0.2f, 0.f </KeyFrame>
+					<KeyFrame>0.4f, 1.f</KeyFrame>
+					<KeyFrame>0.8f, 1.f</KeyFrame>
+					<KeyFrame>1.f, 0.f</KeyFrame>
+				</Curve>
+			</SpriteCurveAnimation>
+			<SpriteAnimation name="a_scarfFall" sprite="s_scarf" animTime="200" isLoop="true" playOnState="playerState.Fall">
+				<Frame>14,1</Frame>
+				<Frame>15,1</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_scarfGlowFall" sprite="s_scarfGlow" animTime="200" isLoop="true" playOnState="playerState.Fall">
+				<Frame>14,2</Frame>
+				<Frame>15,2</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_scarfGlowIdle" sprite="s_scarfGlow" animTime="800" isLoop="true" playOnState="playerState.Idle">
+				<Frame>7,15</Frame>
+				<Frame>8,15</Frame>
+				<Frame>9,15</Frame>
+				<Frame>10,15</Frame>
+				<Frame>11,15</Frame>
+				<Frame>12,15</Frame>
+				<Frame>13,15</Frame>
+				<Frame>14,15</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_scarfGlowJump" sprite="s_scarfGlow" animTime="800" isLoop="true" playOnState="playerState.Jump">
+				<Frame>15,15</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_scarfIdle" sprite="s_scarf" animTime="800" isLoop="true" playOnState="playerState.Idle">
+				<Frame>7,14</Frame>
+				<Frame>8,14</Frame>
+				<Frame>9,14</Frame>
+				<Frame>10,14</Frame>
+				<Frame>11,14</Frame>
+				<Frame>12,14</Frame>
+				<Frame>13,14</Frame>
+				<Frame>14,14</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_scarfJump" sprite="s_scarf" animTime="800" isLoop="true" playOnState="playerState.Jump">
+				<Frame>15,14</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sleeveFall" sprite="s_sleeve" animTime="200" isLoop="true" playOnState="playerState.Fall">
+				<Frame>21,23</Frame>
+				<Frame>22,23</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sleeveGlowFall" sprite="s_sleeveGlow" animTime="200" isLoop="true" playOnState="playerState.Fall">
+				<Frame>21,24</Frame>
+				<Frame>22,24</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sleeveGlowIdle" sprite="s_sleeveGlow" animTime="800" isLoop="true" playOnState="playerState.Idle">
+				<Frame>24,24</Frame>
+				<Frame>25,24</Frame>
+				<Frame>26,24</Frame>
+				<Frame>27,24</Frame>
+				<Frame>28,24</Frame>
+				<Frame>29,24</Frame>
+				<Frame>30,24</Frame>
+				<Frame>31,24</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sleeveGlowJump" sprite="s_sleeveGlow" animTime="800" isLoop="true" playOnState="playerState.Jump">
+				<Frame>23,24</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sleeveIdle" sprite="s_sleeve" animTime="800" isLoop="true" playOnState="playerState.Idle">
+				<Frame>24,23</Frame>
+				<Frame>25,23</Frame>
+				<Frame>26,23</Frame>
+				<Frame>27,23</Frame>
+				<Frame>28,23</Frame>
+				<Frame>29,23</Frame>
+				<Frame>30,23</Frame>
+				<Frame>31,23</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sleeveJump" sprite="s_sleeve" animTime="800" isLoop="true" playOnState="playerState.Jump">
+				<Frame>23,23</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sparkles" sprite="s_sparkles">
+				<Frame>21,27</Frame>
+				<Frame>22,27</Frame>
+				<Frame>23,27</Frame>
+			</SpriteAnimation>
+		</Animations>
+		<ParticleSystems>
+			<ParticleSystem name="ps_Sparkles" updateStage="AddClothingParticles" renderStage="RenderChestBackItem">
+				<Emitter>
+					<Random name="emissionInterval" min="0.15" max="0.25" />
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">2</Set>
+          <Random name="offset" min="-32, -32" max="24, -6" />
+				</Emitter>
+				<Particle randomSpriteFrame="true">
+					<Set name="sprite">s_sparkles</Set>
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">ADDITIVE</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.3, 1</KeyFrame>
+						<KeyFrame>38, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="interpolateScale">true</Set>
+					<Set name="initialScale">0.8, 0.8</Set>
+					<Random name="finalScale" min="0.3" max="0.6" />
+					<Set name="lifeTime">0.85</Set>
+					<Random name="initialRotationRate" min="15" max="60" />
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		<RenderOptions>
+			<Default>
+				<Set name="IgnorePunchTypeCheck">true</Set>
+			</Default>
+		</RenderOptions>
+	</Data>
+	<RenderRules>
+		<RenderChestItem>
+			<SpriteRender name="s_sleeve" offset="-19,-13.5" />
+			<SpriteRender name="s_sleeveGlow" offset="-19,-13.5" drawShadow="false" />
+		</RenderChestItem>
+		<RenderChestBackItem>
+			<SpriteRender name="s_scarf" offset="-4,-32" />
+			<SpriteRender name="s_scarfGlow" offset="-4,-32" drawShadow="false" />
+		</RenderChestBackItem>
+	</RenderRules>
+</ItemRenderer>

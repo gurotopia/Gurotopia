@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer name="WindGuardianProjectile" DungeonOnly="true">
+  <Data>
+    <Sprite name="s_projectile" fileName="game/npc1.rttex" textureSize="32" frame="26,9"/>
+    <Sprite name="s_hit" fileName="game/particles_large5.rttex" textureSize="64" frame="10,12"/>
+
+    <Animations>
+      <SpriteAnimation name="a_patrol" sprite="s_projectile" animTime="300">
+        <Frame>26,9</Frame>
+        <Frame>27,9</Frame>
+        <Frame>28,9</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_hit" sprite="s_hit" animTime="300">
+        <Frame>13,12</Frame>
+        <Frame>10,12</Frame>
+        <Frame>11,12</Frame>
+        <Frame>12,12</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <ParticleSystems>
+      <ParticleSystem name="ps_projectile" updateStage="OnCreate">
+        <Emitter>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="offset">0,0</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_projectile</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="initialVelocity">50,0</Set>
+          <Set name="collisionDamageAmount">0.01</Set>
+          <Set name="collisionSize">8,8</Set>
+          <Set name="useTargetDir">true</Set>
+          <Random name="lifeTime" min="5" max="5"/>
+          <Set name="collisionType">
+            <CollisionType>PROJECTILES_ENEMY</CollisionType>
+          </Set>
+          <Set name="collisionFlag">
+            <CollisionFlag>PLAYERS</CollisionFlag>
+            <CollisionFlag>WORLD_TILES</CollisionFlag>
+          </Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_hit" updateStage="OnHit">
+        <Emitter>
+          <Set name="lifeTime">0</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_hit</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="lifeTime">0.3</Set>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+  </Data>
+</ItemRenderer>

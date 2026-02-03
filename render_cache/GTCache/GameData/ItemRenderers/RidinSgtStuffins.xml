@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_Front" fileName="game/particles_large16.rttex" textureSize="64" frame="9,11" />
+    <Sprite name="s_Back" fileName="game/particles_large16.rttex" textureSize="64" frame="9,12" />
+ 
+    <Animations>
+      <SpriteAnimation name="a_front" sprite="s_Front" animTime="400" autoPlay="true" isLoop="true">
+        <Frame>9,11</Frame>
+        <Frame>10,11</Frame>
+        <Frame>11,11</Frame>
+        <Frame>12,11</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_back" sprite="s_Back" animTime="400" autoPlay="true" isLoop="true">
+        <Frame>9,12</Frame>
+        <Frame>10,12</Frame>
+        <Frame>11,12</Frame>
+        <Frame>12,12</Frame>
+      </SpriteAnimation>
+    </Animations>
+    <Animations />
+    <RenderOptions>
+      <Default>
+        <Set name="PlayDefaultPunchAudio">true</Set>
+        <Set name="ClothingOffsetFromShoes">-16</Set>
+        <Set name="UserNameOffset">16</Set>
+        <Set name="RenderShoesWithMermaidTail">true</Set>
+        <Set name="ShoesShouldIgnoreRaptorLegsOffset">true</Set>
+        <Set name="IsRidingBird">true</Set>
+        <Set name="IgnorePunchTypeCheck">true</Set>
+        <Set name="ShouldHover">true</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+  <RenderRules>
+	  <OnPunchUpdate>
+		  <AvatarTransform class="Face">
+			  <Set name="face">MAD</Set>
+		  </AvatarTransform>
+	  </OnPunchUpdate>
+	  <RenderBehind>
+		  <StopIf type="or">
+			  <IsZombified>true</IsZombified>
+			  <IsSitting>true</IsSitting>
+			  <IsSleepingOnaBed>true</IsSleepingOnaBed>
+			  <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+		  </StopIf>
+
+
+      <Translate>10,15,0</Translate>
+			  <SpriteRender name="s_Back" blend="PREMULTIPLIED_ALPHA" drawShadow="true"/>
+	  </RenderBehind>
+	  <RenderInFront>
+		  <StopIf type="or">
+			  <IsZombified>true</IsZombified>
+			  <IsSitting>true</IsSitting>
+			  <IsSleepingOnaBed>true</IsSleepingOnaBed>
+			  <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+		  </StopIf>
+			  <Translate>9,-11,0</Translate>
+			  <SpriteRender name="s_Front" blend="PREMULTIPLIED_ALPHA" drawShadow="true" />
+	  </RenderInFront>
+	  <Update>
+		  <StopIf type="or">
+			  <IsZombified>true</IsZombified>
+			  <IsTrnsformed>true</IsTrnsformed>
+			  <IsSitting>true</IsSitting>
+			  <IsSleepingOnaBed>true</IsSleepingOnaBed>
+			  <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+			  <IsAction>JUMP</IsAction>
+			  <IsAction>JUMPDOUBLE</IsAction>
+			  <IsAction>JUMPSTART</IsAction>
+			  <IsAction>FALL</IsAction>
+		  </StopIf>
+		  <AvatarTransform class="ArmAngle">
+			  <Set name="armName">arm2Angle</Set>
+			  <Set name="armAngle">-45</Set>
+		  </AvatarTransform>
+		  <StopIf>
+			  <IsAction>PUNCH</IsAction>
+			  <IsAction>BUILD</IsAction>
+		  </StopIf>
+		  <AvatarTransform class="ArmAngle">
+			  <Set name="armName">arm1Angle</Set>
+			  <Set name="armAngle">-45</Set>
+		  </AvatarTransform>
+	  </Update>
+  </RenderRules>
+</ItemRenderer>

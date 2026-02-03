@@ -1,0 +1,249 @@
+<?xml version="1.0" ?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_staff" fileName="game/player_longhanditem4.rttex" textureSize="64,32" frame="4,10" />
+    <Sprite name="s_chain" fileName="game/particles12.rttex" textureSize="32,32" frame="29,7" />
+    <Sprite name="s_mist" fileName="game/particles12.rttex" textureSize="32,32" frame="28,7" />
+    <Sprite name="s_punchCurve" fileName="game/particles_large16.rttex" textureSize="64" frame="15,0" />
+    <Sprite name="s_hit" fileName="game/particles_large16.rttex" textureSize="64" frame="15,3" />
+    <StateMachines>
+      <StateMachine name="Action">
+        <States>
+          <State name="Idle" />
+          <State name="Walk" />
+          <State name="JumpStraight" />
+          <State name="JumpDiagonal" />
+          <State name="FallStraight" />
+          <State name="FallDiagonal" />
+          <State name="Punch" />
+        </States>
+        <Transitions>
+          <Transition to="Idle" from="Walk|FallStraight|FallDiagonal|Punch">
+            <Condition type="and">
+              <IsAction>IDLE</IsAction>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="Walk" from="Idle|FallDiagonal|FallStraight|Punch">
+            <Condition type="and">
+              <IsVariableFloat name="speed.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+              <IsVariableFloat name="speed.y" operator="Less" abs="true">0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">JUMP</IsAction>
+              <IsAction operatorType="NotEqual">FALL</IsAction>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="JumpStraight" from="Idle|Walk|FallStraight|JumpDiagonal|FallDiagonal|Punch">
+            <Condition type="and">
+              <IsVariableFloat name="speed.y" operator="Less">-0.1</IsVariableFloat>
+              <IsVariableFloat name="speed.x" operator="Less" abs="true">0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="JumpDiagonal" from="Idle|Walk|FallStraight|JumpStraight|FallDiagonal|Punch">
+            <Condition type="and">
+              <IsVariableFloat name="speed.y" operator="Less">-0.1</IsVariableFloat>
+              <IsVariableFloat name="speed.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="FallStraight" from="Walk|FallDiagonal|JumpStraight|JumpDiagonal|Idle|Punch">
+            <Condition type="and">
+              <IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+              <IsVariableFloat name="speed.x" operator="Less" abs="true">0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="FallDiagonal" from="Walk|FallStraight|JumpStraight|JumpDiagonal|Idle|Punch">
+            <Condition type="and">
+              <IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+              <IsVariableFloat name="speed.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition to="Punch" from="Walk|FallStraight|JumpStraight|JumpDiagonal|Idle|FallDiagonal">
+            <Condition>
+              <IsAction>PUNCH</IsAction>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine name="Particle">
+        <States>
+          <State name="On" />
+          <State name="Off" />
+        </States>
+        <Transitions>
+          <Transition to="On" from="Off">
+            <Condition type="and">
+              <IsSitting ItemID="ITEM_ID_THEATER_SEAT">false</IsSitting>
+              <IsSleepingOnaBed>false</IsSleepingOnaBed>
+              <IsVariableBool name="isMannequin">false</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition to="Off" from="On">
+            <Condition type="or">
+              <IsSitting ItemID="ITEM_ID_THEATER_SEAT">true</IsSitting>
+              <IsSleepingOnaBed>true</IsSleepingOnaBed>
+              <IsVariableBool name="isMannequin">true</IsVariableBool>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+    <Animations>
+      <InterpolationVec4Animation name="a_idle" variableName="chain_rotation" targetValue="0, 0, 0, 1" animTime="600" playOnState="Action.Idle"/>
+      <InterpolationVec4Animation name="a_walk" variableName="chain_rotation" targetValue="90, 0, 0, 1" animTime="400" playOnState="Action.Walk"/>
+      <InterpolationVec4Animation name="a_fallFallStraight" variableName="chain_rotation" targetValue="180, 0, 0, 1" animTime="1000" playOnState="Action.FallStraight"/>
+      <InterpolationVec4Animation name="a_fallFallDiagonal" variableName="chain_rotation" targetValue="135, 0, 0, 1" animTime="400" playOnState="Action.FallDiagonal"/>
+      <InterpolationVec4Animation name="a_jumpJumpStraight" variableName="chain_rotation" targetValue="0, 0, 0, 1" animTime="1000" playOnState="Action.JumpStraight"/>
+      <InterpolationVec4Animation name="a_jumpJumpDiagonal" variableName="chain_rotation" targetValue="45, 0, 0, 1" animTime="400" playOnState="Action.JumpDiagonal"/>
+      <CurveAnimationVec4 name="a_punch" isLoop="true" playOnState="Action.Punch" animTime="500">
+        <Curve name="chain_rotation">
+          <KeyFrame>0.0, -90,0,0,1</KeyFrame>
+          <KeyFrame>1, -90,0,0,1</KeyFrame>
+        </Curve>
+      </CurveAnimationVec4>
+    </Animations>
+    <VariableMap>
+      <Set name="chain_rotation">0, 0, 0, 1</Set>
+      <Set name="final_rotation">0, 0, 0, 1</Set>
+      <Set name="Player.GetFacing">1</Set>
+      <Set name="Player.BackArm.GetRotation">0, 0, 0, 1</Set>
+    </VariableMap>
+    <ParticleSystems>
+      <ParticleSystem name="ps_maceMist" updateStage="RenderBackHandItem" updateState="Particle.On">
+        <Emitter>
+          <Random name="offset" min="-8,-4" max="8,8" />
+          <Random name="emissionInterval" min="0.1" max="0.3" />
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_mist</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Set name="lifeTime">2.0</Set>
+          <Set name="initialVelocity">0,-20</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 0.5</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Random name="initialScale" min="0.2" max="0.4" />
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_punchCurved" updateStage="OnPunchStart">
+        <Emitter>
+          <Set name="offset">16,-18</Set>
+          <Set name="lifeTime">0.4</Set>
+          <Set name="emissionInterval">0.4</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_punchCurve</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Set name="lifeTime">0.4</Set>
+          <Set name="rotateWithVelocity">true</Set>
+          <Set name="interpolateAlpha">false</Set>
+          <Set name="initialAlpha">1</Set>
+          <Set name="finalAlpha">1</Set>
+          <Set name="interpolateVelocity">true</Set>
+          <Set name="initialScale">2,2</Set>
+          <VectorTo name="initialVelocity" source="targetPos" duration="lifeTime" x="1" angle="0"/>
+          <VectorTo name="finalVelocity" source="targetPos" duration="lifeTime" x="1" angle="0"/>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_hitFlash" updateStage="OnDamagedTile">
+        <Emitter>
+          <Set name="lifeTime">0</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_hit</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Curve name="initialScale">
+            <KeyFrame>0, 0.5,0.5</KeyFrame>
+            <KeyFrame>1, 1,1</KeyFrame>
+          </Curve>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="lifeTime">0.5</Set>
+          <Random name="initialAngle" min="0" max="360" />
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+    <RenderOptions>
+      <Default>
+        <Set name="PunchSoundOverride">HAND</Set>
+        <Set name="PlayDefaultPunchAudio">false</Set>
+        <Set name="DefaultRenderMannequinHandItem">false</Set>
+        <Set name="RenderFrontArmInfected">true</Set>
+        <Set name="RenderBackArmInfected">true</Set>
+        <Set name="IgnoreDefaultDamagedTileEffect">true</Set>
+        <Set name="IncludeAllActions">true</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+  <RenderRules>
+    <RenderBackHandItem>
+      <StopIf type="and">
+        <IsZombified>true</IsZombified>
+        <IsAction>PUNCH</IsAction>
+      </StopIf>
+      <StopIf>
+        <IsAction>BUILD</IsAction>
+      </StopIf>
+      <Group>
+        <Translate>5,3,0</Translate>
+        <Rotate>180,0,0,1</Rotate>
+        <SpriteRender name="s_staff" blend="NORMAL" alignment="CENTER" drawShadow="true" />
+      </Group>
+      <Translate>32,5,0</Translate>
+      <Group onState="Action.Walk|Action.FallStraight|Action.JumpStraight|Action.JumpDiagonal|Action.Idle|Action.FallDiagonal">
+        <ArithmethicOperation LeftHandVariableName="final_rotation" RightHandVariableName="chain_rotation" OperationType="Set"/>
+      </Group>
+      <Group onState="Action.Punch">
+        <ArithmethicOperation LeftHandVariableName="final_rotation" RightHandVariableName="Player.BackArm.GetRotation" OperationType="Set"/>
+        <ArithmethicOperation LeftHandVariableName="final_rotation" RightHandVariableName="chain_rotation" OperationType="Add"/>
+      </Group>
+      <ArithmethicOperation LeftHandVariableName="final_rotation.x" RightHandVariableName="Player.GetFacing" OperationType="Multiply"/>
+      <Rotate forceValue="true">final_rotation</Rotate>
+      <SpriteRender name="s_chain" blend="NORMAL" alignment="UPPER_CENTER" drawShadow="true" />
+      <Translate>0,24,0</Translate>
+    </RenderBackHandItem>
+    <Update>
+      <StopIf>
+        <IsZombified>true</IsZombified>
+      </StopIf>
+      <AvatarTransform class="ArmAngle" onState="Action.Walk|Action.FallStraight|Action.JumpStraight|Action.JumpDiagonal|Action.Idle|Action.FallDiagonal">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">205</Set>
+      </AvatarTransform>
+    </Update>
+    <OnPunchUpdate>
+      <StopIf>
+        <IsZombified>true</IsZombified>
+      </StopIf>
+      <AvatarTransform class="Face">
+        <Set name="face">MAD</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="animTime">500</Set>
+        <Set name="Curve">
+          <KeyFrame>0.0, 205</KeyFrame>
+          <KeyFrame>0.3, 360</KeyFrame>
+          <KeyFrame>0.8, 360</KeyFrame>
+          <KeyFrame>0.81, 205</KeyFrame>
+          <KeyFrame>1, 205</KeyFrame>
+        </Set>
+      </AvatarTransform>
+    </OnPunchUpdate>
+  </RenderRules>
+</ItemRenderer>

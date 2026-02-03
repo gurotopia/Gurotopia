@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_wing" fileName="game/particles_large15.rttex" textureSize="64" frame="0,10"/>
+    <Sprite name="s_spark" fileName="game/particles12.rttex" textureSize="32" frame="3,1"/>
+
+	  <StateMachines>
+		  <StateMachine name="Action">
+			  <States>
+				  <State name="Idle" />
+				  <State name="JumpStraight" />
+				  <State name="FallStraight" />
+			  </States>
+			  <Transitions>
+				  <Transition to="Idle" from="FallStraight">
+					  <Condition>
+						  <IsVariableFloat name="speed.y" operator="Less" abs="true">0.1</IsVariableFloat>
+					  </Condition>
+				  </Transition>
+				  <Transition to="JumpStraight" from="Idle|FallStraight">
+					  <Condition>
+						  <IsAction>JUMP</IsAction>
+					  </Condition>
+				  </Transition>
+				  <Transition to="FallStraight" from="JumpStraight|Idle">
+					  <Condition>
+						  <IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+					  </Condition>
+				  </Transition>
+			  </Transitions>
+		  </StateMachine>		  
+		  <StateMachine name="TrialAnim">
+			  <States>
+				  <State name="Idle" />
+				  <State name="Move" />
+			  </States>
+			  <Transitions>
+				  <Transition to="Idle" from="Move">
+					  <Condition>
+						  <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+					  </Condition>
+				  </Transition>
+				  <Transition to="Move" from="Idle">
+					  <Condition>
+						  <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+					  </Condition>
+				  </Transition>
+			  </Transitions>
+		  </StateMachine>
+	  </StateMachines>
+	  
+    <Animations>
+      <SpriteAnimation name="wingEquip" sprite="s_wing" isLoop="true" playOnState="Action.Idle" animTime="1200">
+        <Frame>0,10</Frame>
+        <Frame>1,10</Frame>
+        <Frame>2,10</Frame>
+        <Frame>3,10</Frame>
+        <Frame>4,10</Frame>
+        <Frame>5,10</Frame>
+        <Frame>6,10</Frame>
+        <Frame>7,10</Frame>
+        <Frame>8,10</Frame>
+        <Frame>9,10</Frame>
+        <Frame>10,10</Frame>
+        <Frame>11,10</Frame>
+      </SpriteAnimation>      
+		
+	  <SpriteAnimation name="wingJump" sprite="s_wing" playOnState="Action.JumpStraight" isLoop="false" animTime="300">
+        <Frame>15,10</Frame>
+        <Frame>14,10</Frame>
+        <Frame>12,10</Frame>
+        <Frame>13,10</Frame>
+      </SpriteAnimation>
+
+		<SpriteAnimation name="wingFall" sprite="s_wing" playOnState="Action.FallStraight" isLoop="false" animTime="100">
+			<Frame>13,10</Frame>
+			<Frame>12,10</Frame>
+			<Frame>14,10</Frame>
+			<Frame>15,10</Frame>
+		</SpriteAnimation>
+    </Animations>
+
+	  <ParticleSystems>
+		  <ParticleSystem name="ps_luteTrail">
+			  <Emitter>
+				  <Set name="offset">-25, -16</Set>
+				  <Set name="emissionInterval">0.30</Set>
+				  <Set name="infParticles">true</Set>
+				  <Set name="infLifeTime">true</Set>
+				  <Set name="offsetFacing">false</Set>
+				  <Set name="particlesPerEmission">1</Set>
+				  <OrbitOffset>
+					  <Set name="maxScale">0.7f</Set>
+					  <Set name="hasOrbit">true</Set>
+					  <Set name="hOrbitPeriod">6000</Set>
+					  <Set name="hAmplitude">8</Set>
+					  <Set name="hTimeOffset">0</Set>
+					  <Set name="vAmplitude">6</Set>
+					  <Set name="vOrbitPeriod">4000</Set>
+					  <Set name="vTimeOffset">0</Set>
+					  <Set name="minScale">0.4</Set>
+				  </OrbitOffset>
+			  </Emitter>
+			  <Particle>
+				  <Set name="sprite">s_spark</Set>
+				  <Set name="inSpecificOrder">true</Set>
+				  <Set name="blendingMode">ADDITIVE</Set>
+				  <Curve name="initialAlpha">
+					  <KeyFrame>0, 1</KeyFrame>
+					  <KeyFrame>1, 0</KeyFrame>
+				  </Curve>
+				  <Curve name="initialRotationRate">
+					  <KeyFrame>0, 15</KeyFrame>
+					  <KeyFrame>1, 5</KeyFrame>
+				  </Curve>
+				  <Set name="relativeToEmitter">false</Set>
+				  <Random name="initialAngle" min="0" max="360" />
+				  <Random name="finalAngle" min="0" max="360" />
+				  <Set name="interpolateAngle">true</Set>
+				  <Set name="initialScale">1,1</Set>
+				  <Random name="finalScale" min="0.3" max="0.6" />
+				  <Set name="interpolateScale">true</Set>
+				  <Random name="offset" min="-2,-3" max="2,3" />
+				  <Set name="lifeTime">1</Set>
+			  </Particle>
+		  </ParticleSystem>
+		  <ParticleSystem name="ps_luteTrail2">
+			  <Emitter>
+				  <Set name="offset">25, -16</Set>
+				  <Set name="emissionInterval">0.30</Set>
+				  <Set name="infParticles">true</Set>
+				  <Set name="infLifeTime">true</Set>
+				  <Set name="offsetFacing">false</Set>
+				  <Set name="particlesPerEmission">1</Set>
+				  <OrbitOffset>
+					  <Set name="maxScale">0.7f</Set>
+					  <Set name="hasOrbit">true</Set>
+					  <Set name="hOrbitPeriod">-6000</Set>
+					  <Set name="hAmplitude">8</Set>
+					  <Set name="hTimeOffset">0</Set>
+					  <Set name="vAmplitude">6</Set>
+					  <Set name="vOrbitPeriod">4000</Set>
+					  <Set name="vTimeOffset">0</Set>
+					  <Set name="minScale">0.4</Set>
+				  </OrbitOffset>
+			  </Emitter>
+			  <Particle>
+				  <Set name="sprite">s_spark</Set>
+				  <Set name="inSpecificOrder">true</Set>
+				  <Set name="blendingMode">ADDITIVE</Set>
+				  <Curve name="initialAlpha">
+					  <KeyFrame>0, 1</KeyFrame>
+					  <KeyFrame>1, 0</KeyFrame>
+				  </Curve>
+				  <Curve name="initialRotationRate">
+					  <KeyFrame>0, 15</KeyFrame>
+					  <KeyFrame>1, 5</KeyFrame>
+				  </Curve>
+				  <Set name="relativeToEmitter">false</Set>
+				  <Random name="initialAngle" min="0" max="360" />
+				  <Random name="finalAngle" min="0" max="360" />
+				  <Set name="interpolateAngle">true</Set>
+				  <Set name="initialScale">1,1</Set>
+				  <Random name="finalScale" min="0.3" max="0.6" />
+				  <Set name="interpolateScale">true</Set>
+				  <Random name="offset" min="-2,-3" max="2,3" />
+				  <Set name="lifeTime">1</Set>
+			  </Particle>
+		  </ParticleSystem>
+		  
+		  
+		  <ParticleSystem name="ps_luteTrailMove">
+			  <Emitter>
+				  <Set name="offset">-25, -16</Set>
+				  <Set name="infParticles">true</Set>
+				  <Set name="infLifeTime">true</Set>
+				  <Set name="particlesPerEmission">1</Set>
+				  <Set name="emissionInterval">0.08</Set>
+				  <OrbitOffset>
+					  <Set name="maxScale">0.7f</Set>
+					  <Set name="hasOrbit">true</Set>
+					  <Set name="hOrbitPeriod">6000</Set>
+					  <Set name="hAmplitude">8</Set>
+					  <Set name="hTimeOffset">0</Set>
+					  <Set name="vAmplitude">6</Set>
+					  <Set name="vOrbitPeriod">4000</Set>
+					  <Set name="vTimeOffset">0</Set>
+					  <Set name="minScale">0.4</Set>
+				  </OrbitOffset>
+			  </Emitter>
+			  <Particle>
+				  <Set name="sprite">s_spark</Set>
+				  <Set name="inSpecificOrder">true</Set>
+				  <Set name="blendingMode">ADDITIVE</Set>
+				  <Curve name="initialAlpha">
+					  <KeyFrame>0, 1</KeyFrame>
+					  <KeyFrame>1, 0</KeyFrame>
+				  </Curve>
+				  <Curve name="initialRotationRate">
+					  <KeyFrame>0, 15</KeyFrame>
+					  <KeyFrame>1, 5</KeyFrame>
+				  </Curve>
+				  <Random name="initialAngle" min="0" max="360" />
+				  <Random name="finalAngle" min="0" max="360" />
+				  <Set name="interpolateAngle">true</Set>
+				  <Set name="initialScale">1,1</Set>
+				  <Random name="finalScale" min="0.3" max="0.6" />
+				  <Set name="interpolateScale">true</Set>
+				  <Random name="offset" min="-2,-3" max="2,3" />
+				  <Set name="lifeTime">1</Set>
+			  </Particle>
+		  </ParticleSystem>
+		  <ParticleSystem name="ps_luteTrail2Move">
+			  <Emitter>
+				  <Set name="offset">25, -16</Set>
+				  <Set name="infParticles">true</Set>
+				  <Set name="infLifeTime">true</Set>
+				  <Set name="particlesPerEmission">1</Set>
+				  <Set name="emissionInterval">0.08</Set>
+				  <OrbitOffset>
+					  <Set name="maxScale">0.7f</Set>
+					  <Set name="hasOrbit">true</Set>
+					  <Set name="hOrbitPeriod">-6000</Set>
+					  <Set name="hAmplitude">8</Set>
+					  <Set name="hTimeOffset">0</Set>
+					  <Set name="vAmplitude">6</Set>
+					  <Set name="vOrbitPeriod">4000</Set>
+					  <Set name="vTimeOffset">0</Set>
+					  <Set name="minScale">0.4</Set>
+				  </OrbitOffset>
+			  </Emitter>
+			  <Particle>
+				  <Set name="sprite">s_spark</Set>
+				  <Set name="inSpecificOrder">true</Set>
+				  <Set name="blendingMode">ADDITIVE</Set>
+				  <Curve name="initialAlpha">
+					  <KeyFrame>0, 1</KeyFrame>
+					  <KeyFrame>1, 0</KeyFrame>
+				  </Curve>
+				  <Curve name="initialRotationRate">
+					  <KeyFrame>0, 15</KeyFrame>
+					  <KeyFrame>1, 5</KeyFrame>
+				  </Curve>
+				  <Random name="initialAngle" min="0" max="360" />
+				  <Random name="finalAngle" min="0" max="360" />
+				  <Set name="interpolateAngle">true</Set>
+				  <Set name="initialScale">1,1</Set>
+				  <Random name="finalScale" min="0.3" max="0.6" />
+				  <Set name="interpolateScale">true</Set>
+				  <Random name="offset" min="-2,-3" max="2,3" />
+				  <Set name="lifeTime">1</Set>
+			  </Particle>
+		  </ParticleSystem>
+	  </ParticleSystems>
+
+  </Data>
+
+  <RenderRules>
+	<AddClothingParticles>
+		<ParticleSystemUpdate name="ps_luteTrail" onState="TrialAnim.Idle"/>
+		<ParticleSystemUpdate name="ps_luteTrail2" onState="TrialAnim.Idle"/>
+		
+		<ParticleSystemUpdate name="ps_luteTrailMove" onState="TrialAnim.Move"/>
+		<ParticleSystemUpdate name="ps_luteTrail2Move" onState="TrialAnim.Move"/>
+	</AddClothingParticles>
+	<RenderFrontpack>
+		<ParticleSystemRender name="ps_luteTrail"/>
+		<ParticleSystemRender name="ps_luteTrail2"/>		
+		
+		<ParticleSystemRender name="ps_luteTrailMove"/>
+		<ParticleSystemRender name="ps_luteTrail2Move"/>
+	</RenderFrontpack>
+    <RenderBackpack>
+      <SpriteRender name="s_wing" offset="0,-16" alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER"/>
+      <SpriteRender name="s_wing" offset="0,-16" flip="1,0" alignmentLeft="RIGHT_CENTER" alignmentRight="LEFT_CENTER"/>
+    </RenderBackpack>
+  </RenderRules>
+</ItemRenderer>

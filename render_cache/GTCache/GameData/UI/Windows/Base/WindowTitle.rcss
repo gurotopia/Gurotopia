@@ -1,0 +1,28 @@
+#window-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    height: auto;
+    margin-bottom: 0dp;
+    text-align: left;
+    margin: -30dp 0 0 0;
+}
+
+    #window-title .title-icon {
+        width: 60dp;
+        height: 60dp;
+        margin: 15dp 18dp 0 0;
+        display: block;
+        flex-shrink: 0;
+    }
+
+    #window-title .title-text {
+        color: rgb(255, 255, 255);
+        display: block;
+        line-height: 60dp;
+    }
+
+    #window-title.hidden,
+    #window-title .title-icon.hidden {
+        display: none;
+    }

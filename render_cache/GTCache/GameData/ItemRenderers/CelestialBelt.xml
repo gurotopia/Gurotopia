@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<ItemRenderer>
+	<Data>
+		<Sprite name="s_Belt" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="10,17" />
+		<Sprite name="s_Belt_back_proxy" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="4,17" />
+		<Sprite name="s_Belt_front_proxy" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="4,18" />
+	
+		<StateMachines>
+			<StateMachine name="Action">
+				<States>
+					<State name="Idle" />
+					<State name="Walk" />
+					<State name="JumpStraight" />
+					<State name="JumpDiagonal" />
+					<State name="FallStraight" />
+					<State name="FallDiagonal" />
+				</States>
+				<Transitions>
+					<Transition to="Idle" from="Walk|FallStraight|FallDiagonal">
+						<Condition>
+							<IsAction>IDLE</IsAction>
+						</Condition>
+					</Transition>					
+					<Transition to="Walk" from="Idle|FallDiagonal|FallStraight">
+						<Condition type="and">
+							<IsVariableFloat name="speed.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+							<IsVariableFloat name="speed.y" operator="Less" abs="true">0.1</IsVariableFloat>
+							<IsAction operatorType="NotEqual">JUMP</IsAction>
+							<IsAction operatorType="NotEqual">FALL</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="JumpStraight" from="Idle|Walk|FallStraight|JumpDiagonal|FallDiagonal">
+						<Condition type="and">
+							<IsVariableFloat name="speed.y" operator="Less">-0.1</IsVariableFloat>
+							<IsVariableFloat name="speed.x" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>			
+					<Transition to="JumpDiagonal" from="Idle|Walk|FallStraight|JumpStraight|FallDiagonal">
+						<Condition type="and">
+							<IsVariableFloat name="speed.y" operator="Less">-0.1</IsVariableFloat>
+							<IsVariableFloat name="speed.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+					<Transition to="FallStraight" from="Walk|FallDiagonal|JumpStraight|JumpDiagonal|Idle">
+						<Condition type="and">
+							<IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+							<IsVariableFloat name="speed.x" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>				
+					<Transition to="FallDiagonal" from="Walk|FallStraight|JumpStraight|JumpDiagonal|Idle">
+						<Condition type="and">
+							<IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+							<IsVariableFloat name="speed.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<Animations>
+			<SpriteAnimation name="s_Belt_back_proxy_idle" sprite="s_Belt_back_proxy" animTime="600" autoPlay="true" isLoop="true">
+				<Frame>4,17</Frame>
+				<Frame>5,17</Frame>
+				<Frame>6,17</Frame>
+				<Frame>7,17</Frame>
+				<Frame>8,17</Frame>
+				<Frame>9,17</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="s_Belt_front_proxy_idle" sprite="s_Belt_front_proxy" animTime="600" autoPlay="true" isLoop="true">
+				<Frame>4,18</Frame>
+				<Frame>5,18</Frame>
+				<Frame>6,18</Frame>
+				<Frame>7,18</Frame>
+				<Frame>8,18</Frame>
+				<Frame>9,18</Frame>
+			</SpriteAnimation>
+			<InterpolationVec4Animation name="idleProxy" variableName="belt_rotation" targetValue="0, 0, 0, 1" animTime="600" playOnState="Action.Idle"/>
+			<InterpolationVec4Animation name="walkProxy" variableName="belt_rotation" targetValue="90, 0, 0, 1" animTime="400" playOnState="Action.Walk"/>
+			<InterpolationVec4Animation name="fallProxyFallStraight" variableName="belt_rotation" targetValue="180, 0, 0, 1" animTime="1000" playOnState="Action.FallStraight"/>
+			<InterpolationVec4Animation name="fallProxyFallDiagonal" variableName="belt_rotation" targetValue="135, 0, 0, 1" animTime="400" playOnState="Action.FallDiagonal"/>
+			<InterpolationVec4Animation name="jumpProxyJumpStraight" variableName="belt_rotation" targetValue="0, 0, 0, 1" animTime="1000" playOnState="Action.JumpStraight"/>
+			<InterpolationVec4Animation name="jumpProxyJumpDiagonal" variableName="belt_rotation" targetValue="45, 0, 0, 1" animTime="400" playOnState="Action.JumpDiagonal"/>
+		</Animations>
+		<RenderOptions>
+			<Default>
+				<Set name="ShouldHover">true</Set>
+			</Default>
+		</RenderOptions>
+		<VariableMap>
+			<Set name="belt_rotation">0, 0, 0, 1</Set>
+			<Set name="belt_position">0, -17, 0</Set>
+			<Set name="proxy_position">-7, -10, 0</Set>
+			<Set name="proxy_position_back">5.5, -10, 0</Set>
+		</VariableMap>
+	</Data>
+	<RenderRules>
+		<Update>
+			<StopIf>
+				<IsZombified>true</IsZombified>
+				<IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+			</StopIf>
+			<AvatarTransform class="FootPosition">
+				<Set name="foot1dy">0</Set>
+				<Set name="foot2dy">0</Set>
+				<Set name="foot1y">0</Set>
+				<Set name="foot2y">0</Set>
+			</AvatarTransform>
+			<AvatarTransform class="ArmAngle" onState="Action.Walk">
+				<Set name="armName">arm2Angle</Set>
+				<Set name="armAngle">45</Set>
+			</AvatarTransform>
+			<AvatarTransform class="ArmAngle" onState="Action.Walk">
+				<Set name="armName">arm1Angle</Set>
+				<Set name="armAngle">-45</Set>
+			</AvatarTransform>
+		</Update>
+		<RenderChestBackItem>
+			<StopIf>
+				<IsVariableBool name="isMannequin">true</IsVariableBool>
+			</StopIf>
+			<Group>			
+				<Translate>proxy_position_back</Translate>
+				<Rotate>belt_rotation</Rotate>
+				<SpriteRender name="s_Belt_back_proxy" blend="PREMULTIPLIED_ALPHA" alignment="UPPER_CENTER"/>
+			</Group>
+			<Group>			
+				<Translate>proxy_position</Translate>
+				<Rotate>belt_rotation</Rotate>
+				<SpriteRender name="s_Belt_front_proxy" blend="PREMULTIPLIED_ALPHA" alignment="UPPER_CENTER"/>
+			</Group>
+		</RenderChestBackItem>
+		<RenderChestItem>
+			<Translate>belt_position</Translate>
+			<SpriteRender name="s_Belt" blend="PREMULTIPLIED_ALPHA" />
+		</RenderChestItem>
+	</RenderRules>
+</ItemRenderer>

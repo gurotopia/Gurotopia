@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+	<Data>
+		<Sprite name="item_Sprite" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="24,28"/>
+		<RenderOptions>
+			<Default>
+				<Set name="PunchSoundOverride">HAND</Set>
+
+				<Set name="DefaultRenderMannequinHandItem">false</Set>
+				<Set name="RenderFrontArmInfected">true</Set>
+				<Set name="RenderFrontArmInTheFront">true</Set>
+			</Default>
+		</RenderOptions>
+	</Data>
+	<RenderRules>
+		<RenderHandItem>
+			<SpriteRender name="item_Sprite" rotateOffset="true" alignment="UPPER_CENTER" blend="PREMULTIPLIED_ALPHA" stretchToTarget="false"/>
+		</RenderHandItem>
+		<Update>
+			<StopIf>
+				<IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+			</StopIf>
+			<AvatarTransform class="ArmAngle">
+				<Set name="armName">arm2Angle</Set>
+				<Set name="armAngle">-90</Set>
+			</AvatarTransform>
+		</Update>
+	</RenderRules>
+</ItemRenderer>

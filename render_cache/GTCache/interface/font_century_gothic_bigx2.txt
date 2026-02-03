@@ -1,0 +1,48 @@
+//A script for RTPack.exe to make an .rtfont file.  To run it, do this:  RTPack.exe -make_font <filename of this file.txt>
+
+//Font image - if it's not already a .rttex, it will automatically convert to .rttex using -pvrt4444
+image|font_century_gothic_bigx2_0.png
+
+//a .fnt data file created by Well Oiled Font Maker or Bitmap Font Generator, at the same time it makes the .bmp
+fnt_file|font_century_gothic_bigx2.fnt
+
+blank_space_width|10
+
+//outputfile will automatically be <filename of this file>.rtfont
+
+`format code specifications for inline font formatting (SANSI for those that remember the BBS days)
+
+//add_format_color|<character code>,r,g,b
+add_format_color|0|255, 255,255|//default
+add_format_color|1|173,244,255|//light cyan
+add_format_color|2|73,252,0|//green
+add_format_color|3|191,218,255|//light blue
+add_format_color|4|255,39,29|//crazy red
+add_format_color|5|235,183,255|//pinky purple
+add_format_color|6|255,202,111|//brown
+add_format_color|7|230,230,230|//light gray
+add_format_color|8|255,148,69|//crazy orange
+add_format_color|9|255,238,125|//yellow
+add_format_color|!|209,255,249|//bright cyan
+add_format_color|@|255,205,201|//bright red/pink
+add_format_color|#|255,143,243|//bright purple
+add_format_color|$|255,252,197|//pale yellow
+add_format_color|^|181,255,151|//light green
+add_format_color|&|254,235,255|//very pale pink
+
+add_format_color|w|255, 255,255|//white
+add_format_color|o|252,230,186|//dreamsicle
+add_format_color|b|0, 0,0|//black
+add_format_color|p|255,223,241|//pink
+
+// new colors for august 2017...
+add_format_color|q|12,96,164|//dark blue
+add_format_color|e|25,185,255|//medium blue
+add_format_color|r|111,211,87|//pale green
+add_format_color|t|47,131,13|//medium green
+add_format_color|a|81,81,81|//dark grey
+add_format_color|s|158,158,158|//med grey
+add_format_color|c|80,255,255|//vibrant cyan. New color for private message [MSG]//new color for Chat UI Update 2019
+
+//add_format_color|ì|255,225,25|//bright yellow. Not usable by players, only for BCs (alt-141 is the code)
+

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer NPCType="HiddenObject">
+	<Data>
+		<VariableMap>
+			<Set name="intval2">0</Set>
+		</VariableMap>
+	</Data>
+	<RenderRules>
+		<Render>
+			<ItemIdRender itemId="intval2" useItemIcon="false"/>
+		</Render>
+	</RenderRules>
+</ItemRenderer>

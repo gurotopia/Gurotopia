@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer NPCType="FlippingSpikesVerticalRight">
+	<Data>
+		<Sprite name="s_sprite" fileName="game/tiles_page17.rttex" textureSize="32" frame="12,11" />
+		<Sprite name="s_sprite_temp" fileName="game/tiles_page17.rttex" textureSize="32" frame="12,11" />
+		<Animations>
+			<SpriteAnimation name="a_to_left_active" sprite="s_sprite" playOnState="NPC.Left" isLoop="false" animTime="400">
+				<Frame>13,11</Frame>
+				<Frame>12,11</Frame>
+				<Frame>14,11</Frame>
+				<Frame>15,11</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_to_right_active" sprite="s_sprite" playOnState="NPC.Right" isLoop="false" animTime="400">
+				<Frame>15,11</Frame>
+				<Frame>14,11</Frame>
+				<Frame>12,11</Frame>
+				<Frame>13,11</Frame>
+			</SpriteAnimation>
+		</Animations>
+		<StateMachines>
+			<StateMachine name="NPC" ServerOnly="true">
+				<States start="Right">
+					<NPCStationary name="Left" ExitTime="2"/>
+					<NPCStationary name="Right" ExitTime="2"/>
+				</States>
+				<Transitions>
+					<Transition to="Left" from="Right"/>
+					<Transition to="Right" from="Left"/>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<Components>
+			<Info/>
+			<Enemy>
+				<Set name="SoulsReward">0</Set>
+				<Set name="destroyTileId">0</Set>
+			</Enemy>
+			<Movement>
+				<Set name="IsStatic">true</Set>
+			</Movement>
+			<StateMachine/>
+			<NPCRenderActionCmp/>
+			<CollisionBox>
+				<Set name="size">31,32</Set>
+				<Set name="CollisionFlag">"PLAYERS|PROJECTILES|PROJECTILES_ENEMY"</Set>
+				<Set name="CollisionType">"WORLD_TILES"</Set>
+			</CollisionBox>
+			<DebugDraw/>
+		</Components>
+		<ParticleSystems>
+			<ParticleSystem name="fireParticle1_left">
+				<Emitter>
+					<Set name="offset">-3,0</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="particlesToEmit">1</Set>
+					<Set name="checkParticleNumToEmit">true</Set>
+					<Set name="delayTimer">0.1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">s_sprite_temp</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="relativeToEmitter">false</Set>
+					<Set name="collisionDamageAmount">40</Set>
+					<Set name="destroyOnCollision">false</Set>
+					<Set name="collisionSize">16, 31.5</Set>
+					<Set name="renderAlignment">RIGHT_CENTER</Set>
+					<Set name="lifeTime">1.9</Set>
+					<Set name="initialAlpha">0</Set>
+					<Set name="initialScale">1,1</Set>
+					<Set name="collisionType">
+						<CollisionType>PROJECTILES_ENEMY</CollisionType>
+					</Set>
+					<Set name="collisionFlag">
+						<CollisionFlag>PLAYERS</CollisionFlag>
+					</Set>
+				</Particle>
+			</ParticleSystem>			
+			<ParticleSystem name="fireParticle1_right">
+				<Emitter>
+					<Set name="offset">3,0</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="particlesToEmit">1</Set>
+					<Set name="checkParticleNumToEmit">true</Set>
+					<Set name="delayTimer">0.1</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">s_sprite_temp</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="relativeToEmitter">false</Set>
+					<Set name="collisionDamageAmount">40</Set>
+					<Set name="destroyOnCollision">false</Set>
+					<Set name="collisionSize">16, 31.5</Set>
+					<Set name="renderAlignment">LEFT_CENTER</Set>
+					<Set name="lifeTime">1.9</Set>
+					<Set name="initialAlpha">0</Set>
+					<Set name="initialScale">1,1</Set>
+					<Set name="collisionType">
+						<CollisionType>PROJECTILES_ENEMY</CollisionType>
+					</Set>
+					<Set name="collisionFlag">
+						<CollisionFlag>PLAYERS</CollisionFlag>
+					</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+	</Data>
+	<RenderRules>
+		<Render>
+			<SpriteRender name="s_sprite"/>
+		</Render>
+		<Update>
+			<ParticleSystemUpdate name="fireParticle1_left" onState="NPC.Left" />
+			<ParticleSystemUpdate name="fireParticle1_right" onState="NPC.Right" />
+		</Update>
+		<SwitchOffClothingParticles>
+			<ParticleSystemOff name="fireParticle1_left"/>
+			<ParticleSystemOff name="fireParticle1_right"/>
+		</SwitchOffClothingParticles>
+	</RenderRules>
+</ItemRenderer>

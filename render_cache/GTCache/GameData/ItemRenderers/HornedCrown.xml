@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer item="ITEM_ID_HORNED_CROWN">
+  <Data>
+    <Sprite name="hatForegroundSprite" fileName="game/particles_large10.rttex" textureSize="64" frame="12,8"/>
+    <Sprite name="hatBackgroundSprite" fileName="game/particles_large10.rttex" textureSize="64" frame="13,8"/>
+    <Sprite name="lineSprite" fileName="game/particles10.rttex" textureSize="32" frame="30,29"/>
+    <Sprite name="sparkSprite" fileName="game/particles10.rttex" textureSize="32" frame="31,29"/>
+
+    <ParticleSystems>
+			<ParticleSystem name="LineAura" updateStage="AddClothingParticles">
+				<Emitter>
+					<Set name="offset">0, -16</Set>
+					<Set name="emissionInterval">0.2</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">2</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">lineSprite</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="isBackgroundParticle">true</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>0.75, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="interpolateScale">true</Set>
+					<Set name="initialScale">0.1, 0.5</Set>
+					<Random name="finalScale" min="5, 0.5" max="3, 0.5"/>
+					<Set name="lifeTime">0.5</Set>
+					<Random name="initialAngle" min="0" max="360"/>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="LineMoveAura" updateStage="AddClothingParticles">
+				<Emitter>
+					<Set name="offset">0, -16</Set>
+					<Set name="emissionInterval">0.2</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">3</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">lineSprite</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="isBackgroundParticle">true</Set>
+					<Set name="rotateWithVelocity">true</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>0.75, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Random name="initialScale" min="0.5, 0.5" max="1.5, 0.5"/>
+					<Set name="lifeTime">0.5</Set>
+					<RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="60,60"/>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="SparksAura" updateStage="AddClothingParticles">
+				<Emitter>
+					<Set name="offset">0, -16</Set>
+					<Set name="emissionInterval">0.5</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">3</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">sparkSprite</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="isBackgroundParticle">true</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>0.75, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="initialScale">0.5, 0.5</Set>
+					<Set name="lifeTime">0.75</Set>
+					<RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="35,35"/>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems></Data>
+
+  <RenderRules>
+    <RenderBackHat>
+      <SpriteRender name="hatBackgroundSprite" alignment="DOWN_CENTER"/>
+    </RenderBackHat>
+    <RenderHat>
+      <SpriteRender name="hatForegroundSprite" alignment="DOWN_CENTER"/>
+    </RenderHat>
+  </RenderRules>
+</ItemRenderer>

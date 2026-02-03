@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer NPCType="AxebeaksBoss">
+	<Data>
+		<Sprite name="sprite" fileName="game/bb_page3.rttex" textureSize="128" frame="0,0"/>
+		<Sprite name="axebeakboss_sprite" fileName="game/bb_page3.rttex" textureSize="128" frame="4,1"/>
+		<Sprite name="trail_sprite" fileName="game/npc1.rttex" textureSize="32" frame="30,6"/>
+		<Sprite name="s_HitEffect" fileName="game/particles.rttex" textureSize="32" frame="10,9" />
+		<Sprite name="windFeetSprite" fileName="game/npc1.rttex" textureSize="32"/>
+		<Sprite name="s_curvedFeather" fileName="game/particles5.rttex" textureSize="32" frame="6,6"/>
+		<Sprite name="speedLinesSprite" fileName="game/particles11.rttex" textureSize="32" frame="20,11"/>
+		<StateMachines>
+			<StateMachine name="NPC" ServerOnly="true">
+				<States start="Patrol">
+					<NPCStationary name="Stationary" ExitTime="0.1"/>
+					<NPCSteerAwayPlatform name="TurnYourBackToPlayer" IsTemporary="true">
+						<Speed>10</Speed>
+					</NPCSteerAwayPlatform>					
+					<NPCPlatformChase name="Patrol" ExitTime="3">
+						<ChaseSpeed>125</ChaseSpeed>
+						<DisableFall>false</DisableFall>
+					</NPCPlatformChase>
+					<NPCPlatformDash name="Dash" ExitTime="0.8">
+						<DashVelocity>800, -10</DashVelocity>
+						<UsePlayerPosition>true</UsePlayerPosition>
+					</NPCPlatformDash>
+					<NPCPlatformJump name="Jump" ExitTime="0.5">
+						<JumpHeight>450</JumpHeight>
+					</NPCPlatformJump>			
+					<NPCFlyingDash name="DashTopLeft">
+						<DashVelocity>-400, 0</DashVelocity>
+					</NPCFlyingDash>
+					<NPCFlyingDash name="DashTopRight">
+						<DashVelocity>400, 0</DashVelocity>
+					</NPCFlyingDash>
+					<NPCRandomRangeInteger name="DashSideSelection" IsTemporary="true">
+						<CounterName>"DashSideSelection"</CounterName>
+						<Min>0</Min>
+						<Max>2</Max>
+					</NPCRandomRangeInteger>					
+					<NPCRandomRangeInteger name="AbilitySelection" IsTemporary="true">
+						<CounterName>"AbilitySelection"</CounterName>
+						<Min>0</Min>
+						<Max>3</Max>
+					</NPCRandomRangeInteger>
+					<NPCPlatformSpawnParticlesWithMinions name="SpawnParticlesWithMinions" ExitTime="0.4">
+						<ProjectileName>"AxebeakBossEggProjectile"</ProjectileName>
+					</NPCPlatformSpawnParticlesWithMinions>
+					<NPCSetPhysicsComponent name="DisableGravity" IsTemporary="true">
+						<Gravity>0, 0</Gravity>
+						<Drag>1, 0</Drag>
+					</NPCSetPhysicsComponent>
+					<NPCSetPhysicsComponent name="EnableGravity" IsTemporary="true">
+						<Gravity>0, 9.81</Gravity>
+						<Drag>0.5, 0</Drag>
+					</NPCSetPhysicsComponent>
+					<NPCPlatformDash name="DashDiagonal">
+						<DashVelocity>900, 450</DashVelocity>
+						<UsePlayerPosition>true</UsePlayerPosition>
+						<ClampX>false</ClampX>
+					</NPCPlatformDash>
+					<NPCAnticipation name="AnticipationDash" ExitTime="1"/>
+					<NPCAnticipation name="AnticipationLeap" ExitTime="1"/>
+					<NPCAnticipation name="AnticipationFire" ExitTime="1"/>
+				</States>
+				<Transitions>
+					<Transition to="Patrol" from="SpawnParticlesWithMinions|EnableGravity"/>
+					<Transition to="Patrol" from="Dash">
+						<Condition type="or">
+							<CheckNPCVelocity ComparisonElement="X" operatorType="LessOrEqual" abs="true">10</CheckNPCVelocity>
+							<IsCollidableBetweenPoint Width="32" TargetOffset="100, 0">true</IsCollidableBetweenPoint>
+							<IsCollidableBetweenPoint Width="32" TargetOffset="-100, 0">true</IsCollidableBetweenPoint>	
+						</Condition>
+					</Transition>
+					<Transition to="AbilitySelection" from="Patrol"/>
+					
+					<Transition to="AnticipationDash" from="AbilitySelection">
+						<Condition>
+							<CheckCounter ResetOnSuccess="false" operatorType="Equal" name="AbilitySelection">0</CheckCounter>
+						</Condition>
+					</Transition>
+					<Transition to="TurnYourBackToPlayer" from="AbilitySelection">
+						<Condition>
+							<CheckCounter ResetOnSuccess="false" operatorType="Equal" name="AbilitySelection">1</CheckCounter>
+						</Condition>aw
+					</Transition>
+					<Transition to="AnticipationLeap" from="AbilitySelection">
+						<Condition>
+							<CheckCounter ResetOnSuccess="false" operatorType="Equal" name="AbilitySelection">2</CheckCounter>
+						</Condition>
+					</Transition>
+					<Transition to="Dash" from="AnticipationDash"/>
+					
+					<Transition to="AnticipationFire" from="TurnYourBackToPlayer"/>
+					<Transition to="SpawnParticlesWithMinions" from="AnticipationFire"/>
+
+					<Transition to="Jump" from="AnticipationLeap"/>
+					<Transition to="DisableGravity" from="Jump"/>
+					<Transition to="DashSideSelection" from="DisableGravity"/>
+			
+					<Transition to="DashTopLeft" from="DashSideSelection">
+						<Condition>
+							<CheckCounter ResetOnSuccess="false" operatorType="Equal" name="DashSideSelection">0</CheckCounter>
+						</Condition>
+					</Transition>
+					<Transition to="DashTopRight" from="DashSideSelection">
+						<Condition>
+							<CheckCounter ResetOnSuccess="false" operatorType="Equal" name="DashSideSelection">1</CheckCounter>
+						</Condition>
+					</Transition>
+					<Transition to="Stationary" from="DashTopLeft">
+						<Condition>
+							<IsCollidableBetweenPoint Width="32" TargetOffset="-110, 0">true</IsCollidableBetweenPoint>
+						</Condition>
+					</Transition>
+					<Transition to="Stationary" from="DashTopRight">
+						<Condition>
+							<IsCollidableBetweenPoint Width="32" TargetOffset="110, 0">true</IsCollidableBetweenPoint>
+						</Condition>
+					</Transition>
+					<Transition to="DashDiagonal" from="Stationary"/>
+					<Transition to="EnableGravity" from="DashDiagonal">
+						<Condition type="or">
+							<CheckNPCVelocity ComparisonElement="X" operatorType="LessOrEqual" abs="true">10</CheckNPCVelocity>
+							<IsCollidableBetweenPoint Width="8" TargetOffset="100, 0">true</IsCollidableBetweenPoint>
+							<IsCollidableBetweenPoint Width="8" TargetOffset="-100, 0">true</IsCollidableBetweenPoint>	
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<Animations>
+			<SpriteAnimation name="slash_anim" sprite="sprite" animTime="400" isLoop="true">
+				<Frame>0,0</Frame>
+				<Frame>1,0</Frame>
+				<Frame>2,0</Frame>
+				<Frame>3,0</Frame>
+				<Frame>4,0</Frame>
+				<Frame>5,0</Frame>
+				<Frame>6,0</Frame>
+				<Frame>7,0</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="feather" sprite="s_curvedFeather" isLoop="false" animTime="50" autoPlay="false">
+				<Frame>6,6</Frame>
+				<Frame>7,6</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="windFeetAnimation" isLoop="true" autoPlay="true" sprite="windFeetSprite" animTime="800">
+				<Frame>0,10</Frame>
+				<Frame>1,10</Frame>
+				<Frame>2,10</Frame>
+				<Frame>3,10</Frame>
+				<Frame>4,10</Frame>
+				<Frame>5,10</Frame>
+				<Frame>6,10</Frame>
+				<Frame>7,10</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sprite_anticipation_dash" playOnState="NPC.AnticipationDash" sprite="axebeakboss_sprite" isLoop="false" animTime="1000">
+				<Frame>0, 4</Frame>
+				<Frame>1, 4</Frame>
+				<Frame>2, 4</Frame>
+				<Frame>3, 4</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sprite_anticipation_leap" playOnState="NPC.AnticipationLeap" sprite="axebeakboss_sprite" isLoop="false" animTime="1000">
+				<Frame>0, 5</Frame>
+				<Frame>1, 5</Frame>
+				<Frame>2, 5</Frame>
+				<Frame>3, 5</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sprite_jump_attack" playOnState="NPC.Jump" sprite="axebeakboss_sprite" isLoop="true" animTime="50">
+				<Frame>7, 3</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sprite_dash_attack" playOnState="NPC.Dash|NPC.Patrol" sprite="axebeakboss_sprite" isLoop="true" animTime="400">
+				<Frame>4, 4</Frame>
+				<Frame>5, 4</Frame>
+				<Frame>6, 4</Frame>
+				<Frame>7, 4</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sprite_flying_dash_attack" playOnState="NPC.DashDiagonal|NPC.DashTopLeft|NPC.DashTopRight|NPC.Stationary" sprite="axebeakboss_sprite" isLoop="true" animTime="400">
+				<Frame>4, 5</Frame>
+				<Frame>5, 5</Frame>
+				<Frame>6, 5</Frame>
+				<Frame>7, 5</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sprite_anticipation_fire" playOnState="NPC.AnticipationFire" sprite="axebeakboss_sprite" isLoop="false" animTime="1000">
+				<Frame>0, 6</Frame>
+				<Frame>1, 6</Frame>
+				<Frame>2, 6</Frame>
+				<Frame>3, 6</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_sprite_fire_attack" playOnState="NPC.SpawnParticlesWithMinions" sprite="axebeakboss_sprite" isLoop="false" animTime="400">
+				<Frame>4, 6</Frame>
+				<Frame>5, 6</Frame>
+				<Frame>6, 6</Frame>
+				<Frame>7, 6</Frame>
+			</SpriteAnimation>
+		</Animations>
+		<ParticleSystems>
+			<ParticleSystem name="speedLinesParticle">
+				<Emitter>
+					<Random name="offset" min="0,-28" max="0,42.1"/>
+					<Set name="randomizeInterval">true</Set>
+					<Set name="intervalMin">0.3</Set>
+					<Set name="intervalMax">0.7</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="offsetFacing">true</Set>
+				</Emitter>
+				<Particle usePlayerFacing="true">
+					<Set name="sprite">speedLinesSprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="rotateWithVelocity">false</Set>
+					<Set name="initalRGB">1,1,1</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0.4</KeyFrame>
+						<KeyFrame>0.2, 0.4</KeyFrame>
+						<KeyFrame>0.3, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialScale">
+						<KeyFrame>0,0,0</KeyFrame>
+						<KeyFrame>0.2,4,1.2</KeyFrame>
+						<KeyFrame>1,8,1.2</KeyFrame>
+					</Curve>
+					<Random name="lifeTime" min="0.3" max="1"/>
+					<Set name="initialVelocity">-10,0</Set>
+					<Multiply name="offset" source="initialVelocity" scale="0.1,0"/>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="ps_destroyFeathers" updateStage="OnDamaged">
+				<Emitter>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="particlesToEmit">8</Set>
+					<Set name="offset">0,0</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true">
+					<Random name="offset" min="-10,-10" max="10.2,10.1"/>
+					<Set name="sprite">s_curvedFeather</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="lifeTime">2</Set>
+					<Set name="useGravity">true</Set>
+					<Set name="gravityVector">0, 30</Set>
+					<Set name="initalRGB">1,1,1</Set>
+					<Set name="initialScale">1,1</Set>
+					<Random name="flipX" min="false" max="true"/>
+					<Set name="renderAlignment">UPPER_CENTER</Set>
+					<Curve name="initialAngle">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.2, -15</KeyFrame>
+						<KeyFrame>0.4, 15</KeyFrame>
+						<KeyFrame>0.6, -15</KeyFrame>
+						<KeyFrame>0.8, 15</KeyFrame>
+						<KeyFrame>1, 0, 0</KeyFrame>
+					</Curve>
+					<Curve name="initialVelocity">
+						<KeyFrame>0, 0w</KeyFrame>
+						<KeyFrame>0.2, -40, 0</KeyFrame>
+						<KeyFrame>0.4, 50, 0</KeyFrame>
+						<KeyFrame>0.6, -50, 0</KeyFrame>
+						<KeyFrame>0.8, 50, 0</KeyFrame>
+						<KeyFrame>1, 0, 0</KeyFrame>
+					</Curve>
+					<Set name="interpolateAlpha">true</Set>
+					<Set name="initialAlpha">1</Set>
+					<Set name="finalAlpha">0</Set>
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="fireParticle1" updateStage="Update" updateState="NPC.Dash">
+				<Emitter>
+					<Set name="offset">8,0</Set>
+					<Set name="emissionInterval">0.4</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="offsetFacing">true</Set>
+				</Emitter>
+				<Particle usePlayerFacing="true">
+					<Set name="sprite">sprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="collisionDamageAmount">5</Set>
+					<Set name="destroyOnCollision">false</Set>
+					<Set name="collisionSize">128,96</Set>
+					<Set name="lifeTime">0.5</Set>
+					<Set name="initialScale">1,1</Set>
+					<Set name="collisionType">
+						<CollisionType>PROJECTILES_ENEMY</CollisionType>
+					</Set>
+					<Set name="collisionFlag">
+						<CollisionFlag>PLAYERS</CollisionFlag>
+					</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		<Components>
+			<Info/>
+			<MustKillNPC/>
+			<AttachmentSlotsCmp/>
+			<TintOverrideCmp/>
+			<IsBossNPC>
+				<Set name="displayName">"Axe Beak Boss"</Set>
+			</IsBossNPC>
+			<StateMachineCounter>
+				<Set name="AbilitySelection">0</Set>
+				<Set name="DashSideSelection">0</Set>
+			</StateMachineCounter>
+			<Enemy>
+				<Set name="SoulsReward">200</Set>
+				<Set name="destroyTileId">15418</Set>
+			</Enemy>
+			<Movement/>
+			<Damage>
+				<Set name="damage">20</Set>
+			</Damage>
+			<NPCRenderActionCmp/>
+			<StateMachine/>
+			<Physics>
+				<Set name="acceleration">0, 9.81</Set>
+				<Set name="mass">75</Set>
+				<Set name="drag">0.5, 0</Set>
+			</Physics>
+			<Health>
+				<Set name="healthAmount">20000</Set>
+				<Set name="maxHealth">20000</Set>
+			</Health>
+			<CollisionBox>
+				<Set name="size">128,96</Set>
+				<Set name="CollisionFlag">"PLAYERS|PROJECTILES"</Set>
+				<Set name="CollisionType">"ENEMY_NPC"</Set>
+			</CollisionBox>
+			<DebugDraw/>
+		</Components>
+	</Data>
+	<RenderRules>
+		<Render>
+			<Translate>0,-16,0</Translate>
+			<SpriteRender name="axebeakboss_sprite"/>
+		</Render>
+		<Update>
+			<Translate>0,-16,0</Translate>
+			<ParticleSystemUpdate name="speedLinesParticle" onState="NPC.DashDiagonal|NPC.DashTopLeft|NPC.DashTopRight"/>
+		</Update>
+		<RenderInFront>
+			<Translate>0,-32,0</Translate>
+			<NPCHealthBarRender TexturePath="interface/large/gui_event_npchealth_bar.rttex" TextureSize="17,9" TextureCoordinates="0,0"/>
+		</RenderInFront>
+		<SwitchOffClothingParticles>
+			<ParticleSystemOff name="fireParticle1"/>
+			<ParticleSystemOff name="speedLinesParticle"/>
+		</SwitchOffClothingParticles>
+	</RenderRules>
+</ItemRenderer>

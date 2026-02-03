@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer item="ITEM_ID_FIREWORKS_MOHAWK">
+	<Data>
+		<Sprite name="item_Sprite" fileName="game/particles_large12.rttex" textureSize="64"/>
+		
+		<Animations>
+			<SpriteAnimation name="item_animation" autoPlay="true" sprite="item_Sprite" isLoop="true" animTime="600">
+				<Frame>0,12</Frame>
+				<Frame>1,12</Frame>
+				<Frame>2,12</Frame>
+				<Frame>3,12</Frame>
+				<Frame>4,12</Frame>
+				<Frame>5,12</Frame>
+			</SpriteAnimation>
+		</Animations>
+		
+	</Data>
+
+	<RenderRules>
+		<RenderHair>
+			<SpriteRender name="item_Sprite" offset="0,-32" drawShadow="false" blend="PREMULTIPLIED_ALPHA"/>
+		</RenderHair>
+	</RenderRules>
+</ItemRenderer>

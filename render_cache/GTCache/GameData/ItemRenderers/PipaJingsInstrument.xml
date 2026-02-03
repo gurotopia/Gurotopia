@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_chest" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="18,23"/>
+    <Sprite name="s_lute" fileName="game/particles11.rttex" textureSize="32" frame="23,30"/>
+    <Sprite name="s_luteTrail" fileName="game/particles11.rttex" textureSize="32" frame="20,30"/>
+    <Sprite name="s_luteTrailMusic" fileName="game/particles11.rttex" textureSize="32" frame="18,30"/>
+
+    <Animations>
+      <SpriteAnimation name="a_luteTrail" sprite="s_luteTrail" isLoop="true" animTime="300">
+        <Frame>20,30</Frame>
+        <Frame>21,30</Frame>
+        <Frame>22,30</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_luteTrailMusic" sprite="s_luteTrailMusic">
+        <Frame>18,30</Frame>
+        <Frame>19,30</Frame>
+      </SpriteAnimation>
+      <CurveAnimationFloat name="lute_angle_rotation" autoPlay="true" isLoop="true" animTime="5000">
+        <Curve name="lute_angle">
+          <KeyFrame>0, -45</KeyFrame>
+          <KeyFrame>0.5, 45</KeyFrame>
+          <KeyFrame>1, -45</KeyFrame>
+        </Curve>
+      </CurveAnimationFloat>
+    </Animations>
+
+    <StateMachines>
+      <StateMachine name="Action">
+        <States>
+          <State name="None"/>
+          <State name="Punch"/>
+          <State name="Dance"/>
+        </States>
+        <Transitions>
+          <Transition from="None|Dance" to="Punch">
+            <Condition type="and">
+              <IsAction>PUNCH</IsAction>
+              <IsDancing>false</IsDancing>
+            </Condition>
+          </Transition>
+          <Transition from="Punch|None" to="Dance">
+            <Condition type="and">
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+              <IsDancing>true</IsDancing>
+            </Condition>
+          </Transition>
+          <Transition from="Punch|Dance" to="None">
+            <Condition type="and">
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+              <IsDancing>false</IsDancing>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <VariableMap>
+      <Set name="lute_angle">0</Set>
+    </VariableMap>
+    
+    <ParticleSystems>
+      <ParticleSystem name="ps_lute">
+        <Emitter>
+          <Set name="offset">0, -16</Set>
+          <Set name="emissionInterval">0.04</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <OrbitOffset>
+            <Set name="maxScale">0.7f</Set>
+            <Set name="hasOrbit">true</Set>
+            <Set name="hOrbitPeriod">6000</Set>
+            <Set name="hAmplitude">25</Set>
+            <Set name="hTimeOffset">0</Set>
+            <Set name="vAmplitude">6</Set>
+            <Set name="vOrbitPeriod">4000</Set>
+            <Set name="vTimeOffset">0</Set>
+            <Set name="minScale">0.4</Set>
+          </OrbitOffset>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_lute</Set>
+          <Set name="relativeToEmitter">true</Set>
+          <Set name="inSpecificOrder">false</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.06</Set>
+          <Set name="initialAngle" source="lute_angle"/>
+        </Particle>
+      </ParticleSystem>
+
+      <ParticleSystem name="ps_luteTrail">
+        <Emitter>
+          <Set name="offset">0, -16</Set>
+          <Set name="emissionInterval">0.04</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <OrbitOffset>
+            <Set name="maxScale">0.7f</Set>
+            <Set name="hasOrbit">true</Set>
+            <Set name="hOrbitPeriod">6000</Set>
+            <Set name="hAmplitude">25</Set>
+            <Set name="hTimeOffset">0</Set>
+            <Set name="vAmplitude">6</Set>
+            <Set name="vOrbitPeriod">4000</Set>
+            <Set name="vTimeOffset">0</Set>
+            <Set name="minScale">0.4</Set>
+          </OrbitOffset>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_luteTrail</Set>
+          <Set name="inSpecificOrder">false</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialRotationRate">
+            <KeyFrame>0, 15</KeyFrame>
+            <KeyFrame>1, 5</KeyFrame>
+          </Curve>
+          <Random name="initialAngle" min="0" max="360" />
+          <Random name="finalAngle" min="0" max="360" />
+          <Set name="interpolateAngle">true</Set>
+          <Set name="initialScale">1,1</Set>
+          <Random name="finalScale" min="0.3" max="0.6" />
+          <Set name="interpolateScale">true</Set>
+          <Random name="offset" min="-2,-3" max="2,3" />
+          <Set name="lifeTime">1</Set>
+        </Particle>
+      </ParticleSystem>
+
+      <ParticleSystem name="ps_luteTrailMusic">
+        <Emitter>
+          <Set name="offset">0, -16</Set>
+          <Set name="emissionInterval">0.5</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <OrbitOffset>
+            <Set name="maxScale">0.7f</Set>
+            <Set name="hasOrbit">true</Set>
+            <Set name="hOrbitPeriod">6000</Set>
+            <Set name="hAmplitude">25</Set>
+            <Set name="hTimeOffset">0</Set>
+            <Set name="vAmplitude">6</Set>
+            <Set name="vOrbitPeriod">4000</Set>
+            <Set name="vTimeOffset">0</Set>
+            <Set name="minScale">0.4</Set>
+          </OrbitOffset>
+        </Emitter>
+        <Particle randomSpriteFrame="true">
+          <Set name="sprite">s_luteTrailMusic</Set>
+          <Set name="inSpecificOrder">false</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.5, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialRotationRate">
+            <KeyFrame>0, 15</KeyFrame>
+            <KeyFrame>1, 5</KeyFrame>
+          </Curve>
+          <Random name="initialAngle" min="-45" max="45" />
+          <Random name="finalAngle" min="-45" max="45" />
+          <Set name="interpolateAngle">true</Set>
+          <Set name="initialScale">1,1</Set>
+          <Random name="finalScale" min="0.3" max="0.6" />
+          <Set name="interpolateScale">true</Set>
+          <Random name="offset" min="-2,-3" max="2,3" />
+          <Random name="initialVelocity" min="0,-5" max="0,-20" />
+          <Set name="lifeTime">1</Set>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+
+    <RenderOptions>
+      <Default>
+        <Set name="IgnorePunchTypeCheck">true</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+
+  <RenderRules>
+	  <Update>
+		  <MusicSource onState="Action.Punch">
+          <Set name="MusicFile">audio/aibellharp.wav</Set>
+          <Set name="FadeOutTimeMs">100</Set>
+        </MusicSource>
+        <MusicSource onState="Action.Dance">
+          <Set name="MusicFile">audio/mp3/panflutemelody.mp3</Set>
+          <Set name="FadeOutTimeMs">100</Set>
+        </MusicSource>
+	  </Update>
+    <RenderInFront>
+      <StopIf>
+        <IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+      </StopIf>
+      <ParticleSystemRender name="ps_lute"/>
+      <ParticleSystemRender name="ps_luteTrail"/>
+      <ParticleSystemRender name="ps_luteTrailMusic" onState="Action.Dance"/>
+    </RenderInFront>
+    <AddClothingParticles>
+      <StopIf>
+        <IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+      </StopIf>
+      <ParticleSystemUpdate name="ps_luteTrail"/>
+      <ParticleSystemUpdate name="ps_luteTrailMusic" onState="Action.Dance"/>
+      <ParticleSystemUpdate name="ps_lute"/>
+    </AddClothingParticles>
+    <RenderChestItem>
+      <AvatarTransform class="Face" onState="Action.Punch">
+        <Set name="face">MAD</Set>
+      </AvatarTransform>
+      <SpriteRender name="s_chest" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_CENTER" />
+    </RenderChestItem>
+  </RenderRules>
+</ItemRenderer>

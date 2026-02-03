@@ -1,0 +1,119 @@
+#events_panel {
+    width: 80dp;
+    max-height: 47vh;
+    overflow-y: auto;
+    overflow-x: visible;
+    padding: 5dp;
+    background-color: rgba(24, 107, 139, 170);
+    border-radius: 7dp;
+    display: block;
+}
+
+@spritesheet event_scroll_sprites {
+    src: interface/large/gui_entrypoint_btn.rttex;
+    /* For high dpi screens, designates the scaling it is intended to be shown at. */
+    resolution: 1x;
+    /**
+	   The following specifies a list of sprite names and associated rectangles into the image given above.
+	   Any sprite given here can be specified in a decorator. Their names must be globally unique.
+	   Rectangles are specified as: x y width height. With the origin assumed to be at the top left corner.
+	*/
+    event_scroll_button_down: 0px 0px 64px 34px;
+    event_scroll_button_up: 64px 30px 64px 34px;
+}
+
+
+#events_panel scrollbarvertical {
+    width: 1pt;
+}
+
+    /* Fix the size of the 'page up' slider arrow and decorate it appropriately. */
+    #events_panel scrollbarvertical sliderarrowdec {
+        width: 90dp;
+        height: 32dp;
+        margin-left: -89dp;
+        margin-top: 0dp;
+        z-index: 1;
+        decorator: image( event_scroll_button_up );
+        background: rgba(24, 107, 139, 255);
+        border-top-left-radius: 7dp;
+        border-top-right-radius: 7dp;
+	sound-on-click: true;
+    }
+        /* Animate the arrows on hover. */
+        /*#events_panel scrollbarvertical sliderarrowdec:hover {
+	decorator: image( sliderarrowdec-hover );
+}*/
+        /* Animate the arrows on active. */
+        #events_panel scrollbarvertical sliderarrowdec:active {
+            image-color: #aaa;
+        }
+
+#events_panel.scroll-on-top scrollbarvertical sliderarrowdec {
+    display: none;
+}
+
+#events_panel scrollbarvertical sliderarrowinc {
+    width: 90dp;
+    height: 32dp;
+    margin-left: -89dp;
+    margin-bottom: 0dp;
+    z-index: 1;
+    background: rgba(24, 107, 139, 255);
+    border-bottom-left-radius: 7dp;
+    border-bottom-right-radius: 7dp;
+    decorator: image( event_scroll_button_down );
+	sound-on-click: true;
+}
+
+    #events_panel scrollbarvertical sliderarrowinc:active {
+        image-color: #aaa;
+    }
+
+#events_panel.scroll-on-bottom scrollbarvertical sliderarrowinc {
+    display: none;
+}
+
+.event_item {
+    margin-top: 5dp;
+    margin-bottom: 5dp;
+    position: relative;
+    clip: always;
+}
+
+    .event_item:active * {
+        image-color: #aaa;
+    }
+
+    .event_item .label {
+        display: block;
+        position: absolute;
+        font-size: 15dp;
+        line-height: 15dp;
+        font-effect: shadow(1dp 1dp black);
+        text-align: center;
+        width: 80dp;
+        margin-top: 47dp;
+        padding-bottom: 5dp;
+    }
+
+    .event_item .rays {
+        display: block;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        margin-top: 0;
+        margin-left: 0;
+    }
+
+.event_button_body {
+    width: 80dp;
+    height: 80dp;
+    position: relative;
+	sound-on-click: true;
+}
+
+    .event_button_body > div {
+        width: 100%;
+        height: 100%;
+    }

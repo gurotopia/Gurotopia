@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer name="BleedingEffect" DungeonOnly="true">
+	<Data>
+		<Sprite name="s_HitEffect" fileName="game/particles.rttex" textureSize="32" frame="10,9" />
+		<ParticleSystems>
+			<ParticleSystem name="TileHitFire" updateStage="OnCreate">
+				<Emitter>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="emissionInterval">0.1</Set>
+					<Set name="checkParticleNumToEmit">true</Set>
+					<Set name="particlesToEmit">3</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">s_HitEffect</Set>
+					<Set name="rotateWithVelocity">true</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.4, 0</KeyFrame>
+						<KeyFrame>0.41, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="initialScale">1,1</Set>
+					<Set name="lifeTime">1</Set>
+					<Set name="initalRGB">0.54,0.012,0.012</Set>
+					<RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="15,45" />
+					<Set name="useGravity">true</Set>
+					<Set name="gravityVector">0, 45</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+	</Data>
+</ItemRenderer>

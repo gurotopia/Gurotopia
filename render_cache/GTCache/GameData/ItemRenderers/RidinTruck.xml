@@ -1,0 +1,226 @@
+<?xml version="1.0"?>
+<ItemRenderer item="ITEM_ID_PARTY_WAGON">
+	<Data>
+		<Sprite name="s_Trail" fileName="game/particles11.rttex" textureSize="32" frame="12,26" />
+		<Sprite name="s_Truck" fileName="game/particles_large13.rttex" textureSize="64" frame="12,5" />
+		<Sprite name="s_TruckLights" fileName="game/particles_large13.rttex" textureSize="64" frame="12,6" />
+		<Sprite name="s_shoe1" fileName="game/player_feet16.rttex" textureSize="32" frame="29,14" />
+		<Sprite name="s_shoe2" fileName="game/player_feet16.rttex" textureSize="32" frame="29,15" />
+		<Animations>
+			<SpriteAnimation name="a_Idle" sprite="s_Truck" playOnState="Motion.Idle">
+				<Frame>12,5</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_IdleLights" sprite="s_TruckLights" playOnState="Motion.Idle">
+				<Frame>12,6</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_Move" sprite="s_Truck" animTime="400" isLoop="true" playOnState="Motion.Moving">
+				<Frame>12,5</Frame>
+				<Frame>13,5</Frame>
+				<Frame>14,5</Frame>
+				<Frame>15,5</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_MoveLights" sprite="s_TruckLights" animTime="400" isLoop="true" playOnState="Motion.Moving">
+				<Frame>12,6</Frame>
+				<Frame>13,6</Frame>
+				<Frame>14,6</Frame>
+				<Frame>15,6</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_Trail" sprite="s_Trail" animTime="400">
+				<Frame>12,26</Frame>
+				<Frame>13,26</Frame>
+				<Frame>14,26</Frame>
+				<Frame>15,26</Frame>
+			</SpriteAnimation>
+		</Animations>
+		<StateMachines>
+			<StateMachine name="Motion">
+				<States>
+					<State name="Idle" />
+					<State name="Moving" />
+				</States>
+				<Transitions>
+					<Transition to="Idle" from="Moving">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+					<Transition to="Moving" from="Idle">
+						<Condition>
+							<IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="HMotion">
+				<States>
+					<State name="Idle" />
+					<State name="Moving" />
+				</States>
+				<Transitions>
+					<Transition to="Idle" from="Moving">
+						<Condition>
+							<IsVariableFloat name="speed.x" operator="Less" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+					<Transition to="Moving" from="Idle">
+						<Condition>
+							<IsVariableFloat name="speed.x" operator="Greater" abs="true">0.1</IsVariableFloat>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="Action">
+				<States>
+					<State name="None" />
+					<State name="Punch" />
+				</States>
+				<Transitions>
+					<Transition to="None" from="Punch">
+						<Condition>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Punch" from="None">
+						<Condition>
+							<IsAction>PUNCH</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="Tile">
+				<States>
+					<State name="Light" />
+					<State name="Dark" />
+				</States>
+				<Transitions>
+					<Transition to="Light" from="Dark">
+						<Condition>
+							<IsDarkTile>false</IsDarkTile>
+						</Condition>
+					</Transition>
+					<Transition to="Dark" from="Light">
+						<Condition>
+							<IsDarkTile>true</IsDarkTile>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<RenderOptions>
+			<Default>
+				<Set name="ClothingOffsetFromShoes">-14</Set>
+				<Set name="IsRv">true</Set>
+				<Set name="IgnorePunchTypeCheck">true</Set>
+				<Set name="ShoesShouldIgnoreRaptorLegsOffset">true</Set>
+				<Set name="UserNameOffset">10</Set>
+			</Default>
+		</RenderOptions>
+		<ParticleSystems>
+			<ParticleSystem name="ps_TrailB" updateStage="RenderShoes" updateState="HMotion.Moving">
+				<Emitter>
+					<Set name="offset">38, -1</Set>
+					<Set name="emissionInterval">0.01</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">5</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true">
+					<Set name="sprite">s_Trail</Set>
+					<Random name="offset" min="-2, 0" max="2, 0" />
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>0.75, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="initalRGB">0.877451, 0.852403, 0.0258074</Set>
+					<Set name="finalRGB">0.857843, 0.537883, 0.0210256</Set>
+					<Set name="interpolateRGB">true</Set>
+					<Curve name="initialScale">
+						<KeyFrame>0, 0.25, 0.25</KeyFrame>
+						<KeyFrame>1, 1, 1</KeyFrame>
+					</Curve>
+					<Random name="lifeTime" min="0.15" max="0.25" />
+					<Random name="initialAngle" min="0" max="360" />
+				</Particle>
+			</ParticleSystem>
+			<ParticleSystem name="ps_TrailF" updateStage="RenderShoes" updateState="HMotion.Moving">
+				<Emitter>
+					<Set name="offset">15, 1</Set>
+					<Set name="emissionInterval">0.01</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="particlesPerEmission">10</Set>
+				</Emitter>
+				<Particle randomSpriteFrame="true">
+					<Set name="sprite">s_Trail</Set>
+					<Random name="offset" min="-2, 0" max="2, 0" />
+					<Set name="inSpecificOrder">true</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>0.75, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="initalRGB">1, 0.971309, 0.0245098</Set>
+					<Set name="finalRGB">0.965686, 0.601883, 0.0142013</Set>
+					<Set name="interpolateRGB">true</Set>
+					<Curve name="initialScale">
+						<KeyFrame>0, 0.25, 0.25</KeyFrame>
+						<KeyFrame>1, 0.85, 0.85</KeyFrame>
+					</Curve>
+					<Random name="lifeTime" min="0.15" max="0.25" />
+					<Random name="initialAngle" min="0" max="360" />
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+	</Data>
+	<RenderRules>
+		<Update>
+			<StopIf>
+				<IsZombified>true</IsZombified>
+			</StopIf>
+			<Group onState="Motion.Moving">
+				<AvatarTransform class="ArmAngle" onState="Action.None">
+					<Set name="armName">arm1Angle</Set>
+					<Set name="armAngle">-100</Set>
+				</AvatarTransform>
+				<AvatarTransform class="ArmAngle" onState="Action.None">
+					<Set name="armName">arm2Angle</Set>
+					<Set name="armAngle">0</Set>
+				</AvatarTransform>
+			</Group>
+			<AvatarTransform class="Face" onState="Motion.Moving|Action.Punch">
+				<Set name="face">MAD</Set>
+			</AvatarTransform>
+		</Update>
+		<RenderShoes>
+			<AvatarTransform class="FootPosition">
+				<Set name="foot1dy">0</Set>
+				<Set name="foot2dy">0</Set>
+				<Set name="foot1y">0</Set>
+				<Set name="foot2y">0</Set>
+			</AvatarTransform>
+			<SpriteRender name="s_shoe2" offset="1,0" alignment="DOWN_CENTER" />
+			<SpriteRender name="s_shoe1" offset="1,0" alignment="DOWN_CENTER" />
+			<SpriteRender name="s_Truck" offset="14,14" alignment="DOWN_CENTER" onState="Tile.Light" />
+			<SpriteRender name="s_TruckLights" offset="14,14" alignment="DOWN_CENTER" onState="Tile.Dark" />
+			<StopIf>
+				<IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+			</StopIf>
+		</RenderShoes>
+		<RenderBehind>
+			<StopIf>
+				<IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+			</StopIf>
+			<ParticleSystemRender name="ps_TrailB" />
+		</RenderBehind>
+		<RenderInFront>
+			<StopIf>
+				<IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+			</StopIf>
+			<ParticleSystemRender name="ps_TrailF" />
+		</RenderInFront>
+	</RenderRules>
+</ItemRenderer>

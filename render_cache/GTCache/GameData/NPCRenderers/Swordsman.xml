@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer NPCType="Swordsman" NPCTypeID="10">
+	<Data>
+		<Sprite name="s_sprite" fileName="game/npc1.rttex" textureSize="32" frame="12,6" />
+		<Sprite name="s_HitEffect" fileName="game/particles.rttex" textureSize="32" frame="10,9" />
+		<Animations>
+			<SpriteAnimation name="patrol" sprite="s_sprite" isLoop="true" animTime="700" autoPlay="false" playOnState="NPC.Patrol|NPC.Chase">
+				<Frame>23,7</Frame>
+				<Frame>24,7</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="chase" sprite="s_sprite" isLoop="true" animTime="700" autoPlay="false" playOnState="NPC.AttackProjectile">
+				<Frame>27,7</Frame>
+				<Frame>28,7</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="jump" sprite="s_sprite" isLoop="false" animTime="50" autoPlay="false" playOnState="NPC.Jump">
+				<Frame>25,7</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="jump" sprite="s_sprite" isLoop="false" animTime="50" autoPlay="false" playOnState="NPC.Fall">
+				<Frame>26,7</Frame>
+			</SpriteAnimation>
+		</Animations>
+		<ParticleSystems>
+			<ParticleSystem name="ps_HitEffect" updateStage="OnDamaged">
+				<Emitter>
+					<Set name="particlesPerEmission">4</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">s_HitEffect</Set>
+					<Set name="rotateWithVelocity">true</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 0</KeyFrame>
+						<KeyFrame>0.4, 0</KeyFrame>
+						<KeyFrame>0.41, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+					<Set name="initialScale">0.5,0.5</Set>
+					<Set name="lifeTime">0.5</Set>
+					<RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="30,90" />
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		<StateMachines>
+			<StateMachine name="NPC" ServerOnly="true">
+				<States start="Patrol">
+					<NPCPlatformPatrol name="Patrol">
+						<PatrolSpeed>50</PatrolSpeed>
+						<DisableFall>false</DisableFall>
+					</NPCPlatformPatrol>
+					<NPCPlatformChase name="Chase">
+						<ChaseSpeed>100</ChaseSpeed>
+						<DisableFall>false</DisableFall>
+					</NPCPlatformChase>	
+					<NPCPlatformAttack name="AttackProjectile" ExitTime="0.5">
+						<AttackSpeed>200</AttackSpeed>
+						<ProjectileName>"SwordsmanSlash"</ProjectileName>
+						<MinRangeToAttack>36</MinRangeToAttack>
+					</NPCPlatformAttack>
+					<NPCPlatformJump name="Jump" ExitTime="0.4">
+						<JumpHeight>45</JumpHeight>
+					</NPCPlatformJump>
+					<NPCFall name="Fall" ExitTime="0.33"/>
+					<NPCAnticipation name="Anticipation" ExitTime="0.25"/>
+				</States>
+				<Transitions>
+					<Transition to="Fall" from="Patrol|Chase|Jump">
+						<Condition>
+							<IsOnGround>false</IsOnGround>
+						</Condition>
+					</Transition>
+					<Transition to="Chase" from="Patrol|Jump|Fall|AttackProjectile">
+						<Condition type="and">
+							<IsOnGround>true</IsOnGround>
+							<CheckNPCVelocity ComparisonElement="Y" operatorType="Less" abs="true">0.1</CheckNPCVelocity>
+							<IsPlayerDistanceMatching operatorType="Less">128</IsPlayerDistanceMatching>
+							<IsPlayerDistanceMatching operatorType="Greater">48</IsPlayerDistanceMatching>
+						</Condition>
+					</Transition>					
+					<Transition to="Patrol" from="Chase|Jump|Fall|AttackProjectile|Anticipation">
+						<Condition type="and">
+							<IsOnGround>true</IsOnGround>
+							<IsPlayerDistanceMatching operatorType="Greater">128</IsPlayerDistanceMatching>
+						</Condition>
+					</Transition>			
+					<Transition to="Anticipation" from="Fall|AttackProjectile|Patrol|Chase|Jump">
+						<Condition>
+							<IsPlayerDistanceMatching operatorType="LessOrEqual">48</IsPlayerDistanceMatching>
+						</Condition>
+					</Transition>	
+					<Transition to="AttackProjectile" from="Anticipation"/>
+					<Transition to="Jump" from="Chase">
+						<Condition type="and">
+							<IsPlayerDistanceMatching operatorType="Less">128</IsPlayerDistanceMatching>
+							<CheckTimer ResetOnSuccess="true" name="timeToJump">true</CheckTimer>
+							<IsCollidableBetweenPoint Width="8" TargetOffset="0, -32">false</IsCollidableBetweenPoint>
+							<SubCondition type="or">
+								<SubCondition type="and">
+									<IsCollidableBetweenTarget Width="8">true</IsCollidableBetweenTarget>
+									<IsPlayerDistanceMatching operatorType="Greater">45</IsPlayerDistanceMatching>
+								</SubCondition>
+								<CheckPositionDifferenceToPlayer UseVertical="true" operatorType="Less">-16</CheckPositionDifferenceToPlayer>
+							</SubCondition>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		<Components>
+			<Info/>
+			<AttachmentSlotsCmp/>
+			<TintOverrideCmp/>
+			<StateMachineTimer>
+				<Set name="timeToJump">3</Set>
+			</StateMachineTimer>			
+			<StateMachineCounter>
+				<Set name="JumpCounter">3</Set>
+			</StateMachineCounter>
+			<Enemy>
+				<Set name="SoulsReward">8</Set>
+				<Set name="destroyTileId">186</Set>
+			</Enemy>
+			<MustKillNPC/>
+			<Movement/>
+			<Damage>
+				<Set name="damage">10</Set>
+			</Damage>
+			<NPCRenderActionCmp/>
+			<StateMachine/>
+			<Health>
+				<Set name="healthAmount">500</Set>
+				<Set name="maxHealth">500</Set>
+			</Health>
+			<Physics>
+				<Set name="acceleration">0, 9.81</Set>
+				<Set name="mass">40</Set>
+				<Set name="drag">0.5, 0</Set>
+			</Physics>
+			<CollisionBox>
+				<Set name="size">30,30</Set>
+				<Set name="CollisionFlag">"PLAYERS|PROJECTILES"</Set>
+				<Set name="CollisionType">"ENEMY_NPC"</Set>
+			</CollisionBox>
+			<DebugDraw/>
+		</Components>
+	</Data>
+	<RenderRules>
+		<Render>
+			<SpriteRender name="s_sprite" offset="0,-1"/>
+		</Render>
+		<RenderInFront>
+			<Translate>0,-4,0</Translate>
+			<NPCHealthBarRender TexturePath="interface/large/gui_event_npchealth_bar.rttex" TextureSize="17,9" TextureCoordinates="0,0"/>
+		</RenderInFront>
+	</RenderRules>	
+</ItemRenderer>

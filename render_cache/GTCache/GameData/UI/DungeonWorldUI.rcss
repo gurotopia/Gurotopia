@@ -1,0 +1,393 @@
+body.dungeon_world_ui {
+    width: 100%;
+    height: 100%;
+    clip: always;
+    margin-left: inset-left;
+}
+
+#left_panel {
+    display: block;
+    position: absolute;
+    top: 8dp;
+    left: 8dp;
+    width: 0dp;
+    transition: margin-left 0.2s linear-in;
+    margin-left: 0dp;
+    margin-top: 0dp;
+}
+
+.full-hide #left_panel,
+.hide #left_panel {
+    transition: margin-left 0.2s linear-in;
+    margin-left: -200dp;
+}
+
+/*-------------------------------------------------------------------------------*/
+/*--------------                   Souls panel                     --------------*/
+@spritesheet souls_panel_sprites {
+    src: interface/large/gui_store_souls_top.rttex;
+    resolution: 1x;
+    souls_panel_bg: 0px 0px 32px 32px;
+    souls_panel_bg_inner: 15px 15px 2px 2px;
+}
+
+#souls_panel {
+    width: 160dp;
+    height: 34dp;
+    margin-top: 10dp;
+    decorator: ninepatch(souls_panel_bg, souls_panel_bg_inner);
+}
+
+#soul_left_panel {
+    width: 40dp;
+    height: 32dp;
+    background-color: rgba(148, 29, 2, 255);
+    border-top-left-radius: 6dp;
+    border-bottom-left-radius: 6dp;
+    margin-left: 0dp;
+    float: left;
+    margin-right: 8dp;
+}
+
+#soul_left_panel #soul_icon {
+    width: 28dp;
+    height: 28dp;
+    decorator: image(interface/large/gui_store_souls_icon_top.rttex);
+    margin: auto;
+}
+
+#soul_right_panel {
+    font-size: 24dp;
+    font-weight: bold;
+    line-height: 26dp;
+    font-effect: shadow(2dp 2dp black);
+}
+
+/*-------------------------------------------------------------------------------*/
+/*--------------                   Player UI                       --------------*/
+
+@spritesheet white_box_border_sprite {
+    src: game/gui_box_white.rttex;
+    resolution: 1x;
+    white_box_border: 0px 0px 32px 32px;
+    white_box_inner: 15px 15px 1px 1px;
+}
+
+@spritesheet white_box_bg_sprite {
+    src: game/gui_box_upwhite.rttex;
+    resolution: 1x;
+    white_bg_box_border: 0px 0px 32px 32px;
+    white_bg_box_inner: 15px 15px 1px 1px;
+}
+
+#mainPanel {
+    margin-top: 10dp;
+    display: flex;
+    height: 140dp;
+    width: auto;
+    position: relative;
+}
+
+#mainPlayer {
+    width: 78dp;
+    height: 78dp;
+    display: block;
+    z-index: 2;
+    flex-shrink: 0;
+    position: relative;
+}
+
+#mainPlayer.playClick:active .background {
+    image-color: rgba(70, 3, 0, 255);
+}
+
+#mainPlayer.playClick:active .backgroundName {
+    image-color: rgba(70, 3, 0, 255);
+}
+
+#mainPlayer.playClick:active .box_border{
+    image-color: rgba(110, 21, 1, 255);
+}
+
+#mainPlayer.playClick:active .lifeCount {
+    image-color: rgba(110, 21, 1, 255);
+}
+
+.background {
+    width: 100%;
+    height: 100%;
+    decorator: ninepatch(white_bg_box_border, white_bg_box_inner);
+    image-color: rgba(102, 5, 0, 255);
+    z-index: 1;
+    margin-top: 2%;
+}
+
+.box_border {
+    width: 100%;
+    height: 100%;
+    decorator: ninepatch(white_box_border, white_box_inner);
+    image-color: rgba(148, 29, 2, 255);
+    z-index: 3;
+    display: block;
+}
+
+#panelHolder {
+    display: block;
+    height: 150dp;
+    width: 0dp;
+    margin-left: -5dp;
+    flex-shrink: 0;
+    clip: always;
+}
+
+#panelHolder.visible {
+    display: block;
+    transition: visibility 0.01s linear-in;
+    visibility: visible;
+}
+
+#panelHolder.hidden {
+    transition: visibility display 0.01s 0.4s linear-in;
+    visibility: visible;
+    display: none;
+}
+
+.hide #panelHolder {
+    margin-left: -600dp;
+}
+
+#player_panel {
+    display: block;
+    padding: 5dp;
+    height: 100%;
+    width: 100%;
+    padding-left: 25dp;
+    z-index: 1;
+}
+
+#panelHolder.visible #player_panel {
+    transition: margin-left 0.2s linear-in;
+    margin-left: 0dp;
+}
+
+#panelHolder.hidden #player_panel {
+    transition: margin-left 0.4s linear-out;
+    margin-left: -600dp;
+}
+
+.hide #player_panel.visible {
+    width: 550dp;
+    transition: margin-left 0.2s linear-out;
+    margin-left: -600dp;
+}
+
+#mainPlayer .lifeCount {
+    font-size: 17dp;
+}
+
+#player_panel .lifeCount {
+    font-size: 15dp;
+}
+
+.hide #player_panel {
+    width: 550dp;
+    transition: margin-left 0.2s linear-out;
+    margin-left: -600dp;
+}
+
+.secondaryPlayer {
+    width: 70dp;
+    height: 70dp;
+    display: inline-block;
+    margin-right: 5dp;
+    position: relative;
+}
+
+@spritesheet dungeon_avatar_sprite
+{
+	src: game/vilpix.rttex;
+    resolution: 1x;
+    dungeonAvatar0: 4px 164px 24px 24px;
+    dungeonAvatar1: 164px 164px 24px 24px;
+    dungeonAvatar2: 68px 164px 24px 24px;
+    dungeonAvatar3: 68px 196px 24px 24px;
+}
+
+.avatar {
+    width: 73%;
+    height: 73%;
+    margin-top: 12%;
+    margin-left: 12%;
+    z-index: 2;
+    top: 0;
+    left: 0;
+    display: block;
+}
+
+/*-------------------------------------------------------------------------------*/
+/*--------------                   Avatar Name                     --------------*/
+@spritesheet dungeon_avatar_name_sprites {
+    src: interface/large/TestScroll.rttex;
+    resolution: 1x;
+    dungeon_avatar_name_bg: 0px 0px 360px 141px;
+    dungeon_avatar_name_bg_inner: 32px 32px 330px 120px;
+}
+
+
+.backgroundName {
+    width: 100%;
+    height: 45%;
+    decorator: ninepatch(white_bg_box_border, white_bg_box_inner);
+    image-color: rgba(148, 29, 2, 255);
+    z-index: 0;
+    margin-top: -12%;
+    margin-left: 0%;
+}
+
+.avatarName {
+    font-effect: outline(2dp black);
+    text-align: center;
+    line-height: 200%;
+    overflow: hidden;
+    width: 84%;
+    height: 100%;
+    margin-left: 6%;
+    margin-top: 0%;
+    color: rgb(255, 255, 255);
+    word-break: break-all;
+}
+
+@keyframes marquee-content {
+	from {
+		transform: translateX(0%);
+	}
+	to {
+		transform: translateX(-125%);
+	}
+}
+
+#mainPlayer .avatarName {
+    font-size: 16dp;
+}
+
+#player_panel .avatarName {
+    font-size: 14dp;
+}
+
+@spritesheet lifcount_bg_sprite
+{
+	src: game/particles11.rttex;
+    resolution: 1x;
+    lifeBg: 68px 582px 25px 25px;
+}
+
+.lifeAndProgress{
+    width: 100%;
+    display: block;
+    position: relative;
+    z-index: 2;
+}
+
+.lifeCount {
+    width: 45%;
+    height: 120%;
+    decorator: image(lifeBg);
+    image-color: rgba(148, 29, 2, 255);
+    display: block;
+    position: absolute;
+    font-effect: shadow(2dp 2dp black);
+    text-align: center;
+    line-height: 150%;
+    z-index: 3;
+}
+
+/*-------------------------------------------------------------------------------*/
+/*--------------                   PROGRESS BARS                   --------------*/
+
+@spritesheet progress_bars_background_sprite
+{
+	src: interface/large/gui_event_health_bar_bg.rttex;
+	progress-l: 0px 0px   6px 11px;
+	progress-c: 8px 0px   2px 11px;
+	progress-r: 11px 0px   6px 11px;
+}
+
+@spritesheet progress_bars_foreground_sprite
+{
+	src: interface/large/gui_event_health_bar_fg.rttex;
+	progress-fill-l: 0px 0px   6px 9px;
+	progress-fill-c: 8px 0px   2px 9px;
+	progress-fill-r: 11px 0px   6px 9px;
+}
+
+.progressBar { 
+	decorator: tiled-horizontal( progress-l, progress-c, progress-r );
+	width: 75%;
+	height: 10%;
+    margin-top: 8%;
+    margin-left: 20%;
+    display: inline-block;
+}
+
+.progressBar fill {
+	decorator: tiled-horizontal( progress-fill-l, progress-fill-c, progress-fill-r );
+	/* padding ensures that the decorator has a minimum width when the value is zero */
+	padding-left: 15dp;
+    margin-top: 1dp;
+    margin-bottom: 3dp;
+    margin-right: 1dp;
+    image-color: rgba(20, 174, 92, 255);
+}
+
+/*-------------------------------------------------------------------------------*/
+/*--------------                   TOGGLE ARROW                    --------------*/
+@spritesheet toggle_arrow_sprites {
+    src: interface/large/event_arrow.rttex;
+    /* For high dpi screens, designates the scaling it is intended to be shown at. */
+    resolution: 1x;
+    dungeon_arrow_open: 0px 0px 64px 64px;
+    dungeon_arrow_closed: 64px 0px 64px 64px;
+}
+
+#toggleArrow {
+    width: 50%;
+    height: 50%;
+    decorator: image(dungeon_arrow_closed);
+    margin-top: 25%;
+    margin-left: 73%;
+    z-index: 5;
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+
+#toggleArrow.canShow {
+    opacity: 1;
+}
+
+#toggleArrow.rotated {
+    decorator: image(dungeon_arrow_open);
+}
+
+/*-------------------------------------------------------------------------------*/
+/*--------------                   SCROLL ICON                     --------------*/
+
+@spritesheet dungeon_backpack_sprite {
+    src: interface/large/event_button4.rttex;
+    resolution: 1x;
+    dungeon_backpack_icon: 256px 128px 128px 128px;
+}
+
+#dungeonBackpack {
+    width: 70dp;
+    height: 70dp;
+    decorator: image(dungeon_backpack_icon);
+    margin-top: 10dp;
+	sound-on-click: true;
+}
+
+#dungeonBackpack:active {
+    image-color: #aaa;
+    color: #aaa;
+}

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer name="SOUTH_POLE_WINTERFEST">
+  <Data>
+    <Sprite name="s_bg" fileName="game/bg_SP_sky.rttex"/>
+    <Sprite name="s_globe" fileName="game/bg_SP_globe.rttex"/>
+    <Sprite name="s_cloud" fileName="game/cloud_red.rttex" textureSize="197,111" frame="0,0"/>
+
+    <ParticleSystems>
+      <ParticleSystem name="ps_clouds" updateStage="RenderBackground">
+        <Emitter>
+          <Random name="emissionInterval" min="120" max="240"/>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle moveConstraint="Horizontal" autoLifeTimeToTarget="true">
+          <Set name="inScreenSpace">true</Set>
+          <Set name="renderAlignment">LEFT_CENTER</Set>
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="sprite">s_cloud</Set>
+          <Random name="offset" min="1.5, 0.05" max="1.5, 0.5"/>
+          <Set name="targetPos">-1.5, 0</Set>
+          <Random name="initialVelocity" min="-0.001, 0" max="-0.01, 0"/>
+          <Random name="initialScale" min="0.1" max="1"/>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_cloudsFG" updateStage="RenderBackground">
+        <Emitter>
+          <Random name="emissionInterval" min="120" max="240"/>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+        </Emitter>
+        <Particle moveConstraint="Horizontal" autoLifeTimeToTarget="true">
+          <Set name="inScreenSpace">true</Set>
+          <Set name="renderAlignment">LEFT_CENTER</Set>
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="sprite">s_cloud</Set>
+          <Random name="offset" min="1.5, 0.05" max="1.5, 0.5"/>
+          <Set name="targetPos">-1.5, 0</Set>
+          <Random name="initialVelocity" min="-0.001, 0" max="-0.01, 0"/>
+          <Random name="initialScale" min="0.1" max="1"/>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+    
+  </Data>
+  <RenderRules>
+    <RenderBackground>
+      <ContextUpdate type="ScaleScreenHeight">
+        <Set name="sprite">s_bg</Set>
+      </ContextUpdate>
+
+      <ContextUpdate type="PositionParallax">
+        <Set name="scale">0</Set>
+      </ContextUpdate>
+      <SpriteRender name="s_bg" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+
+      <ParticleSystemRender name="ps_clouds"/>
+      
+      <ContextUpdate type="ScaleScreenHeight">
+        <Set name="sprite">s_globe</Set>
+      </ContextUpdate>
+      <ContextUpdate type="SetFlip">
+        <Set name="flip">1,1</Set>
+      </ContextUpdate>
+      <ContextUpdate type="PositionParallax">
+        <Set name="scale">0.2</Set>
+        <Set name="wrapHorizontal">false</Set>
+      </ContextUpdate>
+      <SpriteRender name="s_globe" offset="0.375,0.425" scale="0.85,0.85" blend="PREMULTIPLIED_ALPHA" alignment="CENTER" />
+
+      <ParticleSystemRender name="ps_cloudsFG"/>
+    </RenderBackground>
+  </RenderRules>
+</ItemRenderer>

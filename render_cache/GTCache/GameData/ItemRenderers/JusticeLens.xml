@@ -1,0 +1,312 @@
+<?xml version="1.0" ?>
+<ItemRenderer>
+    <Data>
+        <Sprite name="Sprite9" fileName="game/player_cosmetics4.rttex" textureSize="32,32" frame="3,1" />
+        <Sprite name="Sprite32" fileName="game/player_cosmetics4.rttex" textureSize="32,32" frame="2,1" />
+        <Sprite name="Sprite185" fileName="game/particles12.rttex" textureSize="32,32" frame="0,14" />
+        <Animations>
+            <SpriteAnimation name="Animation329" sprite="Sprite185" isLoop="true" autoPlay="true" animTime="400">
+                <Frame>0,14</Frame>
+                <Frame>1,14</Frame>
+                <Frame>2,14</Frame>
+                <Frame>3,14</Frame>
+            </SpriteAnimation>
+        </Animations>
+        <ParticleSystems>
+            <ParticleSystem name="PS119">
+                <Emitter needsHandItemActive="false">
+                    <Set name="delayTimer">0</Set>
+                    <Set name="infLifeTime">false</Set>
+                    <Set name="infParticles">true</Set>
+                    <Set name="lifeTime">0.6</Set>
+                    <Set name="offset">-1,-26</Set>
+                    <Set name="emissionInterval">0.2</Set>
+                    <Set name="particlesToEmit">0</Set>
+                    <Set name="checkParticleNumToEmit">false</Set>
+                    <Set name="particlesPerEmission">1</Set>
+                </Emitter>
+                <Particle alternateSpriteFrameWithPunch="false" angleRelativeToPlayerSpeed="false" autoLifeTimeToTarget="false" particleIndexSpriteFrame="false" randomSpriteFrame="true" UseParentEmitterAngle="false" UseParentScale="false" UseParentVariantId="false" usePlayerFacing="true" velocityRelativeToPlayerSpeed="false">
+                    <Set name="renderAlignment">CENTER</Set>
+                    <Curve name="initialAlpha">
+                        <KeyFrame>0,0</KeyFrame>
+                        <KeyFrame>0.5,1</KeyFrame>
+                        <KeyFrame>1,0</KeyFrame>
+                    </Curve>
+                    <Random name="initialAngle" min="0" max="360" />
+                    <Set name="blendingMode">ADDITIVE</Set>
+                    <Set name="inSpecificOrder">false</Set>
+                    <Set name="flipX">false</Set>
+                    <Set name="flipY">false</Set>
+                    <Set name="lifeTime">1</Set>
+                    <Set name="relativeToEmitter">true</Set>
+                    <Set name="offset">0,0</Set>
+                    <Set name="rotateWithVelocity">false</Set>
+                    <Set name="initialRotationRate">0</Set>
+                    <Curve name="initialScale">
+                        <KeyFrame>0,0.5,0.5</KeyFrame>
+                        <KeyFrame>1,1.25,1.25</KeyFrame>
+                    </Curve>
+                    <Set name="sprite">Sprite185</Set>
+                    <Set name="initialVelocity">0,0</Set>
+                </Particle>
+            </ParticleSystem>
+            <ParticleSystem name="PS343">
+                <Emitter needsHandItemActive="false">
+                    <Set name="delayTimer">0</Set>
+                    <Set name="infLifeTime">false</Set>
+                    <Set name="infParticles">true</Set>
+                    <Set name="lifeTime">0.6</Set>
+                    <Set name="offset">8,-26</Set>
+                    <Set name="emissionInterval">0.2</Set>
+                    <Set name="particlesToEmit">0</Set>
+                    <Set name="checkParticleNumToEmit">false</Set>
+                    <Set name="particlesPerEmission">1</Set>
+                </Emitter>
+                <Particle alternateSpriteFrameWithPunch="false" angleRelativeToPlayerSpeed="false" autoLifeTimeToTarget="false" particleIndexSpriteFrame="false" randomSpriteFrame="true" UseParentEmitterAngle="false" UseParentScale="false" UseParentVariantId="false" usePlayerFacing="true" velocityRelativeToPlayerSpeed="false">
+                    <Set name="renderAlignment">CENTER</Set>
+                    <Curve name="initialAlpha">
+                        <KeyFrame>0,0</KeyFrame>
+                        <KeyFrame>0.5,1</KeyFrame>
+                        <KeyFrame>1,0</KeyFrame>
+                    </Curve>
+                    <Random name="initialAngle" min="0" max="360" />
+                    <Set name="blendingMode">ADDITIVE</Set>
+                    <Set name="inSpecificOrder">false</Set>
+                    <Set name="flipX">false</Set>
+                    <Set name="flipY">false</Set>
+                    <Set name="lifeTime">1</Set>
+                    <Set name="relativeToEmitter">true</Set>
+                    <Set name="offset">0,0</Set>
+                    <Set name="rotateWithVelocity">false</Set>
+                    <Set name="initialRotationRate">0</Set>
+                    <Curve name="initialScale">
+                        <KeyFrame>0,0.5,0.5</KeyFrame>
+                        <KeyFrame>1,1.25,1.25</KeyFrame>
+                    </Curve>
+                    <Set name="sprite">Sprite185</Set>
+                    <Set name="initialVelocity">0,0</Set>
+                </Particle>
+            </ParticleSystem>
+            <ParticleSystem name="PS383">
+                <Emitter attachment="targetPos" needsHandItemActive="false">
+                    <Set name="delayTimer">0</Set>
+                    <Set name="infLifeTime">false</Set>
+                    <Set name="infParticles">true</Set>
+                    <Set name="lifeTime">0.6</Set>
+                    <Set name="offset">0,0</Set>
+                    <Set name="emissionInterval">0.2</Set>
+                    <Set name="particlesToEmit">0</Set>
+                    <Set name="checkParticleNumToEmit">false</Set>
+                    <Set name="particlesPerEmission">1</Set>
+                </Emitter>
+                <Particle alternateSpriteFrameWithPunch="false" angleRelativeToPlayerSpeed="false" autoLifeTimeToTarget="false" particleIndexSpriteFrame="false" randomSpriteFrame="true" UseParentEmitterAngle="false" UseParentScale="false" UseParentVariantId="false" usePlayerFacing="true" velocityRelativeToPlayerSpeed="false">
+                    <Set name="renderAlignment">CENTER</Set>
+                    <Curve name="initialAlpha">
+                        <KeyFrame>0,0</KeyFrame>
+                        <KeyFrame>0.5,1</KeyFrame>
+                        <KeyFrame>1,0</KeyFrame>
+                    </Curve>
+                    <Random name="initialAngle" min="0" max="360" />
+                    <Set name="blendingMode">ADDITIVE</Set>
+                    <Set name="inSpecificOrder">false</Set>
+                    <Set name="flipX">false</Set>
+                    <Set name="flipY">false</Set>
+                    <Set name="lifeTime">1</Set>
+                    <Set name="relativeToEmitter">true</Set>
+                    <Set name="offset">0,0</Set>
+                    <Set name="rotateWithVelocity">false</Set>
+                    <Set name="initialRotationRate">0</Set>
+                    <Curve name="initialScale">
+                        <KeyFrame>0,0.5,0.5</KeyFrame>
+                        <KeyFrame>1,1.25,1.25</KeyFrame>
+                    </Curve>
+                    <Set name="sprite">Sprite185</Set>
+                    <Set name="initialVelocity">0,0</Set>
+                </Particle>
+            </ParticleSystem>
+        </ParticleSystems>
+        <StateMachines>
+            <StateMachine name="Moving">
+                <States>
+                    <State name="No" />
+                    <State name="Yes" />
+                </States>
+                <Transitions>
+                    <Transition to="No" from="Yes">
+                        <Condition>
+                            <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+                        </Condition>
+                    </Transition>
+                    <Transition to="Yes" from="No">
+                        <Condition>
+                            <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+                        </Condition>
+                    </Transition>
+                </Transitions>
+            </StateMachine>
+            <StateMachine name="Punch">
+                <States>
+                    <State name="No" />
+                    <State name="Yes" />
+                </States>
+                <Transitions>
+                    <Transition to="No" from="Yes">
+                        <Condition>
+                            <IsAction operatorType="NotEqual">PUNCH</IsAction>
+                        </Condition>
+                    </Transition>
+                    <Transition to="Yes" from="No">
+                        <Condition>
+                            <IsAction>PUNCH</IsAction>
+                        </Condition>
+                    </Transition>
+                </Transitions>
+            </StateMachine>
+        </StateMachines>
+        <RenderOptions>
+            <Default>
+                <Set name="AdditionalClothingOffset">0</Set>
+                <Set name="AllowChangePunchType">false</Set>
+                <Set name="ClothingOffsetFromShoes">0</Set>
+                <Set name="DefaultPunchSound" />
+                <Set name="DefaultRenderMannequinHandItem">true</Set>
+                <Set name="DisableDefaultAncestralParticleEffects">false</Set>
+                <Set name="DisableWalkAnimation">false</Set>
+                <Set name="EnableBobbingOffset">false</Set>
+                <Set name="HasDeathParticles">false</Set>
+                <Set name="Head.Sprite" />
+                <Set name="Head.Sprite.Sit" />
+                <Set name="Head.Sprite.Sleep" />
+                <Set name="HideAngelOnDeath">false</Set>
+                <Set name="HideAvatarOnDeath">false</Set>
+                <Set name="HideParticlesOnSleepingInBed">false</Set>
+                <Set name="HideParticlesOnTheaterSeat">false</Set>
+                <Set name="HideParticlesOnTransform">false</Set>
+                <Set name="IgnoreDefaultDamagedTileEffect">false</Set>
+                <Set name="IgnoreDefaultDestroyedTileEffect">false</Set>
+                <Set name="IgnoreParticlesInShadowMods">true</Set>
+                <Set name="IgnorePunchTypeCheck">true</Set>
+                <Set name="IgnorePunchTypeCheckForNormalPunchOnly">false</Set>
+                <Set name="IgnorePunchTypeDamagedTileCheck">false</Set>
+                <Set name="IncludeAllActions">false</Set>
+                <Set name="IsBed">false</Set>
+                <Set name="IsCar">false</Set>
+                <Set name="IsFacingChangeDisabled">false</Set>
+                <Set name="IsHorse">false</Set>
+                <Set name="IsNightVision">false</Set>
+                <Set name="IsPetWithLight">false</Set>
+                <Set name="IsPulseShoes">false</Set>
+                <Set name="IsRidingBird">false</Set>
+                <Set name="IsRv">false</Set>
+                <Set name="IsSkateboard">false</Set>
+                <Set name="IsSurfboard">false</Set>
+                <Set name="IsToRenderPants">true</Set>
+                <Set name="IsToRenderParticlesWhenShrunken">false</Set>
+                <Set name="IsVehicle">false</Set>
+                <Set name="JumpEndStateRange">0</Set>
+                <Set name="NeedRenderBareFeetWithShoesItem">false</Set>
+                <Set name="NeedRenderPet">false</Set>
+                <Set name="PetOffsetDuplication">32,0</Set>
+                <Set name="PlayDefaultPunchAudio">true</Set>
+                <Set name="PunchSoundOverride" />
+                <Set name="RenderBackArmAfterItem">false</Set>
+                <Set name="RenderBackArmBuild">true</Set>
+                <Set name="RenderBackArmInTheFront">false</Set>
+                <Set name="RenderBackArmInfected">false</Set>
+                <Set name="RenderFrontArmInTheFront">false</Set>
+                <Set name="RenderFrontArmInfected">false</Set>
+                <Set name="RenderShoesWithMermaidTail">true</Set>
+                <Set name="RenderWhenZombie">true</Set>
+                <Set name="ShoesHidesBodyLegs">false</Set>
+                <Set name="ShoesShouldIgnoreRaptorLegsOffset">false</Set>
+                <Set name="ShouldHover">true</Set>
+                <Set name="SleepHidesPlayer">false</Set>
+                <Set name="UseActionsWithStates">false</Set>
+                <Set name="UsePetForceFaceTime">true</Set>
+                <Set name="UseRecoilAnim">false</Set>
+                <Set name="UserNameOffset">0</Set>
+            </Default>
+        </RenderOptions>
+    </Data>
+    <RenderRules>
+        <RenderFaceItem>
+            <StopIf>
+                <IsSitting ItemID="ITEM_ID_THEATER_SEAT">true</IsSitting>
+                <IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+            </StopIf>
+            <SpriteRender name="Sprite32" blend="NORMAL" alignment="DOWN_CENTER" drawShadow="false" />
+            <ContextUpdate type="SetTintFromSlot">
+                <Set name="slot">FACEITEM</Set>
+                <Set name="seedFG">false</Set>
+            </ContextUpdate>
+            <ContextUpdate type="SetTintFromSlot">
+                <Set name="slot">SHIRT</Set>
+                <Set name="seedFG">false</Set>
+            </ContextUpdate>
+            <SpriteRender name="Sprite9" blend="NORMAL" alignment="DOWN_CENTER" drawShadow="false" />
+            <Group onState="Punch.No">
+                <ParticleSystemOff name="PS119" />
+                <ParticleSystemOff name="PS343" />
+            </Group>
+            <Group onState="Punch.Yes">
+                <ParticleSystemUpdate name="PS119" />
+                <ParticleSystemUpdate name="PS343" />
+                <ParticleSystemUpdate name="PS383" />
+            </Group>
+        </RenderFaceItem>
+        <Update>
+            <Group onState="Moving.No" />
+            <Group onState="Moving.Yes">
+                <Group onState="Punch.No">
+                    <AvatarTransform class="ArmAngle">
+                        <Set name="armName">arm2Angle</Set>
+                        <Set name="armAngle">45</Set>
+                    </AvatarTransform>
+                    <AvatarTransform class="ArmAngle">
+                        <Set name="armName">arm1Angle</Set>
+                        <Set name="armAngle">-45</Set>
+                    </AvatarTransform>
+                </Group>
+                <Group onState="Punch.Yes" />
+            </Group>
+            <AvatarTransform class="FootPosition">
+                <Set name="foot1y">0.1</Set>
+                <Set name="foot2y">0.1</Set>
+            </AvatarTransform>
+        </Update>
+        <OnDrawCustomOutline>
+            <AvatarTransform class="RenderData">
+                <Set name="saturation">getCurrent</Set>
+                <Set name="brightness">getCurrent</Set>
+                <Set name="contrast">getCurrent</Set>
+            </AvatarTransform>
+            <AvatarTransform class="Scale">
+                <Set name="targetScale">getCurrent</Set>
+            </AvatarTransform>
+            <AvatarTransform class="RenderData">
+                <Set name="saturation">1.5</Set>
+                <Set name="brightness">0.8</Set>
+                <Set name="contrast">0.15</Set>
+            </AvatarTransform>
+            <ContextUpdate type="SetTintFromSlot">
+                <Set name="slot">FACEITEM</Set>
+                <Set name="seedFG">false</Set>
+            </ContextUpdate>
+            <ContextUpdate type="SetTintFromSlot">
+                <Set name="slot">SHIRT</Set>
+                <Set name="seedFG">false</Set>
+            </ContextUpdate>
+            <AvatarOutline startScale="1,1" endScale="1.1,1.1" duration="1000" contextColor="true">
+                <Colours />
+            </AvatarOutline>
+            <AvatarTransform class="RenderData">
+                <Set name="saturation">reset</Set>
+                <Set name="brightness">reset</Set>
+                <Set name="contrast">reset</Set>
+            </AvatarTransform>
+            <AvatarTransform class="Scale">
+                <Set name="targetScale">reset</Set>
+            </AvatarTransform>
+        </OnDrawCustomOutline>
+    </RenderRules>
+</ItemRenderer>

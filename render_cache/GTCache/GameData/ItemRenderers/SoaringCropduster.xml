@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer item="ITEM_ID_SOARING_CROPDUSTER">
+  <Data>
+    <StateMachines>
+      <StateMachine name="trailParticleState">
+        <States>
+          <State name="Idle"/>
+          <State name="Move"/>
+        </States>
+        <Transitions>
+          <Transition from="Idle" to="Move" >
+            <Condition>
+              <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="Move" to="Idle" >
+            <Condition>
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <Sprite name="foot1_sprite" fileName="game/player_feet16.rttex" textureSize="32" frame="12,20"/>
+    <Sprite name="foot2_sprite" fileName="game/player_feet16.rttex" textureSize="32" frame="12,21"/>
+    <Sprite name="trail_sprite" fileName="game/particles11.rttex" textureSize="32" frame="15,25"/>
+
+    <Animations>
+      <SpriteAnimation name="foot1_anim" sprite="foot1_sprite" animTime="400" isLoop="true" autoPlay="true">
+        <Frame>12,20</Frame>
+        <Frame>13,20</Frame>
+        <Frame>14,20</Frame>
+        <Frame>15,20</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="foot2_anim" sprite="foot2_sprite" animTime="400" isLoop="true" autoPlay="true">
+        <Frame>12,21</Frame>
+        <Frame>13,21</Frame>
+        <Frame>14,21</Frame>
+        <Frame>15,21</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="trail_Sprites" autoPlay="false" sprite="trail_sprite">
+        <Frame>15,25</Frame>
+        <Frame>16,25</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <ParticleSystems>
+      <ParticleSystem name="trail_particle">
+        <Emitter>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">10</Set>
+          <Set name="emissionInterval">0.035</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="offset">-20,-4</Set>
+          <Select name="rgbTint" input="intervalMS">
+            <InputConfig>
+              <Set name="timeMS">50</Set>
+            </InputConfig>
+            <Item>1,1,1</Item>
+            <Item>0.65,0.99,0.98</Item>
+          </Select>
+        </Emitter>
+        <Particle randomSpriteFrame="true">
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="sprite">trail_sprite</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.5</Set>
+          <Set name="initialVelocity">0,0</Set>
+          <Random name="initialAngle" min="0" max="360"/>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.75, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialScale">
+            <KeyFrame>0, 0.75,0.75</KeyFrame>
+            <KeyFrame>1, 3,3</KeyFrame>
+          </Curve>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="trail_particle_back">
+        <Emitter>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">10</Set>
+          <Set name="emissionInterval">0.035</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="offset">10,-10</Set>
+          <Select name="rgbTint" input="intervalMS">
+            <InputConfig>
+              <Set name="timeMS">50</Set>
+            </InputConfig>
+            <Item>1,1,1</Item>
+            <Item>0.65,0.99,0.98</Item>
+          </Select>
+        </Emitter>
+        <Particle randomSpriteFrame="true">
+          <Set name="inSpecificOrder">true</Set>
+          <Set name="sprite">trail_sprite</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.5</Set>
+          <Set name="initialVelocity">0,0</Set>
+          <Random name="initialAngle" min="0" max="360"/>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>0.75, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialScale">
+            <KeyFrame>0, 0.75,0.75</KeyFrame>
+            <KeyFrame>1, 3,3</KeyFrame>
+          </Curve>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+
+    <RenderOptions>
+      <Default>
+        <Set name="ShoesShouldIgnoreRaptorLegsOffset">true</Set>
+        <Set name="ClothingOffsetFromShoes">-18</Set>
+        <Set name="UserNameOffset">18</Set>
+        <Set name="ShouldHover">true</Set>
+        <Set name="IsToRenderPants">false</Set>
+        <Set name="ShoesHidesBodyLegs">true</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+
+  <RenderRules>
+    <Update>
+      <StopIf type="or">
+        <IsZombified>true</IsZombified>
+        <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+      </StopIf>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">-45</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">-45</Set>
+      </AvatarTransform>
+    </Update>
+    <RenderBehind>
+      <StopIf>
+        <IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+      </StopIf>
+      <ParticleSystemRender name="trail_particle_back" />
+    </RenderBehind>
+    <RenderShoes>
+      <SpriteRender name="foot1_sprite" offset="-3,-5" alignmentLeft="LEFT_CENTER" alignmentRight="RIGHT_CENTER"/>
+      <SpriteRender name="foot2_sprite" offset="-3,-5" alignmentLeft="RIGHT_CENTER" alignmentRight="LEFT_CENTER"/>
+      <StopIf>
+        <IsRenderMod>RENDER_MOD_MINI_YOU</IsRenderMod>
+      </StopIf>
+      <ParticleSystemRender name="trail_particle"/>
+      <ParticleSystemUpdate name="trail_particle_back" onState="trailParticleState.Move"/>
+      <ParticleSystemUpdate name="trail_particle" onState="trailParticleState.Move"/>
+    </RenderShoes>
+  </RenderRules>
+</ItemRenderer>

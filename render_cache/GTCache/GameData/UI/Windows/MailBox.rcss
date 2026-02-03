@@ -1,0 +1,273 @@
+
+.window {
+    min-height: 80vh;
+    min-width: 850dp;
+}
+    .window .bg {
+        overflow-y: hidden;
+    }
+
+#window-title .title-icon {
+    decorator: itemidimage(660);
+}
+
+/*--------------------------------       Top panel       -------------------------------- */
+
+.top-panel {
+    margin-bottom: 16dp;
+}
+
+.info-panel {
+    display: flex;
+    width: 100%;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 45dp;
+}
+
+
+.info-panel .text {
+}
+
+.info-panel .button {
+    padding-left: 16dp;
+    padding-right: 16dp;
+    padding-top: 8dp;
+    padding-bottom: 8dp;
+}
+
+    .info-panel .button .label {
+        font-size: 26dp;
+        margin: 0;
+        padding: 0;
+    }
+
+/*--------------------------------       Messages table      -------------------------------- */
+
+#messages-list {
+    width: 100%;
+    overflow-y: auto;
+}
+
+    #messages-list .message-table {
+        width: 800dp;
+        row-gap: 8dp;
+        column-gap: 8dp;
+    }
+
+
+.message-table col {
+}
+
+
+.message-table tr {
+    height: auto;
+}
+
+.message-table tr.hasresult {
+    border-radius: 10dp;
+	box-shadow: #000f 2dp 2dp 2dp 0px;
+    margin-bottom: 5dp;
+}
+
+.message-table col:nth-child(1) {
+    width: auto;
+}
+
+.message-table col:nth-child(3) {
+    width: 200dp;
+}
+
+/*--------------------------------       Message styles      -------------------------------- */
+
+.message-table .message {
+    background-color: rgb(80, 157, 188);
+    sound-on-click: true;
+}
+
+    .message-table .message:active {
+        filter: brightness(0.85);
+    }
+
+    .message-table .message.hidden {
+        display: none;
+    }
+
+    .message-table .message.read {
+        filter: brightness(0.8);
+        opacity: 0.8;
+        sound-on-click: true;
+    }
+
+        .message-table .message.read:active {
+            filter: brightness(0.65);
+        }
+
+/*--------------------------------       Message Icon column         -------------------------------- */
+
+.message-table .left {
+    vertical-align: middle;
+    width: 80dp;
+    padding: 4dp;
+    margin: 0;
+}
+
+.message-table .split {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+}
+
+.message .icon {
+    padding: 0;
+    margin: 0;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 64dp;
+    height: 64dp;
+}
+
+    .message .icon #notification-icon {
+        position: relative;
+        top: 2dp;
+        left: 2dp;
+        width: 16dp;
+        height: 16dp;
+        decorator: image(interface/large/mailbox_reddot1.rttex);
+    }
+
+/*--------------------------------       Message Description column         -------------------------------- */
+
+.message-table .middle-container {
+    width: auto;
+    padding: 4dp;
+    margin: 0;
+}
+
+.message .title {
+    color: #fff;
+}
+
+.message .descr {
+    padding-top: 4dp;
+}
+
+/*--------------------------------       Message right column         -------------------------------- */
+
+.message-table .right {
+    padding: 4dp;
+    margin: 0;
+    vertical-align: middle;
+}
+
+    .message-table .right .split {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        align-content: flex-end;
+        justify-content: flex-end;
+        padding-right: 4dp;
+    }
+
+.message .action {
+    flex: 0 1 auto;
+}
+
+.action .button {
+    padding-left: 12dp;
+    padding-right: 12dp;
+    padding-top: 3dp;
+    padding-bottom: 6dp;
+    margin: 5dp 0 0 0;
+}
+
+    .action .button.active {
+        filter: brightness(0.85);
+        transform: scale(0.95);
+    }
+
+    .action .button .label {
+        font-size: 18dp;
+        margin: 0;
+        padding: 0;
+    }
+
+.message .timeleft {
+    flex: 0 0 auto;
+    padding-top: 4dp;
+    text-align: right;
+    width: 100%;
+}
+
+/*------------------------------   Empty messages state   ----------------------------------------*/
+
+.empty-message-panel {
+    width: 100%;
+    height: 100%;
+}
+
+.empty-message {
+    top: 50%;
+    left: 0;
+    display: block;
+    position: relative;
+    transform: translateY(-50%);
+    text-align: center;
+}
+
+/*------------------------------   Loading animation   ----------------------------------------*/
+
+.loadin-info {
+    decorator: image(media/interface/large/saving_icon.rttex);
+    width: 32dp;
+    height: 32dp;
+}
+
+.dots-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+.dot {
+    height: 10dp;
+    width: 10dp;
+    margin-right: 15dp;
+    background-color: rgba(165,227,251,255);
+    animation: 3s quadratic-in-out infinite spinner;
+    transform: scale(1.0);
+}
+
+    .dot:last-child {
+        margin-right: 0;
+    }
+
+    .dot:nth-child(1) {
+    }
+
+    .dot:nth-child(2) {
+    }
+
+    .dot:nth-child(3) {
+    }
+
+@keyframes spinner {
+    from {
+        transform: scale(0.8) rotate(0deg);
+        
+    }
+
+    50% {
+        transform: scale(1.4) rotate(90deg);
+    }
+
+    to {
+        transform: scale(0.8) rotate(180deg);
+    }
+}

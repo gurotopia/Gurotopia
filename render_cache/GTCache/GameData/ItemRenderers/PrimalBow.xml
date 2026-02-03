@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer item="ITEM_ID_PRIMAL_BOW">
+  <Data>
+    <Sprite name="s_bow" fileName="game/particles_large12.rttex" textureSize="64" frame="15,13"/>
+    <Sprite name="s_glove" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="27,20"/>
+    <Sprite name="s_quiver" fileName="game/player_cosmetics3.rttex" textureSize="32"/>
+    <Sprite name="s_strap" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="26,20"/>
+    <Sprite name="s_arrow" fileName="game/particles11.rttex" textureSize="32"/>
+    <Sprite name="s_tileArrow" fileName="game/particles11.rttex" textureSize="32"/>
+    <Sprite name="s_ember" fileName="game/particles11.rttex" textureSize="32"/>
+
+    <StateMachines>
+      <StateMachine name="Punch">
+        <States>
+          <State name="True"/>
+          <State name="False"/>
+        </States>
+        <Transitions>
+          <Transition from="False" to="True">
+            <Condition type="and">
+              <IsAction>PUNCH</IsAction>
+              <IsZombified>false</IsZombified>
+            </Condition>
+          </Transition>
+          <Transition from="True" to="False">
+            <Condition>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <Animations>
+      <SpriteAnimation name="a_arrow" sprite="s_arrow">
+        <Frame>7,26</Frame>
+        <Frame>8,26</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_ember" sprite="s_ember">
+        <Frame>5,26</Frame>
+        <Frame>6,26</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_quiverIdle" sprite="s_quiver" animTime="100" playOnState="Punch.False" isLoop="true">
+        <Frame>25,20</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_quiverPunch" sprite="s_quiver" animTime="1000" playOnState="Punch.True" isLoop="true">
+        <Frame>25,21</Frame>
+        <Frame>26,21</Frame>
+        <Frame>27,21</Frame>
+        <Frame>28,21</Frame>
+        <Frame>29,21</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_tileArrow" sprite="s_tileArrow" animTime="1100">
+        <Frame>17,27</Frame>
+        <Frame>7,27</Frame>
+        <Frame>8,27</Frame>
+        <Frame>9,27</Frame>
+        <Frame>10,27</Frame>
+        <Frame>11,27</Frame>
+        <Frame>12,27</Frame>
+        <Frame>13,27</Frame>
+        <Frame>14,27</Frame>
+        <Frame>15,27</Frame>
+        <Frame>16,27</Frame>
+      </SpriteAnimation>
+    </Animations>
+
+    <VariableMap>
+      <Set name="projectile_offset">0, 0</Set>
+      <Set name="projectile_angle">0</Set>
+    </VariableMap>
+
+    <ParticleSystems>
+      <ParticleSystem name="ps_punchProjectile" updateStage="RenderBackHandItem" updateState="Punch.True">
+        <Emitter attachment="handspotRoot">
+          <Set name="offset">-3, 0</Set>
+          <Set name="lifeTime">0.3</Set>
+          <Set name="emissionInterval">0.05</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+        </Emitter>
+        <Particle randomSpriteFrame="true">
+          <Set name="sprite">s_arrow</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.2</Set>
+          <Random name="targetPosOffset" min="-12,-11" max="12,11"/>
+          <VectorTo name="initialVelocity" source="targetPos" offset="targetPosOffset" duration="lifeTime" x="1" angleOutVar="projectile_angle"/>
+          <Set name="rotateWithVelocity">true</Set>
+          <SetVar name="projectile_offset" source="targetPosOffset"/>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_tileArrow">
+        <Emitter>
+          <Set name="infParticles">true</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_tileArrow</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">1.1</Set>
+          <Set name="renderAlignment">RIGHT_CENTER</Set>
+          <Set name="offset" source="projectile_offset"/>
+          <Set name="initialAngle" source="projectile_angle"/>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_hitEmbers">
+        <Emitter>
+          <Set name="lifeTime">0.25</Set>
+          <Set name="particlesPerEmission">8</Set>
+          <Set name="particlesToEmit">1</Set>
+        </Emitter>
+        <Particle randomSpriteFrame="true">
+          <Set name="sprite">s_ember</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Set name="lifeTime">1</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialScale">
+            <KeyFrame>0, 1,1</KeyFrame>
+            <KeyFrame>1, 0.25,0.25</KeyFrame>
+          </Curve>
+          <Random name="initialRotationRate" min="5" max="15" />
+          <Random name="offset" min="-4,-3" max="4,3" />
+          <Set name="useGravity">true</Set>
+          <Set name="gravityVector">0, 100</Set>
+          <RandomRadial name="initialVelocity" angleRange="45,315" radiusRange="80,200" />
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="ps_destroyEmbers">
+        <Emitter>
+          <Set name="lifeTime">0.25</Set>
+          <Set name="particlesPerEmission">16</Set>
+          <Set name="particlesToEmit">1</Set>
+        </Emitter>
+        <Particle randomSpriteFrame="true">
+          <Set name="sprite">s_ember</Set>
+          <Set name="blendingMode">ADDITIVE</Set>
+          <Set name="lifeTime">1</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Curve name="initialScale">
+            <KeyFrame>0, 1,1</KeyFrame>
+            <KeyFrame>1, 0.25,0.25</KeyFrame>
+          </Curve>
+          <Random name="initialRotationRate" min="5" max="15" />
+          <Random name="offset" min="-4,-3" max="4,3" />
+          <Set name="useGravity">true</Set>
+          <Set name="gravityVector">0, 100</Set>
+          <RandomRadial name="initialVelocity" angleRange="45,315" radiusRange="80,200" />
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+
+    <RenderOptions>
+      <Default>
+        <Set name="PunchSoundOverride">HAND</Set>
+        <Set name="PlayDefaultPunchAudio">false</Set>
+        <Set name="DefaultRenderMannequinHandItem">false</Set>
+        <Set name="RenderFrontArmInfected">true</Set>
+        <Set name="RenderBackArmInfected">true</Set>
+        <Set name="RenderBackArmBuild">true</Set>
+        <Set name="IgnoreDefaultDamagedTileEffect">true</Set>
+        <Set name="IncludeAllActions">true</Set>
+        <Set name="HideParticlesOnTransform">true</Set>
+      </Default>
+    </RenderOptions>
+  </Data>
+
+  <RenderRules>
+    <RenderBackArm>
+      <SpriteRender name="s_quiver" offset="0.5, -16" useFixedRotation="true" fixedRotation="0"/>
+    </RenderBackArm>
+    <RenderFrontArm value="playerCenter">
+      <SpriteRender name="s_strap" offset="0, -16" useFixedRotation="true" fixedRotation="0"/>
+    </RenderFrontArm>
+    <RenderBackHandItem>
+      <StopIf>
+        <IsAction>BUILD</IsAction>
+      </StopIf>
+      <StopIf type="and">
+        <IsZombified>true</IsZombified>
+        <IsAction>PUNCH</IsAction>
+      </StopIf>
+      <SpriteRender name="s_bow" offset="-4,-1" rotationPoint="0,1" alignment="CENTER" rotateOffset="true" blend="PREMULTIPLIED_ALPHA"/>
+      <SpriteRender name="s_glove" offset="-3,11" rotateOffset="true" rotationPoint="0,1" alignment="CENTER" blend="PREMULTIPLIED_ALPHA"/>
+    </RenderBackHandItem>
+    <RenderHandItem>
+      <SpriteRender name="s_glove" rotateOffset="true" alignment="UPPER_CENTER" blend="PREMULTIPLIED_ALPHA"/>
+    </RenderHandItem>
+    <OnPunchUpdate>
+      <AvatarTransform class="Face">
+        <Set name="face">MAD</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="pointTowardsPunchTarget">true</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">1500</Set>
+        <Set name="isAdditive">true</Set>
+      </AvatarTransform>
+    </OnPunchUpdate>
+    <OnDamagedTile>
+      <StopIf type="or">
+        <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+        <IsSitting ItemID="ITEM_ID_THEATER_SEAT">true</IsSitting>
+      </StopIf>
+      <ParticleSystemUpdate name="ps_tileArrow" />
+      <ParticleSystemUpdate name="ps_hitEmbers" />
+    </OnDamagedTile>
+    <OnDestroyedTile>
+      <StopIf type="or">
+        <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+        <IsSitting ItemID="ITEM_ID_THEATER_SEAT">true</IsSitting>
+      </StopIf>
+      <ParticleSystemUpdate name="ps_destroyEmbers" />
+    </OnDestroyedTile>
+  </RenderRules>
+</ItemRenderer>

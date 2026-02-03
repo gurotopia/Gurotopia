@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer NPCType="MagicCrystalBallBoss">
+  <Data>
+    <Sprite name="s_sprite" fileName="game/bb_page3.rttex" textureSize="128" frame="0,2" />
+    <Sprite name="s_HitEffect" fileName="game/particles.rttex" textureSize="32" frame="10,9" />
+    <Sprite name="s_orb1" fileName="game/npc1.rttex" textureSize="32" frame="28,2"/>
+    <Sprite name="s_orb2" fileName="game/npc1.rttex" textureSize="32" frame="29,2"/>
+    <Sprite name="s_orb3" fileName="game/npc1.rttex" textureSize="32" frame="30,2"/>
+    <Sprite name="s_orb4" fileName="game/npc1.rttex" textureSize="32" frame="31,2"/>
+    <Sprite name="s_projectile" fileName="game/bb_page4.rttex" textureSize="128" frame="0,0"/>
+    <Animations>
+      <SpriteAnimation name="a_patrol" sprite="s_sprite" isLoop="true" animTime="1400" autoPlay="true">
+        <Frame>0,2</Frame>
+        <Frame>1,2</Frame>
+        <Frame>2,2</Frame>
+        <Frame>3,2</Frame>
+        <Frame>4,2</Frame>
+        <Frame>5,2</Frame>
+        <Frame>6,2</Frame>
+        <Frame>7,2</Frame>
+        <Frame>0,3</Frame>
+        <Frame>1,3</Frame>
+        <Frame>2,3</Frame>
+        <Frame>3,3</Frame>
+        <Frame>4,3</Frame>
+        <Frame>5,3</Frame>
+      </SpriteAnimation>
+      <SpriteAnimation name="a_projectile" sprite="s_projectile" isLoop="true" animTime="400" playOnState="NPC.NearPlayer">
+        <Frame>0,0</Frame>
+        <Frame>1,0</Frame>
+        <Frame>2,0</Frame>
+        <Frame>3,0</Frame>
+      </SpriteAnimation>
+    </Animations>
+    <ParticleSystems>
+      <ParticleSystem name="ps_HitEffect" updateStage="OnDamaged">
+        <Emitter>
+          <Set name="particlesPerEmission">10</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_HitEffect</Set>
+          <Set name="rotateWithVelocity">true</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 0</KeyFrame>
+            <KeyFrame>0.4, 0</KeyFrame>
+            <KeyFrame>0.41, 1</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+          <Set name="initialScale">0.5,0.5</Set>
+          <Set name="lifeTime">0.5</Set>
+          <Set name="initalRGB">0.44,0.27,0.48</Set>
+          <RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="30,90" />
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="Arc1">
+        <Emitter>
+          <Set name="offset">0, 0</Set>
+          <Set name="emissionInterval">0.2</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <OrbitOffset>
+            <Set name="maxScale">1</Set>
+            <Set name="hasOrbit">true</Set>
+            <Set name="hOrbitPeriod">-3200</Set>
+            <Set name="hAmplitude">50</Set>
+            <Set name="hTimeOffset">0</Set>
+            <Set name="vAmplitude">8</Set>
+            <Set name="vOrbitPeriod">-3600</Set>
+            <Set name="vTimeOffset">0</Set>
+            <Set name="minScale">0.5</Set>
+          </OrbitOffset>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_orb1</Set>
+          <Set name="relativeToEmitter">true</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.25</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="Arc2">
+        <Emitter>
+          <Set name="offset">0, 0</Set>
+          <Set name="emissionInterval">0.2</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <OrbitOffset>
+            <Set name="maxScale">1</Set>
+            <Set name="hasOrbit">true</Set>
+            <Set name="hOrbitPeriod">-3200</Set>
+            <Set name="hAmplitude">50</Set>
+            <Set name="hTimeOffset">800</Set>
+            <Set name="vAmplitude">8</Set>
+            <Set name="vOrbitPeriod">-1800</Set>
+            <Set name="vTimeOffset">835</Set>
+            <Set name="minScale">0.5</Set>
+          </OrbitOffset>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_orb2</Set>
+          <Set name="relativeToEmitter">true</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.25</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="Arc3">
+        <Emitter>
+          <Set name="offset">0, 0</Set>
+          <Set name="emissionInterval">0.2</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <OrbitOffset>
+            <Set name="maxScale">1</Set>
+            <Set name="hasOrbit">true</Set>
+            <Set name="hOrbitPeriod">-3200</Set>
+            <Set name="hAmplitude">50</Set>
+            <Set name="hTimeOffset">1600</Set>
+            <Set name="vAmplitude">8</Set>
+            <Set name="vOrbitPeriod">-5000</Set>
+            <Set name="vTimeOffset">1670</Set>
+            <Set name="minScale">0.5</Set>
+          </OrbitOffset>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_orb3</Set>
+          <Set name="relativeToEmitter">true</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.25</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="Arc4">
+        <Emitter>
+          <Set name="offset">0, 0</Set>
+          <Set name="emissionInterval">0.2</Set>
+          <Set name="infParticles">true</Set>
+          <Set name="infLifeTime">true</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <OrbitOffset>
+            <Set name="maxScale">1</Set>
+            <Set name="hasOrbit">true</Set>
+            <Set name="hOrbitPeriod">3200</Set>
+            <Set name="hAmplitude">50</Set>
+            <Set name="hTimeOffset">800</Set>
+            <Set name="vAmplitude">8</Set>
+            <Set name="vOrbitPeriod">3600</Set>
+            <Set name="vTimeOffset">1670</Set>
+            <Set name="minScale">0.5</Set>
+          </OrbitOffset>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_orb3</Set>
+          <Set name="relativeToEmitter">true</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.25</Set>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+    <StateMachines>
+      <StateMachine name="NPC" ServerOnly="true">
+        <States start="FlyPatrol">
+          <NPCFlyingPatrol name="FlyPatrol">
+            <PatrolSpeed>50</PatrolSpeed>
+            <PatrolRange>300</PatrolRange>
+            <StayHome>false</StayHome>
+          </NPCFlyingPatrol>
+          <NPCFlyingChase name="Chase">
+            <ChaseSpeed>100</ChaseSpeed>
+            <FollowPrecision>0.75</FollowPrecision>
+          </NPCFlyingChase>
+          <NPCPlatformChase name="NearPlayer">
+            <ChaseSpeed>0</ChaseSpeed>
+            <DisableFall>false</DisableFall>
+          </NPCPlatformChase>
+        </States>
+        <Transitions>
+          <Transition to="Chase" from="FlyPatrol">
+            <Condition>
+              <IsPlayerDistanceMatching operatorType="Less">300</IsPlayerDistanceMatching>
+            </Condition>
+          </Transition>
+          <Transition to="FlyPatrol" from="Chase">
+            <Condition>
+              <IsPlayerDistanceMatching operatorType="GreaterOrEqual">300</IsPlayerDistanceMatching>
+            </Condition>
+          </Transition>
+          <Transition to="NearPlayer" from="Chase">
+            <Condition>
+              <IsPlayerDistanceMatching operatorType="Less">64</IsPlayerDistanceMatching>
+            </Condition>
+          </Transition>
+          <Transition to="Chase" from="NearPlayer">
+            <Condition>
+              <IsPlayerDistanceMatching operatorType="Greater">64</IsPlayerDistanceMatching>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+    <Components>
+      <Info/>
+      <MustKillNPC/>
+		<TintOverrideCmp/>
+      <AttachmentSlotsCmp/>
+      <Enemy>
+        <Set name="SoulsReward">250</Set>
+        <Set name="destroyTileId">3452</Set>
+      </Enemy>
+      <Movement/>
+      <Damage>
+        <Set name="damage">20</Set>
+        <Set name="bumpPower">10,-1</Set>
+      </Damage>
+      <IsBossNPC>
+        <Set name="displayName">"Magic Crystal Ball"</Set>
+      </IsBossNPC>
+      <NPCRenderActionCmp/>
+      <StateMachine/>
+      <Physics>
+        <Set name="acceleration">0, 0</Set>
+        <Set name="mass">20</Set>
+        <Set name="drag">2, 2</Set>
+      </Physics>
+      <Health>
+        <Set name="healthAmount">20000</Set>
+        <Set name="maxHealth">20000</Set>
+      </Health>
+      <CollisionBox>
+        <Set name="size">80,80</Set>
+        <Set name="CollisionFlag">"PLAYERS|PROJECTILES"</Set>
+        <Set name="CollisionType">"ENEMY_NPC"</Set>
+      </CollisionBox>
+      <DebugDraw/>
+    </Components>
+  </Data>
+  <RenderRules>
+    <Render>
+      <SpriteRender name="s_sprite"/>
+      <SpriteRender name="s_projectile" onState="NPC.NearPlayer"/>
+      <Translate>0,-16,0</Translate>
+      <NPCHealthBarRender TexturePath="interface/large/gui_event_npchealth_bar.rttex" TextureSize="17,9" TextureCoordinates="0,0"/>
+    </Render>
+	  <SwitchOffClothingParticles>
+		  <ParticleSystemOff name="Arc1"/>
+		  <ParticleSystemOff name="Arc2"/>
+		  <ParticleSystemOff name="Arc3"/>
+		  <ParticleSystemOff name="Arc4"/>
+	  </SwitchOffClothingParticles>
+	 <Update>
+	    <ParticleSystemUpdate name="Arc1"/>
+	    <ParticleSystemUpdate name="Arc2"/>
+	    <ParticleSystemUpdate name="Arc3"/>
+	    <ParticleSystemUpdate name="Arc4"/>
+	 </Update>
+  </RenderRules>
+</ItemRenderer>

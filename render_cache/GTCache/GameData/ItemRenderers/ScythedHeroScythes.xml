@@ -1,0 +1,202 @@
+<?xml version="1.0" ?>
+<ItemRenderer>
+    <Data>
+		<Sprite name="s_glove1" fileName="game/player_cosmetics3.rttex" textureSize="32,32" frame="20,31" />
+        <Sprite name="s_glove2" fileName="game/player_cosmetics3.rttex" textureSize="32,32" frame="20,31" />
+        <Sprite name="s_sword" fileName="game/player_cosmetics3.rttex" textureSize="32,32" frame="21,31" />
+        <Sprite name="s_slash" fileName="game/particles12.rttex" textureSize="32,32" frame="10,5" />
+		<Sprite name="s_hit" fileName="game/particles12.rttex" textureSize="32,32" frame="10,4" />
+        <Animations />
+        <ParticleSystems>
+            <ParticleSystem name="ps_slash" secondary="ps_slash2">
+                <Emitter attachment="targetPos">
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="particlesToEmit">1</Set>
+                </Emitter>
+                <Particle>
+                    <Set name="lifeTime">0.6</Set>
+                    <Set name="sprite">s_slash</Set>
+					<Random name="initialAngle" min="0" max="360"/>
+					<Random name="offset" min="-8,-8" max="8,8"/>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>0.5, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+                </Particle>
+            </ParticleSystem>
+			<ParticleSystem name="ps_slash2">
+                <Emitter attachment="targetPos">
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="particlesToEmit">1</Set>
+					<Set name="delayTimer">0.15</Set>
+                </Emitter>
+                <Particle UseParentEmitterAngle="true">
+                    <Set name="lifeTime">0.6</Set>
+                    <Set name="sprite">s_slash</Set>
+					<Set name="flipX">true</Set>
+					<Curve name="initialAlpha">
+						<KeyFrame>0, 1</KeyFrame>
+						<KeyFrame>0.5, 1</KeyFrame>
+						<KeyFrame>1, 0</KeyFrame>
+					</Curve>
+                </Particle>
+            </ParticleSystem>
+			<ParticleSystem name="ps_hit" updateStage="OnDamagedTile">
+				<Emitter>
+					<Set name="lifeTime">0</Set>
+					<Set name="particlesPerEmission">8</Set>
+				</Emitter>
+				<Particle>
+					<Set name="sprite">s_hit</Set>
+					<Random name="offset" min="-8, -8" max="8, 8"/>
+					<Set name="lifeTime">0.4</Set>
+					<RandomRadial name="initialVelocity" angleRange="0,360" radiusRange="20,40"/>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+				</Particle>
+			</ParticleSystem>
+        </ParticleSystems>
+		<RenderOptions>
+			<Default>
+				<Set name="IgnoreDefaultDamagedTileEffect">true</Set>
+				<Set name="RenderFrontArmInfected">true</Set>
+				<Set name="RenderBackArmInfected">true</Set>
+				<Set name="DefaultRenderMannequinHandItem">false</Set>
+				<Set name="DefaultPunchSound">audio/slash.wav</Set>
+			</Default>
+		</RenderOptions>
+		<Animations>
+			<SpriteAnimation name="a_glove_idle_1" sprite="s_glove1" playOnState="Punch.No">
+				<Frame>20,31</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_glove_idle_2" sprite="s_glove2" playOnState="Punch.No">
+				<Frame>20,31</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_glove_fall_1" sprite="s_glove1" playOnState="Movement.Fall">
+				<Frame>24,31</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_glove_fall_2" sprite="s_glove2" playOnState="Movement.Fall">
+				<Frame>25,31</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_glove_jump_1" sprite="s_glove1" playOnState="Movement.Jump">
+				<Frame>22,31</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_glove_jump_2" sprite="s_glove2" playOnState="Movement.Jump">
+				<Frame>23,31</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_glove_punch_1" sprite="s_glove1" playOnState="Punch.Yes">
+				<Frame>26,31</Frame>
+			</SpriteAnimation>
+		</Animations>
+		<StateMachines>
+			<StateMachine name="Punch">
+				<States>
+					<State name="No" />
+					<State name="Yes" />
+				</States>
+				<Transitions>
+					<Transition to="No" from="Yes">
+						<Condition>
+							<IsAction operatorType="NotEqual">PUNCH</IsAction>
+						</Condition>
+					</Transition>
+					<Transition to="Yes" from="No">
+						<Condition>
+							<IsAction>PUNCH</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+			<StateMachine name="Movement">
+				<States>
+					<State name="Other"/>
+					<State name="Jump"/>
+					<State name="Fall"/>
+				</States>
+				<Transitions>
+					<Transition from="Other|Fall" to="Jump">
+						<Condition>
+							<IsAction>JUMP</IsAction>
+						</Condition>
+					</Transition>
+					<Transition from="Other|Jump" to="Fall">
+						<Condition>
+							<IsAction>FALL</IsAction>
+						</Condition>
+					</Transition>
+					<Transition from="Fall|Jump" to="Other">
+						<Condition type="and">
+							<IsAction operatorType="NotEqual">FALL</IsAction>
+							<IsAction operatorType="NotEqual">JUMP</IsAction>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+    </Data>
+    <RenderRules>
+        <Update>
+            <Group onAction="FALL|JUMP">
+                <AvatarTransform class="ArmAngle">
+                    <Set name="armName">arm2Angle</Set>
+                    <Set name="Curve">
+                        <KeyFrame>0,0</KeyFrame>
+                        <KeyFrame>0.5,120</KeyFrame>
+                        <KeyFrame>1,0</KeyFrame>
+                    </Set>
+                    <Set name="animTime">1000</Set>
+                </AvatarTransform>
+                <AvatarTransform class="ArmAngle">
+                    <Set name="armName">arm1Angle</Set>
+                    <Set name="Curve">
+                        <KeyFrame>0,0</KeyFrame>
+                        <KeyFrame>0.5,-120</KeyFrame>
+                        <KeyFrame>1,0</KeyFrame>
+                    </Set>
+                    <Set name="animTime">1000</Set>
+                </AvatarTransform>
+            </Group>
+        </Update>
+        <RenderHandItem>
+            <SpriteRender name="s_sword" alignment="UPPER_CENTER" drawShadow="true" onState="Movement.Other"/>
+			<Group onState="Movement.Jump|Movement.Fall">
+				<Translate>0,-2,0</Translate>
+				<SpriteRender name="s_sword" flip="0,1" alignment="CENTER" drawShadow="true"/>
+			</Group>
+            <SpriteRender name="s_glove1" alignment="UPPER_CENTER" drawShadow="true" />
+        </RenderHandItem>
+        <RenderBackHandItem>
+            <Translate>-3,12,0</Translate>
+            <SpriteRender name="s_sword" drawShadow="true" onState="Movement.Other"/>
+			<Group onState="Movement.Jump|Movement.Fall">
+				<Translate>2,-18,0</Translate>
+				<SpriteRender name="s_sword" flip="1,1" alignment="CENTER" drawShadow="true"/>
+			</Group>
+            <SpriteRender name="s_glove2" drawShadow="true" />
+        </RenderBackHandItem>
+        <OnPunchStart>
+            <ParticleSystemUpdate name="ps_slash" />
+        </OnPunchStart>
+        <OnPunchUpdate>
+			<AvatarTransform class="Face">
+				<Set name="face">MAD</Set>
+			</AvatarTransform>
+            <AvatarTransform class="ArmAngle">
+                <Set name="armName">arm2Angle</Set>
+                <Set name="Curve">
+                    <KeyFrame>0,0</KeyFrame>
+                    <KeyFrame>1,-360</KeyFrame>
+                </Set>
+                <Set name="animTime">300</Set>
+            </AvatarTransform>
+			<AvatarTransform class="ArmAngle">
+                <Set name="armName">arm1Angle</Set>
+                <Set name="Curve">
+                    <KeyFrame>0,180</KeyFrame>
+                    <KeyFrame>1,-180</KeyFrame>
+                </Set>
+                <Set name="animTime">300</Set>
+            </AvatarTransform>
+        </OnPunchUpdate>
+    </RenderRules>
+</ItemRenderer>

@@ -1,0 +1,33 @@
+.window {
+    min-height: 0;
+    max-height: none;
+    max-width: 75vw;
+}
+
+#mailreward-popup {
+}
+
+    #mailreward-popup .itemname-panel {
+        display: flex;
+        font-size: 28dp;
+        align-items: center; 
+        gap: 16dp; 
+    }
+
+    #mailreward-popup .itemIdIcon {
+        display: block;
+        width: 64dp;
+        height: 64dp;
+    }
+
+    #mailreward-popup .buttons-panel {
+        display: flex;
+        align-items: center; 
+        justify-content: center;
+        gap: 16dp; 
+    }
+
+    #mailreward-popup .button {
+        padding-top: 3dp;
+        padding-bottom: 3dp;
+    }

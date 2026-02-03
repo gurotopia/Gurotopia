@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer NPCType="PlayerShield" NPCTypeID="14">
+	<Data>
+		<Sprite name="sprite" fileName="game/bb_page1.rttex" textureSize="128" frame="4,4"/>
+		<Sprite name="sprite_shield" fileName="game/particles_large7.rttex" textureSize="64" frame="0,3"/>
+		<ParticleSystems>
+			<ParticleSystem name="shieldRight">
+				<Emitter>
+					<Set name="offset">0, 0</Set>
+					<Set name="infParticles">true</Set>
+					<Set name="infLifeTime">true</Set>
+					<Set name="checkParticleNumToEmit">true</Set>
+					<Set name="particlesPerEmission">1</Set>
+					<Set name="particlesToEmit">1</Set>
+				</Emitter>
+				<Particle usePlayerFacing="true">
+					<Set name="offset">0,0</Set>
+					<Set name="sprite">sprite</Set>
+					<Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+					<Set name="renderAlignment">CENTER</Set>
+					<Set name="relativeToEmitter">true</Set>
+					<Set name="lifeTime">1000</Set>
+					<Set name="initialAlpha">0.5</Set>
+					<Set name="initialScale">0.75,0.75</Set>
+					<Set name="initialVelocity">0,0</Set>
+					<Set name="initialRotationRate">25</Set>
+				</Particle>
+			</ParticleSystem>
+		</ParticleSystems>
+		<Components>
+			<Info/>
+			<Movement>
+				<Set name="IsStatic">true</Set>
+			</Movement>
+			<ShieldCmp/>
+			<NPCRenderActionCmp/>
+			<AttachmentCmp/>
+			<Enemy>
+				<Set name="SoulsReward">0</Set>
+				<Set name="destroyTileId">548</Set>
+			</Enemy>
+			<Health>
+				<Set name="healthAmount">1</Set>
+				<Set name="maxHealth">1</Set>
+			</Health>
+			<CollisionBox>
+				<Set name="size">64,64</Set>
+				<Set name="CollisionFlag">"PROJECTILES_ENEMY|ENEMY_NPC"</Set>
+				<Set name="CollisionType">"PLAYERS"</Set>
+			</CollisionBox>
+			<DebugDraw/>
+		</Components>
+	</Data>
+	<RenderRules>
+		<Update>
+			<ParticleSystemUpdate name="shieldRight"/>
+		</Update>
+		<SwitchOffClothingParticles>
+			<ParticleSystemOff name="shieldRight"/>
+		</SwitchOffClothingParticles>
+	</RenderRules>
+</ItemRenderer>

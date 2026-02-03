@@ -1,0 +1,154 @@
+<?xml version="1.0" ?>
+<ItemRenderer>
+    <Data>
+        <Sprite name="Sprite10" fileName="game/particles_large16.rttex" textureSize="64,64" frame="6,8" />
+        <Animations />
+        <ParticleSystems />
+        <StateMachines>
+            <StateMachine name="Movement">
+                <States>
+                    <State name="Idle" />
+                    <State name="Move" />
+                    <State name="Jump" />
+                    <State name="Fall" />
+                </States>
+                <Transitions>
+                    <Transition to="Idle" from="Fall|Move">
+                        <Condition type="and">
+                            <IsVariableBool name="onGround">true</IsVariableBool>
+                            <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+                        </Condition>
+                    </Transition>
+                    <Transition to="Move" from="Jump|Fall|Idle">
+                        <Condition type="and">
+                            <IsVariableBool name="onGround">true</IsVariableBool>
+                            <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+                        </Condition>
+                    </Transition>
+                    <Transition to="Jump" from="Idle|Move|Fall">
+                        <Condition type="and">
+                            <IsVariableBool name="onGround">false</IsVariableBool>
+                            <IsVariableFloat name="speed.y" operator="Less">-0.1</IsVariableFloat>
+                        </Condition>
+                    </Transition>
+                    <Transition to="Fall" from="Jump|Idle|Move">
+                        <Condition type="and">
+                            <IsVariableBool name="onGround">false</IsVariableBool>
+                            <IsVariableFloat name="speed.y" operator="Greater">0.1</IsVariableFloat>
+                        </Condition>
+                    </Transition>
+                </Transitions>
+            </StateMachine>
+        </StateMachines>
+        <RenderOptions />
+        <VariableMap>
+            <Set name="line.start">0,0,0</Set>
+            <Set name="line.1">0,0,0</Set>
+            <Set name="line.2">0,0,0</Set>
+            <Set name="line.3">0,0,0</Set>
+            <Set name="line.4">0,0,0</Set>
+            <Set name="context.pos.3f">0,0,0</Set>
+            <Set name="rightFootYPos">0,0,0</Set>
+            <Set name="leftFootYPos">0,0,0</Set>
+            <Set name="facingVariable">0,0,0</Set>
+            <Set name="localScale">1, 1, 1</Set>
+            <Set name="arm.front.position">0,0,0</Set>
+            <Set name="arm.back.position">0,0,0</Set>
+            <Set name="move.hand.rotate">10,0,0,1</Set>
+            <Set name="sittingOffset">0,0,0</Set>
+            <Set name="playerPositionVariable">0,0,0</Set>
+        </VariableMap>
+        <Animations>
+            <CurveAnimationVec4 name="anim_hand_rotate" autoPlay="true" isLoop="true" animTime="300">
+                <Curve name="move.hand.rotate">
+                    <KeyFrame>0.0, 8, 0, 0, 1</KeyFrame>
+                    <KeyFrame>0.5, 12, 0, 0, 1</KeyFrame>
+                    <KeyFrame>1.0, 8, 0, 0, 1</KeyFrame>
+                </Curve>
+            </CurveAnimationVec4>
+        </Animations>
+    </Data>
+    <RenderRules>
+        <RenderBackpack>
+            <StopIf type="or">
+                <IsSleepingOnaBed>true</IsSleepingOnaBed>
+                <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+                <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_REBEL_RAIDER</IsWearing>
+                <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_IMPERIAL_ENFORCER</IsWearing>
+				<IsRenderMod>RENDER_MOD_RENDER_TARGET</IsRenderMod>
+            </StopIf>
+            <Group onState="Movement.Idle">
+                <ArithmethicOperation LeftHandVariableName="line.1" RightHandVariableName="-19,-62,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.2" RightHandVariableName="-19,-56,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.3" RightHandVariableName="18,-62,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.4" RightHandVariableName="19,-56,0" OperationType="Set" />
+            </Group>
+            <Group onState="Movement.Move">
+                <ArithmethicOperation LeftHandVariableName="line.1" RightHandVariableName="-20,-66,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.2" RightHandVariableName="-20,-59,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.3" RightHandVariableName="16,-59,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.4" RightHandVariableName="16,-53,0" OperationType="Set" />
+            </Group>
+            <Group onState="Movement.Jump">
+                <ArithmethicOperation LeftHandVariableName="line.1" RightHandVariableName="-16,-59,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.2" RightHandVariableName="-14,-52,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.3" RightHandVariableName="20,-68,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.4" RightHandVariableName="22,-62,0" OperationType="Set" />
+            </Group>
+            <Group onState="Movement.Fall">
+                <ArithmethicOperation LeftHandVariableName="line.1" RightHandVariableName="-19,-62,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.2" RightHandVariableName="-19,-56,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.3" RightHandVariableName="18,-62,0" OperationType="Set" />
+                <ArithmethicOperation LeftHandVariableName="line.4" RightHandVariableName="19,-56,0" OperationType="Set" />
+            </Group>
+            <ArithmethicOperation LeftHandVariableName="line.1" RightHandVariableName="facingVariable" OperationType="Multiply" />
+            <ArithmethicOperation LeftHandVariableName="line.2" RightHandVariableName="facingVariable" OperationType="Multiply" />
+            <ArithmethicOperation LeftHandVariableName="line.3" RightHandVariableName="facingVariable" OperationType="Multiply" />
+            <ArithmethicOperation LeftHandVariableName="line.4" RightHandVariableName="facingVariable" OperationType="Multiply" />
+            <ArithmethicOperation LeftHandVariableName="line.1" RightHandVariableName="localScale" OperationType="Multiply" />
+            <ArithmethicOperation LeftHandVariableName="line.2" RightHandVariableName="localScale" OperationType="Multiply" />
+            <ArithmethicOperation LeftHandVariableName="line.3" RightHandVariableName="localScale" OperationType="Multiply" />
+            <ArithmethicOperation LeftHandVariableName="line.4" RightHandVariableName="localScale" OperationType="Multiply" />
+            <ArithmethicOperation LeftHandVariableName="line.1" RightHandVariableName="context.pos.3f" OperationType="Add" />
+            <ArithmethicOperation LeftHandVariableName="line.2" RightHandVariableName="context.pos.3f" OperationType="Add" />
+            <ArithmethicOperation LeftHandVariableName="line.3" RightHandVariableName="context.pos.3f" OperationType="Add" />
+            <ArithmethicOperation LeftHandVariableName="line.4" RightHandVariableName="context.pos.3f" OperationType="Add" />
+            <Translate forceValue="false">0,-72,0</Translate>
+            <Group onState="Movement.Idle">
+                <SpriteRender name="Sprite10" blend="NORMAL" alignment="UPPER_CENTER" drawShadow="true" />
+            </Group>
+            <Group onState="Movement.Move">
+                <Rotate>move.hand.rotate</Rotate>
+                <SpriteRender name="Sprite10" blend="NORMAL" alignment="UPPER_CENTER" drawShadow="true" />
+            </Group>
+            <Group onState="Movement.Jump">
+                <Rotate forceValue="false">-15,0,0,1</Rotate>
+                <SpriteRender name="Sprite10" blend="NORMAL" alignment="UPPER_CENTER" drawShadow="true" />
+            </Group>
+            <Group onState="Movement.Fall">
+                <SpriteRender name="Sprite10" blend="NORMAL" alignment="UPPER_CENTER" drawShadow="true" />
+            </Group>
+            <LineRender color="30,30,30,255" StartPointVariableName="line.3" StartIsWorldPos="true" EndPointVariableName="arm.back.position" EndIsWorldPos="true" />
+        </RenderBackpack>
+        <RenderInFront>
+            <StopIf type="or">
+                <IsSleepingOnaBed>true</IsSleepingOnaBed>
+                <IsWearing slot="SHIRT">ITEM_ID_TACTICAL_STEALTH_DEVICE</IsWearing>
+                <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_REBEL_RAIDER</IsWearing>
+                <IsWearing slot="SHOES">ITEM_ID_STAR_FIGHTER_IMPERIAL_ENFORCER</IsWearing>
+				<IsRenderMod>RENDER_MOD_RENDER_TARGET</IsRenderMod>
+            </StopIf>
+            <LineRender color="30,30,30,255" StartPointVariableName="line.2" StartIsWorldPos="true" EndPointVariableName="arm.front.position" EndIsWorldPos="true" />
+            <Group>
+                <Translate>rightFootYPos</Translate>
+                <Translate>9,-2,0</Translate>
+                <LineRender color="30,30,30,255" StartPointVariableName="line.4" StartIsWorldPos="true" EndPointVariableName="line.start" EndIsWorldPos="false" />
+            </Group>
+            <Group>
+                <Translate>leftFootYPos</Translate>
+                <Translate>-3,-2,0</Translate>
+                <LineRender color="30,30,30,255" StartPointVariableName="line.1" StartIsWorldPos="true" EndPointVariableName="line.start" EndIsWorldPos="false" />
+            </Group>
+        </RenderInFront>
+    </RenderRules>
+</ItemRenderer>

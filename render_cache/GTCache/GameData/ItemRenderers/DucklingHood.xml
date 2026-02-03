@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<ItemRenderer>
+    <Data>
+    <Sprite name="s_hood" fileName="game/player_cosmetics4.rttex" textureSize="32,32" frame="6,1" />
+    <Sprite name="s_wings" fileName="game/player_cosmetics4.rttex" textureSize="32,32" frame="6,0" />
+        <Animations>
+      <SpriteAnimation name="a_wings" sprite="s_wings" isLoop="true" autoPlay="true" animTime="600">
+                <Frame>6,0</Frame>
+                <Frame>7,0</Frame>
+                <Frame>8,0</Frame>
+                <Frame>9,0</Frame>
+                <Frame>10,0</Frame>
+                <Frame>11,0</Frame>
+            </SpriteAnimation>
+        </Animations>
+        <ParticleSystems />
+    </Data>
+    <RenderRules>
+        <RenderHair>
+            <Translate>0,-20,0</Translate>
+            <SpriteRender name="s_hood" drawShadow="true" />
+        </RenderHair>
+        <RenderBackHair>
+            <Translate>0,-20,0</Translate>
+            <SpriteRender name="s_wings" drawShadow="true" />
+        </RenderBackHair>
+    </RenderRules>
+</ItemRenderer>

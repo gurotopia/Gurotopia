@@ -1,0 +1,98 @@
+/*------- WINDOW TITLE -------*/
+
+@spritesheet wardrobe_saveload_ui_title_sprites {
+    src: game/tiles_page17.rttex;
+    resolution: 1x;
+    wardrobe_saveload_title_icon: 736px 96px 32px 32px;
+}
+
+.window .bg {
+    overflow-y: auto;
+}
+
+#window-title .title-icon {
+    decorator: image(wardrobe_saveload_title_icon);
+}
+
+.ticket-container {
+    background-color: rgba(191, 218, 255, 75);
+    width:98%;
+    height:175dp;
+    display: inline-block; 
+    margin-left:2dp;
+}
+
+.theme-text {
+    position: relative;
+    width:98%;
+    height: 34dp;
+    display: inline-block; 
+    vertical-align: top;
+    horizontal-align: left;
+    margin-left: 20dp;
+}
+
+#add-remove-button {
+    margin-left: 24dp;
+}
+
+
+.small_text {
+    margin-top: -27dp; /* Remove fixed margin */
+}
+
+.popup-header-text {
+    margin-top: 0dp; /* Remove fixed margin */
+    text-align: left;
+    width: 98%; /* Make it take full width of its container */
+    min-width: 0; /* Allow it to shrink below content size */
+    display: inline-block; 
+    vertical-align: top;
+    line-height: 0.92; /* Reduces line height to 80% of font size */
+}
+
+.popup-warning-text {
+    margin-top: -10dp; /* Remove fixed margin */
+    text-align: left;
+}
+
+.buttons-panel {
+    height: 10dp;
+    position: relative;
+    display: inline-block; 
+    horizontal-align: left;
+}
+
+.item-small {
+    position: relative;
+    width:98%;
+    height: 34dp;
+    display: inline-block; 
+    vertical-align: top;
+    horizontal-align: left;
+}
+
+.item-icon {
+    position: relative;
+    height: 34dp;
+    width: 34dp;
+    display: inline-block; 
+    margin-left: 20dp;
+}
+
+.wl-value {
+    text-align: left;
+    width: 80%; /* Make it take full width of its container */
+    min-width: 0; /* Allow it to shrink below content size */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-left: 10dp; /* Remove fixed margin */
+    margin-top: 3dp; /* Remove fixed margin */
+    display: inline-block; 
+    vertical-align: top;
+}
+
+table {
+    padding-bottom: 20dp;
+}

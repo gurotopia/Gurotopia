@@ -1,0 +1,161 @@
+
+@spritesheet test_window_sprites {
+    src: interface/large/ftue_buttons.rttex;
+    /* For high dpi screens, designates the scaling it is intended to be shown at. */
+    resolution: 1x;
+    /**
+	   The following specifies a list of sprite names and associated rectangles into the image given above.
+	   Any sprite given here can be specified in a decorator. Their names must be globally unique.
+	   Rectangles are specified as: x y width height. With the origin assumed to be at the top left corner.
+	*/
+    window-icon: 256px 384px 128px 128px;
+}
+
+@spritesheet window_border_sprite {
+    src: game/gui_box_white.rttex;
+    /* For high dpi screens, designates the scaling it is intended to be shown at. */
+    resolution: 1x;
+    /**
+	   The following specifies a list of sprite names and associated rectangles into the image given above.
+	   Any sprite given here can be specified in a decorator. Their names must be globally unique.
+	   Rectangles are specified as: x y width height. With the origin assumed to be at the top left corner.
+	*/
+    window_border_sprite_tl: 0px 0px 15px 15px;
+    window_border_sprite_t: 15px 0px 2px 15px;
+    window_border_sprite_tr: 17px 0px 15px 15px;
+    window_border_sprite_cl: 0px 15px 15px 2px;
+    window_border_sprite_c: 15px 15px 2px 2px;
+    window_border_sprite_cr: 17px 15px 15px 2px;
+    window_border_sprite_bl: 0px 17px 15px 15px;
+    window_border_sprite_b: 15px 17px 2px 15px;
+    window_border_sprite_br: 17px 17px 15px 15px;
+}
+
+.font-content {
+    font-family: Century Gothic;
+    font-size: 26dp;
+    font-weight: 700;
+    line-height: 26.5dp;
+    text-align: left;
+}
+
+.font-contentnormal {
+    font-family: Century Gothic;
+    font-size: 20dp;
+    font-weight: 700;
+    line-height: 29.43dp;
+    text-align: left;
+}
+
+#window-holder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.black-bg {
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.2s linear-in;
+    background-color: rgba(0, 0, 0, 100);
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.window {
+    display: block;
+    position: relative;
+    max-width: 928dp;
+    min-height: 0vh;
+    max-height: 85vh;
+    /* 
+    min-width: 400dp;
+    min-height: 100dp;*/
+    padding-right: 16dp;
+    padding-bottom: 16dp;
+}
+    .window .bg {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        left: 6dp;
+        top: 7dp;
+        /*    background-color: rgba(24, 107, 139, 204);*/
+        background-color: rgba(39,125,159,204);
+        overflow-y: scroll;
+        border-radius: 2dp;
+    }
+
+    .window .border {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0dp;
+        top: 0dp;
+        decorator: tiled-box( window_border_sprite_tl, window_border_sprite_t, window_border_sprite_tr, window_border_sprite_cl, window_border_sprite_c, window_border_sprite_cr, window_border_sprite_bl, window_border_sprite_b, window_border_sprite_br );
+        image-color: rgba(135, 184, 204, 255);
+    }
+
+    .window .window-close-button {
+        width: 45dp;
+        height: 45dp;
+        top: -15dp;
+        right: -15dp;
+        position: absolute;
+        decorator: image(interface/cross.rttex);
+        z-index: 2;
+	    sound-on-click: true;
+    }
+
+        .window .window-close-button:active{
+            filter: brightness(0.85);
+            transform: scale(0.95);
+        }
+
+
+    .window .wondow-content {
+        padding: 24dp;
+/*        color: rgba(250, 239, 206, 255);*/
+        display: block;
+        /*        background-color: rgb(76, 255, 0);*/
+    }
+
+    .window .wondow-content-full {
+        padding: 0dp;
+        margin-left: -24dp;
+        margin-right: -24dp;
+    }
+
+    .window .wondow-content-horizontal {
+        padding-left: 24dp;
+        padding-right: 24dp;
+    }
+
+.show-window .black-bg {
+    opacity: 1;
+}
+
+.show-window .window {
+/*    margin-bottom: 0vh;
+    margin-left: -0vw;*/
+/*    transition: margin-bottom 3s linear-in;*/
+}
+
+.hide-window .black-bg {
+    opacity: 0;
+}
+
+.hide-window .window {
+/*    transition: margin-left 3s linear-in;
+    margin-bottom: 0vh;
+    margin-left: -200vw;*/
+}
+
+.window .hidden {
+    display: none;
+}

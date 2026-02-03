@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer name="ROYAL_ENCHANTED_LOCK">
+	<Data>
+		<Sprite name="s_Fog" fileName="game/bg_EL_royal_fog.rttex"/>
+		<Sprite name="s_Silhouette" fileName="game/bg_EL_royal_silhouette.rttex"/>
+		<Sprite name="s_CrystalGlowL" fileName="game/bg_EL_royal_Crystal-Glow-L.rttex"/>
+		<Sprite name="s_CrystalGlowR" fileName="game/bg_EL_royal_Crystal-Glow-R.rttex"/>
+		<Sprite name="s_BuildingLight01" fileName="game/bg_EL_royal_buildingLight01.rttex"/>
+		<Sprite name="s_BuildingLight02" fileName="game/bg_EL_royal_buildingLight02.rttex"/>
+		<Sprite name="s_PinkCrystalGlow" fileName="game/bg_EL_royal_pinkCrystalGLow.rttex"/>
+		<Sprite name="s_MiddleBuildingGlow" fileName="game/bg_EL_royal_middleBuilding_Glow.rttex"/>
+		<Sprite name="s_MiddleBuilding" fileName="game/bg_EL_royal_middleBuilding.rttex"/>
+		<Sprite name="s_BackgroundBuilding" fileName="game/bg_EL_royal_backgroundBuilding.rttex"/>
+		<Sprite name="s_FogForground" fileName="game/bg_EL_royal_fog_forground.rttex"/>
+		<Sprite name="s_Sky" fileName="game/bg_EL_royal_sky.rttex"/>
+		
+		<Animations>
+			<SpriteSinPulseAnimation name="a_CrystalGlowL" sprite="s_CrystalGlowL" autoPlay="true" isLoop="true">
+				<Parameter name="alpha">
+					<Set name="period">2100</Set>
+					<Set name="scale">0.5</Set>
+					<Set name="offset">0.5</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+			<SpriteSinPulseAnimation name="a_CrystalGlowR" sprite="s_CrystalGlowR" autoPlay="true" isLoop="true">
+				<Parameter name="alpha">
+					<Set name="period">2000</Set>
+					<Set name="scale">0.5</Set>
+					<Set name="offset">0.5</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+			<SpriteSinPulseAnimation name="a_BuildingLight01" sprite="s_BuildingLight01" autoPlay="true" isLoop="true">
+				<Parameter name="alpha">
+					<Set name="period">10000</Set>
+					<Set name="scale">0.5</Set>
+					<Set name="offset">0.5</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+			<SpriteSinPulseAnimation name="a_PinkCrystalGlow" sprite="s_PinkCrystalGlow" autoPlay="true" isLoop="true">
+				<Parameter name="alpha">
+					<Set name="period">1900</Set>
+					<Set name="scale">0.5</Set>
+					<Set name="offset">0.5</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+			<SpriteSinPulseAnimation name="a_MiddleBuildingGlow" sprite="s_MiddleBuildingGlow" autoPlay="true" isLoop="true">
+				<Parameter name="alpha">
+					<Set name="period">10000</Set>
+					<Set name="scale">0.5</Set>
+					<Set name="offset">0.5</Set>
+				</Parameter>
+			</SpriteSinPulseAnimation>
+			<SpriteCurveAnimation name="a_FogForground" sprite="s_FogForground" autoPlay="true" isLoop="true" animTime="5000">
+				<Curve name="pos.x">
+					<KeyFrame>0.f, 0.f</KeyFrame>
+					<KeyFrame>1.f, 1.f</KeyFrame>
+				</Curve>
+			</SpriteCurveAnimation>	
+		</Animations>
+	</Data>
+	<RenderRules>
+		<RenderBackground>
+			<ContextUpdate type="ScaleScreenHeight">
+				<Set name="sprite">s_Sky</Set>
+			</ContextUpdate>
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_Sky" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="ScaleScreenHeight">
+				<Set name="sprite">s_BuildingLight01</Set>
+			</ContextUpdate>
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.06</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_FogForground" offset="0, 0.734" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			<SpriteRender name="s_BackgroundBuilding" offset="0.162, 0.501" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.13</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_MiddleBuilding" offset="0.332, 0.569" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			<SpriteRender name="s_MiddleBuildingGlow" offset="0.332, 0.51" blend="ADDITIVE" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">0.3</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_PinkCrystalGlow" offset="0.416, 0.51" blend="ADDITIVE" alignment="DOWN_LEFT" />
+			<SpriteRender name="s_BuildingLight02" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			<SpriteRender name="s_BuildingLight01" offset="0, 1" blend="PREMULTIPLIED_ALPHA" alignment="DOWN_LEFT" />
+			<SpriteRender name="s_CrystalGlowR" offset="0.685, 0.768" blend="ADDITIVE" alignment="DOWN_LEFT" />
+			<SpriteRender name="s_CrystalGlowL" offset="0.098, 0.76" blend="ADDITIVE" alignment="DOWN_LEFT" />
+			
+			<ContextUpdate type="PositionParallax">
+				<Set name="scale">1</Set>
+			</ContextUpdate>
+			<SpriteRender name="s_Silhouette" offset="0, 1" blend="PREMULTIPLIED_ALPHA" smooth="true" alignment="DOWN_LEFT" />
+			<SpriteRender name="s_Fog" offset="0, 1" blend="PREMULTIPLIED_ALPHA" smooth="true" alignment="DOWN_LEFT" />
+		</RenderBackground>
+	</RenderRules>
+</ItemRenderer>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer itemID="ITEM_ID_NEPTUNES_WEATHER_MACHINE_ATLANTIS">
+	<Data>
+		<Sprite name="s_WeatherMachine" fileName="game/tiles_page17.rttex" textureSize="32" frame="0,6" />
+		
+		<StateMachines>
+			<StateMachine name="Toggle">
+				<States>
+					<State name="Off"/>
+					<State name="On"/>
+				</States>
+				<Transitions>
+					<Transition to="Off" from="On">
+						<Condition>
+							<IsWeatherType operatorType="NotEqual">NEPTUNES_ATLANTIS</IsWeatherType>
+						</Condition>
+					</Transition>
+					<Transition to="On" from="Off">
+						<Condition>
+							<IsWeatherType>NEPTUNES_ATLANTIS</IsWeatherType>
+						</Condition>
+					</Transition>
+				</Transitions>
+			</StateMachine>
+		</StateMachines>
+		
+		<Animations>
+			<SpriteAnimation name="a_WeatherMachineOn" sprite="s_WeatherMachine" animTime="1600" isLoop="true" playOnState="Toggle.On">
+				<Frame>1,6</Frame>
+				<Frame>2,6</Frame>
+				<Frame>3,6</Frame>
+				<Frame>4,6</Frame>
+				<Frame>5,6</Frame>
+				<Frame>6,6</Frame>
+				<Frame>7,6</Frame>
+				<Frame>8,6</Frame>
+			</SpriteAnimation>
+			<SpriteAnimation name="a_WeatherMachineOff" sprite="s_WeatherMachine" animTime="100" isLoop="true" playOnState="Toggle.Off">
+				<Frame>0,6</Frame>
+			</SpriteAnimation>
+		</Animations>
+	</Data>
+	<RenderRules>
+		<Render>
+			<SpriteRender name="s_WeatherMachine" blend="PREMULTIPLIED_ALPHA" />
+		</Render>
+	</RenderRules>
+</ItemRenderer>

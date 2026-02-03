@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer itemID="ITEM_ID_AUTO_SURGEON_STATION">
+  <Data>
+    <Sprite name="s_baseMachine" fileName="game/tiles_page16.rttex" textureSize="32" frame="17,28" />
+    <Sprite name="s_WL" fileName="game/tiles_page16.rttex" textureSize="32" frame="18,28" />
+    <Sprite name="s_illnessTornPunchingMuscle" fileName="game/tiles_page16.rttex" textureSize="32" frame="8,22" />
+    <Sprite name="s_illnessGemCuts" fileName="game/tiles_page16.rttex" textureSize="32" frame="22,26" />
+    <Sprite name="s_illnessChickenFeet" fileName="game/tiles_page2.rttex" textureSize="32" frame="20,0" />
+    <Sprite name="s_illnessGrumbleTeeth" fileName="game/tiles_page14.rttex" textureSize="32" frame="30,27" />
+    <Sprite name="s_illnessBrokenHeart" fileName="game/tiles_page10.rttex" textureSize="32" frame="12,10" />
+    <Sprite name="s_illnessChaosInfection" fileName="game/tiles_page14.rttex" textureSize="32" frame="26,0" />
+    <Sprite name="s_illnessMoldyGuts" fileName="game/tiles_page14.rttex" textureSize="32" frame="27,0" />
+    <Sprite name="s_illnessBrainWorms" fileName="game/tiles_page14.rttex" textureSize="32" frame="29,0" />
+    <Sprite name="s_illnessLupus" fileName="game/tiles_page14.rttex" textureSize="32" frame="30,0" />
+    <Sprite name="s_illnessEctoBones" fileName="game/tiles_page14.rttex" textureSize="32" frame="28,0" />
+    <Sprite name="s_illnessFattyLiver" fileName="game/tiles_page14.rttex" textureSize="32" frame="31,0" />
+    <Sprite name="s_outOfOrder" fileName="game/tiles_page4.rttex" textureSize="32" frame="12,9" />
+
+    <StateMachines>
+      <StateMachine name="OutOfOrder">
+        <States>
+          <State name="True"/>
+          <State name="False"/>
+        </States>
+        <Transitions>
+          <Transition from="False" to="True">
+            <Condition>
+              <IsVariableBool name="tile.extra.autoSurgeonOutOfOrder">True</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition from="True" to="False">
+            <Condition>
+              <IsVariableBool name="tile.extra.autoSurgeonOutOfOrder">False</IsVariableBool>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine name="HasWL">
+        <States>
+          <State name="True"/>
+          <State name="False"/>
+        </States>
+        <Transitions>
+          <Transition from="False" to="True">
+            <Condition>
+              <IsVariableBool name="tile.extra.autoSurgeonHasWL">True</IsVariableBool>
+            </Condition>
+          </Transition>
+          <Transition from="True" to="False">
+            <Condition>
+              <IsVariableBool name="tile.extra.autoSurgeonHasWL">False</IsVariableBool>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine name="Illness">
+        <States>
+          <State name="TornPunchingMuscle"/>
+          <State name="GemCuts"/>
+          <State name="ChickenFeet"/>
+          <State name="GrumbleTeeth"/>
+          <State name="BrokenHeart"/>
+          <State name="ChaosInfection"/>
+          <State name="MoldyGuts"/>
+          <State name="BrainWorms"/>
+          <State name="Lupus"/>
+          <State name="EctoBones"/>
+          <State name="FattyLiver"/>
+        </States>
+        <Transitions>
+          <Transition from="GemCuts|ChickenFeet|GrumbleTeeth|BrokenHeart|ChaosInfection|MoldyGuts|BrainWorms|Lupus|EctoBones|FattyLiver" to="TornPunchingMuscle">
+            <Condition>
+              <IsVariableFloat name="tile.extra.autoSurgeonIllness" operatorType="Equal">20</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="TornPunchingMuscle|ChickenFeet|GrumbleTeeth|BrokenHeart|ChaosInfection|MoldyGuts|BrainWorms|Lupus|EctoBones|FattyLiver" to="GemCuts">
+            <Condition>
+              <IsVariableFloat name="tile.extra.autoSurgeonIllness" operatorType="Equal">21</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="TornPunchingMuscle|GemCuts|GrumbleTeeth|BrokenHeart|ChaosInfection|MoldyGuts|BrainWorms|Lupus|EctoBones|FattyLiver" to="ChickenFeet">
+            <Condition>
+              <IsVariableFloat name="tile.extra.autoSurgeonIllness" operatorType="Equal">22</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="TornPunchingMuscle|GemCuts|ChickenFeet|BrokenHeart|ChaosInfection|MoldyGuts|BrainWorms|Lupus|EctoBones|FattyLiver" to="GrumbleTeeth">
+            <Condition>
+              <IsVariableFloat name="tile.extra.autoSurgeonIllness" operatorType="Equal">23</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="TornPunchingMuscle|GemCuts|ChickenFeet|GrumbleTeeth|ChaosInfection|MoldyGuts|BrainWorms|Lupus|EctoBones|FattyLiver" to="BrokenHeart">
+            <Condition>
+              <IsVariableFloat name="tile.extra.autoSurgeonIllness" operatorType="Equal">24</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="TornPunchingMuscle|GemCuts|ChickenFeet|GrumbleTeeth|BrokenHeart|MoldyGuts|BrainWorms|Lupus|EctoBones|FattyLiver" to="ChaosInfection">
+            <Condition>
+              <IsVariableFloat name="tile.extra.autoSurgeonIllness" operatorType="Equal">25</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="TornPunchingMuscle|GemCuts|ChickenFeet|GrumbleTeeth|BrokenHeart|ChaosInfection|BrainWorms|Lupus|EctoBones|FattyLiver" to="MoldyGuts">
+            <Condition>
+              <IsVariableFloat name="tile.extra.autoSurgeonIllness" operatorType="Equal">26</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="TornPunchingMuscle|GemCuts|ChickenFeet|GrumbleTeeth|BrokenHeart|ChaosInfection|MoldyGuts|Lupus|EctoBones|FattyLiver" to="BrainWorms">
+            <Condition>
+              <IsVariableFloat name="tile.extra.autoSurgeonIllness" operatorType="Equal">27</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="TornPunchingMuscle|GemCuts|ChickenFeet|GrumbleTeeth|BrokenHeart|ChaosInfection|MoldyGuts|BrainWorms|EctoBones|FattyLiver" to="Lupus">
+            <Condition>
+              <IsVariableFloat name="tile.extra.autoSurgeonIllness" operatorType="Equal">28</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="TornPunchingMuscle|GemCuts|ChickenFeet|GrumbleTeeth|BrokenHeart|ChaosInfection|MoldyGuts|BrainWorms|Lupus|FattyLiver" to="EctoBones">
+            <Condition>
+              <IsVariableFloat name="tile.extra.autoSurgeonIllness" operatorType="Equal">29</IsVariableFloat>
+            </Condition>
+          </Transition>
+          <Transition from="TornPunchingMuscle|GemCuts|ChickenFeet|GrumbleTeeth|BrokenHeart|ChaosInfection|MoldyGuts|BrainWorms|Lupus|EctoBones" to="FattyLiver">
+            <Condition>
+              <IsVariableFloat name="tile.extra.autoSurgeonIllness" operatorType="Equal">30</IsVariableFloat>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+    <Animations>
+      <SpriteCurveAnimation name="outOfOrder" isLoop="true" autoPlay="true" sprite="s_outOfOrder" animTime="1500">
+        <Curve name="alpha">
+          <KeyFrame>0.f, 0f</KeyFrame>
+          <KeyFrame>0.5f, 1.f</KeyFrame>
+          <KeyFrame>1.f, 0f</KeyFrame>
+        </Curve>
+      </SpriteCurveAnimation>
+    </Animations>
+  </Data>
+  <RenderRules>
+    <Render>
+      <SpriteRender name="s_baseMachine" blend="PREMULTIPLIED_ALPHA"/>
+
+      <Group>
+        <Translate>1,-6,0</Translate>
+        <Scale>0.275,0.275,1</Scale>
+
+        <SpriteRender name="s_illnessTornPunchingMuscle" blend="PREMULTIPLIED_ALPHA" onState="Illness.TornPunchingMuscle"/>
+        <SpriteRender name="s_illnessGemCuts" blend="PREMULTIPLIED_ALPHA" onState="Illness.GemCuts"/>
+        <SpriteRender name="s_illnessChickenFeet" blend="PREMULTIPLIED_ALPHA" onState="Illness.ChickenFeet"/>
+        <SpriteRender name="s_illnessGrumbleTeeth" blend="PREMULTIPLIED_ALPHA" onState="Illness.GrumbleTeeth"/>
+        <SpriteRender name="s_illnessBrokenHeart" blend="PREMULTIPLIED_ALPHA" onState="Illness.BrokenHeart"/>
+        <SpriteRender name="s_illnessChaosInfection" blend="PREMULTIPLIED_ALPHA" onState="Illness.ChaosInfection"/>
+        <SpriteRender name="s_illnessMoldyGuts" blend="PREMULTIPLIED_ALPHA" onState="Illness.MoldyGuts"/>
+        <SpriteRender name="s_illnessBrainWorms" blend="PREMULTIPLIED_ALPHA" onState="Illness.BrainWorms"/>
+        <SpriteRender name="s_illnessLupus" blend="PREMULTIPLIED_ALPHA" onState="Illness.Lupus"/>
+        <SpriteRender name="s_illnessEctoBones" blend="PREMULTIPLIED_ALPHA" onState="Illness.EctoBones"/>
+        <SpriteRender name="s_illnessFattyLiver" blend="PREMULTIPLIED_ALPHA" onState="Illness.FattyLiver"/>
+        
+      </Group>
+      
+      <SpriteRender name="s_WL" blend="PREMULTIPLIED_ALPHA" onState="HasWL.True"/>
+      <Group>
+        <Translate>3,-4,0</Translate>
+        <Scale>0.65,0.65,1</Scale>
+        <SpriteRender name="s_outOfOrder" blend="PREMULTIPLIED_ALPHA" onState="OutOfOrder.True"/>
+      </Group>
+    </Render>
+  </RenderRules>
+</ItemRenderer>

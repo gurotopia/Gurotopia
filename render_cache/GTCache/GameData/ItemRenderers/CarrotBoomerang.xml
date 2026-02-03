@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ItemRenderer>
+  <Data>
+    <Sprite name="s_equip" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="30,26"/>
+    <Sprite name="s_projectile" fileName="game/player_cosmetics3.rttex" textureSize="32" frame="30,26"/>
+    <Sprite name="s_projectileTrail" fileName="game/particles12.rttex" textureSize="32" frame="19,0"/>
+
+    <VariableMap>
+      <Set name="context.pos">0, 0</Set>
+      <Set name="target.pos">0, 0</Set>
+      <Set name="calculatedPos">0, 0</Set>
+      <Set name="boomerangAngle">0</Set>
+      <Set name="boomerang.Offset">0, 0</Set>
+    </VariableMap>
+
+    <Animations>
+      <InterpolationVec2Animation name="a_punchStart" variableName="calculatedPos" targetVariableName="target.pos" animTime="500" playOnState="PunchAnim.Start"/>
+      <InterpolationVec2Animation name="a_punchContinue" variableName="calculatedPos" targetVariableName="target.pos" animTime="30" isLoop="true" playOnState="PunchAnim.Continue"/>
+      <InterpolationVec2Animation name="a_punchEnd" variableName="calculatedPos" targetVariableName="context.pos" animTime="250" playOnState="PunchAnim.End"/>
+
+      <InterpolationVec2Animation name="a_asdfStart" variableName="boomerang.Offset" targetValue="0,0" animTime="500" playOnState="PunchAnim.Start"/>
+      <InterpolationVec2Animation name="a_dfyjrtEnd" variableName="boomerang.Offset" targetValue="0,-8" animTime="250" playOnState="PunchAnim.End"/>
+
+      <CurveAnimationFloat name="a_boomerangRotationRight" playOnState="PunchAnim.Start|PunchAnim.Continue|PunchAnim.End" isLoop="true" useFacing="RIGHT" animTime="250">
+        <Curve name="boomerangAngle">
+          <KeyFrame>0, 0</KeyFrame>
+          <KeyFrame>1, 360</KeyFrame>
+        </Curve>
+      </CurveAnimationFloat>
+      <CurveAnimationFloat name="a_boomerangRotationLeft" playOnState="PunchAnim.Start|PunchAnim.Continue|PunchAnim.End" isLoop="true" useFacing="LEFT" animTime="250">
+        <Curve name="boomerangAngle">
+          <KeyFrame>0, 0</KeyFrame>
+          <KeyFrame>1, -360</KeyFrame>
+        </Curve>
+      </CurveAnimationFloat>
+
+    </Animations>
+
+    <StateMachines>
+      <StateMachine name="Punch">
+        <States>
+          <State name="True"/>
+          <State name="False"/>
+        </States>
+        <Transitions>
+          <Transition from="False" to="True">
+            <Condition>
+              <IsAction>PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition from="True" to="False">
+            <Condition>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+      <StateMachine name="PunchAnim">
+        <States>
+          <State name="Off"/>
+          <State name="Start" ExitTime="0.5" />
+          <State name="Continue"/>
+          <State name="End" ExitTime="0.25" />
+        </States>
+        <Transitions>
+          <Transition from="Off" to="Start">
+            <Condition type="and">
+              <IsAction>PUNCH</IsAction>
+              <IsZombified>false</IsZombified>
+            </Condition>
+          </Transition>
+          <Transition from="Start" to="Continue"/>
+          <Transition from="Continue" to="End">
+            <Condition>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition from="End" to="Off"/>
+        </Transitions>
+      </StateMachine>
+      <StateMachine name="IdleState">
+        <States>
+          <State name="Idle" />
+          <State name="NotIdle" />
+        </States>
+        <Transitions>
+          <Transition from="Idle" to="NotIdle">
+            <Condition>
+              <IsVariableFloat name="speed.length" operator="Greater" abs="true">0.1</IsVariableFloat>
+              <IsAction>PUNCH</IsAction>
+            </Condition>
+          </Transition>
+          <Transition from="NotIdle" to="Idle">
+            <Condition type="and">
+              <IsVariableFloat name="speed.length" operator="Less" abs="true">0.1</IsVariableFloat>
+              <IsAction operatorType="NotEqual">PUNCH</IsAction>
+            </Condition>
+          </Transition>
+        </Transitions>
+      </StateMachine>
+    </StateMachines>
+
+    <ParticleSystems>
+      <ParticleSystem name="punch_particle" secondary="punch_particle_trail">
+        <Emitter>
+          <Set name="lifeTime">0.02</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+          <Set name="emissionInterval">0.02</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_projectile</Set>
+          <Set name="relativeToEmitter">false</Set>
+          <Set name="offset" source="boomerang.Offset"/>
+          <Set name="worldPos" source="calculatedPos"/>
+          <Set name="initialAngle" source="boomerangAngle"/>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.04</Set>
+          <Set name="initialScale">1,1</Set>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="punch_particle_trail">
+        <Emitter>
+          <Set name="lifeTime">1</Set>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">2</Set>
+          <Set name="emissionInterval">0.2</Set>
+          <Set name="checkParticleNumToEmit">true</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_projectileTrail</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.35</Set>
+          <Random name="initialScale" min="0.25" max="0.75"/>
+          <Random name="initialVelocity" min="-5,-5" max="5,5" />
+          <Set name="rotateWithVelocity">true</Set>
+          <Set name="isBackgroundParticle">true</Set>
+          <Curve name="initialAlpha">
+            <KeyFrame>0, 0</KeyFrame>
+            <KeyFrame>0, 0.2</KeyFrame>
+            <KeyFrame>1, 0</KeyFrame>
+          </Curve>
+        </Particle>
+      </ParticleSystem>
+      <ParticleSystem name="punch_smoke">
+        <Emitter>
+          <Set name="particlesPerEmission">1</Set>
+          <Set name="particlesToEmit">1</Set>
+        </Emitter>
+        <Particle>
+          <Set name="sprite">s_projectileTrail</Set>
+          <Set name="blendingMode">PREMULTIPLIED_ALPHA</Set>
+          <Set name="lifeTime">0.5</Set>
+          <Set name="initialRotationRate">360</Set>
+        </Particle>
+      </ParticleSystem>
+    </ParticleSystems>
+
+    <RenderOptions>
+      <Default>
+        <Set name="RenderFrontArmInfected">true</Set>
+        <Set name="RenderFrontArmInTheFront">true</Set>
+        <Set name="DefaultRenderMannequinHandItem">false</Set>
+      </Default>
+    </RenderOptions>
+
+  </Data>
+
+  <RenderRules>
+    <OnPunchUpdate>
+      <AvatarTransform class="Face">
+        <Set name="face">MAD</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="pointTowardsPunchTarget">true</Set>
+      </AvatarTransform>
+      <AvatarTransform class="ArmAngle">
+        <Set name="armName">arm1Angle</Set>
+        <Set name="armAngle">0</Set>
+      </AvatarTransform>
+    </OnPunchUpdate>
+    <Update>
+      <AvatarTransform class="ArmAngle" onState="IdleState.Idle">
+        <Set name="armName">arm2Angle</Set>
+        <Set name="armAngle">-90</Set>
+      </AvatarTransform>
+      <ArithmethicOperation LeftHandVariableName="calculatedPos" RightHandVariableName="context.pos" OperationType="Set" onState="PunchAnim.Off"/>
+    </Update>
+    <RenderHandItem>
+      <SpriteRender name="s_equip" offset="4,1" rotateOffset="true" rotationPoint="0,1" alignment="CENTER" blend="PREMULTIPLIED_ALPHA" onState="PunchAnim.Off"/>
+      <ParticleSystemUpdate name="punch_particle" onState="PunchAnim.Start|PunchAnim.Continue|PunchAnim.End"/>
+    </RenderHandItem>
+  </RenderRules>
+</ItemRenderer>

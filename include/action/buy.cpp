@@ -16,7 +16,7 @@ void action::buy(ENetEvent& event, const std::string& header)
     short No = (peer->slot_size - 16) / 10 + 1; // @note number of upgrades | credits: https://growtopia.fandom.com/wiki/Backpack_Upgrade
     short backpack_cost = (100 * No * No - 200 * No + 200);
 
-    auto growtoken = std::ranges::find_if(peer->slots, [](::slot &slot) { return slot.id == 1486; });
+    auto growtoken = std::ranges::find(peer->slots, 1486, &::slot::id);
 
     short tab{};
     if (pipes[3] == "main") action::store(event, ""); // tab = 0
@@ -123,7 +123,11 @@ void action::buy(ENetEvent& event, const std::string& header)
             std::string received{};
             for (const auto &im : shouhin.im)
             {
-                if (im.first == 9412) peer->slot_size += 10; // @note 9412 is the id for increase backpack sprite, but peer wont actually be given that item.
+                if (im.first == 9412) // @note 9412 is the id for increase backpack sprite, but peer wont actually be given that item.
+                {
+                    peer->slot_size += 10;
+                    send_inventory_state(event); // @note update the new slots
+                }
                 else modify_item_inventory(event, {im.first, im.second});
                 received.append(std::format("{}, ", items[im.first].raw_name)); // @todo add green text to rare items, or something cool.
             }

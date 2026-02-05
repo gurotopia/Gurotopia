@@ -121,7 +121,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
                         *reinterpret_cast<short*>(w_data) = len; w_data += sizeof(short);
                         for (u_char c : block.label) *w_data++ = c;
-                        *reinterpret_cast<int*>(w_data) = -1; w_data += sizeof(int); // @note ff ff ff ff
+                        *reinterpret_cast<int*>(w_data) = 0xffffffff; w_data += sizeof(int); // @note ff ff ff ff
                         break;
                     }
                     case type::SEED:
@@ -166,6 +166,16 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         }
                         break;
                     }
+                    case DISPLAY_BLOCK:
+                    {
+                        data.resize(data.size() + 1zu + 4zu);
+                        w_data = data.data() + offset;
+                        auto display = std::ranges::find(world.displays, ::pos{i % x, i / x}, &::display::pos);
+
+                        *w_data++ = 0x17;
+                        *reinterpret_cast<int*>(w_data) = display->id; w_data += sizeof(int);
+                        break;
+                    }
                     case type::FISH_TANK_PORT:
                     {
                         data.resize(data.size() + 1zu);
@@ -182,26 +192,25 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             }
             w_data += 12; // @todo
 
-            *reinterpret_cast<int*>(w_data) = world.last_object_uid; w_data += sizeof(int);
-            *reinterpret_cast<int*>(w_data) = world.last_object_uid; w_data += sizeof(int);
-            for (const auto &[uid, object] : world.objects) 
+            *reinterpret_cast<u_int*>(w_data) = world.last_object_uid; w_data += sizeof(u_int);
+            *reinterpret_cast<u_int*>(w_data) = world.last_object_uid; w_data += sizeof(u_int);
+            for (const ::object &object : world.objects) 
             {
-                const auto &[id, count, pos] = object;
                 int offset = w_data - data.data();
                 data.resize(data.size() + sizeof(::object) + 4zu/*@todo*/);
                 w_data = data.data() + offset;
                 
-                *reinterpret_cast<short*>(w_data) = id;        w_data += sizeof(short);
-                *reinterpret_cast<float*>(w_data) = pos.f_x(); w_data += sizeof(float);
-                *reinterpret_cast<float*>(w_data) = pos.f_y(); w_data += sizeof(float);
-                *reinterpret_cast<short*>(w_data) = count;     w_data += sizeof(short);
-                *reinterpret_cast<int*>(w_data)   = uid;       w_data += sizeof(int);
+                *reinterpret_cast<u_short*>(w_data) = object.id;        w_data += sizeof(u_short);
+                *reinterpret_cast<float*>(w_data)   = object.pos.f_x(); w_data += sizeof(float);
+                *reinterpret_cast<float*>(w_data)   = object.pos.f_y(); w_data += sizeof(float);
+                *reinterpret_cast<u_short*>(w_data) = object.count;     w_data += sizeof(u_short);
+                *reinterpret_cast<u_int*>(w_data)   = object.uid;       w_data += sizeof(u_int);
             }
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data
         {
-            auto name = std::ranges::find(peer->recent_worlds, world.name);
-            auto first = name != peer->recent_worlds.end() ? name : peer->recent_worlds.begin();
+            std::string *w_name = std::ranges::find(peer->recent_worlds, world.name);
+            std::string *first = w_name != peer->recent_worlds.end() ? w_name : peer->recent_worlds.begin();
 
             std::rotate(first, first + 1, peer->recent_worlds.end());
             peer->recent_worlds.back() = world.name;

@@ -9,11 +9,13 @@ void action::trash(ENetEvent& event, const std::string& header)
     
     item &item = items[atoi(itemID.c_str())];
 
-    if (item.cat == CAT_CANNOT_DROP)
+    if (item.type == type::FIST || item.type == type::WRENCH)
     {
         packet::create(*event.peer, false, 0, { "OnTextOverlay", "You'd be sorry if you lost that!" });
         return;
     }
+    // @todo add confirm message on untradeables
+    
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     for (const ::slot &slot : peer->slots)

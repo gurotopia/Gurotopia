@@ -11,9 +11,17 @@ void lock_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
     ::pos pos{0,0};
     for (u_short i = 0; const std::string &pipe : pipes)
     {
-        if      (pipe == "checkbox_public") it->second.is_public = atoi(pipes[i+1].c_str());
-        else if (pipe == "tilex")           pos.x = atoi(pipes[i+1].c_str());
-        else if (pipe == "tiley")           pos.y = atoi(pipes[i+1].c_str());
+        if      (pipe == "tilex")                  pos.x = atoi(pipes[i+1].c_str());
+        else if (pipe == "tiley")                  pos.y = atoi(pipes[i+1].c_str());
+        else if (pipe == "checkbox_public")        it->second.is_public = atoi(pipes[i+1].c_str());
+        else if (pipe == "checkbox_disable_music") 
+        {
+            if (atoi(pipes[i+1].c_str()) != 0)
+                 it->second.lock_state |= DISABLE_MUSIC;
+            else it->second.lock_state &= ~DISABLE_MUSIC;
+        }
+        else if (pipe == "minimum_entry_level")    it->second.minimum_entry_level = atoi(pipes[i+1].c_str());
+
         ++i;
     }
     ::block &block = it->second.blocks[cord(pos.x, pos.y)];

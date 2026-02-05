@@ -5,7 +5,7 @@
 
 void on::Spawn(ENetPeer &peer, signed netID, signed userID, ::pos posXY, std::string name, std::string country, bool mstate, bool smstate, bool local) 
 {
-    packet::create(peer, false, -1/* ff ff ff ff */, {
+    packet::create(peer, false, 0xffffffff, {
         "OnSpawn",
         std::format(
             "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|{}``\ncountry|{}\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}",

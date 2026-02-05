@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 43e61ed1c372cb39ab40e38924e48cc167b6a580 2026-2-3
+    @version perent SHA: 84d93e49917503f3112c0ad8472a2aad5bba387f 2026-2-5
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -62,7 +62,7 @@ int main()
 
     ENetEvent event{};
     while (true)
-        while (enet_host_service(host, &event, 100/*ms*/) > 0)
+        while (enet_host_service(host, &event, 1000/*ms*/) > 0)
             if (const auto i = event_pool.find(event.type); i != event_pool.end())
                 i->second(event);
 

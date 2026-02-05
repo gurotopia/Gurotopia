@@ -39,8 +39,7 @@
 
     struct block 
     {
-        block(
-            short _fg = 0, short _bg = 0, 
+        block(short _fg = 0, short _bg = 0, 
             std::chrono::steady_clock::time_point _tick = std::chrono::steady_clock::time_point(),
             std::string _label = "", u_char _state3 = 0, u_char _state4 = 0
         ) : fg(_fg), bg(_bg), tick(_tick), label(_label), state3(_state3), state4(_state4) {}
@@ -67,12 +66,22 @@
         ::pos pos;
     };
 
+    struct display
+    {
+        display(u_int _id, ::pos _pos) : id(_id), pos(_pos) {}
+
+        u_int id{};
+        ::pos pos;
+    };
+
     struct object 
     {
-        object(short _id, short _count, ::pos _pos) : id(_id), count(_count), pos(_pos) {}
-        short id{0};
-        short count{0};
+        object(u_short _id, u_short _count, ::pos _pos, u_int _uid) : id(_id), count(_count), pos(_pos), uid(_uid) {}
+        u_short id{0};
+        u_short count{0};
         ::pos pos;
+
+        u_int uid{};
     };
 
     class world 
@@ -85,14 +94,16 @@
         std::array<int, 6zu> admin{}; // @note admins (by user id). excluding owner. (6 is a experimental amount, if increase update me if any issue occur -leeendl)
         bool is_public{}; // @note checks if world is public to break/place
         u_char lock_state{0x00}; // @note uses lock_state::
+        u_char minimum_entry_level{1}; // @note minimal level required to enter a world
 
         u_char visitors{}; // @note the current number of peers in a world, excluding invisable peers
         u_char netid_counter{}; // @note a number that only increases, this value resets during ~world()
 
         std::vector<::block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
-        std::vector<::door> doors;
-        int last_object_uid{0};
-        std::unordered_map<int, object> objects{};
+        u_int last_object_uid{0};
+        std::vector<::object> objects{};
+        std::vector<::door> doors{};
+        std::vector<::display> displays{};
         ~world();
     };
     extern std::unordered_map<std::string, world> worlds;

@@ -453,18 +453,18 @@ void tile_change(ENetEvent& event, state state)
                                 "add_spacer|small|\n"
                                 "add_player_picker|playerNetID|`wAdd``|\n"
                                 "add_checkbox|checkbox_public|Allow anyone to Build and Break|{}\n"
-                                "add_checkbox|checkbox_disable_music|Disable Custom Music Blocks|0\n"
+                                "add_checkbox|checkbox_disable_music|Disable Custom Music Blocks|{}\n"
                                 "add_text_input|tempo|Music BPM|100|3|\n"
                                 "add_checkbox|checkbox_disable_music_render|Make Custom Music Blocks invisible|0\n"
-                                "add_smalltext|Your current home world is: JOLEIT|left|\n"
+                                //"add_smalltext|Your current home world is: JOLEIT|left|\n"           // @todo only show when peer has a set home world.
                                 "add_checkbox|checkbox_set_as_home_world|Set as Home World|0|\n"
-                                "add_text_input|minimum_entry_level|World Level: |1|3|\n"
+                                "add_text_input|minimum_entry_level|World Level: |{}|3|\n"
                                 "add_smalltext|Set minimum world entry level.|\n"
                                 "add_button|sessionlength_dialog|`wSet World Timer``|noflags|0|0|\n"
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item.raw_name, item.id, state.punch.x, state.punch.y, to_char(world.is_public)
+                                item.raw_name, item.id, state.punch.x, state.punch.y, to_char(world.is_public), (world.lock_state & DISABLE_MUSIC) ? "1" : "0", world.minimum_entry_level
                             ).c_str()
                         });
                     }
@@ -498,6 +498,7 @@ void tile_change(ENetEvent& event, state state)
                     break;
                 }
                 case type::SIGN:
+                {
                         packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format("set_default_color|`o\n"
@@ -512,7 +513,9 @@ void tile_change(ENetEvent& event, state state)
                         ).c_str()
                     });
                     break;
+                }
                 case type::ENTRANCE:
+                {
                     packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format(
@@ -526,12 +529,38 @@ void tile_change(ENetEvent& event, state state)
                         ).c_str()
                     });
                     break;
+                }
+                case type::DISPLAY_BLOCK:
+                {
+                    packet::create(*event.peer, false, 0, {
+                        "OnDialogRequest",
+                        ::create_dialog()
+                            .set_default_color("`o")
+                            .add_label_with_icon("big", "Display Block", item.id) // @todo
+                    });
+                    break;
+                }
             }
             return; // @note leave early else wrench will act as a block unlike fist which breaks. this is cause of state_visuals()
         }
         else // @note placing a block
         {
-            if (item.type != type::SEED && (item.type != type::BACKGROUND && block.fg != 0)) return; // @todo hardcoded....
+            if (item.type != type::SEED && (item.type != type::BACKGROUND && block.fg != 0))
+            {
+                bool update_tile{};
+                switch (items[world.blocks[cord(state.punch.x, state.punch.y)].fg].type)
+                {
+                    case type::DISPLAY_BLOCK:
+                    {
+                        world.displays.emplace_back(::display(item.id, state.punch));
+                        update_tile = true;
+                        break;
+                    }
+                }
+                if (update_tile)
+                    send_tile_update(event, std::move(state), block, world);
+                return;
+            }
             std::this_thread::sleep_for(130ms); // @todo add proper fix
             if (item.collision == collision::FULL)
             {

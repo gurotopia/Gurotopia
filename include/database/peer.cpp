@@ -10,7 +10,7 @@ using namespace std::chrono;
 
 short peer::emplace(slot s) 
 {
-    if (auto it = std::ranges::find_if(this->slots, [s](const slot &found) { return found.id == s.id; }); it != this->slots.end()) 
+    if (auto it = std::ranges::find(this->slots, s.id, &::slot::id); it != this->slots.end()) 
     {
         short excess = std::max(0, (it->count + s.count) - 200);
         it->count = std::min(it->count + s.count, 200);

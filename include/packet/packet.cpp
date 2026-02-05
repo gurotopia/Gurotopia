@@ -7,7 +7,7 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
 
     std::vector<u_char> data = compress_state(::state{
         .type = 01,
-        .netid = (!netid) ? -1 : _p->netid,
+        .netid = (!netid) ? (signed)0xffffffff : _p->netid,
         .peer_state = 0x08,
         .id = delay
     });

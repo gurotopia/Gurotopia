@@ -33,7 +33,7 @@ void item_activate(ENetEvent& event, state state)
     {
         if (state.id == 242 || state.id == 1796) 
         {
-            const auto lock = std::ranges::find_if(peer->slots, [&state](::slot &slot) { return slot.id == state.id; });
+            const auto lock = std::ranges::find(peer->slots, state.id, &::slot::id);
             if (lock == peer->slots.end()) return;
 
             if (lock->id == 242 && lock->count >= 100) 

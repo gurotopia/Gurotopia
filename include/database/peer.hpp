@@ -62,7 +62,7 @@
 
         bool exists(const std::string& name); // @note check if peer exists in database
 
-        signed netid{ 0 }; // @note peer's netid is world identity. this will be useful for many packet sending
+        int netid{ 0 }; // @note peer's netid is world identity. this will be useful for many packet sending
         int user_id{}; // @note unqiue user id.
         std::array<std::string, 2zu> ltoken{}; // @note {growid, password}
         std::string game_version{};
@@ -72,7 +72,7 @@
         std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
         u_char punch_effect{}; // @note last equipped clothing that has a effect. supporting 0-255 effects.
 
-        unsigned skin_color{ 2527912447 };
+        u_int skin_color{ 2527912447 };
 
         int state{}; // @note using pstate::
 

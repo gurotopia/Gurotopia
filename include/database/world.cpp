@@ -23,14 +23,17 @@ public:
     void create_tables() 
     {
         const char* sql = 
-        "CREATE TABLE IF NOT EXISTS worlds (_n TEXT PRIMARY KEY, owner INTEGER);"
-
+        "CREATE TABLE IF NOT EXISTS worlds (_n TEXT PRIMARY KEY, owner INTEGER, min_level INTEGER);"
         "CREATE TABLE IF NOT EXISTS blocks ("
             "_n TEXT, _p INTEGER, fg INTEGER, bg INTEGER, tick INTEGER, l TEXT, s3 INTEGER, s4 INTEGER,"
             "PRIMARY KEY (_n, _p),"
             "FOREIGN KEY (_n) REFERENCES worlds(_n)"
         ");"
-
+        "CREATE TABLE IF NOT EXISTS displays ("
+            "_n TEXT, _p INTEGER, i INTEGER,"
+            "PRIMARY KEY (_n, _p),"
+            "FOREIGN KEY (_n) REFERENCES worlds(_n)"
+        ");"
         "CREATE TABLE IF NOT EXISTS objects ("
             "_n TEXT, uid INTEGER, i INTEGER, c INTEGER, x REAL, y REAL,"
             "PRIMARY KEY (_n, uid),"
@@ -75,9 +78,10 @@ world::world(const std::string& name)
 {
     world_db db;
     
-    db.query("SELECT owner FROM worlds WHERE _n = ?", [this, &name](sqlite3_stmt* stmt) 
+    db.query("SELECT owner, min_level FROM worlds WHERE _n = ?", [this, &name](sqlite3_stmt* stmt) 
     {
-        this->owner =   sqlite3_column_int(stmt, 0);
+        this->owner =               sqlite3_column_int(stmt, 0);
+        this->minimum_entry_level = sqlite3_column_int(stmt, 1);
         this->name = name;
     }, name);
 
@@ -94,18 +98,27 @@ world::world(const std::string& name)
             sqlite3_column_int(stmt, 6)
         );
     }, name);
-     db.query("SELECT uid, i, c, x, y FROM objects WHERE _n = ?", [this](sqlite3_stmt* stmt) 
-     {
-        int uid = sqlite3_column_int(stmt, 0);
-        objects.emplace(uid, object(
+
+    db.query("SELECT _p, i FROM displays WHERE _n = ?", [this](sqlite3_stmt* stmt) 
+    {
+        int pos = sqlite3_column_int(stmt, 0);
+        int id = sqlite3_column_int(stmt, 1);
+        displays.emplace_back(display(id, ::pos{pos % 100, (pos / 100)}));
+    }, name);
+
+    db.query("SELECT uid, i, c, x, y FROM objects WHERE _n = ?", [this](sqlite3_stmt* stmt) 
+    {
+        u_int uid = sqlite3_column_int(stmt, 0);
+        objects.emplace_back(object(
             sqlite3_column_int(stmt, 1),
             sqlite3_column_int(stmt, 2),
             ::pos{
                 static_cast<float>(sqlite3_column_double(stmt, 3)), // @todo
                 static_cast<float>(sqlite3_column_double(stmt, 4)) // @todo
-            }
+            },
+            uid
         ));
-        last_object_uid = std::max(last_object_uid, uid);
+        this->last_object_uid = std::max(this->last_object_uid, uid);
     }, name);
 }
 
@@ -116,10 +129,11 @@ world::~world()
     world_db db;
     db.begin_transaction();
     
-    db.execute("INSERT OR REPLACE INTO worlds (_n, owner) VALUES (?, ?)", [this](sqlite3_stmt* stmt) 
+    db.execute("INSERT OR REPLACE INTO worlds (_n, owner, min_level) VALUES (?, ?, ?)", [this](sqlite3_stmt* stmt) 
     {
-            sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt,  2, this->owner);
+        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt,  2, this->owner);
+        sqlite3_bind_int(stmt,  3, this->minimum_entry_level);
     });
     
     db.execute("DELETE FROM blocks WHERE _n = ?", [this](auto stmt) {
@@ -141,20 +155,34 @@ world::~world()
         });
     }
 
+    db.execute("DELETE FROM displays WHERE _n = ?", [this](auto stmt) {
+        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+    });
+    for (const ::display display : this->displays) 
+    {
+        int i = 1;
+        db.execute("INSERT INTO displays (_n, _p, i) VALUES (?, ?, ?)", [&](sqlite3_stmt* stmt) 
+        {
+            sqlite3_bind_text(stmt,  i++, this->name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,   i++, cord(display.pos.x, display.pos.y));
+            sqlite3_bind_int(stmt,   i++, display.id);
+        });
+    }
+
     db.execute("DELETE FROM objects WHERE _n = ?", [this](auto stmt) {
         sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
     });
-    for (const auto &[uid, item] : this->objects) 
+    for (const ::object &object : this->objects) 
     {
         db.execute("INSERT INTO objects (_n, uid, i, c, x, y) VALUES (?, ?, ?, ?, ?, ?)", [&](sqlite3_stmt* stmt) 
         {
             int i = 1;
             sqlite3_bind_text(stmt,   i++, this->name.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt,    i++, uid);
-            sqlite3_bind_int(stmt,    i++, item.id);
-            sqlite3_bind_int(stmt,    i++, item.count);
-            sqlite3_bind_double(stmt, i++, item.pos.x*32);
-            sqlite3_bind_double(stmt, i++, item.pos.y*32);
+            sqlite3_bind_int(stmt,    i++, object.uid);
+            sqlite3_bind_int(stmt,    i++, object.id);
+            sqlite3_bind_int(stmt,    i++, object.count);
+            sqlite3_bind_double(stmt, i++, object.pos.x*32);
+            sqlite3_bind_double(stmt, i++, object.pos.y*32);
         });
     }
     
@@ -213,32 +241,33 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
     auto w = worlds.find(peer->recent_worlds.back());
     if (w == worlds.end()) return -1;
 
-    auto f = std::find_if(w->second.objects.begin(), w->second.objects.end(), [&](const std::pair<const int, object>& entry) {
-        return uid == 0 && entry.second.id == slot.id && entry.second.pos == pos;
+    auto object = std::ranges::find_if(w->second.objects, [&](const ::object &object) {
+        return uid == 0 && object.id == slot.id && object.pos == pos;
     });
-    if (f != w->second.objects.end()) // @note merge drop
+
+    if (object != w->second.objects.end()) // @note merge drop
     {
-        f->second.count += slot.count;
-        state.netid = -3; // @note fd ff ff ff
-        state.uid = f->first;
-        state.count = static_cast<float>(f->second.count);
-        state.id = f->second.id;
-        state.pos = f->second.pos;
+        object->count += slot.count;
+        state.netid = 0xfffffffd;
+        state.uid = object->uid;
+        state.count = static_cast<float>(object->count);
+        state.id =  object->id;
+        state.pos = object->pos;
     }
     else if (slot.count == 0 || slot.id == 0) // @note remove drop
     {
         state.netid = peer->netid;
-        state.uid = -1;
+        state.uid = 0xffffffff;
         state.id = uid;
     }
     else // @note add new drop
     {
-        auto it = w->second.objects.emplace(++w->second.last_object_uid, object{slot.id, slot.count, pos}); // @note a iterator ahead of time
-        state.netid = -1;
-        state.uid = it.first->first;
+        auto it = w->second.objects.emplace_back(::object(slot.id, slot.count, pos, ++w->second.last_object_uid)); // @note a iterator ahead of time
+        state.netid = 0xffffffff;
+        state.uid = it.uid;
         state.count = static_cast<float>(slot.count);
-        state.id = it.first->second.id;
-        state.pos = it.first->second.pos;
+        state.id = it.id;
+        state.pos = it.pos;
     }
     state_visuals(*event.peer, std::move(state));
     return state.uid;
@@ -307,7 +336,7 @@ void send_tile_update(ENetEvent &event, state state, block &block, world& w)
 
             *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
             for (const char &c : block.label) data[pos++] = c;
-            *reinterpret_cast<int*>(&data[pos]) = -1; pos += sizeof(int); // @note ff ff ff ff
+            *reinterpret_cast<int*>(&data[pos]) = 0xffffffff; pos += sizeof(int);
             break;
         }
         case type::SEED:
@@ -325,6 +354,15 @@ void send_tile_update(ENetEvent &event, state state, block &block, world& w)
 
             data[pos++] = 0x09;
             *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
+            break;
+        }
+        case DISPLAY_BLOCK:
+        {
+            data.resize(pos + 1zu + 4zu);
+            auto display = std::ranges::find(w.displays, state.punch, &::display::pos);
+
+            data[pos++] = 0x17;
+            *reinterpret_cast<int*>(&data[pos]) = display->id; pos += sizeof(int);
             break;
         }
     }

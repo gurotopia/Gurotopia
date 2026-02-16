@@ -194,7 +194,7 @@
 
         std::array<u_short, 2> splice{}; // @note version 23 | {seed1, seed2}
     };
-    extern std::unordered_map<u_short, item> items;
+    extern std::vector<item> items;
 
     extern std::vector<u_char> im_data;
 

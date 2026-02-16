@@ -16,8 +16,8 @@ short peer::emplace(slot s)
         it->count = std::min(it->count + s.count, 200);
         if (it->count == 0)
         {
-            item &item = items[it->id];
-            if (item.cloth_type != clothing::none) this->clothing[item.cloth_type] = 0;
+            auto item = std::ranges::find(items, it->id, &::item::id);
+            if (item->cloth_type != clothing::none) this->clothing[item->cloth_type] = 0;
         }
         return excess;
     }

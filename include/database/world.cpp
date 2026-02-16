@@ -298,7 +298,8 @@ void send_tile_update(ENetEvent &event, state state, block &block, world& w)
     
     data[pos++] = block.state3 ;
     data[pos++] = block.state4;
-    switch (items[block.fg].type)
+    auto item = std::ranges::find(items, block.fg, &::item::id);
+    switch (item->type)
     {
         case type::LOCK:
         {

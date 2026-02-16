@@ -20,6 +20,7 @@
 #include "itemfavourite.hpp"
 #include "inventoryfavuitrigger.hpp"
 #include "store.hpp"
+#include "storenavigate.hpp"
 #include "buy.hpp"
 
 #include "quit.hpp"
@@ -49,7 +50,8 @@ std::unordered_map<std::string, std::function<void(ENetEvent&, const std::string
     {"action|itemfavourite", std::bind(&action::itemfavourite, std::placeholders::_1, std::placeholders::_2)},
     {"action|inventoryfavuitrigger", std::bind(&action::inventoryfavuitrigger, std::placeholders::_1, std::placeholders::_2)},
     {"action|store", std::bind(&action::store, std::placeholders::_1, std::placeholders::_2)},
-    {"action|buy", std::bind(&action::buy, std::placeholders::_1, std::placeholders::_2)},
+    {"action|storenavigate", std::bind(&action::storenavigate, std::placeholders::_1, std::placeholders::_2)},
+    {"action|buy", std::bind(&action::buy, std::placeholders::_1, std::placeholders::_2, "")},
 
     {"action|quit", std::bind(&action::quit, std::placeholders::_1, std::placeholders::_2)}
 };

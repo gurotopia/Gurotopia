@@ -11,9 +11,9 @@ void tile_activate(ENetEvent& event, state state)
     ::world &world = worlds.at(peer->recent_worlds.back());
 
     ::block &block = world.blocks[cord(state.punch.x, state.punch.y)];
-    ::item &item = items[block.fg];
+    auto item = std::ranges::find(items, block.fg, &::item::id);
 
-    switch (item.type)
+    switch (item->type)
     {
         case type::MAIN_DOOR:
         {
@@ -59,7 +59,8 @@ void tile_activate(ENetEvent& event, state state)
             int i{};
             for (::block &b : world.blocks)
             {
-                if (items[b.fg].type == type::CHECKPOINT) 
+                auto item = std::ranges::find(items, b.fg, &::item::id);
+                if (item->type == type::CHECKPOINT) 
                 {
                     b.state3 &= ~S_TOGGLE; // @note untoggle other checkpoints
                     send_tile_update(event, ::state{.id = b.fg, .punch = {i % 100, i / 100}}, b, world);

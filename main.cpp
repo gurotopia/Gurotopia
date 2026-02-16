@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 84d93e49917503f3112c0ad8472a2aad5bba387f 2026-2-5
+    @version perent SHA: 14db88c41229c6cbcd20d47ad1bd55e1ff999977 2026-2-16
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -8,6 +8,7 @@
 #include "include/database/shouhin.hpp" // @note init_shouhin_tachi()
 #include "include/https/https.hpp" // @note https::listener()
 #include "include/https/server_data.hpp" // @note g_server_data
+#include "include/automate/holiday.hpp" // @note holiday
 #include <filesystem>
 #include <csignal>
 
@@ -27,6 +28,12 @@ int main()
     std::filesystem::create_directory("db");
     init_shouhin_tachi();
     g_server_data = init_server_data();
+
+    {
+        std::time_t now = std::time(nullptr);
+        std::tm time = *std::localtime(&now);
+        if (time.tm_mon == 1/*feb*/ && (time.tm_mday >= 13 && time.tm_mday <= 13+7)) holiday = H_VALENTINES; // @note Valentine's Week
+    } // @note delete now, time
 
     enet_initialize();
     {

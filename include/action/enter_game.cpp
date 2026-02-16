@@ -3,6 +3,8 @@
 #include "tools/string.hpp"
 #include "tools/create_dialog.hpp"
 #include "on/SetBux.hpp"
+#include "automate/holiday.hpp"
+
 #include "enter_game.hpp"
 
 void action::enter_game(ENetEvent& event, const std::string& header) 
@@ -27,6 +29,8 @@ void action::enter_game(ENetEvent& event, const std::string& header)
         std::format("Welcome back, `{}{}````. No friends are online.", 
             peer->prefix, peer->ltoken[0]).c_str()
     }); 
+    if (holiday == H_VALENTINES) packet::create(*event.peer, false, 0, {"OnConsoleMessage", "``4Happy Valentine's Week!``"});
+
     packet::create(*event.peer, false, 0, {"OnConsoleMessage", "`5Personal Settings active:`` `#Can customize profile``"});
     
     send_inventory_state(event);
@@ -58,32 +62,30 @@ void action::enter_game(ENetEvent& event, const std::string& header)
                 .set_default_color("`o")
                 .add_label_with_icon("big", "`wThe Gurotopia Gazette``", 5016)
                 .add_spacer("small")
-                .add_image_button("banner", "interface/large/gui_event_banner_aliens.rttex", "bannerlayout", "")
+                .add_image_button("banner", "interface/large/gui_valentine_banner.rttex", "bannerlayout", "")
                 .add_spacer("small")
-                .add_textbox(std::format("`w{} {}{}: `5Space Cat!``|", month[time.tm_mon], time.tm_mday,
+                .add_textbox(std::format("`w{} {}{}: {}|", month[time.tm_mon], time.tm_mday,
                     (time.tm_mday >= 11 && time.tm_mday <= 13) ? "th" :
                     (time.tm_mday % 10 == 1) ? "st" :
                     (time.tm_mday % 10 == 2) ? "nd" :
-                    (time.tm_mday % 10 == 3) ? "rd" : "th"))
+                    (time.tm_mday % 10 == 3) ? "rd" : "th", (holiday == H_VALENTINES) ? "`5Valentine's Week!``" : ""))
                 .add_spacer("small")
                 /* IOTM goes here. but it's P2W, so i will not add. */
-                .add_textbox("From beyond the stars comes a new threat the `8Space Cat``! This curious critter may look cute, but her sharp claws will have you praying for mercy! Wrench yourself and choose `2Transform`` to unleash her power! Don't miss out and grab the `8Space Cat`` now! Available in the store until the 31st of January 2026!")
+                .add_textbox("Love is popping, hearts are dropping, and we are officially in the `@Valentine's`` spirit! `@Valentine's Week`` has arrived, bringing sweet surprises, shiny rewards ready to steal your heart!")
                 .add_spacer("small")
-                .add_textbox("To avoid refund fraud, the `8Space Cat`` will be untradeable from January 29th, 2026 and will become tradeable from June 1st, 2026.")
+                .add_textbox("Taking center stage is the fabulous `9Golden Heart Crystal``, a true treasure of love that can be used to create dazzling gold items! Finding it won't be easy, but then again, true love never is! Keep your eyes peeled while breaking a `pHeartstone``, `8Golden Booty Chest``, `8Super Golden Booty Chest``, or taking a chance at the `#Well of Love``, you never know when luck strikes!")
                 .add_spacer("small")
-                .add_textbox("Strap in and get ready because the `2Aliens`` have returned to Growtopia! Your favorite extraterrestrial guests are back, bringing a universe full of fun, surprises, and out-of-this-world rewards!")
-                .add_spacer("small")
-                .add_textbox("Equip your `8Alien Scanner`` to find `8Alien Landing Pods`` hidden in the trees you harvest! Each pod is packed with stellar rewards—happy harvesting, and may alien luck be with you!")
+                .add_textbox("If your heart beats for competition, the `cEssence of Love Daily Challenge`` is calling your name! Show your dedication, place in the top 5, and you'll be rewarded with a `9Golden Heart Crystal`` as proof that love really does pay off!")
                 .add_spacer("small")
                 .add_textbox("Visit our Social Media pages for more Content!")
                 .add_spacer("small")
-                .add_image_button("gazette_DiscordServer", "interface/large/gazette/gazette_5columns_social_btn01.rttex", "7imageslayout20", "https://discord.com/invite/zzWHgzaF7J")
-                .add_image_button("gazette_Instagram", "interface/large/gazette/gazette_5columns_social_btn02.rttex", "7imageslayout20", "https://www.instagram.com/growtopia")
-                .add_image_button("gazette_TikTok", "interface/large/gazette/gazette_5columns_social_btn03.rttex", "7imageslayout20", "https://tiktok.com/@growtopia")
-                .add_image_button("gazette_Twitch", "interface/large/gazette/gazette_5columns_social_btn04.rttex", "7imageslayout20", "https://www.twitch.tv/growtopiagameofficial")
-                .add_image_button("gazette_Twitter", "interface/large/gazette/gazette_5columns_social_btn06.rttex", "7imageslayout20", "https://twitter.com/growtopiagame")
-                .add_image_button("gazette_Youtube", "interface/large/gazette/gazette_5columns_btn04.rttex", "7imageslayout20", "https://www.youtube.com/growtopia_official")
-                .add_image_button("gazette_Facebook", "interface/large/gazette/gazette_5columns_btn05.rttex", "7imageslayout20", "https://www.facebook.com/growtopia")
+                .add_image_button("gazette_DiscordServer", "interface/large/gazette/gazette_5columns_social_btn01.rttex", "7imageslayout", "https://discord.com/invite/zzWHgzaF7J")
+                .add_layout_spacer("7imageslayout")
+                .add_layout_spacer("7imageslayout")
+                .add_layout_spacer("7imageslayout")
+                .add_layout_spacer("7imageslayout")
+                .add_layout_spacer("7imageslayout")
+                .add_layout_spacer("7imageslayout")
                 .add_spacer("small")
                 .add_image_button("gazette_PrivacyPolicy", "interface/large/gazette/gazette_3columns_policy_btn02.rttex", "3imageslayout", "https://www.ubisoft.com/en-us/privacy-policy")
                 .add_image_button("gazette_GrowtopianCode", "interface/large/gazette/gazette_3columns_policy_btn01.rttex", "3imageslayout", "https://support.ubi.com/en-us/growtopia-faqs/the-growtopian-code/")

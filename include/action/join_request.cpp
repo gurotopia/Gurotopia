@@ -58,7 +58,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 *w_data++ = block.state4;
 
                 int offset = w_data - data.data();
-                switch (items[block.fg].type)
+                auto item = std::ranges::find(items, block.fg, &::item::id); // @todo limit iteration during world enter
+                switch (item->type)
                 {
                     case type::ENTRANCE:
                     case type::FOREGROUND: 
@@ -186,7 +187,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     default: 
                         throw std::runtime_error(std::format("`w{}``'s visuals has not been added yet.", 
-                            items[block.fg].raw_name));
+                            item->raw_name));
                 }
                 ++i;
             }

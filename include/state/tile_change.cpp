@@ -25,8 +25,8 @@ void tile_change(ENetEvent& event, state state)
 
         ::block &block = world.blocks[cord(state.punch.x, state.punch.y)];
 
-        ::item &item = (state.id != 32 && state.id != 18) ? items[state.id] : (block.fg != 0) ? items[block.fg] : items[block.bg];
-        if (item.id == 0) return;
+        auto item = std::ranges::find(items, (state.id != 32 && state.id != 18) ? state.id : (block.fg != 0) ? block.fg : block.bg, &::item::id);
+        if (item->id == 0) return;
 
         if (block.state4 & S_FIRE) // @note allow anyone to take out fire
             if (peer->clothing[hand] == 3066/* fire hose */)
@@ -35,7 +35,7 @@ void tile_change(ENetEvent& event, state state)
                 return; // @note avoid hitting the block
             }
 
-        if (!(item.cat & CAT_PUBLIC)) // @note if block is public skip validating if peer is owner or admin
+        if (!(item->cat & CAT_PUBLIC)) // @note if block is public skip validating if peer is owner or admin
             if ((world.owner && !world.is_public && !peer->role) &&
                 (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
 
@@ -45,7 +45,7 @@ void tile_change(ENetEvent& event, state state)
         {
             ransuu ransuu;
 
-            switch (item.id)
+            switch (item->id)
             {
                 case 758: // @note Roulette Wheel
                 {
@@ -60,22 +60,22 @@ void tile_change(ENetEvent& event, state state)
                     break;
                 }
             }
-            switch (item.type)
+            switch (item->type)
             {
                 case type::STRONG: throw std::runtime_error("It's too strong to break.");
                 case type::MAIN_DOOR: throw std::runtime_error("(stand over and punch to use)");
                 case type::LOCK:
                 {
-                    if (is_tile_lock(item.id)) break; // @todo seperate area for 'range_lock'
+                    if (is_tile_lock(item->id)) break; // @todo seperate area for 'range_lock'
                     
                     if (world.owner != peer->user_id)
                         throw std::runtime_error(std::format("`5[```w{}`` `$World Locked`` by (null)`5]``", world.name)); // @todo add owner name
                 }
                 case type::PROVIDER:
                 {
-                    if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
+                    if ((steady_clock::now() - block.tick) / 1s >= item->tick) // @todo limit this check.
                     {
-                        switch (item.id)
+                        switch (item->id)
                         {
                             case 1008: // @note ATM
                             {
@@ -88,12 +88,12 @@ void tile_change(ENetEvent& event, state state)
                             }
                             case 872:/*chicken*/ case 866:/*cow*/ case 1632:/*coffee maker*/ case 3888:/*sheep*/
                             {
-                                add_drop(event, ::slot(item.id+2, ransuu[{1, 2}]), state.punch);
+                                add_drop(event, ::slot(item->id+2, ransuu[{1, 2}]), state.punch);
                                 break;
                             }
                             case 5116:/*tea set*/
                             {
-                                add_drop(event, ::slot(item.id-2, ransuu[{1, 2}]), state.punch);
+                                add_drop(event, ::slot(item->id-2, ransuu[{1, 2}]), state.punch);
                                 break;
                             }
                             case 2798:/*well*/
@@ -122,10 +122,10 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case type::SEED:
                 {
-                    if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
+                    if ((steady_clock::now() - block.tick) / 1s >= item->tick) // @todo limit this check.
                     {
                         block.hits[0] = 99;
-                        add_drop(event, ::slot(item.id - 1, ransuu[{2, 12}]), state.punch); // @note fruit (from tree)
+                        add_drop(event, ::slot(item->id - 1, ransuu[{2, 12}]), state.punch); // @note fruit (from tree)
                     }
                     break;
                 }
@@ -133,14 +133,15 @@ void tile_change(ENetEvent& event, state state)
                 {
                     for (::block &b : world.blocks)
                     {
-                        if (items[b.fg].type == type::WEATHER_MACHINE && b.fg != block.fg) 
+                        auto item = std::ranges::find(items, b.fg, &::item::id);
+                        if (item->type == type::WEATHER_MACHINE && item->id != block.fg) 
                             b.state3 &= ~S_TOGGLE;
                     }
                     block.state3 ^= S_TOGGLE;
                     
                     peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
-                        packet::create(p, false, 0, { "OnSetCurrentWeather", (block.state3 & S_TOGGLE) ? get_weather_id(item.id) : 0 });
+                        packet::create(p, false, 0, { "OnSetCurrentWeather", (block.state3 & S_TOGGLE) ? get_weather_id(item->id) : 0 });
                     });
                     break;
                 }
@@ -149,7 +150,7 @@ void tile_change(ENetEvent& event, state state)
                 case type::CHEST:
                 {
                     block.state3 ^= S_TOGGLE;
-                    if (item.id == 226) // @note Signal Jammer
+                    if (item->id == 226) // @note Signal Jammer
                     {
                         packet::create(*event.peer, false, 0, {
                             "OnConsoleMessage",
@@ -163,8 +164,8 @@ void tile_change(ENetEvent& event, state state)
             }
             tile_apply_damage(event, std::move(state), block);
 
-            if (block.hits.front() >= item.hits) block.fg = 0, block.hits.front() = 0;
-            else if (block.hits.back() >= item.hits) block.bg = 0, block.hits.back() = 0;
+            if (block.hits.front() >= item->hits) block.fg = 0, block.hits.front() = 0;
+            else if (block.hits.back() >= item->hits) block.bg = 0, block.hits.back() = 0;
             else return;
             
             /* @todo update these changes with tile_update() */
@@ -172,7 +173,7 @@ void tile_change(ENetEvent& event, state state)
             block.state3 = 0x00; // @note reset tile direction
             block.state4 &= ~S_VANISH; // @note remove paint
             
-            if (item.id == 392/*Heartstone*/ || item.id == 3402/*GBC*/ || item.id == 9350/*Super GBC*/)
+            if (item->id == 392/*Heartstone*/ || item->id == 3402/*GBC*/ || item->id == 9350/*Super GBC*/)
             {
                 short reward =
                     (!ransuu[{0, 99}]) ? 1458 : // @note GHC
@@ -193,7 +194,7 @@ void tile_change(ENetEvent& event, state state)
                 add_drop(event, ::slot(reward, (reward == 3408 || reward == 3404) ? 10 : 1), state.punch);
                 if (reward == 1458)
                 {
-                    std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", peer->ltoken[0], item.raw_name);
+                    std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", peer->ltoken[0], item->raw_name);
                     peers(peer->recent_worlds.back(), PEER_ALL, [message](ENetPeer &p)
                     {
                         packet::action(p, "log", message.c_str());
@@ -201,7 +202,7 @@ void tile_change(ENetEvent& event, state state)
                 }
                 if (++peer->gbc_pity % 100 == 0) modify_item_inventory(event, ::slot{9350, 1});
             }
-            else if (item.type == type::LOCK && !is_tile_lock(item.id))
+            else if (item->type == type::LOCK && !is_tile_lock(item->id))
             {
                 if (!peer->role)
                 {
@@ -212,25 +213,25 @@ void tile_change(ENetEvent& event, state state)
                 world.owner = 0; // @todo have a seperate thing for 'range_lock'
             }
 
-            if (item.cat == CAT_RETURN)
+            if (item->cat == CAT_RETURN)
             {
-                int uid = item_change_object(event, ::slot(item.id, 1), state.pos);
+                int uid = item_change_object(event, ::slot(item->id, 1), state.pos);
                 item_activate_object(event, ::state{.id = uid, .punch = state.punch});
             }
-            else if (u_char(item.property) & 04) { } // @note "This item never drops any seeds."; should it drop a block?
+            else if (u_char(item->property) & 04) { } // @note "This item never drops any seeds."; should it drop a block?
             else // @note normal break (drop gem, seed, block & give XP)
             {
-                if (item.type != type::SEED)
+                if (item->type != type::SEED)
                 { /* gem drop */
                     /* if greater than 1, assume it's a farmable.*/
                     u_char rarity_to_gem =
-                        (item.rarity >= 87) ? 22 : 
-                        (item.rarity >= 68) ? 18 : 
-                        (item.rarity >= 53) ? 14 : 
-                        (item.rarity >= 41) ? 11 : 
-                        (item.rarity >= 36) ? 10 :
-                        (item.rarity >= 32) ? 9 :
-                        (item.rarity >= 24) ? 5 : 1;
+                        (item->rarity >= 87) ? 22 : 
+                        (item->rarity >= 68) ? 18 : 
+                        (item->rarity >= 53) ? 14 : 
+                        (item->rarity >= 41) ? 11 : 
+                        (item->rarity >= 36) ? 10 :
+                        (item->rarity >= 32) ? 9 :
+                        (item->rarity >= 24) ? 5 : 1;
 
                     if (!ransuu[{0, (rarity_to_gem > 1) ? 1 : 4}]) // @note double chances if farmable.
                     {
@@ -240,23 +241,23 @@ void tile_change(ENetEvent& event, state state)
                             for (; gems >= i; gems -= i/* downgrade type */)
                                 add_drop(event, {112, i}, state.punch);
                     }
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 2 : 4}]) add_drop(event, ::slot(item.id + 1, 1), state.punch);
-                    else if (!ransuu[{0, (rarity_to_gem > 1) ? 4 : 8}]) add_drop(event, ::slot(item.id, 1), state.punch);
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 2 : 4}]) add_drop(event, ::slot(item->id + 1, 1), state.punch);
+                    else if (!ransuu[{0, (rarity_to_gem > 1) ? 4 : 8}]) add_drop(event, ::slot(item->id, 1), state.punch);
                 } /* ~gem drop */
 
-                peer->add_xp(event, std::trunc(1.0f + item.rarity / 5.0f));
+                peer->add_xp(event, std::trunc(1.0f + item->rarity / 5.0f));
             }
         } // @note delete im, id
-        else if (item.cloth_type != clothing::none) 
+        else if (item->cloth_type != clothing::none) 
         {
             if (state.punch != peer->pos) return;
 
             item_activate(event, state);
             return; 
         }
-        else if (item.type == type::CONSUMEABLE) 
+        else if (item->type == type::CONSUMEABLE) 
         {
-            if (item.raw_name.contains(" Blast"))
+            if (item->raw_name.contains(" Blast"))
             {
                 packet::create(*event.peer, false, 0, {
                     "OnDialogRequest",
@@ -267,15 +268,15 @@ void tile_change(ENetEvent& event, state state)
                         "add_label|small|This item creates a new world! Enter a unique name for it.|left\n"
                         "add_text_input|name|New World Name||24|\n"
                         "end_dialog|create_blast|Cancel|Create!|\n", // @todo rgt "Create!" is a purple-ish pink color
-                        item.id, item.raw_name
+                        item->id, item->raw_name
                     ).c_str()
                 });
             }
 
-            if (item.raw_name.contains("Paint Bucket - ") && peer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
+            if (item->raw_name.contains("Paint Bucket - ") && peer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
             float color{}; // @note the color of the paint particle effect.
             float particle{};
-            switch (item.id)
+            switch (item->id)
             {
                 case 1404: // @note Door Mover
                 {
@@ -346,7 +347,7 @@ void tile_change(ENetEvent& event, state state)
                         "OnDialogRequest",
                         ::create_dialog()
                             .set_default_color("`o")
-                            .add_label_with_icon("big", "`wMegaphone``", item.id)
+                            .add_label_with_icon("big", "`wMegaphone``", item->id)
                             .add_textbox("Enter a message you want to broadcast to every player in Growtopia! This will use up 1 Megaphone")
                             .add_text_input("message", "", "", 128)
                             .end_dialog("megaphone", "Nevermind", "Broadcast").c_str()
@@ -426,17 +427,17 @@ void tile_change(ENetEvent& event, state state)
             }
             send_tile_update(event, std::move(state), block, world);
 
-            modify_item_inventory(event, ::slot(item.id, -1));
+            modify_item_inventory(event, ::slot(item->id, -1));
             peer->add_xp(event, 1);
             return;
         }
         else if (state.id == 32)
         {
-            switch (item.type)
+            switch (item->type)
             {
                 case type::LOCK:
                 {
-                    if (is_tile_lock(item.id)) break; // @todo seperate area for 'range_lock'
+                    if (is_tile_lock(item->id)) break; // @todo seperate area for 'range_lock'
 
                     if (peer->user_id == world.owner)
                     {
@@ -464,7 +465,7 @@ void tile_change(ENetEvent& event, state state)
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item.raw_name, item.id, state.punch.x, state.punch.y, to_char(world.is_public), (world.lock_state & DISABLE_MUSIC) ? "1" : "0", world.minimum_entry_level
+                                item->raw_name, item->id, state.punch.x, state.punch.y, to_char(world.is_public), (world.lock_state & DISABLE_MUSIC) ? "1" : "0", world.minimum_entry_level
                             ).c_str()
                         });
                     }
@@ -492,7 +493,7 @@ void tile_change(ENetEvent& event, state state)
                             "embed_data|tilex|{}\n"
                             "embed_data|tiley|{}\n"
                             "end_dialog|door_edit|Cancel|OK|", 
-                            item.raw_name, item.id, block.label, dest, id, state.punch.x, state.punch.y
+                            item->raw_name, item->id, block.label, dest, id, state.punch.x, state.punch.y
                         ).c_str()
                     });
                     break;
@@ -509,7 +510,7 @@ void tile_change(ENetEvent& event, state state)
                             "embed_data|tilex|{}\n"
                             "embed_data|tiley|{}\n"
                             "end_dialog|sign_edit|Cancel|OK|", 
-                            item.raw_name, item.id, block.label, state.punch.x, state.punch.y
+                            item->raw_name, item->id, block.label, state.punch.x, state.punch.y
                         ).c_str()
                     });
                     break;
@@ -525,7 +526,7 @@ void tile_change(ENetEvent& event, state state)
                             "embed_data|tilex|{}\n"
                             "embed_data|tiley|{}\n"
                             "end_dialog|gateway_edit|Cancel|OK|\n", 
-                            item.raw_name, item.id, to_char((block.state3 & S_PUBLIC)), state.punch.x, state.punch.y
+                            item->raw_name, item->id, to_char((block.state3 & S_PUBLIC)), state.punch.x, state.punch.y
                         ).c_str()
                     });
                     break;
@@ -536,7 +537,7 @@ void tile_change(ENetEvent& event, state state)
                         "OnDialogRequest",
                         ::create_dialog()
                             .set_default_color("`o")
-                            .add_label_with_icon("big", "Display Block", item.id) // @todo
+                            .add_label_with_icon("big", "Display Block", item->id) // @todo
                     });
                     break;
                 }
@@ -545,14 +546,14 @@ void tile_change(ENetEvent& event, state state)
         }
         else // @note placing a block
         {
-            if (item.type != type::SEED && (item.type != type::BACKGROUND && block.fg != 0))
+            if (item->type != type::SEED && (item->type != type::BACKGROUND && block.fg != 0))
             {
                 bool update_tile{};
                 switch (items[world.blocks[cord(state.punch.x, state.punch.y)].fg].type)
                 {
                     case type::DISPLAY_BLOCK:
                     {
-                        world.displays.emplace_back(::display(item.id, state.punch));
+                        world.displays.emplace_back(::display(item->id, state.punch));
                         update_tile = true;
                         break;
                     }
@@ -561,16 +562,15 @@ void tile_change(ENetEvent& event, state state)
                     send_tile_update(event, std::move(state), block, world);
                 return;
             }
-            std::this_thread::sleep_for(130ms); // @todo add proper fix
-            if (item.collision == collision::FULL)
+            if (item->collision == collision::FULL)
             {
                 if (state.punch.x == state.pos.x && state.punch.y == state.pos.y) return; // @todo when moving avoid collision.
             }
-            switch (item.type)
+            switch (item->type)
             {
                 case type::LOCK:
                 {
-                    if (is_tile_lock(item.id)) break; // @note seperate area for 'range_lock'
+                    if (is_tile_lock(item->id)) break; // @note seperate area for 'range_lock'
 
                     if (!world.owner)
                     {
@@ -611,17 +611,20 @@ void tile_change(ENetEvent& event, state state)
                     block.state3 |= 0x11;
                     /* forgive the messy code. this was rushed. ~leeendl */
                     bool spliced{};
-                    for (auto &[id, item] : items)
+                    for (::item &item : items)
                     {
                         if ((item.splice[0] == state.id && item.splice[1] == block.fg) ||
                             (item.splice[1] == state.id && item.splice[0] == block.fg) /* allow reverse splice combo */)
                         {
-                            state.id = id;
+                            auto splice0 = std::ranges::find(items, item.splice[0], &::item::id);
+                            auto splice1 = std::ranges::find(items, item.splice[1], &::item::id);
+
+                            state.id = item.id;
                             packet::create(*event.peer, false, 0, {
                                 "OnTalkBubble", 
                                 peer->netid, 
                                 std::format("`w{}`` and `w{}`` have been spliced to make a `${} Tree``!", 
-                                    items[item.splice[0]].raw_name, items[item.splice[1]].raw_name, items[state.id-1].raw_name).c_str(),
+                                    splice0->raw_name, splice1->raw_name, item.raw_name.substr(0, item.raw_name.length()-5/* seed*/)).c_str(), // @todo this is hardcoded
                                 0u,
                                 1u
                             });
@@ -641,8 +644,8 @@ void tile_change(ENetEvent& event, state state)
                 }
             }
             block.state3 |= (peer->facing_left) ? S_LEFT : S_RIGHT;
-            (item.type == type::BACKGROUND) ? block.bg = state.id : block.fg = state.id;
-            peer->emplace(::slot(item.id, -1));
+            (item->type == type::BACKGROUND) ? block.bg = state.id : block.fg = state.id;
+            peer->emplace(::slot(item->id, -1));
         }
         state.netid = peer->netid; // @todo sometimes rgt has this as 0
         state_visuals(*event.peer, std::move(state)); // finished.

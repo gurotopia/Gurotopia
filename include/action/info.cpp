@@ -24,22 +24,22 @@ void action::info(ENetEvent& event, const std::string& header)
 {
     std::string itemID = readch(header, '|')[4];
 
-    item &item = items[atoi(itemID.c_str())];
+    auto item = std::ranges::find(items, atoi(itemID.c_str()), &::item::id);
 
     ::create_dialog create_dialog = 
     ::create_dialog()
         .set_default_color("`o")
-        .add_label_with_ele_icon("big", std::format("`wAbout {}``", item.raw_name), item.id, 0)
+        .add_label_with_ele_icon("big", std::format("`wAbout {}``", item->raw_name), item->id, 0)
         .add_spacer("small")
-        .add_textbox(item.info)
+        .add_textbox(item->info)
         .add_spacer("small");
 
-    if (item.rarity < 999)
+    if (item->rarity < 999)
         create_dialog
-            .add_textbox(std::format("Rarity: `w{}``", item.rarity))
+            .add_textbox(std::format("Rarity: `w{}``", item->rarity))
             .add_spacer("small");
     
-    for (const std::string &prop : properties(item.property)) 
+    for (const std::string &prop : properties(item->property)) 
         create_dialog.add_textbox(prop);
 
     packet::create(*event.peer, false, 0,
@@ -47,7 +47,7 @@ void action::info(ENetEvent& event, const std::string& header)
         "OnDialogRequest",
         create_dialog
             .add_spacer("small")
-            .embed_data("itemID", item.id)
+            .embed_data("itemID", item->id)
             .end_dialog("continue", "", "OK").c_str()
     });
 }

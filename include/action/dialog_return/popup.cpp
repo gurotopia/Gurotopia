@@ -42,6 +42,8 @@ void popup(ENetEvent& event, const std::vector<std::string> &&pipes)
     }
     else if (pipes[11zu] == "billboard_edit")
     {
+        auto item = std::ranges::find(items, peer->billboard.id, &::item::id);
+
         packet::create(*event.peer, false, 0, {
             "OnDialogRequest",
             std::format("set_default_color|`o\n"
@@ -59,7 +61,7 @@ void popup(ENetEvent& event, const std::vector<std::string> &&pipes)
             "end_dialog|billboard_edit|Close|Update|\n",
             (peer->billboard.id == 0) ? 
                 "" : 
-                std::format("add_label_with_icon|small|`w{}``|left|{}|\n", items[peer->billboard.id].raw_name, peer->billboard.id),
+                std::format("add_label_with_icon|small|`w{}``|left|{}|\n", item->raw_name, peer->billboard.id),
             to_char(peer->billboard.show),
             to_char(peer->billboard.isBuying),
             peer->billboard.price,

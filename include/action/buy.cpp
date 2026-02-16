@@ -7,7 +7,7 @@
 #include "buy.hpp"
 
 
-void action::buy(ENetEvent& event, const std::string& header)
+void action::buy(ENetEvent& event, const std::string& header, const std::string_view selection = "")
 {
     std::vector<std::string> pipes = readch(header, '|');
 
@@ -63,6 +63,8 @@ void action::buy(ENetEvent& event, const std::string& header)
                 ));
             }
         }
+        if (!selection.empty()) StoreRequest.append(std::format("select_item|{}\n", selection));
+
         packet::create(*event.peer, false, 0, { "OnStoreRequest", StoreRequest.c_str() });
         return;
     }
@@ -98,38 +100,40 @@ void action::buy(ENetEvent& event, const std::string& header)
             }
             else if (shouhin.btn == "rare_seed") // @note source: https://growtopia.fandom.com/wiki/Rare_Seed_Pack
             {
-                for (auto &&[id, item] : items)
+                for (const ::item &item : items)
                     if (item.type == type::SEED && item.rarity >= 13 && item.rarity <= 60)
-                        ids.emplace_back(id);
+                        ids.emplace_back(item.id);
                 for (u_char i = 0; i < 5; ++i)
                     shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
             }
             else if (shouhin.btn == "clothes_pack") // @note source: https://growtopia.fandom.com/wiki/Clothes_Pack
             {
-                for (auto &&[id, item] : items)
+                for (const ::item &item : items)
                     if (item.type == type::CLOTHING && item.rarity <= 10)
-                        ids.emplace_back(id);
+                        ids.emplace_back(item.id);
                 for (u_char i = 0; i < 3; ++i)
                     shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
             }
             else if (shouhin.btn == "rare_clothes_pack") // @note source: https://growtopia.fandom.com/wiki/Rare_Clothes_Pack
             {
-                for (auto &&[id, item] : items)
+                for (const ::item &item : items)
                     if (item.type == type::CLOTHING && item.rarity >= 11 && item.rarity <= 60)
-                        ids.emplace_back(id);
+                        ids.emplace_back(item.id);
                 for (u_char i = 0; i < 3; ++i)
                     shouhin.im.emplace_back(ids[rand() % ids.size()], 1);
             }
             std::string received{};
             for (const auto &im : shouhin.im)
             {
+                auto item = std::ranges::find(items, im.first, &::item::id);
+
                 if (im.first == 9412) // @note 9412 is the id for increase backpack sprite, but peer wont actually be given that item.
                 {
                     peer->slot_size += 10;
                     send_inventory_state(event); // @note update the new slots
                 }
                 else modify_item_inventory(event, {im.first, im.second});
-                received.append(std::format("{}, ", items[im.first].raw_name)); // @todo add green text to rare items, or something cool.
+                received.append(std::format("{}, ", item->raw_name)); // @todo add green text to rare items, or something cool.
             }
             packet::create(*event.peer, false, 0, 
             {

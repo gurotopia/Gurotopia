@@ -15,8 +15,9 @@ void ageworld(ENetEvent& event, const std::string_view text)
     for (std::size_t i = 0zu; i < blocks.size(); ++i)
     {
         block &block = blocks[i];
-        ::item &item = items[block.fg];
-        if (item.type == type::PROVIDER || item.type == type::SEED) // @todo
+        auto item = std::ranges::find(items, block.fg, &::item::id); // @todo reduce iteration
+        
+        if (item->type == type::PROVIDER || item->type == type::SEED) // @todo
         {
             block.tick -= 86400s;
             send_tile_update(event, 

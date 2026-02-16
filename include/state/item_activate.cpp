@@ -7,10 +7,10 @@ void item_activate(ENetEvent& event, state state)
 {
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 
-    ::item &item = items[state.id];
-    if (item.cloth_type != clothing::none) 
+    auto item = std::ranges::find(items, state.id, &::item::id);
+    if (item->cloth_type != clothing::none) 
     {
-        float &current_cloth = peer->clothing[item.cloth_type]; // @note ID of the current clothing being changed
+        float &current_cloth = peer->clothing[item->cloth_type]; // @note ID of the current clothing being changed
 
         current_cloth = (current_cloth == state.id) ? 0 : state.id;
 

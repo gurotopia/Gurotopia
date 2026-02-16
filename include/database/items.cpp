@@ -1,7 +1,8 @@
 #include "pch.hpp"
 #include "items.hpp"
 
-std::unordered_map<u_short, item> items;
+std::vector<item> items;
+
 std::vector<u_char> im_data(sizeof(::state)/*inital packet*/ + 1, 0x00);
 
 template<typename T>
@@ -162,7 +163,7 @@ void cache_items()
         }
         if (version == 24) pos += sizeof(u_char); // @date December 2025
 
-        items.emplace(i, im);
+        items.emplace_back(im);
     }
     std::printf("parsed %zu items; %zu KB of stack memory\n", items.size(), (items.size() * sizeof(item)) / 1024);
 }

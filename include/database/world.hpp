@@ -72,6 +72,14 @@ struct display
     ::pos pos;
 };
 
+struct random_block
+{
+    random_block(u_char _value, ::pos _pos) : value(_value), pos(_pos) {}
+
+    u_char value{};
+    ::pos pos;
+};
+
 struct object 
 {
     object(u_short _id, u_short _count, ::pos _pos, u_int _uid) : id(_id), count(_count), pos(_pos), uid(_uid) {}
@@ -102,6 +110,7 @@ public:
     std::vector<::object> objects{};
     std::vector<::door> doors{};
     std::vector<::display> displays{};
+    std::vector<::random_block> random_blocks{};
 
     ::pos 现weather{0, 0};
     ~world();
@@ -112,7 +121,7 @@ extern void send_data(ENetPeer &peer, const std::vector<u_char> &&data);
 
 extern void state_visuals(ENetPeer &peer, state &&s);
 
-extern void tile_apply_damage(ENetEvent& event, state s, block& b);
+extern void tile_apply_damage(ENetEvent& event, state state, block &block, u_int value);
 
 /*
 * @brief set slot::count to nagative value if you want to remove an amount. 

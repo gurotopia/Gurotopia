@@ -31,7 +31,7 @@ std::pair<std::string, std::string> holiday_greeting()
 {
     switch (holiday)
     {
-        case H_VALENTINES: return {"`5Valentine's Week!``", "`5Valentine's Week!``"};
+        case H_VALENTINES: return {"`5Valentine's Week!``", "``4Happy Valentine's Week!``"};
     }
     return {"", ""};
 }

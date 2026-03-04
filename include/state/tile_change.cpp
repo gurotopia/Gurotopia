@@ -43,7 +43,29 @@ void tile_change(ENetEvent& event, state state)
         
         if (state.id == 18) // @note punching a block
         {
+            static bool punch{}; // @note true if tile_change has been called within this inital (punch)
+
+            if (!punch) // @note put all multiple punch features here
+            {
+                punch = true;
+                if (peer->clothing[hand] == 5480) // @note Rayman's Fist
+                {
+                    /* @todo handle vertical punches */
+                    int x1_nabor = (peer->facing_left) ? state.punch.x-1 : state.punch.x+1;
+                    int x2_nabor = (peer->facing_left) ? state.punch.x-2 : state.punch.x+2;
+                    
+                    ::state x1_state = state;
+                    x1_state.punch = {x1_nabor, x1_state.punch.y};
+                    tile_change(event, std::move(x1_state));
+
+                    ::state x2_state = state;
+                    x2_state.punch = {x2_nabor, x2_state.punch.y};
+                    tile_change(event, std::move(x2_state));
+                }
+                punch = false;
+            }
             ransuu ransuu;
+            u_char apply_damage_value{}; // @note used to change a tile value without using send_tile_update() 
 
             switch (item->id)
             {
@@ -160,8 +182,22 @@ void tile_change(ENetEvent& event, state state)
                     }
                     break;
                 }
+                case type::RANDOM:
+                {
+                    apply_damage_value = 
+                        (item->id == 456/*Dice*/) ? ransuu[{1, 6}] : 
+                        (item->id == 1300/*Roshambo*/) ? ransuu[{1, 3}] : 1;
+
+                    auto random = std::ranges::find(world.random_blocks, state.punch, &::random_block::pos);
+                    if (random == world.random_blocks.end())
+                    {
+                        world.random_blocks.emplace_back(::random_block{apply_damage_value, state.punch});
+                    }
+                    else random->value = apply_damage_value;
+                    break;
+                }
             }
-            tile_apply_damage(event, std::move(state), block);
+            tile_apply_damage(event, std::move(state), block, apply_damage_value);
 
             if (block.hits.front() >= item->hits) block.fg = 0, block.hits.front() = 0;
             else if (block.hits.back() >= item->hits) block.bg = 0, block.hits.back() = 0;

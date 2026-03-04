@@ -62,13 +62,14 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 switch (item->type)
                 {
                     case type::ENTRANCE:
-                    case type::FOREGROUND: 
-                    case type::BACKGROUND:
+                    case type::SFX_BLOCK: // @note roulette wheel
                     case type::STRONG: // @note bedrock
                     case type::FIRE_PAIN: // @note lava
-                    case type::CHEST: // @note treasure, booty chest
-                    case type::TOGGLEABLE_BLOCK:
+                    case type::FOREGROUND: 
+                    case type::BACKGROUND:
                     case type::CHECKPOINT:
+                    case type::TOGGLEABLE_BLOCK:
+                    case type::CHEST: // @note treasure, booty chest
                         break;
                     case type::LOCK: 
                     {
@@ -132,7 +133,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
                         *w_data++ = 0x04;
 
-                        *reinterpret_cast<int*>(w_data) = (steady_clock::now() - block.tick) / 1s; w_data += sizeof(int);
+                        *reinterpret_cast<u_int*>(w_data) = (steady_clock::now() - block.tick) / 1s; w_data += sizeof(u_int);
                         *w_data++ = 0x03; // @note fruit on tree
                         break;
                     }
@@ -143,7 +144,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
                         *w_data++ = 0x09;
 
-                        *reinterpret_cast<int*>(w_data) = (steady_clock::now() - block.tick) / 1s; w_data += sizeof(int);
+                        *reinterpret_cast<u_int*>(w_data) = (steady_clock::now() - block.tick) / 1s; w_data += sizeof(u_int);
                         break;
                     }
                     case type::WEATHER_MACHINE:
@@ -167,14 +168,38 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         }
                         break;
                     }
+                    case RANDOM:
+                    {
+                        data.resize(data.size() + 1zu + 1zu);
+                        w_data = data.data() + offset;
+                        *w_data++ = 0x08;
+
+                        auto random = std::ranges::find(world.random_blocks, ::pos{i % x, i / x}, &::random_block::pos);
+                        if (random == world.random_blocks.end()) 
+                        {
+                            world.random_blocks.emplace_back(::random_block{0, ::pos{i % x, i / x}});
+                            *w_data++ = 0;
+                        }
+                        else {
+                            *w_data++ = random->value;
+                        }
+                        break;
+                    }
                     case DISPLAY_BLOCK:
                     {
                         data.resize(data.size() + 1zu + 4zu);
                         w_data = data.data() + offset;
-                        auto display = std::ranges::find(world.displays, ::pos{i % x, i / x}, &::display::pos);
-
                         *w_data++ = 0x17;
-                        *reinterpret_cast<int*>(w_data) = display->id; w_data += sizeof(int);
+                        
+                        auto display = std::ranges::find(world.displays, ::pos{i % x, i / x}, &::display::pos);
+                        if (display == world.displays.end()) 
+                        {
+                            world.displays.emplace_back(::display{0, ::pos{i % x, i / x}});
+                            *reinterpret_cast<int*>(w_data) = 0; w_data += sizeof(int);
+                        }
+                        else {
+                            *reinterpret_cast<int*>(w_data) = display->id; w_data += sizeof(int);
+                        }
                         break;
                     }
                     case type::FISH_TANK_PORT:

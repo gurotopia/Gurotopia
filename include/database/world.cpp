@@ -34,6 +34,11 @@ public:
             "PRIMARY KEY (_n, _p),"
             "FOREIGN KEY (_n) REFERENCES worlds(_n)"
         ");"
+        "CREATE TABLE IF NOT EXISTS random_blocks ("
+            "_n TEXT, _p INTEGER, val INTEGER,"
+            "PRIMARY KEY (_n, _p),"
+            "FOREIGN KEY (_n) REFERENCES worlds(_n)"
+        ");"
         "CREATE TABLE IF NOT EXISTS objects ("
             "_n TEXT, uid INTEGER, i INTEGER, c INTEGER, x REAL, y REAL,"
             "PRIMARY KEY (_n, uid),"
@@ -103,7 +108,14 @@ world::world(const std::string& name)
     {
         int pos = sqlite3_column_int(stmt, 0);
         int id = sqlite3_column_int(stmt, 1);
-        displays.emplace_back(display(id, ::pos{pos % 100, (pos / 100)}));
+        displays.emplace_back(::display(id, ::pos{pos % 100, (pos / 100)}));
+    }, name);
+
+    db.query("SELECT _p, val FROM random_blocks WHERE _n = ?", [this](sqlite3_stmt* stmt) 
+    {
+        int pos = sqlite3_column_int(stmt, 0);
+        u_int val = sqlite3_column_int(stmt, 1);
+        random_blocks.emplace_back(::random_block(val, ::pos{pos % 100, (pos / 100)}));
     }, name);
 
     db.query("SELECT uid, i, c, x, y FROM objects WHERE _n = ?", [this](sqlite3_stmt* stmt) 
@@ -169,6 +181,20 @@ world::~world()
         });
     }
 
+    db.execute("DELETE FROM random_blocks WHERE _n = ?", [this](auto stmt) {
+        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+    });
+    for (const ::random_block random : this->random_blocks) 
+    {
+        int i = 1;
+        db.execute("INSERT INTO random_blocks (_n, _p, val) VALUES (?, ?, ?)", [&](sqlite3_stmt* stmt) 
+        {
+            sqlite3_bind_text(stmt,  i++, this->name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,   i++, cord(random.pos.x, random.pos.y));
+            sqlite3_bind_int(stmt,   i++, random.value);
+        });
+    }
+
     db.execute("DELETE FROM objects WHERE _n = ?", [this](auto stmt) {
         sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
     });
@@ -209,12 +235,12 @@ void state_visuals(ENetPeer& peer, state &&state)
     });
 }
 
-void tile_apply_damage(ENetEvent& event, state state, block &block)
+void tile_apply_damage(ENetEvent& event, state state, block &block, u_int value)
 {
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 
     (block.fg == 0) ? ++block.hits.back() : ++block.hits.front();
-    state.type = 0x08; // @note PACKET_TILE_APPLY_DAMAGE
+    state.type = (value << 24) | 0x000008; // @note 0x{}000008
     state.id = 6; // @note idk exactly
     state.netid = peer->netid;
 	state_visuals(*event.peer, std::move(state));

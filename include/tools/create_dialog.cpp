@@ -116,6 +116,11 @@ create_dialog& create_dialog::add_player_info(std::string label, std::string pro
     _d.append(std::format("add_player_info|{}|{}|{}|{}|\n", label, progress_bar_name, progress, total_progress));
     return *this;
 }
+create_dialog& create_dialog::add_item_picker(std::string id, std::string label, std::string selection_prompt)
+{
+    _d.append(std::format("add_item_picker|{}|{}|{}|\n", id, label, selection_prompt));
+    return *this;
+}
 
 std::string create_dialog::end_dialog(std::string btn_id, std::string btn_close, std::string btn_return) 
 { 

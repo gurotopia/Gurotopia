@@ -10,21 +10,23 @@
 void action::buy(ENetEvent& event, const std::string& header, const std::string_view selection = "")
 {
     std::vector<std::string> pipes = readch(header, '|');
+    if (pipes.size() < 3) return;
 
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 
-    short No = (peer->slot_size - 16) / 10 + 1; // @note number of upgrades | credits: https://growtopia.fandom.com/wiki/Backpack_Upgrade
-    short backpack_cost = (100 * No * No - 200 * No + 200);
+    u_short No = (peer->slot_size - 16) / 10 + 1; // @note number of upgrades | credits: https://growtopia.fandom.com/wiki/Backpack_Upgrade
+    u_short backpack_cost = (100 * No * No - 200 * No + 200);
 
     auto growtoken = std::ranges::find(peer->slots, 1486, &::slot::id);
 
-    short tab{};
-    if (pipes[3] == "main") action::store(event, ""); // tab = 0
-    else if (pipes[3] == "locks") tab = 1;
-    else if (pipes[3] == "itempack") tab = 2;
-    else if (pipes[3] == "bigitems") tab = 3;
-    else if (pipes[3] == "weather") tab = 4;
-    else if (pipes[3] == "token") tab = 5;
+    const std::string s_tab = pipes[3];
+    u_short tab{};
+    if (s_tab == "main") action::store(event, ""); // tab = 0
+    else if (s_tab == "locks")    tab = 1;
+    else if (s_tab == "itempack") tab = 2;
+    else if (s_tab == "bigitems") tab = 3;
+    else if (s_tab == "weather")  tab = 4;
+    else if (s_tab == "token")    tab = 5;
     if (tab != 0) 
     {
         std::string StoreRequest{};
@@ -70,7 +72,7 @@ void action::buy(ENetEvent& event, const std::string& header, const std::string_
     }
     else for (auto &&[_tab, shouhin] : shouhin_tachi)
     {
-        if (pipes[3] == shouhin.btn)
+        if (s_tab == shouhin.btn)
         {
             int growtoken_cost = std::abs(shouhin.cost);
             if (shouhin.btn == "upgrade_backpack") shouhin.cost = backpack_cost;

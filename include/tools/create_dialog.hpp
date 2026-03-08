@@ -28,6 +28,7 @@ public:
     create_dialog& add_quick_exit();
     create_dialog& add_popup_name(std::string popup_name);
     create_dialog& add_player_info(std::string label, std::string progress_bar_name, int progress, int total_progress);
+    create_dialog& add_item_picker(std::string id, std::string label, std::string selection_prompt);
 
     std::string end_dialog(std::string btn_id, std::string btn_close = "Cancel", std::string btn_return = "OK");
 };

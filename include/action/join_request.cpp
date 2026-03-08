@@ -61,12 +61,15 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 auto item = std::ranges::find(items, block.fg, &::item::id); // @todo limit iteration during world enter
                 switch (item->type)
                 {
+                    case type::TRAMPOLINE:
                     case type::ENTRANCE:
                     case type::SFX_BLOCK: // @note roulette wheel
+                    case type::PLATFORM:
                     case type::STRONG: // @note bedrock
                     case type::FIRE_PAIN: // @note lava
                     case type::FOREGROUND: 
                     case type::BACKGROUND:
+                    case type::BOUNCY:
                     case type::CHECKPOINT:
                     case type::TOGGLEABLE_BLOCK:
                     case type::CHEST: // @note treasure, booty chest
@@ -202,6 +205,17 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         }
                         break;
                     }
+                    case type::VENDING_MACHINE:
+                    {
+                        data.resize(data.size() + 1zu + 4zu + 4zu);
+                        w_data = data.data() + offset;
+
+                        *w_data++ = 0x18;
+                        *reinterpret_cast<u_int*>(w_data) = 0; w_data += sizeof(u_int); // @note item's ID
+                        *reinterpret_cast<u_int*>(w_data) = 0; w_data += sizeof(u_int); // @note world locks per item (or item(s) per world lock)
+
+                        break;
+                    }
                     case type::FISH_TANK_PORT:
                     {
                         data.resize(data.size() + 1zu);
@@ -211,8 +225,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         break;
                     }
                     default: 
-                        throw std::runtime_error(std::format("`w{}``'s visuals has not been added yet.", 
-                            item->raw_name));
+                        throw std::runtime_error(std::format("`w{}``'s visuals has not been added yet. ({})", 
+                            item->raw_name, item->type));
                 }
                 ++i;
             }

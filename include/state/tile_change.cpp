@@ -185,8 +185,8 @@ void tile_change(ENetEvent& event, state state)
                 case type::RANDOM:
                 {
                     apply_damage_value = 
-                        (item->id == 456/*Dice*/) ? ransuu[{1, 6}] : 
-                        (item->id == 1300/*Roshambo*/) ? ransuu[{1, 3}] : 1;
+                        (item->id == 456/*Dice*/) ? ransuu[{0, 5}] : 
+                        (item->id == 1300/*Roshambo*/) ? ransuu[{1, 3}] : 0;
 
                     auto random = std::ranges::find(world.random_blocks, state.punch, &::random_block::pos);
                     if (random == world.random_blocks.end())
@@ -572,7 +572,27 @@ void tile_change(ENetEvent& event, state state)
                         "OnDialogRequest",
                         ::create_dialog()
                             .set_default_color("`o")
-                            .add_label_with_icon("big", "Display Block", item->id) // @todo
+                            .add_label_with_icon("big", std::format("`w{}``", item->raw_name), item->id)
+                            /* @todo complete */
+                    });
+                    break;
+                }
+                case type::VENDING_MACHINE:
+                {
+                    packet::create(*event.peer, false, 0, {
+                        "OnDialogRequest",
+                        ::create_dialog()
+                            .set_default_color("`o")
+                            .add_label_with_icon("big", std::format("`w{}``", item->raw_name), item->id)
+                            .add_spacer("small")
+                            .embed_data("tilex", state.punch.x)
+                            .embed_data("tiley", state.punch.y)
+                            .add_textbox("This machine is empty.")
+                            .add_item_picker("stockitem", "`wPut an item in``", "Choose an item to put in the machine!")
+                            .add_smalltext("Upgrade to a DigiVend Machine for `44,000 Gems``.")
+                            .add_button("upgradedigital", "Upgrade to DigiVend")
+                            .add_spacer("small")
+                            .end_dialog("vending", "Close", "").c_str()
                     });
                     break;
                 }
@@ -581,7 +601,7 @@ void tile_change(ENetEvent& event, state state)
         }
         else // @note placing a block
         {
-            if (item->type != type::SEED && (item->type != type::BACKGROUND && block.fg != 0))
+            if (block.fg != 0) // @note placing something ontop of exisitng block
             {
                 bool update_tile{};
                 switch (items[world.blocks[cord(state.punch.x, state.punch.y)].fg].type)
@@ -590,6 +610,32 @@ void tile_change(ENetEvent& event, state state)
                     {
                         world.displays.emplace_back(::display(item->id, state.punch));
                         update_tile = true;
+                        break;
+                    }
+                    case type::SEED:
+                    {
+                        for (::item &item : items)
+                        {
+                            if ((item.splice[0] == state.id && item.splice[1] == block.fg) ||
+                                (item.splice[1] == state.id && item.splice[0] == block.fg) /* allow reverse splice combo */)
+                            {
+                                auto splice0 = std::ranges::find(items, item.splice[0], &::item::id);
+                                auto splice1 = std::ranges::find(items, item.splice[1], &::item::id);
+
+                                packet::create(*event.peer, false, 0, {
+                                    "OnTalkBubble", 
+                                    peer->netid, 
+                                    std::format("`w{}`` and `w{}`` have been spliced to make a `${} Tree``!", 
+                                        splice0->raw_name, splice1->raw_name, item.raw_name.substr(0, item.raw_name.length()-5/* seed*/)).c_str(), // @todo this is hardcoded
+                                    0u,
+                                    1u
+                                });
+                                block.tick = steady_clock::now();
+                                block.fg = item.id;
+                                update_tile = true;
+                                break;
+                            }
+                        }
                         break;
                     }
                 }
@@ -644,37 +690,7 @@ void tile_change(ENetEvent& event, state state)
                 case type::SEED:
                 {
                     block.state3 |= 0x11;
-                    /* forgive the messy code. this was rushed. ~leeendl */
-                    bool spliced{};
-                    for (::item &item : items)
-                    {
-                        if ((item.splice[0] == state.id && item.splice[1] == block.fg) ||
-                            (item.splice[1] == state.id && item.splice[0] == block.fg) /* allow reverse splice combo */)
-                        {
-                            auto splice0 = std::ranges::find(items, item.splice[0], &::item::id);
-                            auto splice1 = std::ranges::find(items, item.splice[1], &::item::id);
-
-                            state.id = item.id;
-                            packet::create(*event.peer, false, 0, {
-                                "OnTalkBubble", 
-                                peer->netid, 
-                                std::format("`w{}`` and `w{}`` have been spliced to make a `${} Tree``!", 
-                                    splice0->raw_name, splice1->raw_name, item.raw_name.substr(0, item.raw_name.length()-5/* seed*/)).c_str(), // @todo this is hardcoded
-                                0u,
-                                1u
-                            });
-                            spliced = true;
-                            break;
-                        }
-                    }
-                    if (block.fg != 0 && !spliced) return;
-
                     block.tick = steady_clock::now();
-
-                    /* @todo change this */
-                    block.fg = state.id;
-                    send_tile_update(event, std::move(state), block, world);
-
                     break;
                 }
             }

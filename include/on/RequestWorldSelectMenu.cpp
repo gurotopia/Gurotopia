@@ -11,17 +11,17 @@ void on::RequestWorldSelectMenu(ENetEvent& event)
         for (const auto &name : range) 
             if (!name.empty()) 
             {
-                auto it = worlds.find(name); // @todo reduce iteration.
-                result.append((it != worlds.end()) ? 
-                    std::format("add_floater|{}|{}|0.5|{}\n", name, it->second.visitors, color) :
+                auto world = std::ranges::find(worlds, name, &::world::name); // @todo reduce iteration.
+                result.append((world != worlds.end()) ? 
+                    std::format("add_floater|{}|{}|0.5|{}\n", name, world->visitors, color) :
                     std::format("add_floater|{}|0|0.5|{}\n", name, color));
             }
         return result;
     };
 
     std::vector<std::string> popular_names{};
-    for (const auto &world : worlds)
-        if (world.second.visitors > 0) popular_names.emplace_back(world.first); // @todo only fetch top 10 worlds, instead of all the worlds with people.
+    for (const ::world &world : worlds)
+        if (world.visitors > 0) popular_names.emplace_back(world.name); // @todo only fetch top 10 worlds, instead of all the worlds with people.
 
     packet::create(*event.peer, false, 0, {
         "OnRequestWorldSelectMenu", 

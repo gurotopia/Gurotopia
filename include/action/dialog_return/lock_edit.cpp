@@ -5,28 +5,28 @@
 void lock_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
     ::peer *peer = static_cast<::peer*>(event.peer->data);
-    auto it = worlds.find(peer->recent_worlds.back());
-    if (it == worlds.end()) return;
+    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    if (world == worlds.end()) return;
 
     ::pos pos{0,0};
     for (u_short i = 0; const std::string &pipe : pipes)
     {
         if      (pipe == "tilex")                  pos.x = atoi(pipes[i+1].c_str());
         else if (pipe == "tiley")                  pos.y = atoi(pipes[i+1].c_str());
-        else if (pipe == "checkbox_public")        it->second.is_public = atoi(pipes[i+1].c_str());
+        else if (pipe == "checkbox_public")        world->is_public = atoi(pipes[i+1].c_str());
         else if (pipe == "checkbox_disable_music") 
         {
             if (atoi(pipes[i+1].c_str()) != 0)
-                 it->second.lock_state |= DISABLE_MUSIC;
-            else it->second.lock_state &= ~DISABLE_MUSIC;
+                 world->lock_state |= DISABLE_MUSIC;
+            else world->lock_state &= ~DISABLE_MUSIC;
         }
-        else if (pipe == "minimum_entry_level")    it->second.minimum_entry_level = atoi(pipes[i+1].c_str());
+        else if (pipe == "minimum_entry_level")    world->minimum_entry_level = atoi(pipes[i+1].c_str());
 
         ++i;
     }
-    ::block &block = it->second.blocks[cord(pos.x, pos.y)];
+    ::block &block = world->blocks[cord(pos.x, pos.y)];
 
-    if (it->second.is_public) 
+    if (world->is_public) 
     {
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage",
@@ -45,5 +45,5 @@ void lock_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
     send_tile_update(event, {
         .id = block.fg,
         .punch = pos
-    }, block, it->second);
+    }, block, *world);
 }

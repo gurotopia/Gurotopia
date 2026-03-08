@@ -6,10 +6,10 @@ void item_activate_object(ENetEvent& event, state state)
 {
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 
-    if (!worlds.contains(peer->recent_worlds.back())) return;
-    ::world &world = worlds.at(peer->recent_worlds.back());
+    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    if (world == worlds.end()) return;
 
-    auto object = std::ranges::find(world.objects, state.id, &::object::uid);
+    auto object = std::ranges::find(world->objects, state.id, &::object::uid);
 
     auto item = std::ranges::find(items, object->id, &::item::id);
     if (item->type != type::GEM)
@@ -29,5 +29,5 @@ void item_activate_object(ENetEvent& event, state state)
         on::SetBux(event);
     }
     item_change_object(event, ::slot(object->id, object->count), object->pos, state.id/*@todo*/);
-    if (object->count == 0) world.objects.erase(object);
+    if (object->count == 0) world->objects.erase(object);
 }

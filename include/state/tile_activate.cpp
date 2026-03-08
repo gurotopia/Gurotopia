@@ -7,10 +7,10 @@ void tile_activate(ENetEvent& event, state state)
 {
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 
-    if (!worlds.contains(peer->recent_worlds.back())) return;
-    ::world &world = worlds.at(peer->recent_worlds.back());
+    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    if (world == worlds.end()) return;
 
-    ::block &block = world.blocks[cord(state.punch.x, state.punch.y)];
+    ::block &block = world->blocks[cord(state.punch.x, state.punch.y)];
     auto item = std::ranges::find(items, block.fg, &::item::id);
 
     switch (item->type)
@@ -24,7 +24,7 @@ void tile_activate(ENetEvent& event, state state)
         case type::PORTAL:
         {
             bool has_dest{};
-            for (::door &door : world.doors)
+            for (::door &door : world->doors)
             {
                 if (door.pos == state.punch) 
                 {
@@ -54,14 +54,14 @@ void tile_activate(ENetEvent& event, state state)
         }
         case type::CHECKPOINT:
         {
-            ::block &checkpoint = world.blocks[cord(peer->rest_pos.x, peer->rest_pos.y)]; // @note get previous checkpoint from respawn position
+            ::block &checkpoint = world->blocks[cord(peer->rest_pos.x, peer->rest_pos.y)]; // @note get previous checkpoint from respawn position
 
             checkpoint.state3 &= ~S_TOGGLE;
-            send_tile_update(event, ::state{.id = block.fg/*has to be 'block' or else iterfere with main door*/, .punch = peer->rest_pos}, checkpoint, world);
+            send_tile_update(event, ::state{.id = block.fg/*has to be 'block' or else iterfere with main door*/, .punch = peer->rest_pos}, checkpoint, *world);
 
             peer->rest_pos = state.punch;
             block.state3 |= S_TOGGLE; // @note toggle current checkpoint
-            send_tile_update(event, ::state{.id = block.fg, .punch = state.punch}, block, world);
+            send_tile_update(event, ::state{.id = block.fg, .punch = state.punch}, block, *world);
             break;
         }
     }

@@ -1,5 +1,7 @@
 #include "pch.hpp"
 #include "tools/string.hpp"
+#include <fstream>
+
 #include "shouhin.hpp"
 
 std::vector<std::pair<short, shouhin>> shouhin_tachi{};

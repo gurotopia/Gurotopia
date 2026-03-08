@@ -115,7 +115,7 @@ public:
     ::pos 现weather{0, 0};
     ~world();
 };
-extern std::unordered_map<std::string, world> worlds;
+extern std::vector<world> worlds;
 
 extern void send_data(ENetPeer &peer, const std::vector<u_char> &&data);
 

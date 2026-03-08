@@ -24,8 +24,11 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         if (!alnum(big_name)) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
         
-        auto [it, inserted] = worlds.try_emplace(big_name, big_name);
-        ::world &world = it->second; // @note ::world will load from SQL if found. next line, if not.
+        auto it = std::ranges::find(worlds, big_name, &::world::name);
+        if (it == worlds.end()) 
+            it = worlds.emplace(it, big_name); 
+            
+        ::world &world = *it; // @note ::world will load from SQL if found. next line, if not.
         if (world.name.empty()) generate_world(world, big_name); // @note make a new world if not found.
 
         std::vector<std::string> buffs{};

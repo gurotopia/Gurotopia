@@ -16,8 +16,8 @@ void create_blast(ENetEvent& event, const std::vector<std::string> &&pipes)
     {
         case 1402: // @note Thermonuclear Blast
         {
-            auto [it, inserted] = worlds.try_emplace(world_name, world_name);
-            world &world = it->second;
+            auto it = std::ranges::find(worlds, world_name, &::world::name);
+            world &world = *it;
             if (world.name.empty())
             {
                 action::quit_to_exit(event, "", true);

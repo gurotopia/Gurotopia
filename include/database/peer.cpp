@@ -221,15 +221,18 @@ std::vector<ENetPeer*> peers(const std::string &world, peer_condition condition,
     return _peers;
 }
 
-void safe_disconnect_peers(int)
+void safe_disconnect_peers(int code)
 {
+    puts("killing gurotopia...");
     for (ENetPeer &p : std::span(host->peers, host->peerCount))
         if (p.state == ENET_PEER_STATE_CONNECTED)
             enet_peer_disconnect(&p, 0);
 
-    enet_host_destroy(host);
     enet_deinitialize();
-    puts("you killed gurotopia safely!");
+    puts("killed gurotopia safely!");
+#ifdef _WIN32 // @note linux handles this already
+    exit(code);
+#endif
 }
 
 state get_state(const std::vector<u_char> &&packet) 

@@ -215,7 +215,7 @@ world::~world()
     db.commit();
 }
 
-std::unordered_map<std::string, world> worlds;
+std::vector<world> worlds;
 
 void send_data(ENetPeer& peer, const std::vector<u_char> &&data)
 {
@@ -264,14 +264,14 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
 
     ::state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
 
-    auto w = worlds.find(peer->recent_worlds.back());
-    if (w == worlds.end()) return -1;
+    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    if (world == worlds.end()) return -1;
 
-    auto object = std::ranges::find_if(w->second.objects, [&](const ::object &object) {
+    auto object = std::ranges::find_if(world->objects, [&](const ::object &object) {
         return uid == 0 && object.id == slot.id && object.pos == pos;
     });
 
-    if (object != w->second.objects.end()) // @note merge drop
+    if (object != world->objects.end()) // @note merge drop
     {
         object->count += slot.count;
         state.netid = 0xfffffffd;
@@ -288,7 +288,7 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
     }
     else // @note add new drop
     {
-        auto it = w->second.objects.emplace_back(::object(slot.id, slot.count, pos, ++w->second.last_object_uid)); // @note a iterator ahead of time
+        auto it = world->objects.emplace_back(::object(slot.id, slot.count, pos, ++world->last_object_uid)); // @note a iterator ahead of time
         state.netid = 0xffffffff;
         state.uid = it.uid;
         state.count = static_cast<float>(slot.count);

@@ -11,11 +11,11 @@ void sb(ENetEvent& event, const std::string_view text)
     std::string message{ text.substr(sizeof("sb ")-1) };
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 
-    auto it = worlds.find(peer->recent_worlds.back());
-    if (it == worlds.end()) return;
+    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    if (world == worlds.end()) return;
 
     std::string display = peer->recent_worlds.back();
-    for (::block &block : it->second.blocks)
+    for (::block &block : world->blocks)
         if (block.fg == 226 && block.state3 & S_TOGGLE) 
         {
             display = "`4JAMMED``";

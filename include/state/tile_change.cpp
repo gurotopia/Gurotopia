@@ -20,10 +20,10 @@ void tile_change(ENetEvent& event, state state)
     ::peer *peer = static_cast<::peer*>(event.peer->data);
     try
     {
-        if (!worlds.contains(peer->recent_worlds.back())) return;
-        ::world &world = worlds.at(peer->recent_worlds.back());
+        auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+        if (world == worlds.end()) return;
 
-        ::block &block = world.blocks[cord(state.punch.x, state.punch.y)];
+        ::block &block = world->blocks[cord(state.punch.x, state.punch.y)];
 
         auto item = std::ranges::find(items, (state.id != 32 && state.id != 18) ? state.id : (block.fg != 0) ? block.fg : block.bg, &::item::id);
         if (item->id == 0) return;
@@ -31,13 +31,13 @@ void tile_change(ENetEvent& event, state state)
         if (block.state4 & S_FIRE) // @note allow anyone to take out fire
             if (peer->clothing[hand] == 3066/* fire hose */)
             {
-                remove_fire(event, state, block, world);
+                remove_fire(event, state, block, *world);
                 return; // @note avoid hitting the block
             }
 
         if (!(item->cat & CAT_PUBLIC)) // @note if block is public skip validating if peer is owner or admin
-            if ((world.owner && !world.is_public && !peer->role) &&
-                (peer->user_id != world.owner && !std::ranges::contains(world.admin, peer->user_id))) return;
+            if ((world->owner && !world->is_public && !peer->role) &&
+                (peer->user_id != world->owner && !std::ranges::contains(world->admin, peer->user_id))) return;
 
         bool lock_visuals{}; // @todo this looks sloppy
         
@@ -90,8 +90,8 @@ void tile_change(ENetEvent& event, state state)
                 {
                     if (is_tile_lock(item->id)) break; // @todo seperate area for 'range_lock'
                     
-                    if (world.owner != peer->user_id)
-                        throw std::runtime_error(std::format("`5[```w{}`` `$World Locked`` by (null)`5]``", world.name)); // @todo add owner name
+                    if (world->owner != peer->user_id)
+                        throw std::runtime_error(std::format("`5[```w{}`` `$World Locked`` by (null)`5]``", world->name)); // @todo add owner name
                 }
                 case type::PROVIDER:
                 {
@@ -135,7 +135,7 @@ void tile_change(ENetEvent& event, state state)
                             }
                         }
                         block.tick = steady_clock::now();
-                        send_tile_update(event, std::move(state), block, world); // @note update countdown on provider.
+                        send_tile_update(event, std::move(state), block, *world); // @note update countdown on provider.
 
                         peer->add_xp(event, 1);
                         return;
@@ -153,12 +153,12 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case type::WEATHER_MACHINE:
                 {
-                    ::block &weather_machine = world.blocks[cord(world.现weather.x, world.现weather.y)];
+                    ::block &weather_machine = world->blocks[cord(world->现weather.x, world->现weather.y)];
 
                     if (!(block.state3 & S_TOGGLE) && !(weather_machine.state3 & S_TOGGLE)) weather_machine.state3 &= ~S_TOGGLE; // @note so we can avoid the upcoming ^= if the weather machine is already toggled
                     block.state3 ^= S_TOGGLE; // @note if punched twice it can detoggle that is why we use ^= not |=
                     
-                    world.现weather = state.punch;
+                    world->现weather = state.punch;
                     
                     peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
@@ -188,10 +188,10 @@ void tile_change(ENetEvent& event, state state)
                         (item->id == 456/*Dice*/) ? ransuu[{0, 5}] : 
                         (item->id == 1300/*Roshambo*/) ? ransuu[{1, 3}] : 0;
 
-                    auto random = std::ranges::find(world.random_blocks, state.punch, &::random_block::pos);
-                    if (random == world.random_blocks.end())
+                    auto random = std::ranges::find(world->random_blocks, state.punch, &::random_block::pos);
+                    if (random == world->random_blocks.end())
                     {
-                        world.random_blocks.emplace_back(::random_block{apply_damage_value, state.punch});
+                        world->random_blocks.emplace_back(::random_block{apply_damage_value, state.punch});
                     }
                     else random->value = apply_damage_value;
                     break;
@@ -245,7 +245,7 @@ void tile_change(ENetEvent& event, state state)
                     on::NameChanged(event);
                 }
                 
-                world.owner = 0; // @todo have a seperate thing for 'range_lock'
+                world->owner = 0; // @todo have a seperate thing for 'range_lock'
             }
 
             if (item->cat == CAT_RETURN)
@@ -315,9 +315,9 @@ void tile_change(ENetEvent& event, state state)
             {
                 case 1404: // @note Door Mover
                 {
-                    if (!door_mover(world, state.punch)) throw std::runtime_error("There's no room to put the door there! You need 2 empty spaces vertically.");
+                    if (!door_mover(*world, state.punch)) throw std::runtime_error("There's no room to put the door there! You need 2 empty spaces vertically.");
 
-                    std::string remember_name = world.name;
+                    std::string remember_name = world->name;
                     action::quit_to_exit(event, "", true); // @todo everyone in world exits
                     action::join_request(event, "", remember_name); // @todo everyone in world re-joins
                     
@@ -325,7 +325,7 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case 822: // @note Water Bucket
                 {
-                    if (block.state4 & S_FIRE) remove_fire(event, state, block, world);
+                    if (block.state4 & S_FIRE) remove_fire(event, state, block, *world);
                     else block.state4 ^= S_WATER;
                     break;
                 }
@@ -460,7 +460,7 @@ void tile_change(ENetEvent& event, state state)
                     .speed = { color, particle }
                 });
             }
-            send_tile_update(event, std::move(state), block, world);
+            send_tile_update(event, std::move(state), block, *world);
 
             modify_item_inventory(event, ::slot(item->id, -1));
             peer->add_xp(event, 1);
@@ -474,7 +474,7 @@ void tile_change(ENetEvent& event, state state)
                 {
                     if (is_tile_lock(item->id)) break; // @todo seperate area for 'range_lock'
 
-                    if (peer->user_id == world.owner)
+                    if (peer->user_id == world->owner)
                     {
                         packet::create(*event.peer, false, 0, {
                             "OnDialogRequest",
@@ -500,7 +500,7 @@ void tile_change(ENetEvent& event, state state)
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item->raw_name, item->id, state.punch.x, state.punch.y, to_char(world.is_public), (world.lock_state & DISABLE_MUSIC) ? "1" : "0", world.minimum_entry_level
+                                item->raw_name, item->id, state.punch.x, state.punch.y, to_char(world->is_public), (world->lock_state & DISABLE_MUSIC) ? "1" : "0", world->minimum_entry_level
                             ).c_str()
                         });
                     }
@@ -510,7 +510,7 @@ void tile_change(ENetEvent& event, state state)
                 case type::PORTAL:
                 {
                     std::string dest, id{};
-                    for (::door& door : world.doors)
+                    for (::door& door : world->doors)
                         if (door.pos == state.punch) dest = door.dest, id = door.id;
                         
                     packet::create(*event.peer, false, 0, {
@@ -604,11 +604,11 @@ void tile_change(ENetEvent& event, state state)
             if (block.fg != 0) // @note placing something ontop of exisitng block
             {
                 bool update_tile{};
-                switch (items[world.blocks[cord(state.punch.x, state.punch.y)].fg].type)
+                switch (items[world->blocks[cord(state.punch.x, state.punch.y)].fg].type)
                 {
                     case type::DISPLAY_BLOCK:
                     {
-                        world.displays.emplace_back(::display(item->id, state.punch));
+                        world->displays.emplace_back(::display(item->id, state.punch));
                         update_tile = true;
                         break;
                     }
@@ -640,7 +640,7 @@ void tile_change(ENetEvent& event, state state)
                     }
                 }
                 if (update_tile)
-                    send_tile_update(event, std::move(state), block, world);
+                    send_tile_update(event, std::move(state), block, *world);
                 return;
             }
             if (item->collision == collision::FULL)
@@ -653,21 +653,21 @@ void tile_change(ENetEvent& event, state state)
                 {
                     if (is_tile_lock(item->id)) break; // @note seperate area for 'range_lock'
 
-                    if (!world.owner)
+                    if (!world->owner)
                     {
-                        world.owner = peer->user_id;
+                        world->owner = peer->user_id;
                         lock_visuals = true;
                         if (!peer->role) 
                         {
                             peer->prefix.front() = '2';
                             on::NameChanged(event);
                         }
-                        if (std::ranges::find(peer->my_worlds, world.name) == peer->my_worlds.end()) 
+                        if (std::ranges::find(peer->my_worlds, world->name) == peer->my_worlds.end()) 
                         {
                             std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
-                            peer->my_worlds.back() = world.name;
+                            peer->my_worlds.back() = world->name;
                         }
-                        std::string placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world.name, peer->ltoken[0]);
+                        std::string placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world->name, peer->ltoken[0]);
                         peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, placed_message](ENetPeer& p) 
                         {
                             packet::create(p, false, 0, { "OnTalkBubble", peer->netid, placed_message.c_str() });
@@ -704,7 +704,7 @@ void tile_change(ENetEvent& event, state state)
         {
             state_visuals(*event.peer, ::state{
                 .type = 0x0f, // @note PACKET_SEND_LOCK
-                .netid = world.owner, 
+                .netid = world->owner, 
                 .peer_state = 0x08, 
                 .id = state.id,
                 .punch = state.punch

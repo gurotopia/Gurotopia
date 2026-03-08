@@ -9,10 +9,10 @@ void gateway_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
     const short tilex = atoi(pipes[5zu].c_str());
     const short tiley = atoi(pipes[8zu].c_str());
 
-    auto it = worlds.find(peer->recent_worlds.back());
-    if (it == worlds.end()) return;
+    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    if (world == worlds.end()) return;
 
-    block &block = it->second.blocks[cord(tilex, tiley)];
+    block &block = world->blocks[cord(tilex, tiley)];
 
     if (pipes[3zu] == "door_edit" || pipes[3zu] == "sign_edit") 
         block.label = pipes[11zu];
@@ -26,11 +26,11 @@ void gateway_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
     send_tile_update(event, {
         .id = block.fg,
         .punch = { tilex, tiley }
-    }, block, it->second);
+    }, block, *world);
 
     if (pipes[10zu] == "door_name" && pipes.size() > 12zu)
     {
-        for (::door &door : it->second.doors)
+        for (::door &door : world->doors)
         {
             if (door.pos == ::pos{tilex, tiley}) 
             {
@@ -39,7 +39,7 @@ void gateway_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
                 return;
             }
         }
-        it->second.doors.emplace_back(::door(
+        world->doors.emplace_back(::door(
             pipes[13],
             pipes[15],
             "", // @todo add password door

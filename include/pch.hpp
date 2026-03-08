@@ -6,9 +6,7 @@
 
     #include <algorithm>
     #include <chrono>
-    #include <fstream>
     #include <thread>
-    #include <unordered_map>
     #include <vector>
     #include <sqlite3.h>
     #include <openssl/ssl.h>

@@ -1,4 +1,6 @@
 #include "pch.hpp"
+#include <unordered_map>
+
 #include "EmoticonDataChanged.hpp"
 
 std::unordered_map<std::string_view, std::string_view> emoticon = 

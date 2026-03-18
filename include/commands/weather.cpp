@@ -81,18 +81,8 @@ void weather(ENetEvent& event, const std::string_view text)
     }
     std::string id{ text.substr(sizeof("weather ") - 1) };
 
-    try 
-    {
-        packet::create(*event.peer, false, 0, {
-            "OnSetCurrentWeather",
-            stoi(id)
-        });
-    }
-    catch (const std::invalid_argument &ex)
-    {
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage",
-            "`4Invalid input. ``id must be a `wnumber``."
-        });
-    }
+    packet::create(*event.peer, false, 0, {
+        "OnSetCurrentWeather",
+        atoi(id.c_str())
+    });
 }

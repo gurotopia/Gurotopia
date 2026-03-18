@@ -15,21 +15,8 @@ void skin(ENetEvent& event, const std::string_view text)
 
     try
     {
-        peer->skin_color = stol(id);
+        peer->skin_color = (u_int)stoul(id);
         on::SetClothing(*event.peer);
     }
-    catch (const std::invalid_argument &ex)
-    {
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage",
-            "`4Invalid input. ``id must be a `wnumber``."
-        });
-    }
-    catch (const std::out_of_range &ex)
-    {
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage",
-            "`4Invalid input. ``id is out of range."
-        });
-    }
+    catch (const std::logic_error &le) {} // @note std::invalid_argument std::out_of_range
 }

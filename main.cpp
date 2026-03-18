@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 4b2386e5e2bec394167a6d90e204dbaff0da3991 2026-3-8
+    @version perent SHA: 578f41c47fc0b2397bc966243735e1bdcc76b8b5 2026-3-18
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -37,7 +37,7 @@ int main()
 
         host = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu/* max peer count */, 2zu, 0, 0);
         std::thread(&https::listener).detach();
-    } // @note delete server_data, address
+    } // @note delete address
     host->usingNewPacketForServer = true;
     host->checksum = enet_crc32;
     enet_host_compress_with_range_coder(host);

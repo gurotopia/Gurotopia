@@ -34,50 +34,44 @@ void item_activate(ENetEvent& event, state state)
         const auto item = std::ranges::find(peer->slots, state.id, &::slot::id);
         if (item == peer->slots.end()) return;
         
-        if (state.id == 242 || state.id == 1796) 
+        if (item->id == 242 && item->count >= 100) 
         {
-            if (item->id == 242 && item->count >= 100) 
+            const short nokori = modify_item_inventory(event, {1796, 1});
+            if (nokori == 0) 
             {
-                const short nokori = modify_item_inventory(event, {1796, 1});
-                if (nokori == 0) 
-                {
-                    modify_item_inventory(event, {item->id, -100});
-                    std::string compressed = "You compressed 100 `2World Lock`` into a `2Diamond Lock``!";
-                    packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, compressed.c_str(), 0u, 1u });
-                    packet::create(*event.peer, false, 0, { "OnConsoleMessage",          compressed.c_str()         });
-                }
-            }
-            else if (item->id == 1796 && item->count >= 1)
-            {
-                const short nokori = modify_item_inventory(event, {242, 100});
-                short hyaku = 100 - nokori;
-                if (hyaku == 100) 
-                {
-                    modify_item_inventory(event, {item->id, -1});
-                    std::string shattered = "You shattered a `2Diamond Lock`` into 100 `2World Lock``!";
-                    packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, shattered.c_str(), 0u, 1u });
-                    packet::create(*event.peer, false, 0, { "OnConsoleMessage",          shattered.c_str()         });
-                }
-                else modify_item_inventory(event, ::slot(242, -hyaku)); // @note return wls if can't hold 100
+                modify_item_inventory(event, {item->id, -100});
+                std::string compressed = "You compressed 100 `2World Lock`` into a `2Diamond Lock``!";
+                packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, compressed.c_str(), 0u, 1u });
+                packet::create(*event.peer, false, 0, { "OnConsoleMessage",          compressed.c_str()         });
             }
         }
-        else if (state.id == 1486 || state.id == 6802)
+        else if (item->id == 1796 && item->count >= 1)
         {
-            if (item->id == 1486 && item->count >= 100) 
+            const short nokori = modify_item_inventory(event, {242, 100});
+            short hyaku = 100 - nokori;
+            if (hyaku == 100) 
             {
-                const short nokori = modify_item_inventory(event, {6802, 1});
-                if (nokori == 0) 
-                    modify_item_inventory(event, {item->id, -100});
+                modify_item_inventory(event, {item->id, -1});
+                std::string shattered = "You shattered a `2Diamond Lock`` into 100 `2World Lock``!";
+                packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, shattered.c_str(), 0u, 1u });
+                packet::create(*event.peer, false, 0, { "OnConsoleMessage",          shattered.c_str()         });
             }
-            else if (item->id == 6802 && item->count >= 1)
-            {
-                const short nokori = modify_item_inventory(event, {1486, 100});
-                short hyaku = 100 - nokori;
-                if (hyaku == 100) 
-                    modify_item_inventory(event, {item->id, -1});
-                else 
-                    modify_item_inventory(event, ::slot(1486, -hyaku)); // @note return growtoken if can't hold 100
-            }
+            else modify_item_inventory(event, ::slot(242, -hyaku)); // @note return wls if can't hold 100
+        }
+        else if (item->id == 1486 && item->count >= 100) 
+        {
+            const short nokori = modify_item_inventory(event, {6802, 1});
+            if (nokori == 0) 
+                modify_item_inventory(event, {item->id, -100});
+        }
+        else if (item->id == 6802 && item->count >= 1)
+        {
+            const short nokori = modify_item_inventory(event, {1486, 100});
+            short hyaku = 100 - nokori;
+            if (hyaku == 100) 
+                modify_item_inventory(event, {item->id, -1});
+            else 
+                modify_item_inventory(event, ::slot(1486, -hyaku)); // @note return growtoken if can't hold 100
         }
     }
 }

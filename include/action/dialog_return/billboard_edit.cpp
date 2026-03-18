@@ -8,29 +8,20 @@ void billboard_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
     ::peer *peer = static_cast<::peer*>(event.peer->data);
 
-    if (pipes[4zu] == "billboard_item") 
+    for (std::size_t i = 0; i < pipes.size(); ++i) 
     {
-        const short billboard_item = atoi(pipes[5zu].c_str());
+        if (pipes[i] == "billboard_item")          
+        {
+            const short id = stoi(pipes[i+1]);
 
-        if (billboard_item == 18 || billboard_item == 32) return;
-
-        peer->billboard = {
-            .id = billboard_item,
-            .show = stoi(pipes[7zu]) != 0,
-            .isBuying = stoi(pipes[9zu]) != 0,
-            .price = stoi(pipes[11zu]),
-            .perItem = stoi(pipes[13zu]) != 0,
-        };
-    }
-    else // @note billboard_toggle
-    {
-        peer->billboard = {
-            .id = peer->billboard.id,
-            .show = stoi(pipes[5zu]) != 0,
-            .isBuying = stoi(pipes[7zu]) != 0,
-            .price = stoi(pipes[9zu]),
-            .perItem = stoi(pipes[11zu]) != 0,
-        };
+            if (id == 18 || id == 32) return; // @note list of items that cannot be put on billboard.
+            
+            peer->billboard.id = id;
+        }
+        else if (pipes[i] == "billboard_toggle")        peer->billboard.show = stoi(pipes[i+1]);
+        else if (pipes[i] == "billboard_buying_toggle") peer->billboard.isBuying = stoi(pipes[i+1]);
+        else if (pipes[i] == "chk_peritem")             peer->billboard.perItem = stoi(pipes[i+1]);
+        else if (pipes[i] == "setprice")                peer->billboard.price =  stoi(pipes[i+1]);
     }
     on::BillboardChange(event);
 }

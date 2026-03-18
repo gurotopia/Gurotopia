@@ -20,7 +20,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
     {
         ::peer *peer = static_cast<::peer*>(event.peer->data);
 
-        std::string big_name{world_name.empty() ? readch(header, '|')[3] : world_name};
+        std::string big_name{header.size() < 2 ? world_name : readch(header, '|')[3]};
         if (!alnum(big_name)) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
         std::for_each(big_name.begin(), big_name.end(), [](char& c) { c = std::toupper(c); }); // @note start -> START
         
@@ -215,7 +215,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
                         *w_data++ = 0x18;
                         *reinterpret_cast<u_int*>(w_data) = 0; w_data += sizeof(u_int); // @note item's ID
-                        *reinterpret_cast<u_int*>(w_data) = 0; w_data += sizeof(u_int); // @note world locks per item (or item(s) per world lock)
+                        *reinterpret_cast<int*>(w_data) = 0; w_data += sizeof(int); // @note world locks per item (or item(s) per world lock)
 
                         break;
                     }

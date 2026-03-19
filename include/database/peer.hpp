@@ -71,10 +71,11 @@ public:
     u_char punch_effect{}; // @note last equipped clothing that has a effect. supporting 0-255 effects.
 
     u_int skin_color{ 2527912447 };
+    int hair_color = 0xffffffff; // @note BGRA
 
     int state{}; // @note using pstate::
 
-    Billboard billboard{};
+    ::Billboard billboard{};
 
     ::pos pos{0,0}; // @note position 1D {x, y}
     ::pos rest_pos{0,0}; // @note respawn position {x, y}

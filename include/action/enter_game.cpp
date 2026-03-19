@@ -61,7 +61,7 @@ void action::enter_game(ENetEvent& event, const std::string& header)
                 .set_default_color("`o")
                 .add_label_with_icon("big", "`wThe Gurotopia Gazette``", 5016)
                 .add_spacer("small")
-                .add_image_button("banner", "interface/large/gui_valentine_banner.rttex", "bannerlayout", "")
+                .add_image_button("banner", holiday_banner(), "bannerlayout", "")
                 .add_spacer("small")
                 .add_textbox(std::format("`w{} {}{}: {}|", month[time.tm_mon], time.tm_mday,
                     (time.tm_mday >= 11 && time.tm_mday <= 13) ? "th" :

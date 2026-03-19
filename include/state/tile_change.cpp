@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "on/NameChanged.hpp"
 #include "on/SetClothing.hpp"
+#include "on/Action.hpp"
 #include "commands/weather.hpp"
 #include "item_activate.hpp"
 #include "tools/ransuu.hpp"
@@ -8,7 +9,6 @@
 #include "tools/create_dialog.hpp"
 #include "action/quit_to_exit.hpp"
 #include "action/join_request.hpp"
-#include "on/Action.hpp"
 #include "item_activate_object.hpp"
 #include "tile_change.hpp"
 
@@ -285,7 +285,7 @@ void tile_change(ENetEvent& event, state state)
         } // @note delete im, id
         else if (item->cloth_type != clothing::none) 
         {
-            if (state.punch != peer->pos) return;
+            if (state.punch != peer->pos) throw std::runtime_error("To wear clothing, use on yourself");
 
             item_activate(event, state);
             return; 
@@ -309,6 +309,15 @@ void tile_change(ENetEvent& event, state state)
             }
 
             if (item->raw_name.contains("Paint Bucket - ") && peer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
+            if (item->raw_name.contains("Hair Dye"))
+            {
+                if (state.punch != peer->pos) throw std::runtime_error("Don't spill your dye!");
+                else if (world->blocks[cord(peer->pos.x, peer->pos.y)].fg != 230/*Bathtub*/) throw std::runtime_error("You'll make a huge mess if you do that outside the Bathtub!");
+
+                on::Action(event, "shower");
+                // audio/shower.wav
+                packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, "You dyed your hair!", 0u, 1u });
+            }
             float color{}; // @note the color of the paint particle effect.
             float particle{};
             switch (item->id)
@@ -395,9 +404,9 @@ void tile_change(ENetEvent& event, state state)
                     {
                         ::peer *_p = static_cast<::peer*>(p.data);
 
-                        if (state.punch == peer->pos) // @todo improve accuracy
+                        if (state.punch == _p->pos)
                         {
-                            _p->state ^= S_DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
+                            _p->state |= S_DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
                             on::SetClothing(p);
                         }
                     });
@@ -450,6 +459,9 @@ void tile_change(ENetEvent& event, state state)
                     block.state4 &= ~S_VANISH;
                     color = 0xffffff00, particle = 0xa8; // @todo get exact color. I just guessed T-T
                 }
+                case 3822: break; // Red Hair Dye
+                case 3824: break; // Green Hair Dye
+                case 3826: break; // Blue Hair Dye
                 default: return; // @note prevent taking the consumeable if nothing happended
             }
             if (particle > 0.0f)

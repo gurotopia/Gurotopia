@@ -40,7 +40,7 @@ void tile_activate(ENetEvent& event, state state)
             {
                 packet::create(*event.peer, true, 0, {
                     "OnSetPos", 
-                    std::vector<float>{peer->rest_pos.f_x(), peer->rest_pos.f_y()}
+                    std::vector<float>{peer->rest_pos.x, peer->rest_pos.y}
                 });
                 packet::create(*event.peer, false, 0, {
                     "OnZoomCamera", 
@@ -54,12 +54,12 @@ void tile_activate(ENetEvent& event, state state)
         }
         case type::CHECKPOINT:
         {
-            ::block &checkpoint = world->blocks[cord(peer->rest_pos.x, peer->rest_pos.y)]; // @note get previous checkpoint from respawn position
+            ::block &checkpoint = world->blocks[cord(peer->rest_pos.by_32(true).x, peer->rest_pos.by_32(true).y)]; // @note get previous checkpoint from respawn position
 
             checkpoint.state3 &= ~S_TOGGLE;
-            send_tile_update(event, ::state{.id = block.fg/*has to be 'block' or else iterfere with main door*/, .punch = peer->rest_pos}, checkpoint, *world);
+            send_tile_update(event, ::state{.id = block.fg/*has to be 'block' or else iterfere with main door*/, .punch = peer->rest_pos.by_32(true)}, checkpoint, *world);
 
-            peer->rest_pos = state.punch;
+            peer->rest_pos = state.punch.by_32();
             block.state3 |= S_TOGGLE; // @note toggle current checkpoint
             send_tile_update(event, ::state{.id = block.fg, .punch = state.punch}, block, *world);
             break;

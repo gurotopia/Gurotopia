@@ -207,8 +207,8 @@ world::~world()
             sqlite3_bind_int(stmt,    i++, object.uid);
             sqlite3_bind_int(stmt,    i++, object.id);
             sqlite3_bind_int(stmt,    i++, object.count);
-            sqlite3_bind_double(stmt, i++, object.pos.x*32);
-            sqlite3_bind_double(stmt, i++, object.pos.y*32);
+            sqlite3_bind_double(stmt, i++, object.pos.x);
+            sqlite3_bind_double(stmt, i++, object.pos.y);
         });
     }
     
@@ -293,7 +293,7 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
         state.uid = it.uid;
         state.count = static_cast<float>(slot.count);
         state.id = it.id;
-        state.pos = it.pos;
+        state.pos = pos;
     }
     state_visuals(*event.peer, std::move(state));
     return state.uid;
@@ -304,8 +304,8 @@ void add_drop(ENetEvent& event, ::slot im, ::pos pos)
     ransuu ransuu;
     item_change_object(event, {im.id, im.count},
     {
-        pos.f_x() + ransuu.shosu({7, 50}, 0.01f), // @note (0.07 - 0.50)
-        pos.f_y() + ransuu.shosu({7, 50}, 0.01f)  // @note (0.07 - 0.50)
+        pos.x + ransuu[{0, 16}],
+        pos.y + ransuu[{0, 16}]
     });
 }
 
@@ -405,8 +405,8 @@ void remove_fire(ENetEvent &event, state state, block &block, world& w)
 {
     state_visuals(*event.peer, ::state{
         .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-        .pos = state.punch,
-        .speed = { 0x00000000, 0x95 }
+        .pos = state.punch.by_32(),
+        .speed = ::pos{ 0x00000000, 0x95 }
     });
 
     block.state4 &= ~S_FIRE;

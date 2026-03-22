@@ -9,6 +9,6 @@ void on::Spawn(ENetPeer &peer, signed netID, signed userID, ::pos posXY, std::st
         "OnSpawn",
         std::format(
             "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|{}``\ncountry|{}\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}",
-            netID, userID, posXY.x, posXY.y, name, country, to_char(mstate), to_char(smstate), (local) ? "type|local\n" : "").c_str()
+            netID, userID, posXY.by_32(true).x_int(), posXY.by_32(true).y_int(), name, country, to_char(mstate), to_char(smstate), (local) ? "type|local\n" : "").c_str()
     });
 }

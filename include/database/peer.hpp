@@ -11,14 +11,16 @@ struct slot {
 
 /* x, y */
 struct pos {
-    pos(int _x, int _y) : x(_x), y(_y) {}
-    pos(float _x, float _y) : x(std::round(_x / 32.0f)), y(std::round(_y / 32.0f)) {}
+    pos(float _x, float _y) : x(_x), y(_y) {}
+    pos(int _x, int _y)     : x(_x), y(_y) {}
 
-    int x{0};
-    int y{0};
-    
-    float f_x() const { return this->x * 32.0f; }
-    float f_y() const { return this->y * 32.0f; }
+    float x, y;
+
+    /* use this for pixeled position */
+    pos by_32(bool pixel = false) const { return (pixel) ? ::pos{x/32, y/32} : ::pos{x*32, y*32}; }
+
+    int x_int() const { return std::round(x); }
+    int y_int() const { return std::round(y); }
 
     auto operator<=>(const pos&) const = default;
 };
@@ -135,7 +137,7 @@ public:
     float count{}; // @todo understand this better
     int id{}; // @note peer's active hand, so 18 (fist) = punching, 32 (wrench) interacting, ect
     ::pos pos{0,0}; // @note position 1D {x, y}
-    std::array<float, 2zu> speed{}; // @note player movement (velocity(x), gravity(y)), higher gravity = smaller jumps
+    ::pos speed{0,0}; // @note player movement (velocity(x), gravity(y)), higher gravity = smaller jumps
     int idk{};
     ::pos punch{0,0}; // @note punching/placing position 2D {x, y}
     int size{};
@@ -160,6 +162,6 @@ enum packet_pos
 extern state get_state(const std::vector<u_char> &&packet);
 
 /* put it back into it's original form */
-extern std::vector<u_char> compress_state(const state &s);
+extern std::vector<u_char> compress_state(const state &state);
 
 extern void send_inventory_state(ENetEvent &event);

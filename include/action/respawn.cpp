@@ -12,7 +12,7 @@ void action::respawn(ENetEvent& event, const std::string& header)
     ::peer *peer = static_cast<::peer*>(event.peer->data);
     packet::create(*event.peer, true, 1900, {
         "OnSetPos", 
-        std::vector<float>{peer->rest_pos.f_x(), peer->rest_pos.f_y()}
+        std::vector<float>{peer->rest_pos.x, peer->rest_pos.y}
     });
     packet::create(*event.peer, true, 1900, { "OnSetFreezeState" });
 }

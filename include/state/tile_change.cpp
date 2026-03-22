@@ -55,11 +55,11 @@ void tile_change(ENetEvent& event, state state)
                     int x2_nabor = (peer->facing_left) ? state.punch.x-2 : state.punch.x+2;
                     
                     ::state x1_state = state;
-                    x1_state.punch = {x1_nabor, x1_state.punch.y};
+                    x1_state.punch = {x1_nabor, x1_state.punch.y_int()};
                     tile_change(event, std::move(x1_state));
 
                     ::state x2_state = state;
-                    x2_state.punch = {x2_nabor, x2_state.punch.y};
+                    x2_state.punch = {x2_nabor, x2_state.punch.y_int()};
                     tile_change(event, std::move(x2_state));
                 }
                 punch = false;
@@ -104,23 +104,23 @@ void tile_change(ENetEvent& event, state state)
                                 u_char gems = ransuu[{1, 100}]; // @note source: https://growtopia.fandom.com/wiki/ATM_Machine
                                 for (short i : {100, 50, 10, 5, 1}/* gem type */)
                                     for (; gems >= i; gems -= i/* downgrade type */)
-                                        add_drop(event, {112, i}, state.punch);
+                                        add_drop(event, {112, i}, state.punch.by_32());
                                         
                                 break;
                             }
                             case 872:/*chicken*/ case 866:/*cow*/ case 1632:/*coffee maker*/ case 3888:/*sheep*/
                             {
-                                add_drop(event, ::slot(item->id+2, ransuu[{1, 2}]), state.punch);
+                                add_drop(event, ::slot(item->id+2, ransuu[{1, 2}]), state.punch.by_32());
                                 break;
                             }
                             case 5116:/*tea set*/
                             {
-                                add_drop(event, ::slot(item->id-2, ransuu[{1, 2}]), state.punch);
+                                add_drop(event, ::slot(item->id-2, ransuu[{1, 2}]), state.punch.by_32());
                                 break;
                             }
                             case 2798:/*well*/
                             {
-                                add_drop(event, ::slot(822/*water bucket*/, ransuu[{1, 2}]), state.punch);
+                                add_drop(event, ::slot(822/*water bucket*/, ransuu[{1, 2}]), state.punch.by_32());
                                 break;
                             }
                             case 928:/*science station*/ // @note source: https://growtopia.fandom.com/wiki/Science_Station
@@ -130,7 +130,7 @@ void tile_change(ENetEvent& event, state state)
                                     (!ransuu[{0, 8}])  ? chemcial = 920/*B*/ : 
                                     (!ransuu[{0, 6}])  ? chemcial = 924/*Y*/ : 
                                     (!ransuu[{0, 4}])  ? chemcial = 916/*R*/ : chemcial = 914/*G*/;
-                                add_drop(event, {chemcial, 1}, state.punch);
+                                add_drop(event, {chemcial, 1}, state.punch.by_32());
                                 break;
                             }
                         }
@@ -147,7 +147,7 @@ void tile_change(ENetEvent& event, state state)
                     if ((steady_clock::now() - block.tick) / 1s >= item->tick) // @todo limit this check.
                     {
                         block.hits[0] = 99;
-                        add_drop(event, ::slot(item->id - 1, ransuu[{2, 12}]), state.punch); // @note fruit (from tree)
+                        add_drop(event, ::slot(item->id - 1, ransuu[{2, 12}]), state.punch.by_32()); // @note fruit (from tree)
                     }
                     break;
                 }
@@ -226,7 +226,7 @@ void tile_change(ENetEvent& event, state state)
                     388; // @note Perfume
                     // @todo add all the remaining drops - https://growtopia.fandom.com/wiki/Golden_Booty_Chest
 
-                add_drop(event, ::slot(reward, (reward == 3408 || reward == 3404) ? 10 : 1), state.punch);
+                add_drop(event, ::slot(reward, (reward == 3408 || reward == 3404) ? 10 : 1), state.punch.by_32());
                 if (reward == 1458)
                 {
                     std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", peer->ltoken[0], item->raw_name);
@@ -274,10 +274,10 @@ void tile_change(ENetEvent& event, state state)
                         u_char gems = ransuu[{1, rarity_to_gem}];
                         for (short i : {10, 5, 1}/* gem type */)
                             for (; gems >= i; gems -= i/* downgrade type */)
-                                add_drop(event, {112, i}, state.punch);
+                                add_drop(event, {112, i}, state.punch.by_32());
                     }
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 2 : 4}]) add_drop(event, ::slot(item->id + 1, 1), state.punch);
-                    else if (!ransuu[{0, (rarity_to_gem > 1) ? 4 : 8}]) add_drop(event, ::slot(item->id, 1), state.punch);
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 2 : 4}]) add_drop(event, ::slot(item->id + 1, 1), state.punch.by_32());
+                    else if (!ransuu[{0, (rarity_to_gem > 1) ? 4 : 8}]) add_drop(event, ::slot(item->id, 1), state.punch.by_32());
                 } /* ~gem drop */
 
                 peer->add_xp(event, std::trunc(1.0f + item->rarity / 5.0f));
@@ -285,7 +285,7 @@ void tile_change(ENetEvent& event, state state)
         } // @note delete im, id
         else if (item->cloth_type != clothing::none) 
         {
-            if (state.punch != peer->pos) throw std::runtime_error("To wear clothing, use on yourself");
+            if (state.punch != peer->pos.by_32(true)) throw std::runtime_error("To wear clothing, use on yourself");
 
             item_activate(event, state);
             return; 
@@ -311,8 +311,8 @@ void tile_change(ENetEvent& event, state state)
             if (item->raw_name.contains("Paint Bucket - ") && peer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
             if (item->raw_name.contains("Hair Dye"))
             {
-                if (state.punch != peer->pos) throw std::runtime_error("Don't spill your dye!");
-                else if (world->blocks[cord(peer->pos.x, peer->pos.y)].fg != 230/*Bathtub*/) throw std::runtime_error("You'll make a huge mess if you do that outside the Bathtub!");
+                if (state.punch != peer->pos.by_32(true)) throw std::runtime_error("Don't spill your dye!");
+                else if (world->blocks[cord(peer->pos.by_32(true).x, peer->pos.by_32(true).y)].fg != 230/*Bathtub*/) throw std::runtime_error("You'll make a huge mess if you do that outside the Bathtub!");
 
                 on::Action(event, "shower");
                 // audio/shower.wav
@@ -404,7 +404,7 @@ void tile_change(ENetEvent& event, state state)
                     {
                         ::peer *_p = static_cast<::peer*>(p.data);
 
-                        if (state.punch == _p->pos)
+                        if (state.punch == _p->pos.by_32(true))
                         {
                             _p->state |= S_DUCT_TAPE; // @todo add a 10 minute timer that will remove it.
                             on::SetClothing(p);
@@ -468,8 +468,8 @@ void tile_change(ENetEvent& event, state state)
             {
                 state_visuals(*event.peer, ::state{
                     .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-                    .pos = state.punch,
-                    .speed = { color, particle }
+                    .pos = state.punch.by_32(),
+                    .speed = ::pos{ color, particle }
                 });
             }
             send_tile_update(event, std::move(state), block, *world);
@@ -657,7 +657,7 @@ void tile_change(ENetEvent& event, state state)
             }
             if (item->collision == collision::FULL)
             {
-                if (state.punch.x == state.pos.x && state.punch.y == state.pos.y) return; // @todo when moving avoid collision.
+                if (state.punch == state.pos.by_32(true)) return; // @todo when moving avoid collision.
             }
             switch (item->type)
             {

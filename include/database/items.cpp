@@ -44,10 +44,10 @@ void decode_items()
     shift_pos(im_data, pos, version); pos += 1; // @note downsize 'version' to 1 bit
     u_short count{};
     shift_pos(im_data, pos, count); pos += 2; // @note downside count to 2 bit
-    static constexpr std::string_view token{"PBG892FXX982ABC*"};
+    const std::string_view token{"PBG892FXX982ABC*"};
     for (u_short i = 0; i < count; ++i)
     {
-        item im{};
+        ::item im;
         
         shift_pos(im_data, pos, im.id); pos += 2; // @note downside im.id to 2 bit (short)
         shift_pos(im_data, pos, im.property);

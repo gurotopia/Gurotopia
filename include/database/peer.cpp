@@ -49,7 +49,7 @@ void peer::add_xp(ENetEvent &event, u_short value)
         state_visuals(*event.peer, {
             .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
             .pos = this->pos, 
-            .speed = {0, 0x2e}
+            .speed = ::pos{0, 0x2e}
         });
         packet::create(*event.peer, false, 0, {
             "OnTalkBubble", this->netid,
@@ -247,34 +247,33 @@ state get_state(const std::vector<u_char> &&packet)
         .count = _4bit_f[5],
         .id = _4bit[6],
         .pos = ::pos{_4bit_f[7], _4bit_f[8]},
-        .speed = {_4bit_f[9], _4bit_f[10]},
+        .speed = ::pos{_4bit_f[9], _4bit_f[10]},
         .idk = _4bit[11],
         .punch = ::pos{_4bit[12], _4bit[13]},
         .size = _4bit[14]
     };
 }
 
-std::vector<u_char> compress_state(const state &s) 
+std::vector<u_char> compress_state(const state &state) 
 {
     std::vector<u_char> data(sizeof(::state) + 1, 0x00);
     int *_4bit = reinterpret_cast<int*>(data.data());
     float *_4bit_f = reinterpret_cast<float*>(data.data());
-    _4bit[0] = s.packet_create;
-    _4bit[1] = s.type;
-    _4bit[2] = s.netid;
-    _4bit[3] = s.uid;
-    _4bit[4] = s.peer_state;
-    _4bit_f[5] = s.count;
-    _4bit[6] = s.id;
-    ::pos f_pos = s.pos; // @todo
-    _4bit_f[7] = f_pos.f_x();
-    _4bit_f[8] = f_pos.f_y();
-    _4bit_f[9] = s.speed[0];
-    _4bit_f[10] = s.speed[1];
-    _4bit[11] = s.idk;
-    _4bit[12] = s.punch.x;
-    _4bit[13] = s.punch.y;
-    _4bit[14] = s.size;
+    _4bit[0] = state.packet_create;
+    _4bit[1] = state.type;
+    _4bit[2] = state.netid;
+    _4bit[3] = state.uid;
+    _4bit[4] = state.peer_state;
+    _4bit_f[5] = state.count;
+    _4bit[6] = state.id;
+    _4bit_f[7] = state.pos.x;
+    _4bit_f[8] = state.pos.y;
+    _4bit_f[9] = state.speed.x;
+    _4bit_f[10] = state.speed.y;
+    _4bit[11] = state.idk;
+    _4bit[12] = state.punch.x;
+    _4bit[13] = state.punch.y;
+    _4bit[14] = state.size;
     return data;
 }
 

@@ -16,6 +16,6 @@ void drop_item(ENetEvent& event, const std::vector<std::string> &&pipes)
 
     modify_item_inventory(event, ::slot(id, -count));
 
-    float x_nabor = (peer->facing_left) ? peer->pos.f_x() - 32 : peer->pos.f_x() + 32; // @note peer's naboring tile (drop position)
-    item_change_object(event, {id, count}, ::pos{x_nabor, peer->pos.f_y()});
+    float x_nabor = (peer->facing_left) ? peer->pos.x - 32 : peer->pos.x + 32; // @note peer's naboring tile (drop position)
+    add_drop(event, {id, count}, {x_nabor, peer->pos.y});
 }

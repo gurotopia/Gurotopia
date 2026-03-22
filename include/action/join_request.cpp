@@ -95,7 +95,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::MAIN_DOOR: 
                     {
-                        peer->rest_pos = ::pos(i % x, i / x);
+                        peer->rest_pos = ::pos((i % x) * 32 , (i / x) * 32);
 
                         [[fallthrough]];
                     }
@@ -244,8 +244,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 w_data = data.data() + offset;
                 
                 *reinterpret_cast<u_short*>(w_data) = object.id;        w_data += sizeof(u_short);
-                *reinterpret_cast<float*>(w_data)   = object.pos.f_x(); w_data += sizeof(float);
-                *reinterpret_cast<float*>(w_data)   = object.pos.f_y(); w_data += sizeof(float);
+                *reinterpret_cast<float*>(w_data)   = object.pos.x; w_data += sizeof(float);
+                *reinterpret_cast<float*>(w_data)   = object.pos.y; w_data += sizeof(float);
                 *reinterpret_cast<u_short*>(w_data) = object.count;     w_data += sizeof(u_short);
                 *reinterpret_cast<u_int*>(w_data)   = object.uid;       w_data += sizeof(u_int);
             }
@@ -273,7 +273,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             if (_p->user_id != peer->user_id)
             {
                 on::Spawn(*event.peer, _p->netid, _p->user_id, _p->pos, std::format("`{}{}", _p->prefix, _p->ltoken[0]), _p->country, _p->role, _p->role >= DEVELOPER, false);
-                on::Spawn(p, peer->netid, peer->user_id, peer->rest_pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, peer->role, peer->role >= DEVELOPER, false);
+                on::Spawn(p, peer->netid, peer->user_id, peer->pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, peer->role, peer->role >= DEVELOPER, false);
                 on::SetClothing(p);
                 packet::create(p, false, 0, {
                     "OnConsoleMessage",
@@ -290,13 +290,13 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     1u
                 });
         });
-        on::Spawn(*event.peer, peer->netid, peer->user_id, peer->rest_pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, peer->role, peer->role >= DEVELOPER, true);
+        on::Spawn(*event.peer, peer->netid, peer->user_id, peer->pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, peer->role, peer->role >= DEVELOPER, true);
 
         if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
 
         packet::create(*event.peer, true, 0, {
             "OnSetPos", 
-            std::vector<float>{peer->rest_pos.f_x(), peer->rest_pos.f_y()}
+            std::vector<float>{peer->rest_pos.x, peer->rest_pos.y}
         });
 
         packet::create(*event.peer, false, 0, {

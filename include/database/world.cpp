@@ -268,7 +268,7 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
     if (world == worlds.end()) return -1;
 
     auto object = std::ranges::find_if(world->objects, [&](const ::object &object) {
-        return uid == 0 && object.id == slot.id && object.pos == pos;
+        return uid == 0 && object.id == slot.id && (object.pos.by_32(true) == pos.by_32(true));
     });
 
     if (object != world->objects.end()) // @note merge drop

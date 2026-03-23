@@ -4,9 +4,9 @@
 
 void ghost(ENetEvent& event, const std::string_view text)
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    peer->state ^= S_GHOST;
+    pPeer->state ^= S_GHOST;
 
     on::SetClothing(*event.peer);
 }

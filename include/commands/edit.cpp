@@ -24,15 +24,15 @@ void edit(ENetEvent& event, const std::string_view text)
         "embed_data|status|{5}\n"
         "end_dialog|peer_edit|Close|`2Edit|\n";
 
-    peers("", PEER_ALL, [&event, name, &is_online, fmt](ENetPeer& p) 
+    peers("", PEER_ALL, [&event, name, &is_online, fmt](ENetPeer& peer) 
     {
-        ::peer *_p = static_cast<::peer*>(p.data);
-        if (_p->ltoken[0] == name)
+        ::peer *pOthers = static_cast<::peer*>(peer.data);
+        if (pOthers->ltoken[0] == name)
         {
             is_online = 1;
             packet::create(*event.peer, false, 0, {
                 "OnDialogRequest",
-                std::vformat(fmt, std::make_format_args(name, "`2Online", _p->role, _p->level.front(), _p->gems, is_online)).c_str()
+                std::vformat(fmt, std::make_format_args(name, "`2Online", pOthers->role, pOthers->level.front(), pOthers->gems, is_online)).c_str()
             });
             return;
         }

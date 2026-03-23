@@ -7,7 +7,7 @@ using namespace std::chrono;
 
 void action::input(ENetEvent& event, const std::string& header)
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     std::vector<std::string> pipes = readch(header, '|');
     if (pipes.size() < 5) return;
@@ -22,9 +22,9 @@ void action::input(ENetEvent& event, const std::string& header)
     if (text.empty()) return;
     
     steady_clock::time_point now = steady_clock::now();
-    peer->messages.push_back(now);
-    if (peer->messages.size() > 5) peer->messages.pop_front();
-    if (peer->messages.size() == 5 && duration_cast<std::chrono::seconds>(now - peer->messages.front()).count() < 6)
+    pPeer->messages.push_back(now);
+    if (pPeer->messages.size() > 5) pPeer->messages.pop_front();
+    if (pPeer->messages.size() == 5 && duration_cast<std::chrono::seconds>(now - pPeer->messages.front()).count() < 6)
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage", 
             "`6>>`4Spam detected! ``Please wait a bit before typing anything else.  "  
@@ -42,12 +42,12 @@ void action::input(ENetEvent& event, const std::string& header)
     }
     else 
     {
-        if (peer->state & S_DUCT_TAPE) text = "mfmm"; // @todo scalewith length of message. e.g. "hello" -> "mfmm"; "hello world" -> "mfmm mmfmfm"
+        if (pPeer->state & S_DUCT_TAPE) text = "mfmm"; // @todo scalewith length of message. e.g. "hello" -> "mfmm"; "hello world" -> "mfmm mmfmfm"
         std::string player_chat = std::format("CP:0_PL:0_OID:_player_chat={}", text);
-        std::string message = std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", peer->prefix, peer->ltoken[0], text);
-        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, player_chat, message](ENetPeer& p) 
+        std::string message = std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", pPeer->prefix, pPeer->ltoken[0], text);
+        peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&pPeer, player_chat, message](ENetPeer& p) 
         {
-            packet::create(p, false, 0, { "OnTalkBubble", peer->netid, player_chat.c_str() });
+            packet::create(p, false, 0, { "OnTalkBubble", pPeer->netid, player_chat.c_str() });
             packet::create(p, false, 0, { "OnConsoleMessage", message.c_str() });
         });
     }

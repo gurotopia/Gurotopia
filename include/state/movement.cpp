@@ -3,11 +3,11 @@
 
 void movement(ENetEvent& event, state state) 
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     
-    peer->pos = state.pos;
-    peer->facing_left = state.peer_state & 0x10;
+    pPeer->pos = state.pos;
+    pPeer->facing_left = state.peer_state & 0x10;
     
-    state.netid = peer->netid;
+    state.netid = pPeer->netid;
     state_visuals(*event.peer, std::move(state)); // finished.
 }

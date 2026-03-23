@@ -39,17 +39,17 @@ struct block
 {
     block(short _fg = 0, short _bg = 0, 
         std::chrono::steady_clock::time_point _tick = std::chrono::steady_clock::time_point(),
-        std::string _label = "", u_char _state3 = 0, u_char _state4 = 0
-    ) : fg(_fg), bg(_bg), tick(_tick), label(_label), state3(_state3), state4(_state4) {}
+        std::string _label = "", u_char s3 = 0, u_char s4 = 0
+    ) : fg(_fg), bg(_bg), tick(_tick), label(_label), state(0, 0, s3, s4) {}
+    
     short fg{0}, bg{0};
     
     std::chrono::steady_clock::time_point tick{}; // @note record a point in time for the tile e.g. tree growth, providers, ect.
-    std::string label{}; // @note sign/door label
+    std::string label{}; // @note sign/door label @todo store in seperate class
 
-    u_char state3{}; // @note direction; visuals | uses wstate3::
-    u_char state4{}; // @note water; glue; fire; paint | uses wstate4::
+    u_char state[4];
 
-    std::array<int, 2zu> hits{0, 0}; // @note fg, bg
+    u_char hits[2] = {0, 0}; // @note fg, bg
 };
 #define cord(x,y) (y * 100 + x)
 
@@ -119,9 +119,9 @@ extern std::vector<world> worlds;
 
 extern void send_data(ENetPeer &peer, const std::vector<u_char> &&data);
 
-extern void state_visuals(ENetPeer &peer, state &&s);
+extern void state_visuals(ENetPeer &peer, state &&state);
 
-extern void tile_apply_damage(ENetEvent& event, state state, block &block, u_int value);
+extern void tile_apply_damage(ENetEvent &event, state state, block &block, u_int value);
 
 /*
 * @brief set slot::count to nagative value if you want to remove an amount. 
@@ -131,11 +131,11 @@ extern short modify_item_inventory(ENetEvent& event, ::slot slot);
 
 extern int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed uid = 0);
 
-void add_drop(ENetEvent& event, ::slot im, ::pos pos);
+void add_drop(ENetEvent &event, ::slot im, ::pos pos);
 
 extern void send_tile_update(ENetEvent &event, state s, block &b, world& w);
 
-extern void remove_fire(ENetEvent &event, state state, block &block, world& w);
+extern void remove_fire(ENetEvent &event, state state, block &block, world& world);
 
 void generate_world(world &world, const std::string& name);
 

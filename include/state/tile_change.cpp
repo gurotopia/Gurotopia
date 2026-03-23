@@ -17,10 +17,10 @@ using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec,
 
 void tile_change(ENetEvent& event, state state) 
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     try
     {
-        auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+        auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
         if (world == worlds.end()) return;
 
         ::block &block = world->blocks[cord(state.punch.x, state.punch.y)];
@@ -28,16 +28,16 @@ void tile_change(ENetEvent& event, state state)
         auto item = std::ranges::find(items, (state.id != 32 && state.id != 18) ? state.id : (block.fg != 0) ? block.fg : block.bg, &::item::id);
         if (item->id == 0) return;
 
-        if (block.state4 & S_FIRE) // @note allow anyone to take out fire
-            if (peer->clothing[hand] == 3066/* fire hose */)
+        if (block.state[3] & S_FIRE) // @note allow anyone to take out fire
+            if (pPeer->clothing[hand] == 3066/* fire hose */)
             {
                 remove_fire(event, state, block, *world);
                 return; // @note avoid hitting the block
             }
 
         if (!(item->cat & CAT_PUBLIC)) // @note if block is public skip validating if peer is owner or admin
-            if ((world->owner && !world->is_public && !peer->role) &&
-                (peer->user_id != world->owner && !std::ranges::contains(world->admin, peer->user_id))) return;
+            if ((world->owner && !world->is_public && !pPeer->role) &&
+                (pPeer->user_id != world->owner && !std::ranges::contains(world->admin, pPeer->user_id))) return;
 
         bool lock_visuals{}; // @todo this looks sloppy
         
@@ -48,11 +48,11 @@ void tile_change(ENetEvent& event, state state)
             if (!punch) // @note put all multiple punch features here
             {
                 punch = true;
-                if (peer->clothing[hand] == 5480) // @note Rayman's Fist
+                if (pPeer->clothing[hand] == 5480) // @note Rayman's Fist
                 {
                     /* @todo handle vertical punches */
-                    int x1_nabor = (peer->facing_left) ? state.punch.x-1 : state.punch.x+1;
-                    int x2_nabor = (peer->facing_left) ? state.punch.x-2 : state.punch.x+2;
+                    int x1_nabor = (pPeer->facing_left) ? state.punch.x-1 : state.punch.x+1;
+                    int x2_nabor = (pPeer->facing_left) ? state.punch.x-2 : state.punch.x+2;
                     
                     ::state x1_state = state;
                     x1_state.punch = {x1_nabor, x1_state.punch.y_int()};
@@ -73,11 +73,11 @@ void tile_change(ENetEvent& event, state state)
                 {
                     u_char number = ransuu[{0, 36}];
                     char color = (number == 0) ? '2' : (ransuu[{0, 3}] < 2) ? 'b' : '4';
-                    std::string message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", peer->prefix, peer->ltoken[0], color, number);
-                    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, message](ENetPeer& p)
+                    std::string message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", pPeer->prefix, pPeer->ltoken[0], color, number);
+                    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&pPeer, message](ENetPeer& peer)
                     {
-                        packet::create(p, false, 2000, { "OnTalkBubble", peer->netid, message.c_str() });
-                        packet::create(p, false, 2000, { "OnConsoleMessage", message.c_str() });
+                        packet::create(peer, false, 2000, { "OnTalkBubble", pPeer->netid, message.c_str() });
+                        packet::create(peer, false, 2000, { "OnConsoleMessage", message.c_str() });
                     });
                     break;
                 }
@@ -90,7 +90,7 @@ void tile_change(ENetEvent& event, state state)
                 {
                     if (is_tile_lock(item->id)) break; // @todo seperate area for 'range_lock'
                     
-                    if (world->owner != peer->user_id)
+                    if (world->owner != pPeer->user_id)
                         throw std::runtime_error(std::format("`5[```w{}`` `$World Locked`` by (null)`5]``", world->name)); // @todo add owner name
                 }
                 case type::PROVIDER:
@@ -137,7 +137,7 @@ void tile_change(ENetEvent& event, state state)
                         block.tick = steady_clock::now();
                         send_tile_update(event, std::move(state), block, *world); // @note update countdown on provider.
 
-                        peer->add_xp(event, 1);
+                        pPeer->add_xp(event, 1);
                         return;
                     }
                     break;
@@ -155,14 +155,14 @@ void tile_change(ENetEvent& event, state state)
                 {
                     ::block &weather_machine = world->blocks[cord(world->现weather.x, world->现weather.y)];
 
-                    if (!(block.state3 & S_TOGGLE) && !(weather_machine.state3 & S_TOGGLE)) weather_machine.state3 &= ~S_TOGGLE; // @note so we can avoid the upcoming ^= if the weather machine is already toggled
-                    block.state3 ^= S_TOGGLE; // @note if punched twice it can detoggle that is why we use ^= not |=
+                    if (!(block.state[2] & S_TOGGLE) && !(weather_machine.state[2] & S_TOGGLE)) weather_machine.state[2] &= ~S_TOGGLE; // @note so we can avoid the upcoming ^= if the weather machine is already toggled
+                    block.state[2] ^= S_TOGGLE; // @note if punched twice it can detoggle that is why we use ^= not |=
                     
                     world->现weather = state.punch;
                     
-                    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [block, item](ENetPeer& p)
+                    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
-                        packet::create(p, false, 0, { "OnSetCurrentWeather", (block.state3 & S_TOGGLE) ? get_weather_id(item->id) : 0 });
+                        packet::create(p, false, 0, { "OnSetCurrentWeather", (block.state[2] & S_TOGGLE) ? get_weather_id(item->id) : 0 });
                     });
                     break;
                 }
@@ -170,12 +170,12 @@ void tile_change(ENetEvent& event, state state)
                 case type::TOGGLEABLE_ANIMATED_BLOCK:
                 case type::CHEST:
                 {
-                    block.state3 ^= S_TOGGLE;
+                    block.state[2] ^= S_TOGGLE;
                     if (item->id == 226) // @note Signal Jammer
                     {
                         packet::create(*event.peer, false, 0, {
                             "OnConsoleMessage",
-                            (block.state3 & S_TOGGLE) ? 
+                            (block.state[2] & S_TOGGLE) ? 
                                 "Signal jammer enabled. This world is now `4hidden`` from the universe." :
                                 "Signal jammer disabled.  This world is `2visible`` to the universe."
                         });
@@ -199,14 +199,14 @@ void tile_change(ENetEvent& event, state state)
             }
             tile_apply_damage(event, std::move(state), block, apply_damage_value);
 
-            if (block.hits.front() >= item->hits) block.fg = 0, block.hits.front() = 0;
-            else if (block.hits.back() >= item->hits) block.bg = 0, block.hits.back() = 0;
+            if (block.hits[0] >= item->hits) block.fg = 0, block.hits[0] = 0;
+            else if (block.hits[1] >= item->hits) block.bg = 0, block.hits[1] = 0;
             else return;
             
             /* @todo update these changes with tile_update() */
             block.label = "";
-            block.state3 = 0x00; // @note reset tile direction
-            block.state4 &= ~S_VANISH; // @note remove paint
+            block.state[2] = 0x00; // @note reset tile direction
+            block.state[3] &= ~S_VANISH; // @note remove paint
             
             if (item->id == 392/*Heartstone*/ || item->id == 3402/*GBC*/ || item->id == 9350/*Super GBC*/)
             {
@@ -229,19 +229,19 @@ void tile_change(ENetEvent& event, state state)
                 add_drop(event, ::slot(reward, (reward == 3408 || reward == 3404) ? 10 : 1), state.punch.by_32());
                 if (reward == 1458)
                 {
-                    std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", peer->ltoken[0], item->raw_name);
-                    peers(peer->recent_worlds.back(), PEER_ALL, [message](ENetPeer &p)
+                    std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", pPeer->ltoken[0], item->raw_name);
+                    peers(pPeer->recent_worlds.back(), PEER_ALL, [message](ENetPeer &p)
                     {
                         packet::action(p, "log", message.c_str());
                     });
                 }
-                if (++peer->gbc_pity % 100 == 0) modify_item_inventory(event, ::slot{9350, 1});
+                if (++pPeer->gbc_pity % 100 == 0) modify_item_inventory(event, ::slot{9350, 1});
             }
             else if (item->type == type::LOCK && !is_tile_lock(item->id))
             {
-                if (!peer->role)
+                if (!pPeer->role)
                 {
-                    peer->prefix.front() = 'w';
+                    pPeer->prefix.front() = 'w';
                     on::NameChanged(event);
                 }
                 
@@ -280,12 +280,12 @@ void tile_change(ENetEvent& event, state state)
                     else if (!ransuu[{0, (rarity_to_gem > 1) ? 4 : 8}]) add_drop(event, ::slot(item->id, 1), state.punch.by_32());
                 } /* ~gem drop */
 
-                peer->add_xp(event, std::trunc(1.0f + item->rarity / 5.0f));
+                pPeer->add_xp(event, std::trunc(1.0f + item->rarity / 5.0f));
             }
         } // @note delete im, id
         else if (item->cloth_type != clothing::none) 
         {
-            if (state.punch != peer->pos.by_32(true)) throw std::runtime_error("To wear clothing, use on yourself");
+            if (state.punch != pPeer->pos.by_32(true)) throw std::runtime_error("To wear clothing, use on yourself");
 
             item_activate(event, state);
             return; 
@@ -308,15 +308,15 @@ void tile_change(ENetEvent& event, state state)
                 });
             }
 
-            if (item->raw_name.contains("Paint Bucket - ") && peer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
+            if (item->raw_name.contains("Paint Bucket - ") && pPeer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
             if (item->raw_name.contains("Hair Dye"))
             {
-                if (state.punch != peer->pos.by_32(true)) throw std::runtime_error("Don't spill your dye!");
-                else if (world->blocks[cord(peer->pos.by_32(true).x, peer->pos.by_32(true).y)].fg != 230/*Bathtub*/) throw std::runtime_error("You'll make a huge mess if you do that outside the Bathtub!");
+                if (state.punch != pPeer->pos.by_32(true)) throw std::runtime_error("Don't spill your dye!");
+                else if (world->blocks[cord(pPeer->pos.by_32(true).x, pPeer->pos.by_32(true).y)].fg != 230/*Bathtub*/) throw std::runtime_error("You'll make a huge mess if you do that outside the Bathtub!");
 
                 on::Action(event, "shower");
                 // audio/shower.wav
-                packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, "You dyed your hair!", 0u, 1u });
+                packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, "You dyed your hair!", 0u, 1u });
             }
             float color{}; // @note the color of the paint particle effect.
             float particle{};
@@ -334,26 +334,26 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case 822: // @note Water Bucket
                 {
-                    if (block.state4 & S_FIRE) remove_fire(event, state, block, *world);
-                    else block.state4 ^= S_WATER;
+                    if (block.state[3] & S_FIRE) remove_fire(event, state, block, *world);
+                    else block.state[3] ^= S_WATER;
                     break;
                 }
                 case 1866: // @note Block Glue
                 {
-                    block.state4 ^= S_GLUE;
+                    block.state[3] ^= S_GLUE;
                     break;
                 }
                 case 3062: // @note Pocket Lighter
                 {
                     if (block.fg == 0 && block.bg == 0) throw std::runtime_error("There's nothing to burn!");
-                    if (block.state4 & (S_FIRE | S_WATER)) return; // @note avoid fire on water & fire on fire
+                    if (block.state[3] & (S_FIRE | S_WATER)) return; // @note avoid fire on water & fire on fire
 
-                    block.state4 |= S_FIRE;
+                    block.state[3] |= S_FIRE;
 
                     std::string message = "`7[```4MWAHAHAHA!! FIRE FIRE FIRE```7]``";
-                    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
+                    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
                     {
-                        packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, message.c_str(), 0u });
+                        packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, message.c_str(), 0u });
                         packet::create(*event.peer, false, 0, { "OnConsoleMessage", message.c_str() });
                     });
                     particle = 0x96;
@@ -361,13 +361,13 @@ void tile_change(ENetEvent& event, state state)
                     if (block.fg == 3090) // @note Highly Combustible Box
                     {
                         block.fg = 3128; // @note Combusted Box
-                        if (!(block.state3 & S_TOGGLE)/*closed*/) {} // @todo recipes: https://growtopia.fandom.com/wiki/Guide:Highly_Combustible_Box
+                        if (!(block.state[2] & S_TOGGLE)/*closed*/) {} // @todo recipes: https://growtopia.fandom.com/wiki/Guide:Highly_Combustible_Box
                     }
                     break;
                 }
                 case 3404:/*Sour Lollipop*/ case 3406:/*Sweet Lollipop*/
                 {
-                    packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, "`#YUM!:D", 0u });
+                    packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, "`#YUM!:D", 0u });
 
                     break;
                 }
@@ -381,8 +381,8 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case 1488: // @note Experience Potion
                 {
-                    packet::create(*event.peer, false, 0, { "OnTalkBubble", peer->netid, "`#GULP! You got smarter!", 0u });
-                    peer->add_xp(event, 10000);
+                    packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, "`#GULP! You got smarter!", 0u });
+                    pPeer->add_xp(event, 10000);
                     break;
                 }
                 case 2480: // @note Megaphone
@@ -400,7 +400,7 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case 408: // @note Duct Tape
                 {
-                    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
+                    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
                     {
                         ::peer *_p = static_cast<::peer*>(p.data);
 
@@ -414,49 +414,49 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case 3478: // @note Paint Bucket - Red
                 {
-                    block.state4 |= S_RED;
+                    block.state[3] |= S_RED;
                     color = 0x0000ff00, particle = 0xa8; 
                     break;
                 }
                 case 3480: // @note Paint Bucket - Yellow
                 {
-                    block.state4 |= S_YELLOW;
+                    block.state[3] |= S_YELLOW;
                     color = 0x00ffff00, particle = 0xa8; // @note red + green
                     break;
                 }
                 case 3482: // @note Paint Bucket - Green
                 {
-                    block.state4 |= S_GREEN;
+                    block.state[3] |= S_GREEN;
                     color = 0x00ff0000, particle = 0xa8;
                     break;
                 }
                 case 3484: // @note Paint Bucket - Aqua
                 {
-                    block.state4 |= S_AQUA;
+                    block.state[3] |= S_AQUA;
                     color = 0xffff0000, particle = 0xa8; // @note blue + green
                     break;
                 }
                 case 3486: // @note Paint Bucket - Blue
                 {
-                    block.state4 |= S_BLUE;
+                    block.state[3] |= S_BLUE;
                     color = 0xff000000, particle = 0xa8;
                     break;
                 }
                 case 3488: // @note Paint Bucket - Purple
                 {
-                    block.state4 |= S_PURPLE;
+                    block.state[3] |= S_PURPLE;
                     color = 0xff00ff00, particle = 0xa8; // @note blue + red
                     break;
                 }
                 case 3490: // @note Paint Bucket - Charcoal
                 {
-                    block.state4 |= S_CHARCOAL;
+                    block.state[3] |= S_CHARCOAL;
                     color = 0xffffffff, particle = 0xa8; // @note B(blue)G(green)R(red)A(alpha/opacity) max will provide a pure black color. idk if growtopia is the same.
                     break;
                 }
                 case 3492: // @note Paint Bucket - Vanish
                 {
-                    block.state4 &= ~S_VANISH;
+                    block.state[3] &= ~S_VANISH;
                     color = 0xffffff00, particle = 0xa8; // @todo get exact color. I just guessed T-T
                 }
                 case 3822: break; // Red Hair Dye
@@ -475,7 +475,7 @@ void tile_change(ENetEvent& event, state state)
             send_tile_update(event, std::move(state), block, *world);
 
             modify_item_inventory(event, ::slot(item->id, -1));
-            peer->add_xp(event, 1);
+            pPeer->add_xp(event, 1);
             return;
         }
         else if (state.id == 32)
@@ -486,7 +486,7 @@ void tile_change(ENetEvent& event, state state)
                 {
                     if (is_tile_lock(item->id)) break; // @todo seperate area for 'range_lock'
 
-                    if (peer->user_id == world->owner)
+                    if (pPeer->user_id == world->owner)
                     {
                         packet::create(*event.peer, false, 0, {
                             "OnDialogRequest",
@@ -573,7 +573,7 @@ void tile_change(ENetEvent& event, state state)
                             "embed_data|tilex|{}\n"
                             "embed_data|tiley|{}\n"
                             "end_dialog|gateway_edit|Cancel|OK|\n", 
-                            item->raw_name, item->id, to_char((block.state3 & S_PUBLIC)), state.punch.x, state.punch.y
+                            item->raw_name, item->id, to_char((block.state[2] & S_PUBLIC)), state.punch.x, state.punch.y
                         ).c_str()
                     });
                     break;
@@ -636,7 +636,7 @@ void tile_change(ENetEvent& event, state state)
 
                                 packet::create(*event.peer, false, 0, {
                                     "OnTalkBubble", 
-                                    peer->netid, 
+                                    pPeer->netid, 
                                     std::format("`w{}`` and `w{}`` have been spliced to make a `${} Tree``!", 
                                         splice0->raw_name, splice1->raw_name, item.raw_name.substr(0, item.raw_name.length()-5/* seed*/)).c_str(), // @todo this is hardcoded
                                     0u,
@@ -667,23 +667,23 @@ void tile_change(ENetEvent& event, state state)
 
                     if (!world->owner)
                     {
-                        world->owner = peer->user_id;
+                        world->owner = pPeer->user_id;
                         lock_visuals = true;
-                        if (!peer->role) 
+                        if (!pPeer->role) 
                         {
-                            peer->prefix.front() = '2';
+                            pPeer->prefix.front() = '2';
                             on::NameChanged(event);
                         }
-                        if (std::ranges::find(peer->my_worlds, world->name) == peer->my_worlds.end()) 
+                        if (std::ranges::find(pPeer->my_worlds, world->name) == pPeer->my_worlds.end()) 
                         {
-                            std::ranges::rotate(peer->my_worlds, peer->my_worlds.begin() + 1);
-                            peer->my_worlds.back() = world->name;
+                            std::ranges::rotate(pPeer->my_worlds, pPeer->my_worlds.begin() + 1);
+                            pPeer->my_worlds.back() = world->name;
                         }
-                        std::string placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world->name, peer->ltoken[0]);
-                        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, placed_message](ENetPeer& p) 
+                        std::string placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world->name, pPeer->ltoken[0]);
+                        peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&pPeer, placed_message](ENetPeer& peer) 
                         {
-                            packet::create(p, false, 0, { "OnTalkBubble", peer->netid, placed_message.c_str() });
-                            packet::create(p, false, 0, { "OnConsoleMessage", placed_message.c_str() });
+                            packet::create(peer, false, 0, { "OnTalkBubble", pPeer->netid, placed_message.c_str() });
+                            packet::create(peer, false, 0, { "OnConsoleMessage", placed_message.c_str() });
                         });
                     }
                     else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
@@ -691,7 +691,7 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case type::ENTRANCE:
                 {
-                    block.state3 |= S_PUBLIC;
+                    block.state[2] |= S_PUBLIC;
                     break;
                 }
                 case type::PROVIDER:
@@ -701,16 +701,16 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case type::SEED:
                 {
-                    block.state3 |= 0x11;
+                    block.state[2] |= 0x11;
                     block.tick = steady_clock::now();
                     break;
                 }
             }
-            block.state3 |= (peer->facing_left) ? S_LEFT : S_RIGHT;
+            block.state[2] |= (pPeer->facing_left) ? S_LEFT : S_RIGHT;
             (item->type == type::BACKGROUND) ? block.bg = state.id : block.fg = state.id;
-            peer->emplace(::slot(item->id, -1));
+            pPeer->emplace(::slot(item->id, -1));
         }
-        state.netid = peer->netid; // @todo sometimes rgt has this as 0
+        state.netid = pPeer->netid; // @todo sometimes rgt has this as 0
         state_visuals(*event.peer, std::move(state)); // finished.
         if (lock_visuals) 
         {
@@ -728,7 +728,7 @@ void tile_change(ENetEvent& event, state state)
         if (exc.what() && *exc.what()) 
             packet::create(*event.peer, false, 0, {
                 "OnTalkBubble", 
-                peer->netid, 
+                pPeer->netid, 
                 exc.what(),
                 0u,
                 1u // @note message will be sent once instead of multiple times.

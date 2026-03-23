@@ -16,9 +16,9 @@ void action::trash(ENetEvent& event, const std::string& header)
     }
     // @todo add confirm message on untradeables
     
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    for (const ::slot &slot : peer->slots)
+    for (const ::slot &slot : pPeer->slots)
         if (slot.id == item->id)
         {
             packet::create(*event.peer, false, 0, {

@@ -19,17 +19,17 @@ void peer_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
     {
         peers("", PEER_ALL, [&event, name, role, level, gems](ENetPeer& p) 
         {
-            ::peer *_p = static_cast<::peer*>(p.data);
-            if (_p->ltoken[0] == name)
+            ::peer *pOthers = static_cast<::peer*>(p.data);
+            if (pOthers->ltoken[0] == name)
             {
-                _p->level[0] = level; // @todo use _p->add_xp()
+                pOthers->level[0] = level; // @todo use _p->add_xp()
                 on::CountryState(event);
 
-                _p->role = role;
-                _p->prefix = (_p->role == MODERATOR) ? "#@" : (_p->role == DEVELOPER) ? "8@" : _p->prefix;
+                pOthers->role = role;
+                pOthers->prefix = (pOthers->role == MODERATOR) ? "#@" : (pOthers->role == DEVELOPER) ? "8@" : pOthers->prefix;
                 on::NameChanged(event);
 
-                _p->gems = gems;
+                pOthers->gems = gems;
                 on::SetBux(event);
                 return;
             }

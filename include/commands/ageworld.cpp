@@ -6,9 +6,9 @@ using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec,
 
 void ageworld(ENetEvent& event, const std::string_view text)
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
     if (world == worlds.end()) return;
 
     std::vector<block> &blocks = world->blocks;

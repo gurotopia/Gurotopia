@@ -4,8 +4,8 @@
 
 void lock_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
-    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
+    auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
     if (world == worlds.end()) return;
 
     ::pos pos{0,0};
@@ -30,16 +30,16 @@ void lock_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
     {
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage",
-            std::format("`2{}`` has set the `$World Lock`` to `$PUBLIC", peer->ltoken[0]).c_str()
+            std::format("`2{}`` has set the `$World Lock`` to `$PUBLIC", pPeer->ltoken[0]).c_str()
         });
-        block.state3 |= S_PUBLIC;
+        block.state[2] |= S_PUBLIC;
     }
     else {
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage",
-            std::format("`2{}`` has set the `$World Lock`` to `4PRIVATE``", peer->ltoken[0]).c_str()
+            std::format("`2{}`` has set the `$World Lock`` to `4PRIVATE``", pPeer->ltoken[0]).c_str()
         });
-        block.state3 &= ~S_PUBLIC;
+        block.state[2] &= ~S_PUBLIC;
     }
 
     send_tile_update(event, {

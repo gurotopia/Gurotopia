@@ -14,9 +14,9 @@ void action::drop(ENetEvent& event, const std::string& header)
         packet::create(*event.peer, false, 0, { "OnTextOverlay", "You can't drop that." });
         return;
     }
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     
-    for (const ::slot &slot : peer->slots)
+    for (const ::slot &slot : pPeer->slots)
         if (slot.id == item->id) 
         {
             packet::create(*event.peer, false, 0, {

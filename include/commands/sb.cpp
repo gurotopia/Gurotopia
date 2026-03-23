@@ -9,26 +9,26 @@ void sb(ENetEvent& event, const std::string_view text)
         return;
     }
     std::string message{ text.substr(sizeof("sb ")-1) };
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
     if (world == worlds.end()) return;
 
-    std::string display = peer->recent_worlds.back();
+    std::string display = pPeer->recent_worlds.back();
     for (::block &block : world->blocks)
-        if (block.fg == 226 && block.state3 & S_TOGGLE) 
+        if (block.fg == 226 && block.state[2] & S_TOGGLE) 
         {
             display = "`4JAMMED``";
             break; // @note we don't care if other signals are toggled.
         }
 
-    peers("", PEER_ALL, [&peer, message, display](ENetPeer& p) 
+    peers("", PEER_ALL, [&pPeer, message, display](ENetPeer& peer) 
     {
-        packet::create(p, false, 0, {
+        packet::create(peer, false, 0, {
             "OnConsoleMessage",
             std::format(
                 "CP:0_PL:0_OID:_CT:[SB]_ `5** from (`{}{}`````5) in [```${}```5] ** : ```${}``",
-                peer->prefix, peer->ltoken[0], display, message
+                pPeer->prefix, pPeer->ltoken[0], display, message
             ).c_str()
         });
     });

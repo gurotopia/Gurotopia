@@ -18,7 +18,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 {
     try 
     {
-        ::peer *peer = static_cast<::peer*>(event.peer->data);
+        ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
         std::string big_name{header.size() < 2 ? world_name : readch(header, '|')[3]};
         if (!alnum(big_name)) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
@@ -57,8 +57,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 *reinterpret_cast<short*>(w_data) = block.bg; w_data += sizeof(short);
 
                 w_data += sizeof(short);
-                *w_data++ = block.state3;
-                *w_data++ = block.state4;
+                *w_data++ = block.state[2];
+                *w_data++ = block.state[3];
 
                 int offset = w_data - data.data();
                 auto item = std::ranges::find(items, block.fg, &::item::id); // @todo limit iteration during world enter
@@ -79,7 +79,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         break;
                     case type::LOCK: 
                     {
-                        if (!is_tile_lock(block.fg)) world.is_public = (block.state3 & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
+                        if (!is_tile_lock(block.fg)) world.is_public = (block.state[2] & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
 
                         int admins = std::ranges::count_if(world.admin, std::identity{});
                         data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + (admins * 4zu));
@@ -95,7 +95,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::MAIN_DOOR: 
                     {
-                        peer->rest_pos = ::pos((i % x) * 32 , (i / x) * 32);
+                        pPeer->rest_pos = ::pos((i % x) * 32 , (i / x) * 32);
 
                         [[fallthrough]];
                     }
@@ -155,13 +155,13 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::WEATHER_MACHINE:
                     {
-                        if (block.state3 & S_TOGGLE)
+                        if (block.state[2] & S_TOGGLE)
                             packet::create(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
                         break;
                     }
                     case type::TOGGLEABLE_ANIMATED_BLOCK:
                     {
-                        if (block.state3 & S_TOGGLE)
+                        if (block.state[2] & S_TOGGLE)
                         {
                             if (block.fg == 226 && std::ranges::find(buffs, "`4JAMMED") == buffs.end()) 
                                 buffs.emplace_back("`4JAMMED");
@@ -252,51 +252,51 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
         } // @note delete data
         {
-            std::string *w_name = std::ranges::find(peer->recent_worlds, world.name);
-            std::string *first = w_name != peer->recent_worlds.end() ? w_name : peer->recent_worlds.begin();
+            std::string *w_name = std::ranges::find(pPeer->recent_worlds, world.name);
+            std::string *first = w_name != pPeer->recent_worlds.end() ? w_name : pPeer->recent_worlds.begin();
 
-            std::rotate(first, first + 1, peer->recent_worlds.end());
-            peer->recent_worlds.back() = world.name;
+            std::rotate(first, first + 1, pPeer->recent_worlds.end());
+            pPeer->recent_worlds.back() = world.name;
         } // @note delete name, first
         on::EmoticonDataChanged(event);
 
-        if (!peer->role)
-            peer->prefix.front() = 
-                (peer->user_id == world.owner) ? '2' : 
-                (std::ranges::contains(world.admin, peer->user_id)) ? 'c' : peer->prefix.front();
+        if (!pPeer->role)
+            pPeer->prefix.front() = 
+                (pPeer->user_id == world.owner) ? '2' : 
+                (std::ranges::contains(world.admin, pPeer->user_id)) ? 'c' : pPeer->prefix.front();
 
-        peer->netid = ++world.netid_counter;
-        peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &peer, &world](ENetPeer& p) 
+        pPeer->netid = ++world.netid_counter;
+        peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &pPeer, &world](ENetPeer& peer/*send to everyone in world*/) 
         {
-            ::peer *_p = static_cast<::peer*>(p.data);
+            ::peer *pOthers = static_cast<::peer*>(peer.data); // @note everyone in world's peer.data
             
-            if (_p->user_id != peer->user_id)
+            if (pOthers->user_id != pPeer->user_id)
             {
-                on::Spawn(*event.peer, _p->netid, _p->user_id, _p->pos, std::format("`{}{}", _p->prefix, _p->ltoken[0]), _p->country, _p->role, _p->role >= DEVELOPER, false);
-                on::Spawn(p, peer->netid, peer->user_id, peer->pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, peer->role, peer->role >= DEVELOPER, false);
-                on::SetClothing(p);
-                packet::create(p, false, 0, {
+                on::Spawn(*event.peer, pOthers->netid, pOthers->user_id, pOthers->pos, std::format("`{}{}", pOthers->prefix, pOthers->ltoken[0]), pOthers->country, pOthers->role, pOthers->role >= DEVELOPER, false);
+                on::Spawn(peer, pPeer->netid, pPeer->user_id, pPeer->pos, std::format("`{}{}", pPeer->prefix, pPeer->ltoken[0]), pPeer->country, pPeer->role, pPeer->role >= DEVELOPER, false);
+                on::SetClothing(peer);
+                packet::create(peer, false, 0, {
                     "OnConsoleMessage",
-                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors).c_str()
+                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", pPeer->prefix, pPeer->ltoken[0], world.visitors).c_str()
                 });
             }
             
 
-            if (_p->user_id != peer->user_id) // @note the reason this is here is cause we need the peer's OnSpawn to happen before OnTalkBubble
-                packet::create(p, false, 0, {
+            if (pOthers->user_id != pPeer->user_id) // @note the reason this is here is cause we need the peer's OnSpawn to happen before OnTalkBubble
+                packet::create(peer, false, 0, {
                     "OnTalkBubble",
-                    peer->netid,
-                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", peer->prefix, peer->ltoken[0], world.visitors).c_str(),
+                    pPeer->netid,
+                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", pPeer->prefix, pPeer->ltoken[0], world.visitors).c_str(),
                     1u
                 });
         });
-        on::Spawn(*event.peer, peer->netid, peer->user_id, peer->pos, std::format("`{}{}", peer->prefix, peer->ltoken[0]), peer->country, peer->role, peer->role >= DEVELOPER, true);
+        on::Spawn(*event.peer, pPeer->netid, pPeer->user_id, pPeer->pos, std::format("`{}{}", pPeer->prefix, pPeer->ltoken[0]), pPeer->country, pPeer->role, pPeer->role >= DEVELOPER, true);
 
-        if (peer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
+        if (pPeer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
 
         packet::create(*event.peer, true, 0, {
             "OnSetPos", 
-            std::vector<float>{peer->rest_pos.x, peer->rest_pos.y}
+            std::vector<float>{pPeer->rest_pos.x, pPeer->rest_pos.y}
         });
 
         packet::create(*event.peer, false, 0, {

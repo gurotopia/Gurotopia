@@ -12,12 +12,12 @@ void action::buy(ENetEvent& event, const std::string& header, const std::string_
     std::vector<std::string> pipes = readch(header, '|');
     if (pipes.size() < 3) return;
 
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    u_short No = (peer->slot_size - 16) / 10 + 1; // @note number of upgrades | credits: https://growtopia.fandom.com/wiki/Backpack_Upgrade
+    u_short No = (pPeer->slot_size - 16) / 10 + 1; // @note number of upgrades | credits: https://growtopia.fandom.com/wiki/Backpack_Upgrade
     u_short backpack_cost = (100 * No * No - 200 * No + 200);
 
-    auto growtoken = std::ranges::find(peer->slots, 1486, &::slot::id);
+    auto growtoken = std::ranges::find(pPeer->slots, 1486, &::slot::id);
 
     const std::string s_tab = pipes[3];
     u_short tab{};
@@ -38,7 +38,7 @@ void action::buy(ENetEvent& event, const std::string& header, const std::string_
             (tab == 5) ? 
                 std::format(
                     "set_description_text|`2Spend your Growtokens!`` (You have `5{}``) You earn Growtokens from Crazy Jim and Sales-Man. Select the item you'd like more info on, or BACK to go back.\n",
-                    (growtoken != peer->slots.end()) ? growtoken->count : 0) : ""
+                    (growtoken != pPeer->slots.end()) ? growtoken->count : 0) : ""
         );
         StoreRequest.append("enable_tabs|1\nadd_tab_button|main_menu|Home|interface/large/btn_shop.rttex||0|0|0|0||||-1|-1|||0|0|CustomParams:|\n");
         StoreRequest.append(
@@ -77,17 +77,17 @@ void action::buy(ENetEvent& event, const std::string& header, const std::string_
             int growtoken_cost = std::abs(shouhin.cost);
             if (shouhin.btn == "upgrade_backpack") shouhin.cost = backpack_cost;
             if ((_tab == 5)
-                ? (growtoken == peer->slots.end() || growtoken->count < growtoken_cost)
-                : peer->gems < shouhin.cost)
+                ? (growtoken == pPeer->slots.end() || growtoken->count < growtoken_cost)
+                : pPeer->gems < shouhin.cost)
             {
                 packet::create(*event.peer, false, 0, 
                 {
                     "OnStorePurchaseResult",
                     (_tab < 5) ? 
                         std::format("You can't afford `0{}``!  You're `${}`` Gems short.", 
-                            shouhin.name, shouhin.cost - peer->gems).c_str() :
+                            shouhin.name, shouhin.cost - pPeer->gems).c_str() :
                         std::format("You can't afford `0{}``!  You're `${}`` `2Growtokens`` short.", 
-                            shouhin.name, (growtoken == peer->slots.end()) ? growtoken_cost : growtoken_cost - growtoken->count).c_str()
+                            shouhin.name, (growtoken == pPeer->slots.end()) ? growtoken_cost : growtoken_cost - growtoken->count).c_str()
                 });
                 return;
             }
@@ -131,7 +131,7 @@ void action::buy(ENetEvent& event, const std::string& header, const std::string_
 
                 if (im.first == 9412) // @note 9412 is the id for increase backpack sprite, but peer wont actually be given that item.
                 {
-                    peer->slot_size += 10;
+                    pPeer->slot_size += 10;
                     send_inventory_state(event); // @note update the new slots
                 }
                 else modify_item_inventory(event, {im.first, im.second});
@@ -143,7 +143,7 @@ void action::buy(ENetEvent& event, const std::string& header, const std::string_
                 (_tab < 5) ? 
                     std::format(
                         "You've purchased `0{}`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0{}``",
-                        shouhin.name, shouhin.cost, peer->gems -= shouhin.cost, received).c_str() :
+                        shouhin.name, shouhin.cost, pPeer->gems -= shouhin.cost, received).c_str() :
                     std::format(
                         "You've purchased `0{}`` for `${}`` `2Growtokens``.\nYou have `${}`` `2Growtokens`` left.\n\n`5Received: ```0{}``",
                         shouhin.name, growtoken_cost, growtoken->count - growtoken_cost, received).c_str()

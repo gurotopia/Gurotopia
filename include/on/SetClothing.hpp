@@ -2,5 +2,5 @@
 
 namespace on
 {
-    extern void SetClothing(ENetPeer &p);
+    extern void SetClothing(ENetPeer &peer);
 }

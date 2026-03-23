@@ -211,8 +211,8 @@ std::vector<ENetPeer*> peers(const std::string &world, peer_condition condition,
         {
             if (condition == peer_condition::PEER_SAME_WORLD)
             {
-                ::peer *_p = static_cast<::peer*>(peer.data);
-                if (_p->netid == 0 || (_p->recent_worlds.back() != world)) continue;
+                ::peer *pOthers = static_cast<::peer*>(peer.data);
+                if (pOthers->netid == 0 || (pOthers->recent_worlds.back() != world)) continue;
             }
             fun(peer);
             _peers.push_back(&peer);
@@ -279,22 +279,22 @@ std::vector<u_char> compress_state(const state &state)
 
 void send_inventory_state(ENetEvent &event)
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     std::vector<u_char> data = compress_state(::state{
         .type = 0x09, // @note PACKET_SEND_INVENTORY_STATE
-        .netid = peer->netid,
+        .netid = pPeer->netid,
         .peer_state = 0x08
     });
 
-    std::size_t size = peer->slots.size();
+    std::size_t size = pPeer->slots.size();
     data.resize(data.size() + 5zu + (size * sizeof(int)));
 
     int *_4bit = reinterpret_cast<int*>(&data[58zu]);
 
-    *_4bit++ = std::byteswap<int>(peer->slot_size);
+    *_4bit++ = std::byteswap<int>(pPeer->slot_size);
     *_4bit++ = std::byteswap<int>(size);
-    for (const ::slot &slot : peer->slots)
+    for (const ::slot &slot : pPeer->slots)
         *_4bit++ = slot.id | (slot.count & 0xff) << 16;
 
 	enet_peer_send(event.peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));

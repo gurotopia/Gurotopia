@@ -6,7 +6,7 @@
 
 void popup(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     if (pipes.size() <= 11) return; // @note "Continue" botton on wrench has no data. so we return early.
 
     if (pipes[11zu] == "my_worlds")
@@ -36,13 +36,13 @@ void popup(ENetEvent& event, const std::vector<std::string> &&pipes)
                 "add_spacer|small|\n"
                 "end_dialog|worlds_list||Back|\n"
                 "add_quick_exit|\n",
-                section(peer->my_worlds)
+                section(pPeer->my_worlds)
             ).c_str()
         });
     }
     else if (pipes[11zu] == "billboard_edit")
     {
-        auto item = std::ranges::find(items, peer->billboard.id, &::item::id);
+        auto item = std::ranges::find(items, pPeer->billboard.id, &::item::id);
 
         packet::create(*event.peer, false, 0, {
             "OnDialogRequest",
@@ -59,14 +59,14 @@ void popup(ENetEvent& event, const std::vector<std::string> &&pipes)
             "add_checkbox|chk_perlock|Items per World Lock|{}\n"
             "add_spacer|small|\n"
             "end_dialog|billboard_edit|Close|Update|\n",
-            (peer->billboard.id == 0) ? 
+            (pPeer->billboard.id == 0) ? 
                 "" : 
-                std::format("add_label_with_icon|small|`w{}``|left|{}|\n", item->raw_name, peer->billboard.id),
-            to_char(peer->billboard.show),
-            to_char(peer->billboard.isBuying),
-            peer->billboard.price,
-            to_char(peer->billboard.perItem),
-            to_char(!peer->billboard.perItem)
+                std::format("add_label_with_icon|small|`w{}``|left|{}|\n", item->raw_name, pPeer->billboard.id),
+            to_char(pPeer->billboard.show),
+            to_char(pPeer->billboard.isBuying),
+            pPeer->billboard.price,
+            to_char(pPeer->billboard.perItem),
+            to_char(!pPeer->billboard.perItem)
             ).c_str()
         });
     }

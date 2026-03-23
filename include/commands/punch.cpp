@@ -34,8 +34,8 @@ void punch(ENetEvent& event, const std::string_view text)
         return;
     }
     std::string id{ text.substr(sizeof("punch ")-1) };
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    peer->punch_effect = (u_char)atoi(id.c_str());
+    pPeer->punch_effect = (u_char)atoi(id.c_str());
     on::SetClothing(*event.peer);
 }

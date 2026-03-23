@@ -6,19 +6,19 @@
 
 void action::tankIDName(ENetEvent& event, const std::string& header)
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     std::vector<std::string> pipes = readch(header, '|');
     if (pipes.empty() || pipes.size() < 41zu) enet_peer_disconnect_later(event.peer, 0);
 
     for (std::size_t i = 0; i < pipes.size(); ++i) 
     {
-        if      (pipes[i] == "tankIDName")   peer->ltoken[0] = pipes[i+1];
-        else if (pipes[i] == "game_version") peer->game_version = pipes[i+1];
-        else if (pipes[i] == "country")      peer->country = pipes[i+1];
-        else if (pipes[i] == "user")         peer->user_id = std::stoi(pipes[i+1]); // @todo validate user_id
+        if      (pipes[i] == "tankIDName")   pPeer->ltoken[0] = pipes[i+1];
+        else if (pipes[i] == "game_version") pPeer->game_version = pipes[i+1];
+        else if (pipes[i] == "country")      pPeer->country = pipes[i+1];
+        else if (pipes[i] == "user")         pPeer->user_id = std::stoi(pipes[i+1]); // @todo validate user_id
     }
-    peer->read(peer->ltoken[0]);
+    pPeer->read(pPeer->ltoken[0]);
 
     packet::create(*event.peer, false, 0, { "OnOverrideGDPRFromServer", 18, 1, 0, 1 });
     packet::create(*event.peer, false, 0, { "OnSetRoleSkinsAndTitles", "000000", "000000" });

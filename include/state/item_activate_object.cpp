@@ -4,9 +4,9 @@
 
 void item_activate_object(ENetEvent& event, state state) 
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
     if (world == worlds.end()) return;
 
     auto object = std::ranges::find(world->objects, state.id, &::object::uid);
@@ -20,11 +20,11 @@ void item_activate_object(ENetEvent& event, state state)
                 std::format("Collected `w{} {}``.", object->count, item->raw_name).c_str() :
                 std::format("Collected `w{} {}``. Rarity: `w{}``", object->count, item->raw_name, item->rarity).c_str()
         });
-        object->count = peer->emplace(::slot(object->id, object->count));
+        object->count = pPeer->emplace(::slot(object->id, object->count));
     }
     else 
     {
-        peer->gems += object->count;
+        pPeer->gems += object->count;
         object->count = 0;
         on::SetBux(event);
     }

@@ -5,22 +5,22 @@
 
 void who(ENetEvent& event, const std::string_view text) 
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     std::vector<std::string> names;
-    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&peer, event, &names](ENetPeer& p)
+    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&pPeer, event, &names](ENetPeer& peer)
     {
-        ::peer *_p = static_cast<::peer*>(p.data);
+        ::peer *pOthers = static_cast<::peer*>(peer.data);
 
-        std::string full_name = std::format("`{}{}", _p->prefix, _p->ltoken[0]);
-        if (_p->user_id != peer->user_id)
+        std::string full_name = std::format("`{}{}", pOthers->prefix, pOthers->ltoken[0]);
+        if (pOthers->user_id != pPeer->user_id)
         {
-            packet::create(*event.peer, false, 0, { "OnTalkBubble", _p->netid, full_name.c_str(), 1u });
+            packet::create(*event.peer, false, 0, { "OnTalkBubble", pOthers->netid, full_name.c_str(), 1u });
         }
         names.emplace_back(std::move(full_name));
     });
     packet::action(*event.peer, "log", std::format(
         "msg|`wWho's in `${}``:`` {}``",
-        peer->recent_worlds.back(), join(names, ", ")
+        pPeer->recent_worlds.back(), join(names, ", ")
     ));
 }

@@ -162,8 +162,8 @@ world::~world()
             sqlite3_bind_int(stmt,   i++, b.bg);
             sqlite3_bind_int64(stmt, i++, duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count());
             sqlite3_bind_text(stmt,  i++, b.label.c_str(), -1, SQLITE_STATIC);
-            sqlite3_bind_int(stmt,   i++, b.state3);
-            sqlite3_bind_int(stmt,   i++, b.state4);
+            sqlite3_bind_int(stmt,   i++, b.state[2]);
+            sqlite3_bind_int(stmt,   i++, b.state[3]);
         });
     }
 
@@ -217,7 +217,7 @@ world::~world()
 
 std::vector<world> worlds;
 
-void send_data(ENetPeer& peer, const std::vector<u_char> &&data)
+void send_data(ENetPeer &peer, const std::vector<u_char> &&data)
 {
     ENetPacket *packet = enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE);
     if (packet == nullptr || packet->dataLength < sizeof(::state)) return;
@@ -225,11 +225,11 @@ void send_data(ENetPeer& peer, const std::vector<u_char> &&data)
     enet_peer_send(&peer, 1, packet);
 }
 
-void state_visuals(ENetPeer& peer, state &&state) 
+void state_visuals(ENetPeer &peer, state &&state) 
 {
-    ::peer *_p = static_cast<::peer*>(peer.data);
+    ::peer *pPeer = static_cast<::peer*>(peer.data);
 
-    peers(_p->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
+    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer &p) 
     {
         send_data(p, compress_state(state));
     });
@@ -237,34 +237,34 @@ void state_visuals(ENetPeer& peer, state &&state)
 
 void tile_apply_damage(ENetEvent& event, state state, block &block, u_int value)
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    (block.fg == 0) ? ++block.hits.back() : ++block.hits.front();
+    (block.fg == 0) ? ++block.hits[0] : ++block.hits[1];
     state.type = (value << 24) | 0x000008; // @note 0x{}000008
     state.id = 6; // @note idk exactly
-    state.netid = peer->netid;
+    state.netid = pPeer->netid;
 	state_visuals(*event.peer, std::move(state));
 }
 
 short modify_item_inventory(ENetEvent& event, ::slot slot)
 {   
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     ::state state{.id = slot.id};
     if (slot.count < 0) state.type = (slot.count*-1 << 16) | 0x000d; // @noote 0x00{}000d
     else                state.type = (slot.count    << 24) | 0x000d; // @noote 0x{}00000d
     state_visuals(*event.peer, std::move(state));
 
-    return peer->emplace(::slot(slot.id, slot.count));
+    return pPeer->emplace(::slot(slot.id, slot.count));
 }
 
 int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed uid) 
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     ::state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
 
-    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
     if (world == worlds.end()) return -1;
 
     auto object = std::ranges::find_if(world->objects, [&](const ::object &object) {
@@ -282,7 +282,7 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
     }
     else if (slot.count == 0 || slot.id == 0) // @note remove drop
     {
-        state.netid = peer->netid;
+        state.netid = pPeer->netid;
         state.uid = 0xffffffff;
         state.id = uid;
     }
@@ -299,7 +299,7 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
     return state.uid;
 }
 
-void add_drop(ENetEvent& event, ::slot im, ::pos pos)
+void add_drop(ENetEvent &event, ::slot im, ::pos pos)
 {
     ransuu ransuu;
     item_change_object(event, {im.id, im.count},
@@ -309,7 +309,7 @@ void add_drop(ENetEvent& event, ::slot im, ::pos pos)
     });
 }
 
-void send_tile_update(ENetEvent &event, state state, block &block, world& w) 
+void send_tile_update(ENetEvent &event, state state, block &block, world &world) 
 {
     state.type = 05; // @note PACKET_SEND_TILE_UPDATE_DATA
     state.peer_state = 0x08;
@@ -322,21 +322,21 @@ void send_tile_update(ENetEvent &event, state state, block &block, world& w)
     *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
     pos += sizeof(short);
     
-    data[pos++] = block.state3 ;
-    data[pos++] = block.state4;
+    data[pos++] = block.state[2] ;
+    data[pos++] = block.state[3];
     auto item = std::ranges::find(items, block.fg, &::item::id);
     switch (item->type)
     {
         case type::LOCK:
         {
-            if (!is_tile_lock(block.fg)) w.is_public = (block.state3 & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
+            if (!is_tile_lock(block.fg)) world.is_public = (block.state[2] & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
 
-            std::size_t admins = std::ranges::count_if(w.admin, std::identity{});
+            std::size_t admins = std::ranges::count_if(world.admin, std::identity{});
             data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + 4zu + (admins * 4zu));
 
             data[pos++] = 0x03;
-            data[pos++] = w.lock_state;
-            *reinterpret_cast<int*>(&data[pos]) = w.owner; pos += sizeof(int);
+            data[pos++] = world.lock_state;
+            *reinterpret_cast<int*>(&data[pos]) = world.owner; pos += sizeof(int);
             *reinterpret_cast<int*>(&data[pos]) = admins; pos += sizeof(int);
             /* @todo admin list */
             break;
@@ -386,7 +386,7 @@ void send_tile_update(ENetEvent &event, state state, block &block, world& w)
         case DISPLAY_BLOCK:
         {
             data.resize(pos + 1zu + 4zu);
-            auto display = std::ranges::find(w.displays, state.punch, &::display::pos);
+            auto display = std::ranges::find(world.displays, state.punch, &::display::pos);
 
             data[pos++] = 0x17;
             *reinterpret_cast<int*>(&data[pos]) = display->id; pos += sizeof(int);
@@ -394,14 +394,14 @@ void send_tile_update(ENetEvent &event, state state, block &block, world& w)
         }
     }
 
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
-    peers(peer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
+    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
     {
         send_data(p, std::move(data));
     });
 }
 
-void remove_fire(ENetEvent &event, state state, block &block, world& w)
+void remove_fire(ENetEvent &event, state state, block &block, world& world)
 {
     state_visuals(*event.peer, ::state{
         .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
@@ -409,12 +409,12 @@ void remove_fire(ENetEvent &event, state state, block &block, world& w)
         .speed = ::pos{ 0x00000000, 0x95 }
     });
 
-    block.state4 &= ~S_FIRE;
-    send_tile_update(event, state, block, w);
+    block.state[3] &= ~S_FIRE;
+    send_tile_update(event, state, block, world);
 
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    if (++peer->fires_removed % 100 == 0) 
+    if (++pPeer->fires_removed % 100 == 0) 
     {
         packet::create(*event.peer, false, 0, {
             "OnConsoleMessage",
@@ -423,7 +423,7 @@ void remove_fire(ENetEvent &event, state state, block &block, world& w)
         modify_item_inventory(event, {3090/*Combustible Box*/, 1});
     }
 
-    peer->add_xp(event, 1);
+    pPeer->add_xp(event, 1);
 }
 
 void generate_world(world &world, const std::string& name)

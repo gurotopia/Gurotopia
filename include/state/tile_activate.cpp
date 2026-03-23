@@ -5,9 +5,9 @@
 
 void tile_activate(ENetEvent& event, state state)
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    auto world = std::ranges::find(worlds, peer->recent_worlds.back(), &::world::name);
+    auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
     if (world == worlds.end()) return;
 
     ::block &block = world->blocks[cord(state.punch.x, state.punch.y)];
@@ -40,7 +40,7 @@ void tile_activate(ENetEvent& event, state state)
             {
                 packet::create(*event.peer, true, 0, {
                     "OnSetPos", 
-                    std::vector<float>{peer->rest_pos.x, peer->rest_pos.y}
+                    std::vector<float>{pPeer->rest_pos.x, pPeer->rest_pos.y}
                 });
                 packet::create(*event.peer, false, 0, {
                     "OnZoomCamera", 
@@ -54,13 +54,13 @@ void tile_activate(ENetEvent& event, state state)
         }
         case type::CHECKPOINT:
         {
-            ::block &checkpoint = world->blocks[cord(peer->rest_pos.by_32(true).x, peer->rest_pos.by_32(true).y)]; // @note get previous checkpoint from respawn position
+            ::block &checkpoint = world->blocks[cord(pPeer->rest_pos.by_32(true).x, pPeer->rest_pos.by_32(true).y)]; // @note get previous checkpoint from respawn position
 
-            checkpoint.state3 &= ~S_TOGGLE;
-            send_tile_update(event, ::state{.id = block.fg/*has to be 'block' or else iterfere with main door*/, .punch = peer->rest_pos.by_32(true)}, checkpoint, *world);
+            checkpoint.state[2] &= ~S_TOGGLE;
+            send_tile_update(event, ::state{.id = block.fg/*has to be 'block' or else iterfere with main door*/, .punch = pPeer->rest_pos.by_32(true)}, checkpoint, *world);
 
-            peer->rest_pos = state.punch.by_32();
-            block.state3 |= S_TOGGLE; // @note toggle current checkpoint
+            pPeer->rest_pos = state.punch.by_32();
+            block.state[2] |= S_TOGGLE; // @note toggle current checkpoint
             send_tile_update(event, ::state{.id = block.fg, .punch = state.punch}, block, *world);
             break;
         }

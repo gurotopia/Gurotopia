@@ -3,7 +3,7 @@
 
 void on::RequestWorldSelectMenu(ENetEvent& event) 
 {
-    ::peer *peer = static_cast<::peer*>(event.peer->data);
+    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     
     auto section = [](const auto& range, const char* color) 
     {
@@ -32,8 +32,8 @@ void on::RequestWorldSelectMenu(ENetEvent& event)
                 "add_heading|Recently Visited Worlds<CR>|\n{}",
             "add_floater|wotd_world|\u013B WOTD|0|0.5|3529161471\n", 
             section(popular_names, "3529161471"), 
-            section(peer->my_worlds, "2147418367"), 
-            section(peer->recent_worlds, "3417414143")
+            section(pPeer->my_worlds, "2147418367"), 
+            section(pPeer->recent_worlds, "3417414143")
         ).c_str(), 
         1
     });

@@ -239,7 +239,7 @@ void tile_apply_damage(ENetEvent& event, state state, block &block, u_int value)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    (block.fg == 0) ? ++block.hits[0] : ++block.hits[1];
+    (block.fg == 0) ? ++block.hits[1] : ++block.hits[0];
     state.type = (value << 24) | 0x000008; // @note 0x{}000008
     state.id = 6; // @note idk exactly
     state.netid = pPeer->netid;

@@ -50,17 +50,37 @@ void tile_change(ENetEvent& event, state state)
                 punch = true;
                 if (pPeer->clothing[hand] == 5480) // @note Rayman's Fist
                 {
-                    /* @todo handle vertical punches */
-                    int x1_nabor = (pPeer->facing_left) ? state.punch.x-1 : state.punch.x+1;
-                    int x2_nabor = (pPeer->facing_left) ? state.punch.x-2 : state.punch.x+2;
-                    
-                    ::state x1_state = state;
-                    x1_state.punch = {x1_nabor, x1_state.punch.y_int()};
-                    tile_change(event, std::move(x1_state));
+                    ::state copy_state = state;
 
-                    ::state x2_state = state;
-                    x2_state.punch = {x2_nabor, x2_state.punch.y_int()};
-                    tile_change(event, std::move(x2_state));
+                    /* @note up and down */
+                    if (state.punch.y == state.pos.by_32(true).y)
+                    {
+                        copy_state.punch.x += (pPeer->facing_left) ? -1 : 1;
+                        tile_change(event, std::move(copy_state));
+                        
+                        copy_state.punch.x += (pPeer->facing_left) ? -1 : 1;
+                        tile_change(event, std::move(copy_state));
+                    }
+                    /* @note left and right <- -> */
+                    else if (state.punch.x == state.pos.by_32(true).x)
+                    {
+                        copy_state.punch.y += (state.punch.y < state.pos.by_32(true).y) ? -1 : 1;
+                        tile_change(event, std::move(copy_state));
+
+                        copy_state.punch.y += (state.punch.y < state.pos.by_32(true).y) ? -1 : 1;
+                        tile_change(event, std::move(copy_state));
+                    }
+                    /* @note horizontal adjacent \/ */
+                    else if (state.punch.y != state.pos.by_32(true).y)
+                    {
+                        copy_state.punch.x += (pPeer->facing_left) ? -1 : 1;
+                        copy_state.punch.y += (state.punch.y < state.pos.by_32(true).y) ? -1 : 1;
+                        tile_change(event, std::move(copy_state));
+
+                        copy_state.punch.x += (pPeer->facing_left) ? -1 : 1;
+                        copy_state.punch.y += (state.punch.y < state.pos.by_32(true).y) ? -1 : 1;
+                        tile_change(event, std::move(copy_state));
+                    }
                 }
                 punch = false;
             }

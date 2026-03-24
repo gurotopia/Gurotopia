@@ -72,6 +72,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     case type::FIRE_PAIN: // @note lava
                     case type::FOREGROUND: 
                     case type::BACKGROUND:
+                    case type::ANIMATED: // @note chand
                     case type::BOUNCY:
                     case type::CHECKPOINT:
                     case type::TOGGLEABLE_BLOCK:

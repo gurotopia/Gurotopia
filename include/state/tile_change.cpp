@@ -112,6 +112,7 @@ void tile_change(ENetEvent& event, state state)
                     
                     if (world->owner != pPeer->user_id)
                         throw std::runtime_error(std::format("`5[```w{}`` `$World Locked`` by (null)`5]``", world->name)); // @todo add owner name
+                    break;
                 }
                 case type::PROVIDER:
                 {

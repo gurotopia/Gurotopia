@@ -42,7 +42,36 @@ void action::input(ENetEvent& event, const std::string& header)
     }
     else 
     {
-        if (pPeer->state & S_DUCT_TAPE) text = "mfmm"; // @todo scalewith length of message. e.g. "hello" -> "mfmm"; "hello world" -> "mfmm mmfmfm"
+        if (pPeer->state & S_DUCT_TAPE)
+        {
+            static constexpr std::array<std::string_view, 4zu> muffled{
+                "mfmm",
+                "mmfmfm",
+                "mffm",
+                "mfmfmm"
+            };
+
+            std::string muffled_text{};
+            muffled_text.reserve(text.size());
+
+            std::size_t word_index{};
+            for (std::size_t i = 0zu; i < text.size();)
+            {
+                if (std::isspace(static_cast<unsigned char>(text[i])))
+                {
+                    muffled_text += text[i++];
+                    continue;
+                }
+
+                while (i < text.size() && !std::isspace(static_cast<unsigned char>(text[i])))
+                    ++i;
+
+                muffled_text += muffled[word_index % muffled.size()];
+                ++word_index;
+            }
+
+            text = std::move(muffled_text);
+        }
         std::string player_chat = std::format("CP:0_PL:0_OID:_player_chat={}", text);
         std::string message = std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", pPeer->prefix, pPeer->ltoken[0], text);
         peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&pPeer, player_chat, message](ENetPeer& p) 

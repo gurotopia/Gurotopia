@@ -16,9 +16,12 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
     u_char index{};
     for (const std::any &param : params) 
     {
-        if (param.type() == typeid(const char*)) 
+        if (param.type() == typeid(const char*) || param.type() == typeid(std::string)) 
         {
-            std::string_view param_view{ std::any_cast<const char*>(param) };
+            std::string_view param_view =
+                (param.type() == typeid(const char*))
+                    ? std::string_view{ std::any_cast<const char*>(param) }
+                    : std::string_view{ std::any_cast<const std::string&>(param) };
             data.resize(size + 2zu + sizeof(int) + param_view.length());
             data[size] = index; // @note element counter e.g. "OnConsoleMessage" -> 00, "hello" -> 01
             data[size + 1zu] = 0x02;

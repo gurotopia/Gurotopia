@@ -8,6 +8,7 @@
 #include "sb.hpp"
 #include "who.hpp"
 #include "me.hpp"
+#include "news.hpp"
 #include "weather.hpp"
 #include "ghost.hpp"
 #include "ageworld.hpp"
@@ -16,7 +17,7 @@
 /* if you plan to use this outside of this file, please include in __command.hpp (^-^) - and just make it a void. */
 auto help_return = [](ENetEvent& event, const std::string_view text) 
 {
-    packet::action(*event.peer, "log", "msg|>> Commands: /find /warp {world} /edit {player} /punch {id} /skin {id} /sb {msg} /who /me {msg} /weather {id} /ghost /ageworld /wave /dance /love /sleep /facepalm /fp /smh /yes /no /omg /idk /shrug /furious /rolleyes /foldarms /stubborn /fold /dab /sassy /dance2 /march /grumpy /shy \0");
+    packet::action(*event.peer, "log", "msg|>> Commands: /find /warp {world} /edit {player} /punch {id} /skin {id} /sb {msg} /who /me {msg} /news /weather {id} /ghost /ageworld /wave /dance /love /sleep /facepalm /fp /smh /yes /no /omg /idk /shrug /furious /rolleyes /foldarms /stubborn /fold /dab /sassy /dance2 /march /grumpy /shy \0");
 };
 
 std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::string_view)>> cmd_pool
@@ -31,6 +32,7 @@ std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::s
     {"sb", &sb},
     {"who", &who},
     {"me", &me},
+    {"news", &news},
     {"weather", &weather},
     {"ghost", &ghost},
     {"ageworld", &ageworld},

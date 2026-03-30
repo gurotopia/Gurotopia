@@ -12,12 +12,19 @@
 #include <filesystem>
 #include <csignal>
 
+static volatile std::sig_atomic_t shutdown_requested{};
+
+static void request_shutdown(int)
+{
+    shutdown_requested = 1;
+}
+
 int main()
 {
     /* !! please press Ctrl + C when restarting or stopping server !! */
-    std::signal(SIGINT, safe_disconnect_peers);
+    std::signal(SIGINT, request_shutdown);
 #ifdef SIGHUP // @note unix
-    std::signal(SIGHUP,  safe_disconnect_peers); // @note PuTTY, SSH problems
+    std::signal(SIGHUP, request_shutdown); // @note PuTTY, SSH problems
 #endif
 
     /* libary version checker */
@@ -47,10 +54,11 @@ int main()
     check_for_holiday(); // @note check for any holidays using local time (your VPS or local time) - @todo thread loop so it can change the holiday without restarting
 
     ENetEvent event{};
-    while (true)
+    while (!shutdown_requested)
         while (enet_host_service(host, &event, 1000/*ms*/) > 0)
             if (const auto i = event_pool.find(event.type); i != event_pool.end())
                 i->second(event);
 
+    safe_disconnect_peers(0);
     return 0;
 }

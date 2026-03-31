@@ -16,12 +16,9 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
     u_char index{};
     for (const std::any &param : params) 
     {
-        if (param.type() == typeid(const char*) || param.type() == typeid(std::string)) 
+        if (param.type() == typeid(const char*)) 
         {
-            std::string_view param_view =
-                (param.type() == typeid(const char*))
-                    ? std::string_view{ std::any_cast<const char*>(param) }
-                    : std::string_view{ std::any_cast<const std::string&>(param) };
+            std::string_view param_view{ std::any_cast<const char*>(param) };
             data.resize(size + 2zu + sizeof(int) + param_view.length());
             data[size] = index; // @note element counter e.g. "OnConsoleMessage" -> 00, "hello" -> 01
             data[size + 1zu] = 0x02;
@@ -32,6 +29,20 @@ void packet::create(ENetPeer& p, bool netid, signed delay, const std::vector<std
                 data[size + 6zu + i] = _1bit[i]; // @note e.g. 'a' -> 0x61. 'z' = 0x7A, hex tabel: https://en.cppreference.com/w/cpp/language/ascii
 
             size += 2zu + sizeof(int) + param_view.length();
+        }
+        else if (param.type() == typeid(std::string))
+        {
+            const std::string& param_value = std::any_cast<const std::string&>(param);
+            data.resize(size + 2zu + sizeof(int) + param_value.length() + 1zu);
+            data[size] = index;
+            data[size + 1zu] = 0x02;
+            *reinterpret_cast<int*>(&data[size + 2zu]) = param_value.length() + 1zu;
+
+            const u_char *_1bit = reinterpret_cast<const u_char*>(param_value.c_str());
+            for (std::size_t i = 0zu; i < param_value.length() + 1zu; ++i)
+                data[size + 6zu + i] = _1bit[i];
+
+            size += 2zu + sizeof(int) + param_value.length() + 1zu;
         }
         else if (param.type() == typeid(int) || param.type() == typeid(u_int)) 
         {

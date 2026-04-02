@@ -3,6 +3,7 @@
 #include "server_data.hpp"
 
 #include <openssl/err.h>
+#include <csignal>
 
 #ifdef _WIN32
     #include <winsock2.h>
@@ -32,6 +33,10 @@ void https::listener()
             ERR_print_errors_fp(stderr);
 
     SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
+
+#ifdef SIGPIPE
+    std::signal(SIGPIPE, SIG_IGN);
+#endif
 
     SOCKET socket = ::socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 

@@ -66,6 +66,8 @@ void https::listener()
     if (socket == INVALID_SOCKET)
     {
         cross_log("socket function failed");
+        SSL_CTX_free(ctx);
+        return;
     }
 
 #ifdef SO_REUSEADDR
@@ -84,6 +86,9 @@ void https::listener()
     if (bind(socket, (struct sockaddr*)&addr, addrlen) == SOCKET_ERROR)
     {
         cross_log("could not bind socket");
+        SSL_CTX_free(ctx);
+        cross_close(socket);
+        return;
     }
 
     const std::string Content =
@@ -111,6 +116,9 @@ void https::listener()
     if (listen(socket, SOMAXCONN) == SOCKET_ERROR)
     {
         cross_log("failed to listen on socket");
+        SSL_CTX_free(ctx);
+        cross_close(socket);
+        return;
     }
     else std::printf("listening on %s:%hu\n", g_server_data.server.c_str(), g_server_data.port);
     
@@ -121,7 +129,7 @@ void https::listener()
         if (fd == INVALID_SOCKET) 
         {
             cross_log("accept function failed");
-            continue;
+            break;
         }
 
         /* https://learn.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-setsockopt */
@@ -164,6 +172,9 @@ void https::listener()
         SSL_free(ssl);
         cross_close(fd);
     }
+
+    SSL_CTX_free(ctx);
+    cross_close(socket);
 }
 
 #ifndef _WIN32

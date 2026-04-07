@@ -13,8 +13,11 @@ void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip
     std::string message = std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, pPeer->ltoken[0], world->visitors-1);
     std::string netid = std::format("netID|{}\n", pPeer->netid);
     std::string pId = std::format("pId|{}\n", pPeer->user_id); // @note this is found during OnSpawn 'eid', the value is the same for user_id.
-    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [message, netid, pId](ENetPeer& peer) 
+    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [pPeer, message, netid, pId](ENetPeer& peer) 
     {
+        ::peer *pOthers = static_cast<::peer*>(peer.data);
+        if (pOthers->user_id == pPeer->user_id) return;
+
         packet::create(peer, false, 0, { "OnConsoleMessage", message.c_str() });
         packet::create(peer, false, 0, { "OnRemove", netid.c_str(), pId.c_str() }); // @todo
     });

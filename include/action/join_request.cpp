@@ -266,6 +266,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 (pPeer->user_id == world.owner) ? '2' : 
                 (std::ranges::contains(world.admin, pPeer->user_id)) ? 'c' : pPeer->prefix.front();
 
+        pPeer->pos = pPeer->rest_pos;
         pPeer->netid = ++world.netid_counter;
         peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &pPeer, &world](ENetPeer& peer/*send to everyone in world*/) 
         {

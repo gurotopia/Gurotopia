@@ -368,10 +368,26 @@ void tile_change(ENetEvent& event, state state)
                     if (!door_mover(*world, state.punch)) throw std::runtime_error("There's no room to put the door there! You need 2 empty spaces vertically.");
 
                     std::string remember_name = world->name;
-                    action::quit_to_exit(event, "", true); // @todo everyone in world exits
-                    action::join_request(event, "", remember_name); // @todo everyone in world re-joins
-                    
-                    break;
+                    std::vector<ENetPeer*> world_peers = peers(remember_name, PEER_SAME_WORLD);
+
+                    for (ENetPeer *peer : world_peers)
+                    {
+                        if (!peer || peer->state != ENET_PEER_STATE_CONNECTED) continue;
+
+                        ENetEvent peer_event{};
+                        peer_event.peer = peer;
+                        action::quit_to_exit(peer_event, "", true); // @note everyone in world exits
+                    }
+
+                    for (ENetPeer *peer : world_peers)
+                    {
+                        if (!peer || peer->state != ENET_PEER_STATE_CONNECTED) continue;
+
+                        ENetEvent peer_event{};
+                        peer_event.peer = peer;
+                        action::join_request(peer_event, "", remember_name); // @note everyone in world re-joins
+                    }
+                    return;
                 }
                 case 822: // @note Water Bucket
                 {

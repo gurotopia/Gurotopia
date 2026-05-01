@@ -11,9 +11,9 @@ std::vector<u_char> im_data(sizeof(::state)/*inital packet*/ + 1, 0x00);
 template<typename T>
 void shift_pos(const std::vector<u_char> &data, u_int &pos, T &value) 
 {
-    u_char *_1bit = reinterpret_cast<u_char*>(&value); 
+    u_char *i8 = reinterpret_cast<u_char*>(&value); 
     for (std::size_t i = 0zu; i < sizeof(T); ++i) 
-        _1bit[i] = data[pos + i];
+        i8[i] = data[pos + i];
     pos += sizeof(T);
 }
 
@@ -21,9 +21,9 @@ void shift_pos(const std::vector<u_char> &data, u_int &pos, T &value)
 template<typename T>
 void data_modify(std::vector<u_char> &data, const u_int &pos, const T &value) 
 {
-    const u_char *_1bit = reinterpret_cast<const u_char*>(&value);
+    const u_char *i8 = reinterpret_cast<const u_char*>(&value);
     for (std::size_t i = 0zu; i < sizeof(T); ++i) 
-        data[pos + i] = _1bit[i];
+        data[pos + i] = i8[i];
 }
 
 void decode_items()
@@ -37,7 +37,7 @@ void decode_items()
 
     im_data.resize(im_data.size() + size); // @note resize to fit binary data
     std::ifstream("items.dat", std::ios::binary)
-        .read(reinterpret_cast<char*>(&im_data[sizeof(::state)]), size); // @note the binary data···
+        .read((char*)&im_data[sizeof(::state)], size); // @note the binary data···
 
     u_int pos{ sizeof(::state) };
     u_short version{};
@@ -136,47 +136,57 @@ void decode_items()
 
         pos += sizeof(std::array<u_char, 80zu>);
 
-        if (version >= 11u) // @date February 2019
+        if (version >= 0x0b) // @date February 2019
         {
             pos += *(reinterpret_cast<short*>(&im_data[pos]));
             pos += sizeof(short);
         }
-        if (version >= 12u) // @date October 2020
+        if (version >= 0x0c) // @date October 2020
         {
             pos += sizeof(int);
             pos += sizeof(std::array<u_char, 9zu>);
         }
-        if (version >= 13u) pos += sizeof(int); // @date May 2021
-        if (version >= 14u) pos += sizeof(int); // @date October 2021
-        if (version >= 15u)
+        if (version >= 0x0d) pos += sizeof(int); // @date May 2021
+        if (version >= 0x0e) pos += sizeof(int); // @date October 2021
+        if (version >= 0x0f)
         {
             pos += sizeof(std::array<u_char, 25zu>);
             pos += *(reinterpret_cast<short*>(&im_data[pos]));
             pos += sizeof(short);
         }
-        if (version >= 16u)
+        if (version >= 0x10)
         {
             pos += *(reinterpret_cast<short*>(&im_data[pos]));
             pos += sizeof(short);
         }
-        if (version >= 17u) pos += sizeof(int); // @date April 2024
-        if (version >= 18u) pos += sizeof(int); // @date December 2024
-        if (version >= 19u) pos += sizeof(std::array<u_char, 9zu>);
-        if (version >= 21u) pos += sizeof(short); // @date September 2025
-        if (version >= 22u)
+        if (version >= 0x11) pos += sizeof(int); // @date April 2024
+        if (version >= 0x12) pos += sizeof(int); // @date December 2024
+        if (version >= 0x13) pos += sizeof(std::array<u_char, 9zu>);
+        if (version >= 0x15) pos += sizeof(short); // @date September 2025
+        if (version >= 0x16)
         {
             len = *reinterpret_cast<short*>(&im_data[pos]);
             pos += sizeof(short);
             im.info.assign(reinterpret_cast<char*>(&im_data[pos]), len);
             pos += len;
         }
-        if (version >= 23u) 
+        if (version >= 0x17) 
         {
             shift_pos(im_data, pos, im.splice[0]);
             shift_pos(im_data, pos, im.splice[1]);
         }
-        if (version >= 24u) pos += sizeof(u_char); // @date December 2025
-        if (version == 25u) pos += sizeof(std::array<u_char, 6zu>);
+        if (version >= 0x18) pos += sizeof(u_char); // @date December 2025
+        if (version == 0x19) 
+        {
+            len = *reinterpret_cast<short*>(&im_data[pos]);
+            pos += sizeof(short);
+            if (len > (sizeof(short) + sizeof(int))) // @note {size} 0x00 0x00 0x00 0x00
+            {
+                // @todo add the string for the hit FX
+                pos += len;
+            }
+            pos += sizeof(int); // @note default: 0x00 0x00 0x00 0x00
+        }
         
         items.emplace_back(im);
     }

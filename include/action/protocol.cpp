@@ -31,7 +31,7 @@ void action::protocol(ENetEvent& event, const std::string& header)
         if (pPeer->growid.empty() || pPeer->password.empty()) throw std::runtime_error("");
     }
     catch (...) { 
-        packet::action(*event.peer, "logon_fail", "");
+        send_action(*event.peer, "logon_fail", "");
         return; // @note stop processing invalid protocol data
     }
 

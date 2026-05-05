@@ -10,11 +10,11 @@
     #include <vector>
     #include <openssl/ssl.h>
 
+    #include "proton/Variant.hpp"
+    
     #include "database/items.hpp"
     #include "database/peer.hpp"
     #include "database/world.hpp"
-    #include "proton/Variant.hpp"
-    #include "packet/packet.hpp"
 
     #include "tools/string.hpp"
 

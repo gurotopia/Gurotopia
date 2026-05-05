@@ -42,7 +42,7 @@ void peer::mysql_update(const std::string& column, const T& value)
     ::hStmt hStmt{ std::format("UPDATE peer SET {} = ? WHERE growid = ?", column).c_str() };
 
     MYSQL_BIND params[2] = {
-        make_bind_in(value),           // SET
+        make_bind_in(value),       // SET
         make_bind_in(this->growid) // WHERE
     };
     mysql_stmt_bind_param(hStmt.pStmt, params);
@@ -74,8 +74,8 @@ T peer::mysql_select(const std::string &column, const char *arg)
 void peer::mysql_select_all()
 {
     this->user_id    = this->mysql_select<signed>("uid");
-    this->growid  = this->mysql_select<std::string>("growid");
-    this->password  = this->mysql_select<std::string>("password");
+    this->growid     = this->mysql_select<std::string>("growid");
+    this->password   = this->mysql_select<std::string>("password");
     this->created_at = this->mysql_select<std::time_t>("created_at", "UNIX_TIMESTAMP");
 }
 

@@ -38,3 +38,4 @@ void receive(ENetEvent& event)
     }
     enet_packet_destroy(event.packet);
 }
+

@@ -117,6 +117,8 @@ public:
 };
 extern std::vector<world> worlds;
 
+extern void send_action(ENetPeer& p, const std::string& action, const std::string& str);
+
 extern void send_data(ENetPeer &peer, const std::vector<u_char> &&data);
 
 extern void state_visuals(ENetPeer &peer, state &&state);

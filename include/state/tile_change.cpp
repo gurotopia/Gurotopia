@@ -271,7 +271,7 @@ void tile_change(ENetEvent& event, state state)
                     std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", pPeer->growid, item->raw_name);
                     peers(pPeer->recent_worlds.back(), PEER_ALL, [message](ENetPeer &p)
                     {
-                        packet::action(p, "log", message.c_str());
+                        send_action(p, "log", message.c_str());
                     });
                 }
                 if (++pPeer->gbc_pity % 100 == 0) modify_item_inventory(event, ::slot{9350, 1});

@@ -6,7 +6,7 @@
 
 std::vector<item> items;
 
-std::vector<u_char> im_data(sizeof(::state)/*inital packet*/ + 1, 0x00);
+std::vector<u_char> im_data(sizeof(::state)/*inital packet*/, 0x00);
 
 template<typename T>
 void shift_pos(const std::vector<u_char> &data, u_int &pos, T &value) 
@@ -34,12 +34,11 @@ void decode_items()
         .peer_state = 0x08, 
         .size = size
     });
-
-    im_data.resize(im_data.size() + size); // @note resize to fit binary data
+    u_int pos = im_data.size(); // @note sizeof(::state)
+    im_data.resize(pos + size); // @note resize to fit binary data
+    
     std::ifstream("items.dat", std::ios::binary)
-        .read((char*)&im_data[sizeof(::state)], size); // @note the binary data···
-
-    u_int pos{ sizeof(::state) };
+        .read((char*)&im_data[pos], size); // @note the binary data···
 
     u_short version{};
     shift_pos(im_data, pos, version);

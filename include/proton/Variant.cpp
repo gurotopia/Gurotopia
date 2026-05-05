@@ -119,9 +119,13 @@ void send_varlist(ENetPeer *peer, VariantList vlist, int netid, int delay)
         .type = 01, // @note PACKET_CALL_FUNCTION
         .netid = netid,
         .peer_state = 0x08,
-		.id = delay
+		.id = delay,
+		.size = size
     });
-    data.insert(data.end(), pMem, pMem + size);
+	u_int pos = data.size(); // @note sizeof(::state)
+	data.resize(pos + size);
+
+	memcpy(data.data() + pos, pMem, size);
     delete[] pMem;
 
     enet_peer_send(peer, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));

@@ -18,7 +18,7 @@ void who(ENetEvent& event, const std::string_view text)
         }
         names.emplace_back(std::move(full_name));
     });
-    packet::action(*event.peer, "log", std::format(
+    send_action(*event.peer, "log", std::format(
         "msg|`wWho's in `${}``:`` {}``",
         pPeer->recent_worlds.back(), join(names, ", ")
     ));

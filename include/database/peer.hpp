@@ -141,7 +141,7 @@ extern void safe_disconnect_peers(int signal);
 
 class state {
 public:
-    int packet_create{ 04 };
+    int packet_create{ 04 }; // @note NET_MESSAGE_GAME_PACKET
 
     int type{};
     int netid{};

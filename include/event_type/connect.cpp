@@ -6,12 +6,12 @@ void _connect(ENetEvent& event)
 {
     if (peers().size() > host->peerCount) 
     {
-        packet::action(*event.peer, "log", 
+        send_action(*event.peer, "log", 
             std::format(
                 "msg|`4SERVER OVERLOADED`` : Sorry, our servers are currently at max capacity with {} online, please try later. We are working to improve this!",
                 host->peerCount
             ));
-        packet::action(*event.peer, "logon_fail", ""); // @note triggers action|quit on client.
+        send_action(*event.peer, "logon_fail", ""); // @note triggers action|quit on client.
     }
     else 
     {

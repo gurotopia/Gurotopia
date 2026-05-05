@@ -1,6 +1,8 @@
 #include "pch.hpp"
 #include "on/SetClothing.hpp"
 #include "commands/punch.hpp"
+#include "on/ConsoleMessage.hpp"
+
 #include "item_activate.hpp"
 
 void item_activate(ENetEvent& event, state state)
@@ -21,7 +23,7 @@ void item_activate(ENetEvent& event, state state)
         if (punch_id != 0)
             pPeer->punch_effect = punch_id;
 
-        packet::create(*event.peer, true, 0, { "OnEquipNewItem", state.id });
+        send_varlist(event.peer, { "OnEquipNewItem", state.id }, pPeer->netid);
         on::SetClothing(*event.peer); // @todo
     }
     else 
@@ -36,8 +38,8 @@ void item_activate(ENetEvent& event, state state)
             {
                 modify_item_inventory(event, {item->id, -100});
                 const std::string compressed = "You compressed 100 `2World Lock`` into a `2Diamond Lock``!";
-                packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, compressed.c_str(), 0u, 1u });
-                packet::create(*event.peer, false, 0, { "OnConsoleMessage",           compressed.c_str()         });
+                send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, compressed, 0u, 1u });
+                on::ConsoleMessage(event.peer, compressed);
             }
         }
         else if (item->id == 1796 && item->count >= 1)
@@ -48,8 +50,8 @@ void item_activate(ENetEvent& event, state state)
             {
                 modify_item_inventory(event, {item->id, -1});
                 const std::string shattered = "You shattered a `2Diamond Lock`` into 100 `2World Lock``!";
-                packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, shattered.c_str(), 0u, 1u });
-                packet::create(*event.peer, false, 0, { "OnConsoleMessage",           shattered.c_str()         });
+                send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, shattered, 0u, 1u });
+                on::ConsoleMessage(event.peer, shattered);
             }
             else modify_item_inventory(event, ::slot(242, -hyaku)); // @note return wls if can't hold 100
         }

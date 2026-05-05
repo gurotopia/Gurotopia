@@ -4,10 +4,11 @@
 
 void on::Spawn(ENetPeer &peer, signed netID, signed userID, ::pos posXY, std::string name, std::string country, bool mstate, bool smstate, bool local) 
 {
-    packet::create(peer, false, 0xffffffff, {
-        "OnSpawn",
+    send_varlist(&peer, { 
+        "OnSpawn", 
         std::format(
             "spawn|avatar\nnetID|{}\nuserID|{}\ncolrect|0|0|20|30\nposXY|{}|{}\nname|{}``\ncountry|{}\ninvis|0\nmstate|{}\nsmstate|{}\nonlineID|\n{}",
-            netID, userID, posXY.by_32(true).x_int(), posXY.by_32(true).y_int(), name, country, to_char(mstate), to_char(smstate), (local) ? "type|local\n" : "").c_str()
-    });
+            netID, userID, posXY.by_32(true).x_int(), posXY.by_32(true).y_int(), name, country, to_char(mstate), to_char(smstate), (local) ? "type|local\n" : ""
+        )
+    }, -1, 0xffffffff);
 }

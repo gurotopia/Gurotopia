@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "commands/__command.hpp"
+#include "on/ConsoleMessage.hpp"
 #include "input.hpp"
 
 using namespace std::chrono;
@@ -20,11 +21,11 @@ void action::input(ENetEvent& event, const std::string& header)
     pPeer->messages.push_back(now);
     if (pPeer->messages.size() > 5) pPeer->messages.pop_front();
     if (pPeer->messages.size() == 5 && duration_cast<std::chrono::seconds>(now - pPeer->messages.front()).count() < 6)
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage", 
+    {
+        on::ConsoleMessage(event.peer,
             "`6>>`4Spam detected! ``Please wait a bit before typing anything else.  "  
-            "Please note, any form of bot/macro/auto-paste will get all your accounts banned, so don't do it!"
-        });
+            "Please note, any form of bot/macro/auto-paste will get all your accounts banned, so don't do it!");
+    }
     else if (text.starts_with('/')) 
     {
         packet::action(*event.peer, "log", std::format("msg| `6{}``", text));
@@ -68,11 +69,11 @@ void action::input(ENetEvent& event, const std::string& header)
             text = std::move(muffled_text);
         }
         std::string player_chat = std::format("CP:0_PL:0_OID:_player_chat={}", text);
-        std::string message = std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", pPeer->prefix, pPeer->ltoken[0], text);
-        peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&pPeer, player_chat, message](ENetPeer& p) 
+        std::string message = std::format("CP:0_PL:0_OID:_CT:[W]_ `6<`{}{}``>`` `$`${}````", pPeer->prefix, pPeer->growid, text);
+        peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &pPeer, player_chat, message](ENetPeer& p) 
         {
-            packet::create(p, false, 0, { "OnTalkBubble", pPeer->netid, player_chat.c_str() });
-            packet::create(p, false, 0, { "OnConsoleMessage", message.c_str() });
+            send_varlist(&p, { "OnTalkBubble", pPeer->netid, player_chat });
+            on::ConsoleMessage(&p, message);
         });
     }
 }

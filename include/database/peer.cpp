@@ -43,7 +43,7 @@ void peer::mysql_update(const std::string& column, const T& value)
 
     MYSQL_BIND params[2] = {
         make_bind_in(value),           // SET
-        make_bind_in(this->ltoken[0]) // WHERE
+        make_bind_in(this->growid) // WHERE
     };
     mysql_stmt_bind_param(hStmt.pStmt, params);
     mysql_stmt_execute(hStmt.pStmt);
@@ -59,7 +59,7 @@ T peer::mysql_select(const std::string &column, const char *arg)
     T value{};
     ::hStmt hStmt{ std::format("SELECT {}({}) FROM peer WHERE growid = ? LIMIT 1", arg, column).c_str() };
 
-    MYSQL_BIND param = make_bind_in(this->ltoken[0]);
+    MYSQL_BIND param = make_bind_in(this->growid);
     mysql_stmt_bind_param(hStmt.pStmt, &param);
 
     MYSQL_BIND result = make_bind_out(value);
@@ -74,8 +74,8 @@ T peer::mysql_select(const std::string &column, const char *arg)
 void peer::mysql_select_all()
 {
     this->user_id    = this->mysql_select<signed>("uid");
-    this->ltoken[0]  = this->mysql_select<std::string>("growid");
-    this->ltoken[1]  = this->mysql_select<std::string>("password");
+    this->growid  = this->mysql_select<std::string>("growid");
+    this->password  = this->mysql_select<std::string>("password");
     this->created_at = this->mysql_select<std::time_t>("created_at", "UNIX_TIMESTAMP");
 }
 
@@ -122,9 +122,10 @@ void peer::add_xp(ENetEvent &event, u_short value)
             .pos = this->pos, 
             .speed = ::pos{0, 0x2e}
         });
-        packet::create(*event.peer, false, 0, {
-            "OnTalkBubble", this->netid,
-            std::format("`{}{}`` is now level {}!", this->prefix, this->ltoken[0], lvl).c_str()
+        send_varlist(event.peer, { 
+            "OnTalkBubble", 
+            this->netid,
+            std::format("`{}{}`` is now level {}!", this->prefix, this->growid, lvl) 
         });
     }
 }
@@ -200,7 +201,7 @@ state get_state(const std::vector<u_char> &&packet)
 
 std::vector<u_char> compress_state(const state &state) 
 {
-    std::vector<u_char> data(sizeof(::state) + 1, 0x00);
+    std::vector<u_char> data(sizeof(::state), 0x00);
     int   *i32   = reinterpret_cast<int*>(data.data());
     u_int *u_i32 = reinterpret_cast<u_int*>(data.data());
     float *f_i32 = reinterpret_cast<float*>(data.data());

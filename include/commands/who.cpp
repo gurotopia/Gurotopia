@@ -11,10 +11,10 @@ void who(ENetEvent& event, const std::string_view text)
     {
         ::peer *pOthers = static_cast<::peer*>(peer.data);
 
-        std::string full_name = std::format("`{}{}", pOthers->prefix, pOthers->ltoken[0]);
+        std::string full_name = std::format("`{}{}", pOthers->prefix, pOthers->growid);
         if (pOthers->user_id != pPeer->user_id)
         {
-            packet::create(*event.peer, false, 0, { "OnTalkBubble", pOthers->netid, full_name.c_str(), 1u });
+            send_varlist(event.peer, { "OnTalkBubble", pOthers->netid, full_name.c_str(), 1u });
         }
         names.emplace_back(std::move(full_name));
     });

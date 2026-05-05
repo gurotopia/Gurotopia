@@ -23,9 +23,10 @@ void on::EmoticonDataChanged(ENetEvent& event)
     EmoticonData.reserve(emoticon.size() * 23/* emoticon data + ()||1/0& */);
     for (const auto &[key, value] : emoticon) 
         EmoticonData.append(std::format("({})|{}|1&", key, value)); // @todo add requirements for unlocking emoticons
-    packet::create(*event.peer, false, 0, {
+
+    send_varlist(event.peer, {
         "OnEmoticonDataChanged", 
         201560520, 
-        EmoticonData.c_str()
+        EmoticonData
     });
 }

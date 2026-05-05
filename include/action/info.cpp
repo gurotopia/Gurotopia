@@ -48,13 +48,12 @@ void action::info(ENetEvent& event, const std::string& header)
             for (const std::string &prop : properties(item->property)) 
                 create_dialog.add_textbox(prop);
 
-            packet::create(*event.peer, false, 0,
-            {
+            send_varlist(event.peer, {
                 "OnDialogRequest",
                 create_dialog
                     .add_spacer("small")
                     .embed_data("itemID", item->id)
-                    .end_dialog("continue", "", "OK").c_str()
+                    .end_dialog("continue", "", "OK")
             });
         }
     }

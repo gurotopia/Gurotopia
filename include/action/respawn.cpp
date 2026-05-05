@@ -5,15 +5,14 @@ void action::respawn(ENetEvent& event, const std::string& header)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    packet::create(*event.peer, true, 0, { 
-        "OnSetFreezeState", 
-        2 
-    });
-    packet::create(*event.peer, true, 0,{ "OnKilled" });
+    send_varlist(event.peer, { "OnSetFreezeState", 2 }, pPeer->netid);
+    send_varlist(event.peer, { "OnKilled"}, pPeer->netid);
+
     // @note wait 1900 milliseconds···
-    packet::create(*event.peer, true, 1900, {
+
+    send_varlist(event.peer, {
         "OnSetPos", 
-        std::vector<float>{pPeer->rest_pos.x, pPeer->rest_pos.y}
-    });
-    packet::create(*event.peer, true, 1900, { "OnSetFreezeState" });
+        CL_Vec2f{pPeer->rest_pos.x, pPeer->rest_pos.y}
+    }, pPeer->netid, 1900);
+    send_varlist(event.peer, { "OnSetFreezeState"}, pPeer->netid, 1900);
 }

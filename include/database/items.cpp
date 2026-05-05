@@ -30,7 +30,7 @@ void decode_items()
 {
     const u_int size = std::filesystem::file_size("items.dat");
     im_data = compress_state(::state{
-        .type = 0x10, 
+        .type = 0x10, // @note PACKET_SEND_ITEM_DATABASE_DATA
         .peer_state = 0x08, 
         .size = size
     });
@@ -40,10 +40,12 @@ void decode_items()
         .read((char*)&im_data[sizeof(::state)], size); // @note the binary data···
 
     u_int pos{ sizeof(::state) };
+
     u_short version{};
     shift_pos(im_data, pos, version);
     u_int count{};
     shift_pos(im_data, pos, count);
+
     const std::string_view token{"PBG892FXX982ABC*"};
     for (u_int i = 0; i < count; ++i)
     {
@@ -176,13 +178,13 @@ void decode_items()
             shift_pos(im_data, pos, im.splice[1]);
         }
         if (version >= 0x18) pos += sizeof(u_char); // @date December 2025
-        if (version == 0x19) 
+        if (version == 0x19)
         {
             len = *reinterpret_cast<short*>(&im_data[pos]);
             pos += sizeof(short);
             if (len > (sizeof(short) + sizeof(int))) // @note {size} 0x00 0x00 0x00 0x00
             {
-                // @todo add the string for the hit FX
+                // @todo add the string for the player punch FX
                 pos += len;
             }
             pos += sizeof(int); // @note default: 0x00 0x00 0x00 0x00

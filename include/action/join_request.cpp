@@ -4,11 +4,11 @@
 #include "on/BillboardChange.hpp"
 #include "on/SetClothing.hpp"
 #include "on/CountryState.hpp"
+#include "on/ConsoleMessage.hpp"
 #include "commands/weather.hpp"
 #include "tools/ransuu.hpp"
-#include "join_request.hpp"
 
-#include <cmath> // @note std::round
+#include "join_request.hpp"
 
 using namespace std::chrono;
 using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec, seconds)
@@ -157,7 +157,9 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     case type::WEATHER_MACHINE:
                     {
                         if (block.state[2] & S_TOGGLE)
-                            packet::create(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
+                        {
+                            send_varlist(event.peer, { "OnSetCurrentWeather", get_weather_id(block.fg) });
+                        }
                         break;
                     }
                     case type::TOGGLEABLE_ANIMATED_BLOCK:
@@ -274,48 +276,44 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             
             if (pOthers->user_id != pPeer->user_id)
             {
-                on::Spawn(*event.peer, pOthers->netid, pOthers->user_id, pOthers->pos, std::format("`{}{}", pOthers->prefix, pOthers->ltoken[0]), pOthers->country, pOthers->role, pOthers->role >= DEVELOPER, false);
-                on::Spawn(peer, pPeer->netid, pPeer->user_id, pPeer->pos, std::format("`{}{}", pPeer->prefix, pPeer->ltoken[0]), pPeer->country, pPeer->role, pPeer->role >= DEVELOPER, false);
+                on::Spawn(*event.peer, pOthers->netid, pOthers->user_id, pOthers->pos, std::format("`{}{}", pOthers->prefix, pOthers->growid), pOthers->country, pOthers->role, pOthers->role >= DEVELOPER, false);
+                on::Spawn(peer, pPeer->netid, pPeer->user_id, pPeer->pos, std::format("`{}{}", pPeer->prefix, pPeer->growid), pPeer->country, pPeer->role, pPeer->role >= DEVELOPER, false);
                 on::SetClothing(peer);
-                packet::create(peer, false, 0, {
-                    "OnConsoleMessage",
-                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", pPeer->prefix, pPeer->ltoken[0], world.visitors).c_str()
-                });
+                on::ConsoleMessage(&peer, std::format("`5<`{}{}`` entered, `w{}`` others here>``", pPeer->prefix, pPeer->growid, world.visitors));
             }
             
 
             if (pOthers->user_id != pPeer->user_id) // @note the reason this is here is cause we need the peer's OnSpawn to happen before OnTalkBubble
-                packet::create(peer, false, 0, {
+            {
+                send_varlist(&peer, {
                     "OnTalkBubble",
                     pPeer->netid,
-                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", pPeer->prefix, pPeer->ltoken[0], world.visitors).c_str(),
+                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", pPeer->prefix, pPeer->growid, world.visitors),
                     1u
                 });
+            }
         });
-        on::Spawn(*event.peer, pPeer->netid, pPeer->user_id, pPeer->pos, std::format("`{}{}", pPeer->prefix, pPeer->ltoken[0]), pPeer->country, pPeer->role, pPeer->role >= DEVELOPER, true);
+        on::Spawn(*event.peer, pPeer->netid, pPeer->user_id, pPeer->pos, std::format("`{}{}", pPeer->prefix, pPeer->growid), pPeer->country, pPeer->role, pPeer->role >= DEVELOPER, true);
 
         if (pPeer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
 
-        packet::create(*event.peer, true, 0, {
+        send_varlist(event.peer, {
             "OnSetPos", 
-            std::vector<float>{pPeer->rest_pos.x, pPeer->rest_pos.y}
-        });
+            CL_Vec2f{pPeer->rest_pos.x, pPeer->rest_pos.y}
+        }, pPeer->netid);
 
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage", 
+        on::ConsoleMessage(event.peer, 
             std::format(
                 "World `w{}{}`` entered.  There are `w{}`` other people here, `w{}`` online.", 
                 world.name, (buffs.empty()) ? "" : std::format(" `0[``{}`0]``", join(buffs, "``, ")), world.visitors, peers().size()
-            ).c_str()
-        });
+            )
+        );
         ++world.visitors;
-
         on::SetClothing(*event.peer);
         on::CountryState(event);
     }
     catch (const std::exception& exc)
     {
-        if (exc.what() && *exc.what()) packet::create(*event.peer, false, 0, { "OnConsoleMessage", exc.what() });
-        packet::create(*event.peer, false, 0, { "OnFailedToEnterWorld" });
+        send_varlist(event.peer, { "OnFailedToEnterWorld" });
     }
 }

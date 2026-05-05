@@ -1,4 +1,6 @@
 #include "pch.hpp"
+#include "on/ConsoleMessage.hpp"
+
 #include "weather.hpp"
 
 int get_weather_id(u_int item_id)
@@ -67,6 +69,8 @@ int get_weather_id(u_int item_id)
         case 14896: return 78; // @note candyland blast
         case 15150: return 79; // @note dragon's keep
         case 15240: return 80; // @note emerald city
+
+        // @todo add newer weathers
     }
     return 0; // @note sunny
 }
@@ -75,12 +79,12 @@ void weather(ENetEvent& event, const std::string_view text)
 {
     if (text.length() <= sizeof("weather ") - 1) 
     {
-        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "`^Usage: /weather {id}" });
+        on::ConsoleMessage(event.peer, "`^Usage: /weather {id}");
         return;
     }
     std::string id{ text.substr(sizeof("weather ") - 1) };
 
-    packet::create(*event.peer, false, 0, {
+    send_varlist(event.peer, {
         "OnSetCurrentWeather",
         atoi(id.c_str())
     });

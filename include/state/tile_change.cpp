@@ -2,6 +2,7 @@
 #include "on/NameChanged.hpp"
 #include "on/SetClothing.hpp"
 #include "on/Action.hpp"
+#include "on/ConsoleMessage.hpp"
 #include "commands/weather.hpp"
 #include "item_activate.hpp"
 #include "tools/ransuu.hpp"
@@ -9,6 +10,7 @@
 #include "action/quit_to_exit.hpp"
 #include "action/join_request.hpp"
 #include "item_activate_object.hpp"
+
 #include "tile_change.hpp"
 
 using namespace std::chrono;
@@ -110,13 +112,13 @@ void tile_change(ENetEvent& event, state state)
             {
                 case 758: // @note Roulette Wheel
                 {
-                    u_char number = ransuu[{0, 36}];
-                    char color = (number == 0) ? '2' : (ransuu[{0, 3}] < 2) ? 'b' : '4';
-                    std::string message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", pPeer->prefix, pPeer->ltoken[0], color, number);
-                    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&pPeer, message](ENetPeer& peer)
+                    const u_char number = ransuu[{0, 36}];
+                    const char color = (number == 0) ? '2' : (ransuu[{0, 3}] < 2) ? 'b' : '4';
+                    const std::string message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", pPeer->prefix, pPeer->growid, color, number);
+                    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &pPeer, message](ENetPeer& peer)
                     {
-                        packet::create(peer, false, 2000, { "OnTalkBubble", pPeer->netid, message.c_str() });
-                        packet::create(peer, false, 2000, { "OnConsoleMessage", message.c_str() });
+                        send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, message }, -1, 2000);
+                        on::ConsoleMessage(event.peer, message, 2000);
                     });
                     break;
                 }
@@ -202,7 +204,7 @@ void tile_change(ENetEvent& event, state state)
                     
                     peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
-                        packet::create(p, false, 0, { "OnSetCurrentWeather", (block.state[2] & S_TOGGLE) ? get_weather_id(item->id) : 0 });
+                        send_varlist(&p, { "OnSetCurrentWeather", (block.state[2] & S_TOGGLE) ? get_weather_id(item->id) : 0 });
                     });
                     break;
                 }
@@ -213,12 +215,9 @@ void tile_change(ENetEvent& event, state state)
                     block.state[2] ^= S_TOGGLE;
                     if (item->id == 226) // @note Signal Jammer
                     {
-                        packet::create(*event.peer, false, 0, {
-                            "OnConsoleMessage",
-                            (block.state[2] & S_TOGGLE) ? 
-                                "Signal jammer enabled. This world is now `4hidden`` from the universe." :
-                                "Signal jammer disabled.  This world is `2visible`` to the universe."
-                        });
+                        on::ConsoleMessage(event.peer, (block.state[2] & S_TOGGLE) ? 
+                            "Signal jammer enabled. This world is now `4hidden`` from the universe." :
+                            "Signal jammer disabled.  This world is `2visible`` to the universe.");
                     }
                     break;
                 }
@@ -269,7 +268,7 @@ void tile_change(ENetEvent& event, state state)
                 add_drop(event, ::slot(reward, (reward == 3408 || reward == 3404) ? 10 : 1), state.punch.by_32());
                 if (reward == 1458)
                 {
-                    std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", pPeer->ltoken[0], item->raw_name);
+                    std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", pPeer->growid, item->raw_name);
                     peers(pPeer->recent_worlds.back(), PEER_ALL, [message](ENetPeer &p)
                     {
                         packet::action(p, "log", message.c_str());
@@ -334,7 +333,7 @@ void tile_change(ENetEvent& event, state state)
         {
             if (item->raw_name.contains(" Blast"))
             {
-                packet::create(*event.peer, false, 0, {
+                send_varlist(event.peer, {
                     "OnDialogRequest",
                     std::format(
                         "set_default_color|`o\n"
@@ -344,7 +343,7 @@ void tile_change(ENetEvent& event, state state)
                         "add_text_input|name|New World Name||24|\n"
                         "end_dialog|create_blast|Cancel|Create!|\n", // @todo rgt "Create!" is a purple-ish pink color
                         item->id, item->raw_name
-                    ).c_str()
+                    )
                 });
             }
 
@@ -356,7 +355,7 @@ void tile_change(ENetEvent& event, state state)
 
                 on::Action(event, "shower");
                 // audio/shower.wav
-                packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, "You dyed your hair!", 0u, 1u });
+                send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, "You dyed your hair!", 0u, 1u });
             }
             float color{}; // @note the color of the paint particle effect.
             float particle{};
@@ -409,8 +408,8 @@ void tile_change(ENetEvent& event, state state)
                     std::string message = "`7[```4MWAHAHAHA!! FIRE FIRE FIRE```7]``";
                     peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
                     {
-                        packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, message.c_str(), 0u });
-                        packet::create(*event.peer, false, 0, { "OnConsoleMessage", message.c_str() });
+                        send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, message, 0u });
+                        on::ConsoleMessage(event.peer, message);
                     });
                     particle = 0x96;
 
@@ -423,7 +422,7 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case 3404:/*Sour Lollipop*/ case 3406:/*Sweet Lollipop*/
                 {
-                    packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, "`#YUM!:D", 0u });
+                    send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, "`#YUM!:D", 0u });
 
                     break;
                 }
@@ -437,20 +436,20 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case 1488: // @note Experience Potion
                 {
-                    packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, "`#GULP! You got smarter!", 0u });
+                    send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, "`#GULP! You got smarter!", 0u });
                     pPeer->add_xp(event, 10000);
                     break;
                 }
                 case 2480: // @note Megaphone
                 {
-                    packet::create(*event.peer, false, 0, {
+                    send_varlist(event.peer, {
                         "OnDialogRequest",
                         ::create_dialog()
                             .set_default_color("`o")
                             .add_label_with_icon("big", "`wMegaphone``", item->id)
                             .add_textbox("Enter a message you want to broadcast to every player in Growtopia! This will use up 1 Megaphone")
                             .add_text_input("message", "", "", 128)
-                            .end_dialog("megaphone", "Nevermind", "Broadcast").c_str()
+                            .end_dialog("megaphone", "Nevermind", "Broadcast")
                     });
                     break;
                 }
@@ -544,9 +543,10 @@ void tile_change(ENetEvent& event, state state)
 
                     if (pPeer->user_id == world->owner)
                     {
-                        packet::create(*event.peer, false, 0, {
+                        send_varlist(event.peer, {
                             "OnDialogRequest",
-                            std::format("set_default_color|`o\n"
+                            std::format(
+                                "set_default_color|`o\n"
                                 "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
                                 "add_popup_name|LockEdit|\n"
                                 "add_label|small|`wAccess list:``|left\n"
@@ -569,7 +569,7 @@ void tile_change(ENetEvent& event, state state)
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
                                 item->raw_name, item->id, state.punch.x, state.punch.y, to_char(world->is_public), (world->lock_state & DISABLE_MUSIC) ? "1" : "0", world->minimum_entry_level
-                            ).c_str()
+                            )
                         });
                     }
                     break;
@@ -581,9 +581,10 @@ void tile_change(ENetEvent& event, state state)
                     for (::door& door : world->doors)
                         if (door.pos == state.punch) dest = door.dest, id = door.id;
                         
-                    packet::create(*event.peer, false, 0, {
+                    send_varlist(event.peer, {
                         "OnDialogRequest",
-                        std::format("set_default_color|`o\n"
+                        std::format(
+                            "set_default_color|`o\n"
                             "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
                             "add_text_input|door_name|Label|{}|100|\n"
                             "add_popup_name|DoorEdit|\n"
@@ -597,15 +598,16 @@ void tile_change(ENetEvent& event, state state)
                             "embed_data|tiley|{}\n"
                             "end_dialog|door_edit|Cancel|OK|", 
                             item->raw_name, item->id, block.label, dest, id, state.punch.x, state.punch.y
-                        ).c_str()
+                        )
                     });
                     break;
                 }
                 case type::SIGN:
                 {
-                        packet::create(*event.peer, false, 0, {
+                    send_varlist(event.peer, {
                         "OnDialogRequest",
-                        std::format("set_default_color|`o\n"
+                        std::format(
+                            "set_default_color|`o\n"
                             "add_popup_name|SignEdit|\n"
                             "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
                             "add_textbox|What would you like to write on this sign?``|left|\n"
@@ -614,13 +616,13 @@ void tile_change(ENetEvent& event, state state)
                             "embed_data|tiley|{}\n"
                             "end_dialog|sign_edit|Cancel|OK|", 
                             item->raw_name, item->id, block.label, state.punch.x, state.punch.y
-                        ).c_str()
+                        )
                     });
                     break;
                 }
                 case type::ENTRANCE:
                 {
-                    packet::create(*event.peer, false, 0, {
+                    send_varlist(event.peer, {
                         "OnDialogRequest",
                         std::format(
                             "set_default_color|`o\n"
@@ -630,24 +632,18 @@ void tile_change(ENetEvent& event, state state)
                             "embed_data|tiley|{}\n"
                             "end_dialog|gateway_edit|Cancel|OK|\n", 
                             item->raw_name, item->id, to_char((block.state[2] & S_PUBLIC)), state.punch.x, state.punch.y
-                        ).c_str()
+                        )
                     });
                     break;
                 }
                 case type::DISPLAY_BLOCK:
                 {
-                    packet::create(*event.peer, false, 0, {
-                        "OnDialogRequest",
-                        ::create_dialog()
-                            .set_default_color("`o")
-                            .add_label_with_icon("big", std::format("`w{}``", item->raw_name), item->id)
-                            /* @todo complete */
-                    });
+                    // @todo
                     break;
                 }
                 case type::VENDING_MACHINE:
                 {
-                    packet::create(*event.peer, false, 0, {
+                    send_varlist(event.peer, {
                         "OnDialogRequest",
                         ::create_dialog()
                             .set_default_color("`o")
@@ -660,7 +656,7 @@ void tile_change(ENetEvent& event, state state)
                             .add_smalltext("Upgrade to a DigiVend Machine for `44,000 Gems``.")
                             .add_button("upgradedigital", "Upgrade to DigiVend")
                             .add_spacer("small")
-                            .end_dialog("vending", "Close", "").c_str()
+                            .end_dialog("vending", "Close", "")
                     });
                     break;
                 }
@@ -690,11 +686,11 @@ void tile_change(ENetEvent& event, state state)
                                 auto splice0 = std::ranges::find(items, item.splice[0], &::item::id);
                                 auto splice1 = std::ranges::find(items, item.splice[1], &::item::id);
 
-                                packet::create(*event.peer, false, 0, {
+                                send_varlist(event.peer, {
                                     "OnTalkBubble", 
                                     pPeer->netid, 
                                     std::format("`w{}`` and `w{}`` have been spliced to make a `${} Tree``!", 
-                                        splice0->raw_name, splice1->raw_name, item.raw_name.substr(0, item.raw_name.length()-5/* seed*/)).c_str(), // @todo this is hardcoded
+                                        splice0->raw_name, splice1->raw_name, item.raw_name.substr(0, item.raw_name.length()-5/* seed*/)), // @todo this is hardcoded
                                     0u,
                                     1u
                                 });
@@ -735,11 +731,11 @@ void tile_change(ENetEvent& event, state state)
                             std::ranges::rotate(pPeer->my_worlds, pPeer->my_worlds.begin() + 1);
                             pPeer->my_worlds.back() = world->name;
                         }
-                        std::string placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world->name, pPeer->ltoken[0]);
-                        peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&pPeer, placed_message](ENetPeer& peer) 
+                        std::string placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world->name, pPeer->growid);
+                        peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &pPeer, placed_message](ENetPeer& peer) 
                         {
-                            packet::create(peer, false, 0, { "OnTalkBubble", pPeer->netid, placed_message.c_str() });
-                            packet::create(peer, false, 0, { "OnConsoleMessage", placed_message.c_str() });
+                            send_varlist(&peer, { "OnTalkBubble", pPeer->netid, placed_message });
+                            on::ConsoleMessage(&peer, placed_message);
                         });
                     }
                     else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
@@ -782,7 +778,7 @@ void tile_change(ENetEvent& event, state state)
     catch (const std::exception& exc)
     {
         if (exc.what() && *exc.what()) 
-            packet::create(*event.peer, false, 0, {
+            send_varlist(event.peer, {
                 "OnTalkBubble", 
                 pPeer->netid, 
                 exc.what(),

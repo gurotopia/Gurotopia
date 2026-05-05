@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "on/ConsoleMessage.hpp"
 
 #include "trash_item.hpp"
 
@@ -17,9 +18,5 @@ void trash_item(ENetEvent& event, const ::hPipe &hPipe)
             else if (count < 0) count = 0;
 
     modify_item_inventory(event, ::slot(itemID, -count));
-
-    packet::create(*event.peer, false, 0, {
-        "OnConsoleMessage",
-        std::format("{} `w{}`` recycled, `w0`` gems earned.", count, item->raw_name).c_str()
-    });
+    on::ConsoleMessage(event.peer, std::format("{} `w{}`` recycled, `w0`` gems earned.", count, item->raw_name));
 }

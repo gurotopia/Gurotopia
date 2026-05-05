@@ -16,7 +16,7 @@ void popup(ENetEvent& event, const ::hPipe &hPipe)
                     result.append(std::format("add_button|{0}|{0}|noflags|0|0|\n", name));
             return result;
         };
-        packet::create(*event.peer, false, 0, {
+        send_varlist(event.peer, {
             "OnDialogRequest",
             std::format(
                 "set_default_color|`o\n"
@@ -34,44 +34,42 @@ void popup(ENetEvent& event, const ::hPipe &hPipe)
                 "end_dialog|worlds_list||Back|\n"
                 "add_quick_exit|\n",
                 section(pPeer->my_worlds)
-            ).c_str()
+            )
         });
     }
     else if (hPipe["buttonClicked"] == "billboard_edit")
     {
         auto item = std::ranges::find(items, pPeer->billboard.id, &::item::id);
 
-        packet::create(*event.peer, false, 0, {
+        send_varlist(event.peer, {
             "OnDialogRequest",
-            std::format("set_default_color|`o\n"
-            "add_label_with_icon|big|`wTrade Billboard``|left|8282|\n"
-            "add_spacer|small|\n"
-            "{}"
-            "add_item_picker|billboard_item|`wSelect Billboard Item``|Choose an item to put on your billboard!|\n"
-            "add_spacer|small|\n"
-            "add_checkbox|billboard_toggle|`$Show Billboard``|{}\n"
-            "add_checkbox|billboard_buying_toggle|`$Is Buying``|{}\n"
-            "add_text_input|setprice|Price of item:|{}|5|\n"
-            "add_checkbox|chk_peritem|World Locks per Item|{}\n"
-            "add_checkbox|chk_perlock|Items per World Lock|{}\n"
-            "add_spacer|small|\n"
-            "end_dialog|billboard_edit|Close|Update|\n",
-            (pPeer->billboard.id == 0) ? 
-                "" : 
-                std::format("add_label_with_icon|small|`w{}``|left|{}|\n", item->raw_name, pPeer->billboard.id),
-            to_char(pPeer->billboard.show),
-            to_char(pPeer->billboard.isBuying),
-            pPeer->billboard.price,
-            to_char(pPeer->billboard.perItem),
-            to_char(!pPeer->billboard.perItem)
-            ).c_str()
+            std::format(
+                "set_default_color|`o\n"
+                "add_label_with_icon|big|`wTrade Billboard``|left|8282|\n"
+                "add_spacer|small|\n"
+                "{}"
+                "add_item_picker|billboard_item|`wSelect Billboard Item``|Choose an item to put on your billboard!|\n"
+                "add_spacer|small|\n"
+                "add_checkbox|billboard_toggle|`$Show Billboard``|{}\n"
+                "add_checkbox|billboard_buying_toggle|`$Is Buying``|{}\n"
+                "add_text_input|setprice|Price of item:|{}|5|\n"
+                "add_checkbox|chk_peritem|World Locks per Item|{}\n"
+                "add_checkbox|chk_perlock|Items per World Lock|{}\n"
+                "add_spacer|small|\n"
+                "end_dialog|billboard_edit|Close|Update|\n",
+                (pPeer->billboard.id == 0) ? 
+                    "" : 
+                    std::format("add_label_with_icon|small|`w{}``|left|{}|\n", item->raw_name, pPeer->billboard.id),
+                to_char(pPeer->billboard.show),
+                to_char(pPeer->billboard.isBuying),
+                pPeer->billboard.price,
+                to_char(pPeer->billboard.perItem),
+                to_char(!pPeer->billboard.perItem)
+            )
         });
     }
     else if (hPipe["buttonClicked"] == "seed_diary_customization")
     {
-        packet::create(*event.peer, false, 0, {
-            "OnDialogRequestRML",
-            "show_seed_diary_ui"
-        });
+        send_varlist(event.peer, { "OnDialogRequestRML", "show_seed_diary_ui" });
     }
 }

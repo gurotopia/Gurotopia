@@ -5,11 +5,11 @@ void on::BillboardChange(ENetEvent& event)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     
-    packet::create(*event.peer, true, 0, {
+    send_varlist(event.peer, {
         "OnBillboardChange",
         pPeer->netid,
         signed{pPeer->billboard.id},
-        std::format("{},{}", to_char(pPeer->billboard.show), to_char(pPeer->billboard.isBuying)).c_str(),
+        std::format("{},{}", to_char(pPeer->billboard.show), to_char(pPeer->billboard.isBuying)),
         pPeer->billboard.price,
         signed{pPeer->billboard.perItem}
     });

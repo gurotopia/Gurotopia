@@ -72,7 +72,7 @@ public:
     void mysql_select_all();
 
     int user_id{}; // @note unqiue user id.
-    std::array<std::string, 2zu> ltoken{}; // @note {growid, password}
+    std::string growid{""}, password{""};
     std::time_t created_at{}; // @note when inserted in SQL (account age)
     u_char role{};
     std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
@@ -80,7 +80,6 @@ public:
 
     int netid{}; // @note peer's netid is world identity. this will be useful for many packet sending
     std::string prefix{ 'w'  }; // @note display name color, default: "w" (White)
-    std::string game_version{};
     std::string country{};
 
     u_int skin_color{ 2527912447 };

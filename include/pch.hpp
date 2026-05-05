@@ -13,6 +13,7 @@
     #include "database/items.hpp"
     #include "database/peer.hpp"
     #include "database/world.hpp"
+    #include "proton/Variant.hpp"
     #include "packet/packet.hpp"
 
     #include "tools/string.hpp"

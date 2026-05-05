@@ -1,11 +1,13 @@
 #include "pch.hpp"
+#include "on/ConsoleMessage.hpp"
+
 #include "sb.hpp"
 
 void sb(ENetEvent& event, const std::string_view text)
 {
     if (text.length() <= sizeof("sb ") - 1) 
     {
-        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "Usage: /sb `w{message}``" });
+        on::ConsoleMessage(event.peer, "Usage: /sb `w{message}``");
         return;
     }
     std::string message{ text.substr(sizeof("sb ")-1) };
@@ -22,14 +24,13 @@ void sb(ENetEvent& event, const std::string_view text)
             break; // @note we don't care if other signals are toggled.
         }
 
-    peers("", PEER_ALL, [&pPeer, message, display](ENetPeer& peer) 
+    peers("", PEER_ALL, [&event, &pPeer, message, display](ENetPeer& peer) 
     {
-        packet::create(peer, false, 0, {
-            "OnConsoleMessage",
+        on::ConsoleMessage(event.peer, 
             std::format(
                 "CP:0_PL:0_OID:_CT:[SB]_ `5** from (`{}{}`````5) in [```${}```5] ** : ```${}``",
-                pPeer->prefix, pPeer->ltoken[0], display, message
-            ).c_str()
-        });
+                pPeer->prefix, pPeer->growid, display, message
+            )
+        );
     });
 }

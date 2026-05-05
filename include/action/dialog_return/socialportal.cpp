@@ -14,11 +14,11 @@ void socialportal(ENetEvent& event, const ::hPipe &hPipe)
         for (const ::Friend &Friend : pPeer->friends)
             peers("", PEER_ALL, [&Friend, &__online](ENetPeer& peer){
                 ::peer *pOthers = static_cast<::peer*>(peer.data);
-                if (pOthers->ltoken[0] == Friend.name)
+                if (pOthers->growid == Friend.name)
                     ++__online;
             });
 
-        packet::create(*event.peer, false, 0, {
+        send_varlist(event.peer, {
             "OnDialogRequest",
             std::format(
                 "set_default_color|`o\n"
@@ -35,7 +35,7 @@ void socialportal(ENetEvent& event, const ::hPipe &hPipe)
                 "end_dialog|friends|||\n"
                 "add_quick_exit|\n",
                 __online
-            ).c_str()
+            )
         });
     }
 }

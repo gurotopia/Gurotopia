@@ -5,14 +5,14 @@ void on::SetClothing(ENetPeer &peer)
 {
     ::peer *pPeer = static_cast<::peer*>(peer.data);
 
-    packet::create(peer, true, 0, {
+    send_varlist(&peer, {
         "OnSetClothing", 
-        std::vector<float>{pPeer->clothing[hair], pPeer->clothing[shirt], pPeer->clothing[legs]}, 
-        std::vector<float>{pPeer->clothing[feet], pPeer->clothing[face], pPeer->clothing[hand]}, 
-        std::vector<float>{pPeer->clothing[back], pPeer->clothing[head], pPeer->clothing[charm]}, 
+        CL_Vec3f{pPeer->clothing[hair], pPeer->clothing[shirt], pPeer->clothing[legs]}, 
+        CL_Vec3f{pPeer->clothing[feet], pPeer->clothing[face], pPeer->clothing[hand]}, 
+        CL_Vec3f{pPeer->clothing[back], pPeer->clothing[head], pPeer->clothing[charm]}, 
         (pPeer->state & S_GHOST) ? -140 : pPeer->skin_color,
-        std::vector<float>{pPeer->clothing[ances], 0.0f, 0.0f}
-    });
+        CL_Vec3f{pPeer->clothing[ances], 0.0f, 0.0f}
+    }, pPeer->netid);
 
     ::state state
     {

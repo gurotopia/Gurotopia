@@ -66,7 +66,7 @@ void action::buy(ENetEvent& event, const std::string& header, const std::string_
         }
         if (!selection.empty()) StoreRequest.append(std::format("select_item|{}\n", selection));
 
-        packet::create(*event.peer, false, 0, { "OnStoreRequest", StoreRequest.c_str() });
+        send_varlist(event.peer, { "OnStoreRequest", StoreRequest });
         return;
     }
     else for (auto &&[_tab, shouhin] : shouhin_tachi)
@@ -79,14 +79,11 @@ void action::buy(ENetEvent& event, const std::string& header, const std::string_
                 ? (growtoken == pPeer->slots.end() || growtoken->count < growtoken_cost)
                 : pPeer->gems < shouhin.cost)
             {
-                packet::create(*event.peer, false, 0, 
-                {
-                    "OnStorePurchaseResult",
-                    (_tab < 5) ? 
-                        std::format("You can't afford `0{}``!  You're `${}`` Gems short.", 
-                            shouhin.name, shouhin.cost - pPeer->gems).c_str() :
-                        std::format("You can't afford `0{}``!  You're `${}`` `2Growtokens`` short.", 
-                            shouhin.name, (growtoken == pPeer->slots.end()) ? growtoken_cost : growtoken_cost - growtoken->count).c_str()
+                send_varlist(event.peer, { "OnStorePurchaseResult", (_tab < 5) ? 
+                    std::format("You can't afford `0{}``!  You're `${}`` Gems short.", 
+                        shouhin.name, shouhin.cost - pPeer->gems).c_str() :
+                    std::format("You can't afford `0{}``!  You're `${}`` `2Growtokens`` short.", 
+                        shouhin.name, (growtoken == pPeer->slots.end()) ? growtoken_cost : growtoken_cost - growtoken->count) 
                 });
                 return;
             }
@@ -136,16 +133,13 @@ void action::buy(ENetEvent& event, const std::string& header, const std::string_
                 else modify_item_inventory(event, {im.first, im.second});
                 received.append(std::format("{}, ", item->raw_name)); // @todo add green text to rare items, or something cool.
             }
-            packet::create(*event.peer, false, 0, 
-            {
-                "OnStorePurchaseResult",
-                (_tab < 5) ? 
-                    std::format(
-                        "You've purchased `0{}`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0{}``",
-                        shouhin.name, shouhin.cost, pPeer->gems -= shouhin.cost, received).c_str() :
-                    std::format(
-                        "You've purchased `0{}`` for `${}`` `2Growtokens``.\nYou have `${}`` `2Growtokens`` left.\n\n`5Received: ```0{}``",
-                        shouhin.name, growtoken_cost, growtoken->count - growtoken_cost, received).c_str()
+            send_varlist(event.peer, { "OnStorePurchaseResult", (_tab < 5) ? 
+                std::format(
+                    "You've purchased `0{}`` for `${}`` Gems.\nYou have `${}`` Gems left.\n\n`5Received: ```0{}``",
+                    shouhin.name, shouhin.cost, pPeer->gems -= shouhin.cost, received) :
+                std::format(
+                    "You've purchased `0{}`` for `${}`` `2Growtokens``.\nYou have `${}`` `2Growtokens`` left.\n\n`5Received: ```0{}``",
+                    shouhin.name, growtoken_cost, growtoken->count - growtoken_cost, received)
             });
             if (_tab < 5) on::SetBux(event);
             else modify_item_inventory(event, ::slot(growtoken->id, -growtoken_cost));

@@ -10,8 +10,8 @@ void on::Action(ENetEvent& event, const std::string_view text)
         (text == "fa") ? "fold" : 
         (text == "stubborn") ? "fold" : text;
 
-    packet::create(*event.peer, true, 0, {
+    send_varlist(event.peer, {
         "OnAction", 
-        ('/' + std::string(to_slang)).c_str()
+        ('/' + std::string(to_slang))
     });
 }

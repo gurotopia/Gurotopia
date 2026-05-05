@@ -1,7 +1,6 @@
 #include "pch.hpp"
-#include "items.hpp"
-#include "peer.hpp"
 #include "tools/ransuu.hpp"
+#include "on/ConsoleMessage.hpp"
 
 #include "world.hpp"
 
@@ -214,10 +213,7 @@ void remove_fire(ENetEvent &event, state state, block &block, world& world)
 
     if (++pPeer->fires_removed % 100 == 0) 
     {
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage",
-            "`oI'm so good at fighting fires, I rescused this `2Highly Combustible Box``!"
-        });
+        on::ConsoleMessage(event.peer, "`oI'm so good at fighting fires, I rescused this `2Highly Combustible Box``!");
         modify_item_inventory(event, {3090/*Combustible Box*/, 1});
     }
 

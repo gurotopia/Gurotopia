@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "on/ConsoleMessage.hpp"
 
 #include "lock_edit.hpp"
 
@@ -22,20 +23,9 @@ void lock_edit(ENetEvent& event, const ::hPipe &hPipe)
     ::block &block = world->blocks[cord(pos.x, pos.y)];
 
     if (world->is_public) 
-    {
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage",
-            std::format("`2{}`` has set the `$World Lock`` to `$PUBLIC", pPeer->ltoken[0]).c_str()
-        });
-        block.state[2] |= S_PUBLIC;
-    }
-    else {
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage",
-            std::format("`2{}`` has set the `$World Lock`` to `4PRIVATE``", pPeer->ltoken[0]).c_str()
-        });
-        block.state[2] &= ~S_PUBLIC;
-    }
+         block.state[2] |= S_PUBLIC;
+    else block.state[2] &= ~S_PUBLIC;
+    on::ConsoleMessage(event.peer, std::format("`2{}`` has set the `$World Lock`` to {}``", pPeer->growid, (block.state[2] & S_PUBLIC) ? "`$PUBLIC" : "`4PRIVATE"));
 
     send_tile_update(event, {
         .id = block.fg,

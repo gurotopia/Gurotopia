@@ -1,29 +1,33 @@
 #include "pch.hpp"
+#include "on/ConsoleMessage.hpp"
+
 #include "me.hpp"
 
 void me(ENetEvent& event, const std::string_view text)
 {
-        if (text.length() <= sizeof("me ") - 1) 
+    if (text.length() <= sizeof("me ") - 1) 
     {
-        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "Usage: /me `w{message}``" });
+        on::ConsoleMessage(event.peer, "Usage: /me `w{message}``");
         return;
     }
     std::string message{ text.substr(sizeof("me ")-1) };
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     
-    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&pPeer, message](ENetPeer& peer)
+    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &pPeer, message](ENetPeer& peer)
     {
-        packet::create(peer, false, 0, {
+        send_varlist(&peer, {
             "OnTalkBubble",
             pPeer->netid,
-            std::format("player_chat= `6<```{}{}`` `#{}```6>``", 
-                pPeer->prefix, pPeer->ltoken[0], message).c_str(),
+            std::format(
+                "player_chat= `6<```{}{}`` `#{}```6>``", 
+                pPeer->prefix, pPeer->growid, message).c_str(),
             0u
         });
-        packet::create(peer, false, 0, {
-            "OnConsoleMessage",
-            std::format("CP:0_PL:0_OID:__CT:[W]_ `6<```{}{}`` `#{}```6>``", 
-                pPeer->prefix, pPeer->ltoken[0], message).c_str()
-        });
+        on::ConsoleMessage(&peer, 
+            std::format(
+                "CP:0_PL:0_OID:__CT:[W]_ `6<```{}{}`` `#{}```6>``", 
+                pPeer->prefix, pPeer->growid, message
+            )
+        );
     });
 }

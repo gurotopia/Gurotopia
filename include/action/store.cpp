@@ -9,8 +9,7 @@ void action::store(ENetEvent& event, const std::string& header)
 
     if (header.empty() || pipes[3] == "gem") // @note location|gem
     {
-        packet::create(*event.peer, false, 0, 
-        {
+        send_varlist(event.peer, {
             "OnStoreRequest",
             std::format(
                 "set_description_text|Welcome to the `2Growtopia Store``! Select the item you'd like more info on.`o `wThanks for being a supporter of Growtopia!\n"
@@ -43,7 +42,7 @@ void action::store(ENetEvent& event, const std::string& header)
                 "add_button|rt_grope_battlepass_bundle01|Royal Grow Pass|interface/large/store_buttons/store_buttons37.rttex|{0}|4|2|0||||-1|-1||-1|-1|`2You Get:`` 1 Royal Grow Pass Token.<CR><CR>`5Description:`` Play to earn points and level up your Grow Pass to earn rewards. Consume to earn exclusive `5Royal`` rewards as you level up your Grow Pass as well as unlocking all daily bonuses and exclusive `5Royal Perks`` for the entire month. Upon consuming you will instantly receive `2300 Free`` points towards your pass progress. Note: The token is `#UNTRADEABLE``.|1||||||0|0|CustomParams:|\n"
                 "add_button|redeem_code|Redeem Code|interface/large/store_buttons/store_buttons40.rttex|OPENDIALOG&showredeemcodewindow|1|5|0|0|||-1|-1||-1|-1||1||||||0|0|CustomParams:|\n"
                 ,payment_site
-            ).c_str()
+            )
         });
     }
 }

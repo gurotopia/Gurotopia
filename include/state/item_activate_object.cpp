@@ -1,5 +1,7 @@
 #include "pch.hpp"
 #include "on/SetBux.hpp"
+#include "on/ConsoleMessage.hpp"
+
 #include "item_activate_object.hpp"
 
 void item_activate_object(ENetEvent& event, state state) 
@@ -14,12 +16,10 @@ void item_activate_object(ENetEvent& event, state state)
     auto item = std::ranges::find(items, object->id, &::item::id);
     if (item->type != type::GEM)
     {
-        packet::create(*event.peer, false, 0, {
-            "OnConsoleMessage",
-            (item->rarity >= 999) ?
-                std::format("Collected `w{} {}``.", object->count, item->raw_name).c_str() :
-                std::format("Collected `w{} {}``. Rarity: `w{}``", object->count, item->raw_name, item->rarity).c_str()
-        });
+        on::ConsoleMessage(event.peer, (item->rarity >= 999) ?
+            std::format("Collected `w{} {}``.", object->count, item->raw_name) :
+            std::format("Collected `w{} {}``. Rarity: `w{}``", object->count, item->raw_name, item->rarity)
+        );
         object->count = pPeer->emplace(::slot(object->id, object->count));
     }
     else 

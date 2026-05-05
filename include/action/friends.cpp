@@ -4,7 +4,7 @@
 
 void action::friends(ENetEvent& event, const std::string& header) 
 {
-    packet::create(*event.peer, false, 0, {
+    send_varlist(event.peer, {
         "OnDialogRequest", 
         create_dialog()
             .set_default_color("`o")
@@ -16,6 +16,6 @@ void action::friends(ENetEvent& event, const std::string& header)
             .add_button("showguild", "`wCreate Guild``")
             .add_button("trade_history", "`wTrade History``")
             .add_quick_exit()
-            .end_dialog("socialportal", "").c_str()
+            .end_dialog("socialportal", "")
     });
 }

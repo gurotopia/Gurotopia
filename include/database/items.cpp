@@ -177,7 +177,7 @@ void decode_items()
             shift_pos(im_data, pos, im.splice[1]);
         }
         if (version >= 0x18) pos += sizeof(u_char); // @date December 2025
-        if (version == 0x19)
+        if (version >= 0x19)
         {
             len = *reinterpret_cast<short*>(&im_data[pos]);
             pos += sizeof(short);
@@ -188,6 +188,7 @@ void decode_items()
             }
             pos += sizeof(int); // @note default: 0x00 0x00 0x00 0x00
         }
+        if (version == 0x1a) pos += sizeof(std::byte); // May 2026
         
         items.emplace_back(im);
     }

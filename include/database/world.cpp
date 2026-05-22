@@ -16,17 +16,18 @@ std::vector<world> worlds;
 
 void send_action(ENetPeer& p, const std::string& action, const std::string& str) 
 {
-    const std::string fmt_action = std::format("action|{}\n", action);
+    const std::string &fmt_action = std::format("action|{}\n", action);
     std::vector<u_char> data(sizeof(int) + fmt_action.length() + str.length(), 0x00);
-    *(int*)&data = 3; // @note NET_MESSAGE_GAME_MESSAGE
+    
+    data[0] = 3; // @note NET_MESSAGE_GAME_MESSAGE
     {
-        const u_char *i8 = reinterpret_cast<const u_char*>(fmt_action.data());
+        const u_char *i8 = reinterpret_cast<const u_char*>(fmt_action.c_str());
         for (std::size_t i = 0zu; i < fmt_action.length(); ++i)
             data[sizeof(int) + i] = i8[i];
     }
     if (!str.empty())
     {
-        const u_char *i8 = reinterpret_cast<const u_char*>(str.data());
+        const u_char *i8 = reinterpret_cast<const u_char*>(str.c_str());
         for (std::size_t i = 0zu; i < str.length(); ++i)
             data[sizeof(int) + fmt_action.length() + i] = i8[i];
     }

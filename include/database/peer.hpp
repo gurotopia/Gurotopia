@@ -92,6 +92,7 @@ public:
     ::pos pos{}; // @note position 1D {x, y}
     ::pos rest_pos{}; // @note respawn position {x, y}
     bool facing_left{}; // @note peer is directed towards the left direction
+    short pain_hp{ 10 };
 
     short slot_size{16}; // @note amount of slots this peer has | were talking total slots not itemed slots, to get itemed slots do slot.size()
     std::vector<slot> slots{}; // @note an array of each slot. storing {id, count}
@@ -138,6 +139,13 @@ enum peer_condition
 extern std::vector<ENetPeer*> peers(const std::string &world = "", peer_condition condition = PEER_ALL, std::function<void(ENetPeer&)> fun = [](ENetPeer& peer){});
 
 extern void safe_disconnect_peers(int signal);
+
+enum peer_state : int
+{
+    S_MOVE_LEFT  = 0x10,
+    S_MOVE_RIGHT = 0x20,
+    S_LAVA_HIT   = 0x40
+};
 
 class state {
 public:

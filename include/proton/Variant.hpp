@@ -167,7 +167,6 @@ class VariantList
 		VariantList(Variant v0, Variant v1, Variant v2, Variant v3) {m_variant[0] = v0; m_variant[1] = v1; m_variant[2] = v2; m_variant[3] = v3;}
 		VariantList(Variant v0, Variant v1, Variant v2, Variant v3, Variant v4) {m_variant[0] = v0; m_variant[1] = v1; m_variant[2] = v2; m_variant[3] = v3; m_variant[4] = v4;}
 		VariantList(Variant v0, Variant v1, Variant v2, Variant v3, Variant v4, Variant v5) {m_variant[0] = v0; m_variant[1] = v1; m_variant[2] = v2; m_variant[3] = v3; m_variant[4] = v4;  m_variant[5] = v5;}
-		/* support for v6 */
 		VariantList(Variant v0, Variant v1, Variant v2, Variant v3, Variant v4, Variant v5, Variant v6) {m_variant[0] = v0; m_variant[1] = v1; m_variant[2] = v2; m_variant[3] = v3; m_variant[4] = v4;  m_variant[5] = v5; m_variant[6] = v6;}
 
 		u_char * SerializeToMem(u_int *pSizeOut, u_char *pDest); //pass in NULL for dest and it will new[] the memory itself

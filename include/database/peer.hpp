@@ -142,9 +142,13 @@ extern void safe_disconnect_peers(int signal);
 
 enum peer_state : int
 {
-    S_MOVE_LEFT  = 0x10,
-    S_MOVE_RIGHT = 0x20,
-    S_LAVA_HIT   = 0x40
+    S_UPDATE          = 0x04,
+    S_EXTENDED        = 0x08,
+    S_MOVE_LEFT       = 0x10,
+    S_MOVE_RIGHT      = 0x20,
+    S_LAVA_HIT        = 0x40,
+    S_JUMP            = 0x80,
+    S_ACTIVATE_OBJECT = 0x4000
 };
 
 class state {

@@ -8,7 +8,7 @@ void movement(ENetEvent& event, state state)
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     
     pPeer->pos = state.pos;
-    pPeer->facing_left = state.peer_state & 0x10;
+    pPeer->facing_left = state.peer_state & peer_state::S_MOVE_LEFT;
 
     /* add fireproof only take away 1 hp instead of 2 */
     if (state.peer_state & peer_state::S_LAVA_HIT) pPeer->pain_hp -= 2;

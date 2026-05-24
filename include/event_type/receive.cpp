@@ -15,12 +15,15 @@ void receive(ENetEvent& event)
             
             std::ranges::replace(header, '\n', '|');
             const std::vector<std::string> pipes = readch(header, '|');
-            if (pipes.empty() || pipes.size() < 2) break;
+            if (pipes.size() < 2) break;
             
-            const std::string action = 
-                (pipes[0zu] == "protocol") ? pipes[0zu] : 
-                (pipes[0zu] == "tankIDName") ? pipes[0zu] : // @todo improve integrity
-                std::format("{}|{}", pipes[0zu], pipes[1zu]);
+            std::string action{};
+            if (pipes[0zu] == "protocol" || pipes[0zu] == "tankIDName")
+            {
+                action = pipes[0zu];
+            }
+            else action = std::format("{}|{}", pipes[0zu], pipes[1zu]);
+
             if (const auto i = action_pool.find(action); i != action_pool.end())
                 i->second(event, header);
             break;

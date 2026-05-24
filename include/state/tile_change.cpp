@@ -769,7 +769,7 @@ void tile_change(ENetEvent& event, state state)
             state_visuals(*event.peer, ::state{
                 .type = 0x0f, // @note PACKET_SEND_LOCK
                 .netid = world->owner, 
-                .peer_state = 0x08, 
+                .peer_state = peer_state::S_EXTENDED, 
                 .id = state.id,
                 .punch = state.punch
             });
@@ -778,13 +778,9 @@ void tile_change(ENetEvent& event, state state)
     catch (const std::exception& exc)
     {
         if (exc.what() && *exc.what()) 
-            send_varlist(event.peer, {
-                "OnTalkBubble", 
-                pPeer->netid, 
-                exc.what(),
-                0u,
-                1u // @note message will be sent once instead of multiple times.
-            });
+        {
+            send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, exc.what(), 0u, 1u });
+        }
         return;
     }
 }

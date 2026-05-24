@@ -35,7 +35,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         {
             std::vector<u_char> data = compress_state(::state{
                 .type = 0x04, // @note PACKET_SEND_MAP_DATA
-                .peer_state = 0x08
+                .peer_state = peer_state::S_EXTENDED
             });
             data.resize(data.size() + 24zu + world.name.length() + (8zu * world.blocks.size()) + 12zu + 8zu/*total drop uid*/);
             u_char *w_data = data.data() + sizeof(::state) + 6;
@@ -315,5 +315,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
     catch (const std::exception& exc)
     {
         send_varlist(event.peer, { "OnFailedToEnterWorld" });
+        return;
     }
 }

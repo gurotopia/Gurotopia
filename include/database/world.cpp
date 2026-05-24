@@ -130,7 +130,7 @@ void add_drop(ENetEvent &event, ::slot im, ::pos pos)
 void send_tile_update(ENetEvent &event, state state, block &block, world &world) 
 {
     state.type = 05; // @note PACKET_SEND_TILE_UPDATE_DATA
-    state.peer_state = 0x08;
+    state.peer_state = peer_state::S_EXTENDED;
     std::vector<u_char> data = compress_state(state);
 
     short pos = sizeof(::state); // @note start after state bytes (as every packet has)

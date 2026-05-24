@@ -231,7 +231,7 @@ void send_inventory_state(ENetEvent &event)
     std::vector<u_char> data = compress_state(::state{
         .type = 0x09, // @note PACKET_SEND_INVENTORY_STATE
         .netid = pPeer->netid,
-        .peer_state = 0x08
+        .peer_state = peer_state::S_EXTENDED
     });
 
     std::size_t size = pPeer->slots.size();

@@ -118,7 +118,7 @@ void send_varlist(ENetPeer *peer, VariantList vlist, int netid, int delay)
     std::vector<u_char> data = compress_state(::state{
         .type = 01, // @note PACKET_CALL_FUNCTION
         .netid = netid,
-        .peer_state = 0x08,
+        .peer_state = peer_state::S_EXTENDED,
 		.id = delay,
 		.size = size
     });

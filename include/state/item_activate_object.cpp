@@ -1,10 +1,8 @@
 #include "pch.hpp"
 #include "on/SetBux.hpp"
-#include "on/ConsoleMessage.hpp"
-
 #include "item_activate_object.hpp"
 
-void item_activate_object(ENetEvent& event, state state) 
+void item_activate_object(ENetEvent& event, state state)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
@@ -12,22 +10,50 @@ void item_activate_object(ENetEvent& event, state state)
     if (world == worlds.end()) return;
 
     auto object = std::ranges::find(world->objects, state.id, &::object::uid);
+    if (object == world->objects.end()) return;
 
     auto item = std::ranges::find(items, object->id, &::item::id);
-    if (item->type != type::GEM)
-    {
-        on::ConsoleMessage(event.peer, (item->rarity >= 999) ?
-            std::format("Collected `w{} {}``.", object->count, item->raw_name) :
-            std::format("Collected `w{} {}``. Rarity: `w{}``", object->count, item->raw_name, item->rarity)
-        );
-        object->count = pPeer->emplace(::slot(object->id, object->count));
-    }
-    else 
+
+    if (item->type == type::GEM)
     {
         pPeer->gems += object->count;
-        object->count = 0;
         on::SetBux(event);
+
+        item_change_object(event, ::slot(0, 0), object->pos, object->uid);
+        world->objects.erase(object);
+        return;
     }
-    item_change_object(event, ::slot(object->id, object->count), object->pos, state.id/*@todo*/);
-    if (object->count == 0) world->objects.erase(object);
+
+    auto inv = std::ranges::find(pPeer->slots, object->id, &::slot::id);
+    short current = (inv != pPeer->slots.end()) ? inv->count : 0;
+
+    if (current >= 200)
+    {
+        packet::create(*event.peer, false, 0,
+        {
+            "OnTextOverlay",
+            "`4Inventory Full"
+        });
+        return;
+    }
+
+    short take = std::min<short>(200 - current, object->count);
+
+    modify_item_inventory(event, ::slot(object->id, take));
+
+    packet::create(*event.peer, false, 0,
+    {
+        "OnConsoleMessage",
+        std::format("Collected `w{} {}``.", take, item->raw_name).c_str()
+    });
+
+    // IMPORTANT:
+    // reduce the EXISTING world object by the amount taken.
+    // Do NOT delete and re-drop.
+    item_change_object(
+        event,
+        ::slot(object->id, -take),
+        object->pos,
+        0
+    );
 }

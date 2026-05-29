@@ -1,9 +1,10 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include <fstream>
 
 #include "server_data.hpp"
 
-::server_data gServer_data{};
+::server_data g_server_data{};
 
 ::server_data init_server_data()
 {

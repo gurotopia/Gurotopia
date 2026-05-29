@@ -38,21 +38,17 @@ void tile_activate(ENetEvent& event, state state)
             }
             if (!has_dest)
             {
-                send_varlist(event.peer, {
+                packet::create(*event.peer, true, 0, {
                     "OnSetPos", 
-                    CL_Vec2f{pPeer->rest_pos.x, pPeer->rest_pos.y}
-                }, pPeer->netid);
-                send_varlist(event.peer, {
-                    "OnZoomCamera",
-                    CL_Vec2f{10000.0f, 0}, // @todo
+                    std::vector<float>{pPeer->rest_pos.x, pPeer->rest_pos.y}
+                });
+                packet::create(*event.peer, false, 0, {
+                    "OnZoomCamera", 
+                    std::vector<float>{10000.0f}, // @todo
                     1000u
                 });
-                send_varlist(event.peer, {
-                    "OnSetFreezeState", 
-                    0u
-                }, pPeer->netid);
-                
-                // audio/teleport.wav
+                packet::create(*event.peer, true, 0, { "OnSetFreezeState", 0u });
+                packet::create(*event.peer, true, 0, { "OnPlayPositioned", "audio/teleport.wav" });
             }
             break;
         }

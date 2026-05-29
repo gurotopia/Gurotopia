@@ -32,12 +32,12 @@ static void cross_close(SOCKET fd)
 }
 
 /* cross-platform error log */
-static void cross_log(const char *message)
+static void cross_log(const std::string &message)
 {
 #ifdef _WIN32
-    std::fprintf(stderr, "%s: %d\n", message, WSAGetLastError());
+    std::fprintf(stderr, "%s: %d\n", message.c_str(), WSAGetLastError());
 #else // @note unix
-    std::fprintf(stderr, "%s: %s\n", message, strerror(errno));
+    std::fprintf(stderr, "%s: %s\n", message.c_str(), strerror(errno));
 #endif
 }
 
@@ -47,19 +47,13 @@ void https::listener()
     SSL_load_error_strings();
     constexpr int enable = 1;
 
-    /* https://docs.openssl.org/3.0/man3/SSL_CTX_new/#return-values */
     SSL_CTX *ctx = SSL_CTX_new(TLS_server_method());
     if (!ctx)
-    {
         ERR_print_errors_fp(stderr);
-    }
 
-    /* https://docs.openssl.org/master/man3/SSL_CTX_use_certificate/#return-values */
-    if (SSL_CTX_use_certificate_file(ctx, "resources/ctx/server.crt", SSL_FILETYPE_PEM) != 1 ||
-        SSL_CTX_use_PrivateKey_file(ctx, "resources/ctx/server.key", SSL_FILETYPE_PEM)  != 1)
-    {
-        ERR_print_errors_fp(stderr);
-    }
+    if (SSL_CTX_use_certificate_file(ctx, "resources/ctx/server.crt", SSL_FILETYPE_PEM) <= 0 ||
+        SSL_CTX_use_PrivateKey_file(ctx, "resources/ctx/server.key", SSL_FILETYPE_PEM) <= 0)
+            ERR_print_errors_fp(stderr);
 
     SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
 
@@ -97,12 +91,12 @@ void https::listener()
             "server|{}\n"
             "port|{}\n"
             "type|{}\n"
-            "type2|{}\n" // @todo remove for older clients
+            "type2|{}\n"
             "#maint|{}\n"
             "loginurl|{}\n"
             "meta|{}\n"
             "RTENDMARKERBS1001", 
-            gServer_data.server, gServer_data.port, gServer_data.type, gServer_data.type2, gServer_data.maint, gServer_data.loginurl, gServer_data.meta
+            g_server_data.server, g_server_data.port, g_server_data.type, g_server_data.type2, g_server_data.maint, g_server_data.loginurl, g_server_data.meta
         );
     const std::string response =
         std::format(
@@ -118,14 +112,25 @@ void https::listener()
     {
         cross_log("failed to listen on socket");
     }
-    else std::printf("listening on %s:%hu\n", gServer_data.server.c_str(), gServer_data.port);
+    else std::printf("listening on %s:%hu\n", g_server_data.server.c_str(), g_server_data.port);
     
     while (true)
     {
         /* https://learn.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-accept */
         SOCKET fd = accept(socket, reinterpret_cast<sockaddr*>(&addr), &addrlen);
-        if (fd == INVALID_SOCKET) continue;
-        
+        if (fd == INVALID_SOCKET) 
+        {
+            cross_log("accept function failed");
+            continue;
+        }
+
+        /* https://learn.microsoft.com/en-us/windows/win32/api/winsock/nf-winsock-setsockopt */
+        if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&enable, sizeof(enable)) == SOCKET_ERROR)
+        {
+            cross_log("setting TCP_NODELAY socket option failed");
+            continue; // @todo or let them connect with delay
+        }
+
         SSL *ssl = SSL_new(ctx);
         if (!ssl) {
             cross_close(fd);
@@ -148,6 +153,7 @@ void https::listener()
                 if (std::string_view(buf, sizeof(buf )).contains("POST /growtopia/server_data.php HTTP/1.1"))
                 {
                     SSL_write(ssl, response.c_str(), response.size());
+                    SSL_shutdown(ssl);
                 }
             }
             else ERR_print_errors_fp(stderr); // @note we don't accept growtopia GET. this error is normal if appears.

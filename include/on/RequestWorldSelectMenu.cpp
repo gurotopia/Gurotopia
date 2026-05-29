@@ -1,6 +1,4 @@
 #include "pch.hpp"
-#include "on/ConsoleMessage.hpp"
-
 #include "RequestWorldSelectMenu.hpp"
 
 void on::RequestWorldSelectMenu(ENetEvent& event) 
@@ -25,19 +23,23 @@ void on::RequestWorldSelectMenu(ENetEvent& event)
     for (const ::world &world : worlds)
         if (world.visitors > 0) popular_names.emplace_back(world.name); // @todo only fetch top 10 worlds, instead of all the worlds with people.
 
-    send_varlist(event.peer, { 
+    packet::create(*event.peer, false, 0, {
         "OnRequestWorldSelectMenu", 
-        std::format(
-            "add_filter|\n"
-            "add_heading|Top Worlds<ROW2>|\n{}{}"
-            "add_heading|My Worlds<CR>|\n{}"
-            "add_heading|Recently Visited Worlds<CR>|\n{}",
+            std::format(
+                "add_filter|\n"
+                "add_heading|Top Worlds<ROW2>|\n{}{}"
+                "add_heading|My Worlds<CR>|\n{}"
+                "add_heading|Recently Visited Worlds<CR>|\n{}",
             "add_floater|wotd_world|\u013B WOTD|0|0.5|3529161471\n", 
             section(popular_names, "3529161471"), 
             section(pPeer->my_worlds, "2147418367"), 
             section(pPeer->recent_worlds, "3417414143")
-        ), 
+        ).c_str(), 
         1
     });
-    on::ConsoleMessage(event.peer, std::format("Where would you like to go? (`w{}`` online)", peers().size()));
+    packet::create(*event.peer, false, 0, {
+        "OnConsoleMessage", 
+        std::format("Where would you like to go? (`w{}`` online)", peers().size()).c_str()
+    });
+    packet::create(*event.peer, false, 0, { "OnClearItemTransforms" });
 }

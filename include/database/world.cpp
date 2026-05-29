@@ -1,39 +1,271 @@
 #include "pch.hpp"
+#include "items.hpp"
+#include "peer.hpp"
 #include "tools/ransuu.hpp"
-#include "on/ConsoleMessage.hpp"
 
 #include "world.hpp"
 
 using namespace std::chrono;
 using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec, seconds)
 
+namespace {
+    inline u_int tree_elapsed_seconds(const ::block& block) {
+        return static_cast<u_int>((steady_clock::now() - block.tick) / 1s);
+    }
+
+    inline u_char tree_fruit_visual_count(const ::item& item, const ::block& block) {
+        if (item.type != type::SEED) return 0;
+        if (tree_elapsed_seconds(block) < static_cast<u_int>(std::max(0, item.tick))) return 0;
+        return static_cast<u_char>((item.cat & CAT_SUPRISING_FRUIT) ? 4 : 3);
+    }
+}
+
+class world_db {
+private:
+    sqlite3* db;
+
+    void sqlite3_bind(sqlite3_stmt* stmt, int i, int value)                 { sqlite3_bind_int(stmt, i, value); }
+    void sqlite3_bind(sqlite3_stmt* stmt, int i, const std::string& value)  { sqlite3_bind_text(stmt, i, value.c_str(), -1, SQLITE_STATIC); }
+public:
+    world_db() {
+        sqlite3_open("db/worlds.db", &db);
+        create_tables();
+    }~world_db() { sqlite3_close(db); }
+    
+    void create_tables() 
+    {
+        const char* sql = 
+        "CREATE TABLE IF NOT EXISTS worlds (_n TEXT PRIMARY KEY, owner INTEGER, min_level INTEGER);"
+        "CREATE TABLE IF NOT EXISTS blocks ("
+            "_n TEXT, _p INTEGER, fg INTEGER, bg INTEGER, tick INTEGER, l TEXT, s3 INTEGER, s4 INTEGER,"
+            "PRIMARY KEY (_n, _p),"
+            "FOREIGN KEY (_n) REFERENCES worlds(_n)"
+        ");"
+        "CREATE TABLE IF NOT EXISTS displays ("
+            "_n TEXT, _p INTEGER, i INTEGER,"
+            "PRIMARY KEY (_n, _p),"
+            "FOREIGN KEY (_n) REFERENCES worlds(_n)"
+        ");"
+        "CREATE TABLE IF NOT EXISTS vending_machines ("
+            "_n TEXT, _p INTEGER, item_id INTEGER, stock INTEGER, price INTEGER, per_item INTEGER, digivend INTEGER, earned_wls INTEGER,"
+            "PRIMARY KEY (_n, _p),"
+            "FOREIGN KEY (_n) REFERENCES worlds(_n)"
+        ");"
+        "CREATE TABLE IF NOT EXISTS random_blocks ("
+            "_n TEXT, _p INTEGER, val INTEGER,"
+            "PRIMARY KEY (_n, _p),"
+            "FOREIGN KEY (_n) REFERENCES worlds(_n)"
+        ");"
+        "CREATE TABLE IF NOT EXISTS objects ("
+            "_n TEXT, uid INTEGER, i INTEGER, c INTEGER, x REAL, y REAL,"
+            "PRIMARY KEY (_n, uid),"
+            "FOREIGN KEY (_n) REFERENCES worlds(_n)"
+        ");";
+        sqlite3_exec(db, sql, nullptr, nullptr, nullptr);
+    }
+    
+    template<typename F>
+    void execute(const char* sql, F binder) 
+    {
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+        {
+            binder(stmt);
+            sqlite3_step(stmt);
+            sqlite3_finalize(stmt);
+        }
+    }
+    
+    template<typename F>
+    void query(const char* sql, F &&processor, const std::string &name) 
+    {
+        sqlite3_stmt* stmt;
+        if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) == SQLITE_OK) 
+        {
+            sqlite3_bind(stmt, 1, name);
+            
+            while (sqlite3_step(stmt) == SQLITE_ROW) 
+            {
+                processor(stmt);
+            }
+            sqlite3_finalize(stmt);
+        }
+    }
+    
+    void begin_transaction() { sqlite3_exec(db, "BEGIN TRANSACTION", nullptr, nullptr, nullptr); }
+    void commit()            { sqlite3_exec(db, "COMMIT", nullptr, nullptr, nullptr); }
+};
+
 world::world(const std::string& name) 
 {
-    this->name = name;
+    world_db db;
+    
+    db.query("SELECT owner, min_level FROM worlds WHERE _n = ?", [this, &name](sqlite3_stmt* stmt) 
+    {
+        this->owner =               sqlite3_column_int(stmt, 0);
+        this->minimum_entry_level = sqlite3_column_int(stmt, 1);
+        this->name = name;
+    }, name);
+
+    blocks.resize(6000);
+    db.query("SELECT _p, fg, bg, tick, l, s3, s4 FROM blocks WHERE _n = ?", [this](sqlite3_stmt* stmt) 
+    {
+        int pos = sqlite3_column_int(stmt, 0);
+        blocks[pos] = block(
+            sqlite3_column_int(stmt, 1),
+            sqlite3_column_int(stmt, 2),
+            steady_clock::time_point(std::chrono::seconds(sqlite3_column_int64(stmt, 3))),
+            reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4)),
+            sqlite3_column_int(stmt, 5),
+            sqlite3_column_int(stmt, 6)
+        );
+    }, name);
+
+    db.query("SELECT _p, i FROM displays WHERE _n = ?", [this](sqlite3_stmt* stmt) 
+    {
+        int pos = sqlite3_column_int(stmt, 0);
+        int id = sqlite3_column_int(stmt, 1);
+        displays.emplace_back(::display(id, ::pos{pos % 100, (pos / 100)}));
+    }, name);
+
+    db.query("SELECT _p, item_id, stock, price, per_item, digivend, earned_wls FROM vending_machines WHERE _n = ?", [this](sqlite3_stmt* stmt)
+    {
+        int pos = sqlite3_column_int(stmt, 0);
+        vendings.emplace_back(::vending_machine(
+            ::pos{pos % 100, (pos / 100)},
+            static_cast<short>(sqlite3_column_int(stmt, 1)),
+            sqlite3_column_int(stmt, 2),
+            sqlite3_column_int(stmt, 3),
+            sqlite3_column_int(stmt, 4) != 0,
+            sqlite3_column_int(stmt, 5) != 0,
+            sqlite3_column_int(stmt, 6)
+        ));
+    }, name);
+
+    db.query("SELECT _p, val FROM random_blocks WHERE _n = ?", [this](sqlite3_stmt* stmt) 
+    {
+        int pos = sqlite3_column_int(stmt, 0);
+        u_int val = sqlite3_column_int(stmt, 1);
+        random_blocks.emplace_back(::random_block(val, ::pos{pos % 100, (pos / 100)}));
+    }, name);
+
+    db.query("SELECT uid, i, c, x, y FROM objects WHERE _n = ?", [this](sqlite3_stmt* stmt) 
+    {
+        u_int uid = sqlite3_column_int(stmt, 0);
+        objects.emplace_back(object(
+            sqlite3_column_int(stmt, 1),
+            sqlite3_column_int(stmt, 2),
+            ::pos{
+                static_cast<float>(sqlite3_column_double(stmt, 3)), // @todo
+                static_cast<float>(sqlite3_column_double(stmt, 4)) // @todo
+            },
+            uid
+        ));
+        this->last_object_uid = std::max(this->last_object_uid, uid);
+    }, name);
+}
+
+world::~world() 
+{
+    if (this->name.empty()) return;
+    
+    world_db db;
+    db.begin_transaction();
+    
+    db.execute("INSERT OR REPLACE INTO worlds (_n, owner, min_level) VALUES (?, ?, ?)", [this](sqlite3_stmt* stmt) 
+    {
+        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+        sqlite3_bind_int(stmt,  2, this->owner);
+        sqlite3_bind_int(stmt,  3, this->minimum_entry_level);
+    });
+    
+    db.execute("DELETE FROM blocks WHERE _n = ?", [this](auto stmt) {
+        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+    });
+    for (std::size_t pos = 0; pos < this->blocks.size(); pos++) {
+        const block &b = this->blocks[pos];
+        db.execute("INSERT INTO blocks (_n, _p, fg, bg, tick, l, s3, s4) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [this, &b, &pos](sqlite3_stmt* stmt) 
+        {
+            int i = 1;
+            sqlite3_bind_text(stmt,  i++, this->name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,   i++, pos);
+            sqlite3_bind_int(stmt,   i++, b.fg);
+            sqlite3_bind_int(stmt,   i++, b.bg);
+            sqlite3_bind_int64(stmt, i++, duration_cast<std::chrono::seconds>(b.tick.time_since_epoch()).count());
+            sqlite3_bind_text(stmt,  i++, b.label.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,   i++, b.state[2]);
+            sqlite3_bind_int(stmt,   i++, b.state[3]);
+        });
+    }
+
+    db.execute("DELETE FROM displays WHERE _n = ?", [this](auto stmt) {
+        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+    });
+    for (const ::display display : this->displays) 
+    {
+        int i = 1;
+        db.execute("INSERT INTO displays (_n, _p, i) VALUES (?, ?, ?)", [&](sqlite3_stmt* stmt) 
+        {
+            sqlite3_bind_text(stmt,  i++, this->name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,   i++, cord(display.pos.x, display.pos.y));
+            sqlite3_bind_int(stmt,   i++, display.id);
+        });
+    }
+
+    db.execute("DELETE FROM vending_machines WHERE _n = ?", [this](auto stmt) {
+        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+    });
+    for (const ::vending_machine &vend : this->vendings)
+    {
+        db.execute("INSERT INTO vending_machines (_n, _p, item_id, stock, price, per_item, digivend, earned_wls) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", [&](sqlite3_stmt* stmt)
+        {
+            int i = 1;
+            sqlite3_bind_text(stmt, i++, this->name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,  i++, cord(vend.pos.x, vend.pos.y));
+            sqlite3_bind_int(stmt,  i++, vend.item_id);
+            sqlite3_bind_int(stmt,  i++, vend.stock);
+            sqlite3_bind_int(stmt,  i++, vend.price);
+            sqlite3_bind_int(stmt,  i++, vend.per_item ? 1 : 0);
+            sqlite3_bind_int(stmt,  i++, vend.digivend ? 1 : 0);
+            sqlite3_bind_int(stmt,  i++, vend.earned_wls);
+        });
+    }
+
+    db.execute("DELETE FROM random_blocks WHERE _n = ?", [this](auto stmt) {
+        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+    });
+    for (const ::random_block random : this->random_blocks) 
+    {
+        int i = 1;
+        db.execute("INSERT INTO random_blocks (_n, _p, val) VALUES (?, ?, ?)", [&](sqlite3_stmt* stmt) 
+        {
+            sqlite3_bind_text(stmt,  i++, this->name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,   i++, cord(random.pos.x, random.pos.y));
+            sqlite3_bind_int(stmt,   i++, random.value);
+        });
+    }
+
+    db.execute("DELETE FROM objects WHERE _n = ?", [this](auto stmt) {
+        sqlite3_bind_text(stmt, 1, this->name.c_str(), -1, SQLITE_STATIC);
+    });
+    for (const ::object &object : this->objects) 
+    {
+        db.execute("INSERT INTO objects (_n, uid, i, c, x, y) VALUES (?, ?, ?, ?, ?, ?)", [&](sqlite3_stmt* stmt) 
+        {
+            int i = 1;
+            sqlite3_bind_text(stmt,   i++, this->name.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_int(stmt,    i++, object.uid);
+            sqlite3_bind_int(stmt,    i++, object.id);
+            sqlite3_bind_int(stmt,    i++, object.count);
+            sqlite3_bind_double(stmt, i++, object.pos.x);
+            sqlite3_bind_double(stmt, i++, object.pos.y);
+        });
+    }
+    
+    db.commit();
 }
 
 std::vector<world> worlds;
-
-void send_action(ENetPeer& p, const std::string& action, const std::string& str) 
-{
-    const std::string &fmt_action = std::format("action|{}\n", action);
-    std::vector<u_char> data(sizeof(int) + fmt_action.length() + str.length(), 0x00);
-    
-    data[0] = 3; // @note NET_MESSAGE_GAME_MESSAGE
-    {
-        const u_char *i8 = reinterpret_cast<const u_char*>(fmt_action.c_str());
-        for (std::size_t i = 0zu; i < fmt_action.length(); ++i)
-            data[sizeof(int) + i] = i8[i];
-    }
-    if (!str.empty())
-    {
-        const u_char *i8 = reinterpret_cast<const u_char*>(str.c_str());
-        for (std::size_t i = 0zu; i < str.length(); ++i)
-            data[sizeof(int) + fmt_action.length() + i] = i8[i];
-    }
-    
-    enet_peer_send(&p, 0, enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE));
-}
 
 void send_data(ENetPeer &peer, const std::vector<u_char> &&data)
 {
@@ -64,7 +296,7 @@ void tile_apply_damage(ENetEvent& event, state state, block &block, u_int value)
 	state_visuals(*event.peer, std::move(state));
 }
 
-u_short modify_item_inventory(ENetEvent& event, ::slot slot)
+short modify_item_inventory(ENetEvent& event, ::slot slot)
 {   
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
@@ -89,14 +321,27 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
         return uid == 0 && object.id == slot.id && (object.pos.by_32(true) == pos.by_32(true));
     });
 
-    if (object != world->objects.end()) // @note merge drop
+    if (object != world->objects.end()) // existing drop
     {
         object->count += slot.count;
-        state.netid = 0xfffffffd;
-        state.uid = object->uid;
-        state.count = static_cast<float>(object->count);
-        state.id =  object->id;
-        state.pos = object->pos;
+
+        // Drop fully consumed
+        if (object->count <= 0)
+        {
+            state.netid = pPeer->netid;
+            state.uid = 0xffffffff;
+            state.id = object->uid;
+
+            world->objects.erase(object);
+        }
+        else
+        {
+            state.netid = 0xfffffffd;
+            state.uid = object->uid;
+            state.count = static_cast<float>(object->count);
+            state.id = object->id;
+            state.pos = object->pos;
+        }
     }
     else if (slot.count == 0 || slot.id == 0) // @note remove drop
     {
@@ -130,7 +375,7 @@ void add_drop(ENetEvent &event, ::slot im, ::pos pos)
 void send_tile_update(ENetEvent &event, state state, block &block, world &world) 
 {
     state.type = 05; // @note PACKET_SEND_TILE_UPDATE_DATA
-    state.peer_state = peer_state::S_EXTENDED;
+    state.peer_state = 0x08;
     std::vector<u_char> data = compress_state(state);
 
     short pos = sizeof(::state); // @note start after state bytes (as every packet has)
@@ -189,8 +434,8 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
             data.resize(pos + 1zu + 5zu);
 
             data[pos++] = 0x04;
-            *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
-            data[pos++] = 0x03; // @note fruit on tree
+            *reinterpret_cast<int*>(&data[pos]) = tree_elapsed_seconds(block); pos += sizeof(int);
+            data[pos++] = tree_fruit_visual_count(*item, block); // @note visible fruit count on tree
             break;
         }
         case type::PROVIDER:
@@ -208,6 +453,16 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
 
             data[pos++] = 0x17;
             *reinterpret_cast<int*>(&data[pos]) = display->id; pos += sizeof(int);
+            break;
+        }
+        case type::VENDING_MACHINE:
+        {
+            data.resize(pos + 1zu + 4zu + 4zu);
+            auto vend = std::ranges::find(world.vendings, state.punch, &::vending_machine::pos);
+
+            data[pos++] = 0x18;
+            *reinterpret_cast<u_int*>(&data[pos]) = (vend != world.vendings.end()) ? vend->item_id : 0; pos += sizeof(u_int);
+            *reinterpret_cast<int*>(&data[pos]) = (vend != world.vendings.end()) ? ((vend->per_item ? 1 : -1) * std::max(1, vend->price)) : 0; pos += sizeof(int);
             break;
         }
     }
@@ -234,7 +489,10 @@ void remove_fire(ENetEvent &event, state state, block &block, world& world)
 
     if (++pPeer->fires_removed % 100 == 0) 
     {
-        on::ConsoleMessage(event.peer, "`oI'm so good at fighting fires, I rescused this `2Highly Combustible Box``!");
+        packet::create(*event.peer, false, 0, {
+            "OnConsoleMessage",
+            "`oI'm so good at fighting fires, I rescused this `2Highly Combustible Box``!"
+        });
         modify_item_inventory(event, {3090/*Combustible Box*/, 1});
     }
 

@@ -44,5 +44,8 @@ void on::RequestGazette(ENetEvent& event)
         .add_quick_exit().add_spacer("small")
         .end_dialog("gazette", "", "OK");
 
-    send_varlist(event.peer, { "OnDialogRequest", dialog });
+    packet::create(*event.peer, false, 0, {
+        "OnDialogRequest",
+        dialog.c_str()
+    });
 }

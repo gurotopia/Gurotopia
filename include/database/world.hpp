@@ -61,7 +61,7 @@ struct door
     std::string dest{};
     std::string id{};
     std::string password{};
-    ::pos pos{};
+    ::pos pos;
 };
 
 struct display
@@ -69,7 +69,21 @@ struct display
     display(u_int _id, ::pos _pos) : id(_id), pos(_pos) {}
 
     u_int id{};
-    ::pos pos{};
+    ::pos pos;
+};
+
+struct vending_machine
+{
+    vending_machine(::pos _pos = ::pos{0, 0}, short _item_id = 0, int _stock = 0, int _price = 1, bool _per_item = true, bool _digivend = false, int _earned_wls = 0)
+        : pos(_pos), item_id(_item_id), stock(_stock), price(_price), per_item(_per_item), digivend(_digivend), earned_wls(_earned_wls) {}
+
+    ::pos pos;
+    short item_id{0};
+    int stock{0};
+    int price{1};
+    bool per_item{true}; // true = WLs per item, false = items per WL
+    bool digivend{false};
+    int earned_wls{0};
 };
 
 struct random_block
@@ -77,15 +91,15 @@ struct random_block
     random_block(u_char _value, ::pos _pos) : value(_value), pos(_pos) {}
 
     u_char value{};
-    ::pos pos{};
+    ::pos pos;
 };
 
 struct object 
 {
     object(u_short _id, u_short _count, ::pos _pos, u_int _uid) : id(_id), count(_count), pos(_pos), uid(_uid) {}
-    u_short id{};
-    u_short count{};
-    ::pos pos{};
+    u_short id{0};
+    u_short count{0};
+    ::pos pos;
 
     u_int uid{};
 };
@@ -94,7 +108,6 @@ class world
 {
 public:
     world(const std::string& name = "");
-
     std::string name{};
 
     int owner{ 00 }; // @note owner of world using peer's user id.
@@ -111,13 +124,13 @@ public:
     std::vector<::object> objects{};
     std::vector<::door> doors{};
     std::vector<::display> displays{};
+    std::vector<::vending_machine> vendings{};
     std::vector<::random_block> random_blocks{};
 
-    ::pos 现weather{};
+    ::pos 现weather{0, 0};
+    ~world();
 };
 extern std::vector<world> worlds;
-
-extern void send_action(ENetPeer& p, const std::string& action, const std::string& str);
 
 extern void send_data(ENetPeer &peer, const std::vector<u_char> &&data);
 
@@ -129,7 +142,7 @@ extern void tile_apply_damage(ENetEvent &event, state state, block &block, u_int
 * @brief set slot::count to nagative value if you want to remove an amount. 
 * @return the remaining amount if exeeds 200. e.g. emplace(slot{0, 201}) returns 1.
 */
-extern u_short modify_item_inventory(ENetEvent& event, ::slot slot);
+extern short modify_item_inventory(ENetEvent& event, ::slot slot);
 
 extern int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed uid = 0);
 

@@ -2,19 +2,52 @@
 #include "on/NameChanged.hpp"
 #include "on/SetClothing.hpp"
 #include "on/Action.hpp"
-#include "on/ConsoleMessage.hpp"
 #include "commands/weather.hpp"
 #include "item_activate.hpp"
 #include "tools/ransuu.hpp"
+#include "tools/string.hpp"
 #include "tools/create_dialog.hpp"
 #include "action/quit_to_exit.hpp"
 #include "action/join_request.hpp"
+#include "action/dialog_return/vending.hpp"
 #include "item_activate_object.hpp"
-
 #include "tile_change.hpp"
 
 using namespace std::chrono;
 using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec, seconds)
+
+namespace {
+    inline u_int tree_elapsed_seconds(const ::block& block) {
+        return static_cast<u_int>((steady_clock::now() - block.tick) / 1s);
+    }
+
+    inline u_char tree_fruit_visual_count(const ::item& item, const ::block& block) {
+        if (item.type != type::SEED) return 0;
+        if (tree_elapsed_seconds(block) < static_cast<u_int>(std::max(0, item.tick))) return 0;
+        return static_cast<u_char>((item.cat & CAT_SUPRISING_FRUIT) ? 4 : 3);
+    }
+
+    inline bool apply_tree_growth_spray(ENetEvent& event, ::peer& pPeer, ::world& world, ::state state, ::block& block, const ::item& tree_item, int fast_seconds, std::string_view success_text) {
+        if (tree_item.type != type::SEED) throw std::runtime_error("You can only use that on a tree!");
+
+        const int grow_time = std::max(0, tree_item.tick);
+        const u_int elapsed = tree_elapsed_seconds(block);
+        if (elapsed >= static_cast<u_int>(grow_time))
+            throw std::runtime_error("That tree is already fully grown!");
+
+        const int remaining = std::max(0, grow_time - static_cast<int>(elapsed));
+        const int applied = std::min(fast_seconds, remaining);
+        if (applied <= 0) return false;
+
+        block.tick -= seconds(applied);
+        send_tile_update(event, state, block, world);
+
+        std::string text(success_text);
+        packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer.netid, text.c_str(), 0u, 1u });
+        packet::create(*event.peer, false, 0, { "OnConsoleMessage", text.c_str() });
+        return true;
+    }
+}
 
 void tile_change(ENetEvent& event, state state) 
 {
@@ -112,20 +145,26 @@ void tile_change(ENetEvent& event, state state)
             {
                 case 758: // @note Roulette Wheel
                 {
-                    const u_char number = ransuu[{0, 36}];
-                    const char color = (number == 0) ? '2' : (ransuu[{0, 3}] < 2) ? 'b' : '4';
-                    const std::string message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", pPeer->prefix, pPeer->growid, color, number);
-                    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &pPeer, message](ENetPeer& peer)
+                    u_char number = ransuu[{0, 36}];
+                    char color = (number == 0) ? '2' : (ransuu[{0, 3}] < 2) ? 'b' : '4';
+                    std::string message = std::format("[`{}{}`` spun the wheel and got `{}{}``!]", pPeer->prefix, pPeer->ltoken[0], color, number);
+                    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&pPeer, message](ENetPeer& peer)
                     {
-                        send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, message }, -1, 2000);
-                        on::ConsoleMessage(event.peer, message, 2000);
+                        packet::create(peer, false, 2000, { "OnTalkBubble", pPeer->netid, message.c_str() });
+                        packet::create(peer, false, 2000, { "OnConsoleMessage", message.c_str() });
                     });
                     break;
                 }
             }
             switch (item->type)
             {
-                case type::STRONG: throw std::runtime_error("It's too strong to break.");
+                case type::STRONG:
+                {
+                    if (pPeer->role != 2 or pPeer->role != 1) {
+                        throw std::runtime_error("It's too strong to break.");
+                    }
+                    break;
+                } 
                 case type::MAIN_DOOR: throw std::runtime_error("(stand over and punch to use)");
                 case type::LOCK:
                 {
@@ -146,7 +185,10 @@ void tile_change(ENetEvent& event, state state)
                                 u_char gems = ransuu[{1, 100}]; // @note source: https://growtopia.fandom.com/wiki/ATM_Machine
                                 for (short i : {100, 50, 10, 5, 1}/* gem type */)
                                     for (; gems >= i; gems -= i/* downgrade type */)
-                                        add_drop(event, {112, i}, state.punch.by_32());
+                                        item_change_object(event, {112, static_cast<u_short>(i)}, {
+                                            state.punch.by_32().x + ransuu[{0, 16}],
+                                            state.punch.by_32().y + ransuu[{0, 16}]
+                                        }, -1 /* keep gem colors split instead of merging */);
                                         
                                 break;
                             }
@@ -204,7 +246,7 @@ void tile_change(ENetEvent& event, state state)
                     
                     peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
-                        send_varlist(&p, { "OnSetCurrentWeather", (block.state[2] & S_TOGGLE) ? get_weather_id(item->id) : 0 });
+                        packet::create(p, false, 0, { "OnSetCurrentWeather", (block.state[2] & S_TOGGLE) ? get_weather_id(item->id) : 0 });
                     });
                     break;
                 }
@@ -215,9 +257,12 @@ void tile_change(ENetEvent& event, state state)
                     block.state[2] ^= S_TOGGLE;
                     if (item->id == 226) // @note Signal Jammer
                     {
-                        on::ConsoleMessage(event.peer, (block.state[2] & S_TOGGLE) ? 
-                            "Signal jammer enabled. This world is now `4hidden`` from the universe." :
-                            "Signal jammer disabled.  This world is `2visible`` to the universe.");
+                        packet::create(*event.peer, false, 0, {
+                            "OnConsoleMessage",
+                            (block.state[2] & S_TOGGLE) ? 
+                                "Signal jammer enabled. This world is now `4hidden`` from the universe." :
+                                "Signal jammer disabled.  This world is `2visible`` to the universe."
+                        });
                     }
                     break;
                 }
@@ -241,12 +286,44 @@ void tile_change(ENetEvent& event, state state)
             if (block.hits[0] >= item->hits) block.fg = 0, block.hits[0] = 0;
             else if (block.hits[1] >= item->hits) block.bg = 0, block.hits[1] = 0;
             else return;
+
+            if (item->type == type::VENDING_MACHINE)
+            {
+                auto vend = std::ranges::find(world->vendings, state.punch, &::vending_machine::pos);
+                if (vend != world->vendings.end())
+                {
+                    if (vend->item_id != 0 && vend->stock > 0)
+                        for (int left = vend->stock; left > 0; left -= 200)
+                            add_drop(event, {vend->item_id, static_cast<short>(std::min(left, 200))}, state.punch.by_32());
+                    world->vendings.erase(vend);
+                }
+            }
             
             /* @todo update these changes with tile_update() */
             block.label = "";
             block.state[2] = 0x00; // @note reset tile direction
             block.state[3] &= ~S_VANISH; // @note remove paint
             
+            { /* gem drop on any successful block break */
+                short rarity = std::max<short>(0, item->rarity);
+                u_char max_gems =
+                    static_cast<u_char>(std::min<short>(150, 1 + rarity));
+                u_char min_gems = static_cast<u_char>(
+                    rarity > 38 ? std::min<int>(20, max_gems) : 1
+                );
+
+                if (!ransuu[{0, (rarity >= 50) ? 1 : (rarity >= 15) ? 2 : 3}])
+                {
+                    u_char gems = ransuu[{min_gems, max_gems}];
+                    for (short i : {100, 50, 10, 5, 1})
+                        for (; gems >= i; gems -= i)
+                            item_change_object(event, {112, static_cast<u_short>(i)}, {
+                                state.punch.by_32().x + ransuu[{0, 16}],
+                                state.punch.by_32().y + ransuu[{0, 16}]
+                            }, -1 /* keep gem colors split instead of merging */);
+                }
+            }
+
             if (item->id == 392/*Heartstone*/ || item->id == 3402/*GBC*/ || item->id == 9350/*Super GBC*/)
             {
                 short reward =
@@ -268,10 +345,10 @@ void tile_change(ENetEvent& event, state state)
                 add_drop(event, ::slot(reward, (reward == 3408 || reward == 3404) ? 10 : 1), state.punch.by_32());
                 if (reward == 1458)
                 {
-                    std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", pPeer->growid, item->raw_name);
+                    std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", pPeer->ltoken[0], item->raw_name);
                     peers(pPeer->recent_worlds.back(), PEER_ALL, [message](ENetPeer &p)
                     {
-                        send_action(p, "log", message.c_str());
+                        packet::action(p, "log", message.c_str());
                     });
                 }
                 if (++pPeer->gbc_pity % 100 == 0) modify_item_inventory(event, ::slot{9350, 1});
@@ -293,33 +370,15 @@ void tile_change(ENetEvent& event, state state)
                 item_activate_object(event, ::state{.id = uid, .punch = state.punch});
             }
             else if (u_char(item->property) & 04) { } // @note "This item never drops any seeds."; should it drop a block?
-            else // @note normal break (drop gem, seed, block & give XP)
+            else // @note normal break (drop seed/block & give XP)
             {
-                if (item->type != type::SEED)
-                { /* gem drop */
-                    /* if greater than 1, assume it's a farmable.*/
-                    u_char rarity_to_gem =
-                        (item->rarity >= 87) ? 22 : 
-                        (item->rarity >= 68) ? 18 : 
-                        (item->rarity >= 53) ? 14 : 
-                        (item->rarity >= 41) ? 11 : 
-                        (item->rarity >= 36) ? 10 :
-                        (item->rarity >= 32) ? 9 :
-                        (item->rarity >= 24) ? 5 : 1;
+                short rarity = std::max<short>(0, item->rarity);
+                bool high_rarity = rarity >= 15;
 
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 1 : 4}]) // @note double chances if farmable.
-                    {
-                        /* @todo merge gems more effectively */
-                        u_char gems = ransuu[{1, rarity_to_gem}];
-                        for (short i : {10, 5, 1}/* gem type */)
-                            for (; gems >= i; gems -= i/* downgrade type */)
-                                add_drop(event, {112, i}, state.punch.by_32());
-                    }
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 2 : 4}]) add_drop(event, ::slot(item->id + 1, 1), state.punch.by_32());
-                    else if (!ransuu[{0, (rarity_to_gem > 1) ? 4 : 8}]) add_drop(event, ::slot(item->id, 1), state.punch.by_32());
-                } /* ~gem drop */
+                if (!ransuu[{0, high_rarity ? 2 : 4}]) add_drop(event, ::slot(item->id + 1, 1), state.punch.by_32());
+                else if (!ransuu[{0, high_rarity ? 4 : 8}]) add_drop(event, ::slot(item->id, 1), state.punch.by_32());
 
-                pPeer->add_xp(event, std::trunc(1.0f + item->rarity / 5.0f));
+                pPeer->add_xp(event, static_cast<u_short>(1 + rarity));
             }
         } // @note delete im, id
         else if (item->cloth_type != clothing::none) 
@@ -331,9 +390,36 @@ void tile_change(ENetEvent& event, state state)
         }
         else if (item->type == type::CONSUMEABLE) 
         {
+            if (item->raw_name == "Birth Certificate")
+            {
+                const long long now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                const long long next_rename_at = pPeer->name_changed_at + (15ll * 24ll * 60ll * 60ll);
+
+                std::string cooldown_text = "`2You can change your name right now.``";
+                if (pPeer->name_changed_at != 0 && now < next_rename_at)
+                {
+                    const long long remaining = next_rename_at - now;
+                    const long long days = remaining / 86400;
+                    const long long hours = (remaining % 86400) / 3600;
+                    cooldown_text = std::format("`4You can change your name again in {} day(s) and {} hour(s).``", days, hours);
+                }
+
+                packet::create(*event.peer, false, 0, {
+                    "OnDialogRequest",
+                    ::create_dialog()
+                        .set_default_color("`o")
+                        .add_label_with_icon("big", "`wBirth Certificate``", item->id)
+                        .add_textbox("Use this to change your GrowID. This consumes 1 Birth Certificate on success.")
+                        .add_smalltext(cooldown_text)
+                        .add_smalltext("Name rules: 3-20 characters, letters and numbers only.")
+                        .add_text_input("name", "New Name", pPeer->ltoken[0], 20)
+                        .end_dialog("birth_certificate", "Cancel", "Change Name").c_str()
+                });
+                return;
+            }
             if (item->raw_name.contains(" Blast"))
             {
-                send_varlist(event.peer, {
+                packet::create(*event.peer, false, 0, {
                     "OnDialogRequest",
                     std::format(
                         "set_default_color|`o\n"
@@ -343,7 +429,7 @@ void tile_change(ENetEvent& event, state state)
                         "add_text_input|name|New World Name||24|\n"
                         "end_dialog|create_blast|Cancel|Create!|\n", // @todo rgt "Create!" is a purple-ish pink color
                         item->id, item->raw_name
-                    )
+                    ).c_str()
                 });
             }
 
@@ -355,7 +441,7 @@ void tile_change(ENetEvent& event, state state)
 
                 on::Action(event, "shower");
                 // audio/shower.wav
-                send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, "You dyed your hair!", 0u, 1u });
+                packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, "You dyed your hair!", 0u, 1u });
             }
             float color{}; // @note the color of the paint particle effect.
             float particle{};
@@ -408,8 +494,8 @@ void tile_change(ENetEvent& event, state state)
                     std::string message = "`7[```4MWAHAHAHA!! FIRE FIRE FIRE```7]``";
                     peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
                     {
-                        send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, message, 0u });
-                        on::ConsoleMessage(event.peer, message);
+                        packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, message.c_str(), 0u });
+                        packet::create(*event.peer, false, 0, { "OnConsoleMessage", message.c_str() });
                     });
                     particle = 0x96;
 
@@ -422,7 +508,7 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case 3404:/*Sour Lollipop*/ case 3406:/*Sweet Lollipop*/
                 {
-                    send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, "`#YUM!:D", 0u });
+                    packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, "`#YUM!:D", 0u });
 
                     break;
                 }
@@ -436,20 +522,20 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case 1488: // @note Experience Potion
                 {
-                    send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, "`#GULP! You got smarter!", 0u });
+                    packet::create(*event.peer, false, 0, { "OnTalkBubble", pPeer->netid, "`#GULP! You got smarter!", 0u });
                     pPeer->add_xp(event, 10000);
                     break;
                 }
                 case 2480: // @note Megaphone
                 {
-                    send_varlist(event.peer, {
+                    packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         ::create_dialog()
                             .set_default_color("`o")
                             .add_label_with_icon("big", "`wMegaphone``", item->id)
                             .add_textbox("Enter a message you want to broadcast to every player in Growtopia! This will use up 1 Megaphone")
                             .add_text_input("message", "", "", 128)
-                            .end_dialog("megaphone", "Nevermind", "Broadcast")
+                            .end_dialog("megaphone", "Nevermind", "Broadcast").c_str()
                     });
                     break;
                 }
@@ -517,6 +603,20 @@ void tile_change(ENetEvent& event, state state)
                 case 3822: break; // Red Hair Dye
                 case 3824: break; // Green Hair Dye
                 case 3826: break; // Blue Hair Dye
+                case 228: // @note Grow Spray Fertilizer
+                {
+                    auto tree_item = std::ranges::find(items, (block.fg != 0) ? block.fg : block.bg, &::item::id);
+                    if (!apply_tree_growth_spray(event, *pPeer, *world, state, block, *tree_item, 3600, "You spray the tree and it grows `21 hour`` faster!"))
+                        return;
+                    break;
+                }
+                case 1778: // @note Deluxe Grow Spray
+                {
+                    auto tree_item = std::ranges::find(items, (block.fg != 0) ? block.fg : block.bg, &::item::id);
+                    if (!apply_tree_growth_spray(event, *pPeer, *world, state, block, *tree_item, 86400, "You spray the tree and it grows `224 hours`` faster!"))
+                        return;
+                    break;
+                }
                 default: return; // @note prevent taking the consumeable if nothing happended
             }
             if (particle > 0.0f)
@@ -543,10 +643,9 @@ void tile_change(ENetEvent& event, state state)
 
                     if (pPeer->user_id == world->owner)
                     {
-                        send_varlist(event.peer, {
+                        packet::create(*event.peer, false, 0, {
                             "OnDialogRequest",
-                            std::format(
-                                "set_default_color|`o\n"
+                            std::format("set_default_color|`o\n"
                                 "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
                                 "add_popup_name|LockEdit|\n"
                                 "add_label|small|`wAccess list:``|left\n"
@@ -569,7 +668,7 @@ void tile_change(ENetEvent& event, state state)
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
                                 item->raw_name, item->id, state.punch.x, state.punch.y, to_char(world->is_public), (world->lock_state & DISABLE_MUSIC) ? "1" : "0", world->minimum_entry_level
-                            )
+                            ).c_str()
                         });
                     }
                     break;
@@ -581,10 +680,9 @@ void tile_change(ENetEvent& event, state state)
                     for (::door& door : world->doors)
                         if (door.pos == state.punch) dest = door.dest, id = door.id;
                         
-                    send_varlist(event.peer, {
+                    packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
-                        std::format(
-                            "set_default_color|`o\n"
+                        std::format("set_default_color|`o\n"
                             "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
                             "add_text_input|door_name|Label|{}|100|\n"
                             "add_popup_name|DoorEdit|\n"
@@ -598,16 +696,15 @@ void tile_change(ENetEvent& event, state state)
                             "embed_data|tiley|{}\n"
                             "end_dialog|door_edit|Cancel|OK|", 
                             item->raw_name, item->id, block.label, dest, id, state.punch.x, state.punch.y
-                        )
+                        ).c_str()
                     });
                     break;
                 }
                 case type::SIGN:
                 {
-                    send_varlist(event.peer, {
+                        packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
-                        std::format(
-                            "set_default_color|`o\n"
+                        std::format("set_default_color|`o\n"
                             "add_popup_name|SignEdit|\n"
                             "add_label_with_icon|big|`wEdit {}``|left|{}|\n"
                             "add_textbox|What would you like to write on this sign?``|left|\n"
@@ -616,13 +713,13 @@ void tile_change(ENetEvent& event, state state)
                             "embed_data|tiley|{}\n"
                             "end_dialog|sign_edit|Cancel|OK|", 
                             item->raw_name, item->id, block.label, state.punch.x, state.punch.y
-                        )
+                        ).c_str()
                     });
                     break;
                 }
                 case type::ENTRANCE:
                 {
-                    send_varlist(event.peer, {
+                    packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         std::format(
                             "set_default_color|`o\n"
@@ -632,32 +729,25 @@ void tile_change(ENetEvent& event, state state)
                             "embed_data|tiley|{}\n"
                             "end_dialog|gateway_edit|Cancel|OK|\n", 
                             item->raw_name, item->id, to_char((block.state[2] & S_PUBLIC)), state.punch.x, state.punch.y
-                        )
+                        ).c_str()
                     });
                     break;
                 }
                 case type::DISPLAY_BLOCK:
                 {
-                    // @todo
-                    break;
-                }
-                case type::VENDING_MACHINE:
-                {
-                    send_varlist(event.peer, {
+                    packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         ::create_dialog()
                             .set_default_color("`o")
                             .add_label_with_icon("big", std::format("`w{}``", item->raw_name), item->id)
-                            .add_spacer("small")
-                            .embed_data("tilex", state.punch.x)
-                            .embed_data("tiley", state.punch.y)
-                            .add_textbox("This machine is empty.")
-                            .add_item_picker("stockitem", "`wPut an item in``", "Choose an item to put in the machine!")
-                            .add_smalltext("Upgrade to a DigiVend Machine for `44,000 Gems``.")
-                            .add_button("upgradedigital", "Upgrade to DigiVend")
-                            .add_spacer("small")
-                            .end_dialog("vending", "Close", "")
+                            /* @todo complete */
                     });
+                    break;
+                }
+                case type::VENDING_MACHINE:
+                {
+                    if (pPeer->pos.by_32(true) != state.punch) throw std::runtime_error("Stand on the vending machine to use it.");
+                    show_vending_dialog(event, *world, *pPeer, state.punch);
                     break;
                 }
             }
@@ -686,11 +776,11 @@ void tile_change(ENetEvent& event, state state)
                                 auto splice0 = std::ranges::find(items, item.splice[0], &::item::id);
                                 auto splice1 = std::ranges::find(items, item.splice[1], &::item::id);
 
-                                send_varlist(event.peer, {
+                                packet::create(*event.peer, false, 0, {
                                     "OnTalkBubble", 
                                     pPeer->netid, 
                                     std::format("`w{}`` and `w{}`` have been spliced to make a `${} Tree``!", 
-                                        splice0->raw_name, splice1->raw_name, item.raw_name.substr(0, item.raw_name.length()-5/* seed*/)), // @todo this is hardcoded
+                                        splice0->raw_name, splice1->raw_name, item.raw_name.substr(0, item.raw_name.length()-5/* seed*/)).c_str(), // @todo this is hardcoded
                                     0u,
                                     1u
                                 });
@@ -731,11 +821,11 @@ void tile_change(ENetEvent& event, state state)
                             std::ranges::rotate(pPeer->my_worlds, pPeer->my_worlds.begin() + 1);
                             pPeer->my_worlds.back() = world->name;
                         }
-                        std::string placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world->name, pPeer->growid);
-                        peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &pPeer, placed_message](ENetPeer& peer) 
+                        std::string placed_message = std::format("`5[```w{}`` has been `$World Locked`` by {}`5]``", world->name, pPeer->ltoken[0]);
+                        peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&pPeer, placed_message](ENetPeer& peer) 
                         {
-                            send_varlist(&peer, { "OnTalkBubble", pPeer->netid, placed_message });
-                            on::ConsoleMessage(&peer, placed_message);
+                            packet::create(peer, false, 0, { "OnTalkBubble", pPeer->netid, placed_message.c_str() });
+                            packet::create(peer, false, 0, { "OnConsoleMessage", placed_message.c_str() });
                         });
                     }
                     else throw std::runtime_error("Only one `$World Lock`` can be placed in a world, you'd have to remove the other one first.");
@@ -769,7 +859,7 @@ void tile_change(ENetEvent& event, state state)
             state_visuals(*event.peer, ::state{
                 .type = 0x0f, // @note PACKET_SEND_LOCK
                 .netid = world->owner, 
-                .peer_state = peer_state::S_EXTENDED, 
+                .peer_state = 0x08, 
                 .id = state.id,
                 .punch = state.punch
             });
@@ -778,9 +868,13 @@ void tile_change(ENetEvent& event, state state)
     catch (const std::exception& exc)
     {
         if (exc.what() && *exc.what()) 
-        {
-            send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, exc.what(), 0u, 1u });
-        }
+            packet::create(*event.peer, false, 0, {
+                "OnTalkBubble", 
+                pPeer->netid, 
+                exc.what(),
+                0u,
+                1u // @note message will be sent once instead of multiple times.
+            });
         return;
     }
 }

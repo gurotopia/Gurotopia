@@ -3,8 +3,6 @@
 
 void on::Action(ENetEvent& event, const std::string_view text) 
 {
-    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
-
     std::string_view to_slang = 
         (text == "facepalm") ? "fp" : 
         (text == "shrug") ? "idk" : 
@@ -12,8 +10,8 @@ void on::Action(ENetEvent& event, const std::string_view text)
         (text == "fa") ? "fold" : 
         (text == "stubborn") ? "fold" : text;
 
-    send_varlist(event.peer, {
+    packet::create(*event.peer, true, 0, {
         "OnAction", 
-        ('/' + std::string(to_slang))
-    }, pPeer->netid);
+        ('/' + std::string(to_slang)).c_str()
+    });
 }

@@ -6,14 +6,14 @@
 
 std::vector<item> items;
 
-std::vector<u_char> im_data(sizeof(::state)/*inital packet*/, 0x00);
+std::vector<u_char> im_data(sizeof(::state)/*inital packet*/ + 1, 0x00);
 
 template<typename T>
 void shift_pos(const std::vector<u_char> &data, u_int &pos, T &value) 
 {
-    u_char *i8 = reinterpret_cast<u_char*>(&value); 
+    u_char *_1bit = reinterpret_cast<u_char*>(&value); 
     for (std::size_t i = 0zu; i < sizeof(T); ++i) 
-        i8[i] = data[pos + i];
+        _1bit[i] = data[pos + i];
     pos += sizeof(T);
 }
 
@@ -21,32 +21,31 @@ void shift_pos(const std::vector<u_char> &data, u_int &pos, T &value)
 template<typename T>
 void data_modify(std::vector<u_char> &data, const u_int &pos, const T &value) 
 {
-    const u_char *i8 = reinterpret_cast<const u_char*>(&value);
+    const u_char *_1bit = reinterpret_cast<const u_char*>(&value);
     for (std::size_t i = 0zu; i < sizeof(T); ++i) 
-        data[pos + i] = i8[i];
+        data[pos + i] = _1bit[i];
 }
 
 void decode_items()
 {
-    const u_int size = std::filesystem::file_size("items.dat");
+    const int size = std::filesystem::file_size("items.dat");
     im_data = compress_state(::state{
-        .type = 0x10, // @note PACKET_SEND_ITEM_DATABASE_DATA
-        .peer_state = peer_state::S_EXTENDED, 
+        .type = 0x10, 
+        .peer_state = 0x08, 
         .size = size
     });
-    u_int pos = im_data.size(); // @note sizeof(::state)
-    im_data.resize(pos + size); // @note resize to fit binary data
-    
+
+    im_data.resize(im_data.size() + size); // @note resize to fit binary data
     std::ifstream("items.dat", std::ios::binary)
-        .read((char*)&im_data[pos], size); // @note the binary data···
+        .read(reinterpret_cast<char*>(&im_data[sizeof(::state)]), size); // @note the binary data···
 
-    u_short version{};
-    shift_pos(im_data, pos, version);
-    u_int count{};
-    shift_pos(im_data, pos, count);
-
+    u_int pos{ sizeof(::state) };
+    u_char version{};
+    shift_pos(im_data, pos, version); pos += 1; // @note downsize 'version' to 1 bit
+    u_short count{};
+    shift_pos(im_data, pos, count); pos += 2; // @note downside count to 2 bit
     const std::string_view token{"PBG892FXX982ABC*"};
-    for (u_int i = 0; i < count; ++i)
+    for (u_short i = 0; i < count; ++i)
     {
         ::item im;
         
@@ -137,60 +136,48 @@ void decode_items()
 
         pos += sizeof(std::array<u_char, 80zu>);
 
-        if (version >= 0x0b) // @date February 2019
+        if (version >= 11) // @date February 2019
         {
             pos += *(reinterpret_cast<short*>(&im_data[pos]));
             pos += sizeof(short);
         }
-        if (version >= 0x0c) // @date October 2020
+        if (version >= 12) // @date October 2020
         {
             pos += sizeof(int);
             pos += sizeof(std::array<u_char, 9zu>);
         }
-        if (version >= 0x0d) pos += sizeof(int); // @date May 2021
-        if (version >= 0x0e) pos += sizeof(int); // @date October 2021
-        if (version >= 0x0f)
+        if (version >= 13) pos += sizeof(int); // @date May 2021
+        if (version >= 14) pos += sizeof(int); // @date October 2021
+        if (version >= 15)
         {
             pos += sizeof(std::array<u_char, 25zu>);
             pos += *(reinterpret_cast<short*>(&im_data[pos]));
             pos += sizeof(short);
         }
-        if (version >= 0x10)
+        if (version >= 16)
         {
             pos += *(reinterpret_cast<short*>(&im_data[pos]));
             pos += sizeof(short);
         }
-        if (version >= 0x11) pos += sizeof(int); // @date April 2024
-        if (version >= 0x12) pos += sizeof(int); // @date December 2024
-        if (version >= 0x13) pos += sizeof(std::array<u_char, 9zu>);
-        if (version >= 0x15) pos += sizeof(short); // @date September 2025
-        if (version >= 0x16)
+        if (version >= 17) pos += sizeof(int); // @date April 2024
+        if (version >= 18) pos += sizeof(int); // @date December 2024
+        if (version >= 19) pos += sizeof(std::array<u_char, 9zu>);
+        if (version >= 21) pos += sizeof(short); // @date September 2025
+        if (version >= 22)
         {
             len = *reinterpret_cast<short*>(&im_data[pos]);
             pos += sizeof(short);
             im.info.assign(reinterpret_cast<char*>(&im_data[pos]), len);
             pos += len;
         }
-        if (version >= 0x17) 
+        if (version >= 23) 
         {
             shift_pos(im_data, pos, im.splice[0]);
             shift_pos(im_data, pos, im.splice[1]);
         }
-        if (version >= 0x18) pos += sizeof(u_char); // @date December 2025
-        if (version >= 0x19)
-        {
-            len = *reinterpret_cast<short*>(&im_data[pos]);
-            pos += sizeof(short);
-            if (len > (sizeof(short) + sizeof(int))) // @note {size} 0x00 0x00 0x00 0x00
-            {
-                // @todo add the string for the player punch FX
-                pos += len;
-            }
-            pos += sizeof(int); // @note default: 0x00 0x00 0x00 0x00
-        }
-        if (version == 0x1a) pos += sizeof(std::byte); // May 2026
-        
+        if (version == 24) pos += sizeof(u_char); // @date December 2025
+
         items.emplace_back(im);
     }
-    printf("items.dat parsed successfully!\n");
+    std::printf("parsed %zu items; %zu KB of stack memory\n", items.size(), (items.size() * sizeof(item)) / 1024);
 }

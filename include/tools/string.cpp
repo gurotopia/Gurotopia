@@ -61,3 +61,16 @@ std::string base64_decode(const std::string& encoded)
     decode.resize(static_cast<std::size_t>(bio_read));
     return decode;
 }
+
+std::size_t fnv1a(const std::string& value) noexcept {
+    constexpr std::size_t offset = 14695981039346656037zu;
+    constexpr std::size_t prime = 1099511628211zu;
+
+    std::size_t fnv1a = offset;
+    for (u_char c : value) 
+    {
+        fnv1a ^= c;
+        fnv1a *= prime;
+    }
+    return fnv1a;
+}

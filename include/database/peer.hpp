@@ -11,14 +11,13 @@ struct slot {
 
 /* x, y */
 struct pos {
-    pos() = default; // @todo
     pos(float _x, float _y) : x(_x), y(_y) {}
     pos(int _x, int _y)     : x(_x), y(_y) {}
 
     float x, y;
 
     /* use this for pixeled position - i did my best t-t */
-    pos by_32(bool pixel = false) const { return (pixel) ? pos{std::floor(x/32.0f), std::floor(y/32.0f)} : pos{x*32.0f, y*32.0f}; }
+    pos by_32(bool pixel = false) const { return (pixel) ? ::pos{std::floor(x/32.0f), std::floor(y/32.0f)} : ::pos{x*32.0f, y*32.0f}; }
 
     int x_int() const { return std::floor(x); }
     int y_int() const { return std::floor(y); }
@@ -59,28 +58,20 @@ enum pstate : int
 
 class peer {
 public:
-    bool exists(const std::string& growid);
+    peer& read(const std::string& name);
 
-    template<typename T>
-    void mysql_insert(const std::string& column, const T& value);
-
-    template<typename T>
-    void mysql_update(const std::string& column, const T& value);
-
-    template<typename T>
-    T    mysql_select(const std::string &column, const char *arg = "");
-    void mysql_select_all();
-
+    bool exists(const std::string& name); // @note check if peer exists in database
+    bool rename(const std::string& old_name, const std::string& new_name);
+    static std::string resolve_name(const std::string& name);
+    int netid{ 0 }; // @note peer's netid is world identity. this will be useful for many packet sending
     int user_id{}; // @note unqiue user id.
-    std::string growid{""}, password{""};
-    std::time_t created_at{}; // @note when inserted in SQL (account age)
+    std::array<std::string, 2zu> ltoken{}; // @note {growid, password}
+    std::string game_version{};
+    std::string country{};
+    std::string prefix{ "w" }; // @note display name color, default: "w" (White)
     u_char role{};
     std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
     u_char punch_effect{}; // @note last equipped clothing that has a effect. supporting 0-255 effects.
-
-    int netid{}; // @note peer's netid is world identity. this will be useful for many packet sending
-    std::string prefix{ 'w'  }; // @note display name color, default: "w" (White)
-    std::string country{};
 
     u_int skin_color{ 2527912447 };
     int hair_color = 0xffffffff; // @note BGRA
@@ -89,10 +80,9 @@ public:
 
     ::Billboard billboard{};
 
-    ::pos pos{}; // @note position 1D {x, y}
-    ::pos rest_pos{}; // @note respawn position {x, y}
+    ::pos pos{0,0}; // @note position 1D {x, y}
+    ::pos rest_pos{0,0}; // @note respawn position {x, y}
     bool facing_left{}; // @note peer is directed towards the left direction
-    short pain_hp{ 10 };
 
     short slot_size{16}; // @note amount of slots this peer has | were talking total slots not itemed slots, to get itemed slots do slot.size()
     std::vector<slot> slots{}; // @note an array of each slot. storing {id, count}
@@ -100,7 +90,7 @@ public:
     * @brief set slot::count to nagative value if you want to remove an amount. 
     * @return the remaining amount if exeeds 200. e.g. emplace(slot{0, 201}) returns 1.
     */
-    u_short emplace(::slot slot);
+    short emplace(slot s);
     std::vector<short> fav{};
 
     signed gems{0};
@@ -122,8 +112,12 @@ public:
 
     std::array<Friend, 25> friends;
 
+    long long name_changed_at{};
+
     u_short fires_removed{};
     u_short gbc_pity{}; // @note GBC pity; for each 100 will receive super GBC
+    
+    ~peer();
 };
 
 extern ENetHost* host;
@@ -140,20 +134,9 @@ extern std::vector<ENetPeer*> peers(const std::string &world = "", peer_conditio
 
 extern void safe_disconnect_peers(int signal);
 
-enum peer_state : int
-{
-    S_UPDATE          = 0x04,
-    S_EXTENDED        = 0x08,
-    S_MOVE_LEFT       = 0x10,
-    S_MOVE_RIGHT      = 0x20,
-    S_LAVA_HIT        = 0x40,
-    S_JUMP            = 0x80,
-    S_ACTIVATE_OBJECT = 0x4000
-};
-
 class state {
 public:
-    int packet_create{ 04 }; // @note NET_MESSAGE_GAME_PACKET
+    int packet_create{ 04 };
 
     int type{};
     int netid{};
@@ -161,11 +144,11 @@ public:
     int peer_state{};
     float count{}; // @todo understand this better
     int id{}; // @note peer's active hand, so 18 (fist) = punching, 32 (wrench) interacting, ect
-    ::pos pos{}; // @note position 1D {x, y}
-    ::pos speed{}; // @note player movement (velocity(x), gravity(y)), higher gravity = smaller jumps
+    ::pos pos{0,0}; // @note position 1D {x, y}
+    ::pos speed{0,0}; // @note player movement (velocity(x), gravity(y)), higher gravity = smaller jumps
     int idk{};
-    ::pos punch{}; // @note punching/placing position 2D {x, y}
-    u_int size{};
+    ::pos punch{0,0}; // @note punching/placing position 2D {x, y}
+    int size{};
 };
 
 enum packet_pos

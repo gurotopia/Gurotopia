@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include "tools/create_dialog.hpp"
 #include "wrench.hpp"
 
@@ -19,13 +20,13 @@ void action::wrench(ENetEvent& event, const std::string& header)
                 /* wrench yourself */
                 if (pOthers->user_id == pPeer->user_id)
                 {
-                    send_varlist(event.peer, {
+                    packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         ::create_dialog()
                             .embed_data("netID", netid)
                             .add_popup_name("WrenchMenu")
                             .set_default_color("`o")
-                            .add_player_info(std::format("`{}{}``", pOthers->prefix, pOthers->growid), std::to_string(lvl), pOthers->level.back(), 50 * (lvl * lvl + 2))
+                            .add_player_info(std::format("`{}{}``", pOthers->prefix, pOthers->ltoken[0]), std::to_string(lvl), pOthers->level.back(), 50 * (lvl * lvl + 2))
                             .add_spacer("small")
                             .add_spacer("small")
                             .add_button("renew_pvp_license", "Get Card Battle License")
@@ -69,19 +70,19 @@ void action::wrench(ENetEvent& event, const std::string& header)
                             .add_textbox("`oTotal time played is `w0.0`` hours.  This account was created `w0`` days ago.``")
                             .add_spacer("small")
                             .add_quick_exit()
-                            .end_dialog("popup", "", "Continue")
+                            .end_dialog("popup", "", "Continue").c_str()
                     });
                 }
                 /* wrench someone else */
                 else
                 {
-                    send_varlist(event.peer, {
+                    packet::create(*event.peer, false, 0, {
                         "OnDialogRequest",
                         ::create_dialog()
                             .embed_data("netID", netid)
                             .add_popup_name("WrenchMenu")
                             .set_default_color("`o")
-                            .add_label_with_icon("big", std::format("`{}{} (`2{}``)``", pOthers->prefix, pOthers->growid, lvl), 18)
+                            .add_label_with_icon("big", std::format("`{}{} (`2{}``)``", pOthers->prefix, pOthers->ltoken[0], lvl), 18)
                             .embed_data("netID", netid)
                             .add_spacer("small")
                             .add_achieve("0"/*@todo add achivements*/)
@@ -102,7 +103,7 @@ void action::wrench(ENetEvent& event, const std::string& header)
                             .add_button("report_player", "`wReport Player``")
                             .add_spacer("small")
                             .add_quick_exit()
-                            .end_dialog("popup", "", "Continue")
+                            .end_dialog("popup", "", "Continue").c_str()
                     });
                 }
                 return; // @note early exit else iteration will continue for EVERYONE in the world.

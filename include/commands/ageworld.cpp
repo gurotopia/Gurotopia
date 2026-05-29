@@ -27,4 +27,5 @@ void ageworld(ENetEvent& event, const std::string_view text)
             }, block, *world);
         }
     }
+    packet::create(*event.peer, false, 0, { "OnConsoleMessage", "aged world by `w1 day``." });
 }

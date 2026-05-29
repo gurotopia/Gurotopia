@@ -1,11 +1,12 @@
 #include "pch.hpp"
 #include "socialportal.hpp"
 
-void socialportal(ENetEvent& event, const ::hPipe &hPipe)
+void socialportal(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    if (hPipe["buttonClicked"] == "showfriend")
+    /* buttonClicked */
+    if (pipes[5zu] == "showfriend")
     {
         /* temp data */
         u_char __online{};
@@ -14,11 +15,11 @@ void socialportal(ENetEvent& event, const ::hPipe &hPipe)
         for (const ::Friend &Friend : pPeer->friends)
             peers("", PEER_ALL, [&Friend, &__online](ENetPeer& peer){
                 ::peer *pOthers = static_cast<::peer*>(peer.data);
-                if (pOthers->growid == Friend.name)
+                if (pOthers->ltoken[0] == Friend.name)
                     ++__online;
             });
 
-        send_varlist(event.peer, {
+        packet::create(*event.peer, false, 0, {
             "OnDialogRequest",
             std::format(
                 "set_default_color|`o\n"
@@ -35,7 +36,7 @@ void socialportal(ENetEvent& event, const ::hPipe &hPipe)
                 "end_dialog|friends|||\n"
                 "add_quick_exit|\n",
                 __online
-            )
+            ).c_str()
         });
     }
 }

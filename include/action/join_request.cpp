@@ -4,14 +4,27 @@
 #include "on/BillboardChange.hpp"
 #include "on/SetClothing.hpp"
 #include "on/CountryState.hpp"
-#include "on/ConsoleMessage.hpp"
 #include "commands/weather.hpp"
 #include "tools/ransuu.hpp"
-
+#include "tools/string.hpp"
 #include "join_request.hpp"
+
+#include <cmath> // @note std::round
 
 using namespace std::chrono;
 using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec, seconds)
+
+namespace {
+    inline u_int tree_elapsed_seconds(const ::block& block) {
+        return static_cast<u_int>((steady_clock::now() - block.tick) / 1s);
+    }
+
+    inline u_char tree_fruit_visual_count(const ::item& item, const ::block& block) {
+        if (item.type != type::SEED) return 0;
+        if (tree_elapsed_seconds(block) < static_cast<u_int>(std::max(0, item.tick))) return 0;
+        return static_cast<u_char>((item.cat & CAT_SUPRISING_FRUIT) ? 4 : 3);
+    }
+}
 
 void action::join_request(ENetEvent& event, const std::string& header, const std::string_view world_name = "") 
 {
@@ -25,17 +38,16 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         
         auto it = std::ranges::find(worlds, big_name, &::world::name);
         if (it == worlds.end()) 
-        {
-            it = worlds.emplace(it, big_name);
-            generate_world(*it, big_name);
-        }
-        ::world &world = *it;
+            it = worlds.emplace(it, big_name); 
+            
+        ::world &world = *it; // @note ::world will load from SQL if found. next line, if not.
+        if (world.name.empty()) generate_world(world, big_name); // @note make a new world if not found.
 
         std::vector<std::string> buffs{};
         {
             std::vector<u_char> data = compress_state(::state{
                 .type = 0x04, // @note PACKET_SEND_MAP_DATA
-                .peer_state = peer_state::S_EXTENDED
+                .peer_state = 0x08
             });
             data.resize(data.size() + 24zu + world.name.length() + (8zu * world.blocks.size()) + 12zu + 8zu/*total drop uid*/);
             u_char *w_data = data.data() + sizeof(::state) + 6;
@@ -140,8 +152,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
                         *w_data++ = 0x04;
 
-                        *reinterpret_cast<u_int*>(w_data) = (steady_clock::now() - block.tick) / 1s; w_data += sizeof(u_int);
-                        *w_data++ = 0x03; // @note fruit on tree
+                        *reinterpret_cast<u_int*>(w_data) = tree_elapsed_seconds(block); w_data += sizeof(u_int);
+                        *w_data++ = tree_fruit_visual_count(*item, block); // @note visible fruit count on tree
                         break;
                     }
                     case type::PROVIDER:
@@ -157,9 +169,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     case type::WEATHER_MACHINE:
                     {
                         if (block.state[2] & S_TOGGLE)
-                        {
-                            send_varlist(event.peer, { "OnSetCurrentWeather", get_weather_id(block.fg) });
-                        }
+                            packet::create(*event.peer, false, 0, { "OnSetCurrentWeather", get_weather_id(block.fg) });
                         break;
                     }
                     case type::TOGGLEABLE_ANIMATED_BLOCK:
@@ -217,8 +227,9 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         w_data = data.data() + offset;
 
                         *w_data++ = 0x18;
-                        *reinterpret_cast<u_int*>(w_data) = 0; w_data += sizeof(u_int); // @note item's ID
-                        *reinterpret_cast<int*>(w_data) = 0; w_data += sizeof(int); // @note world locks per item (or item(s) per world lock)
+                        auto vend = std::ranges::find(world.vendings, ::pos{i % x, i / x}, &::vending_machine::pos);
+                        *reinterpret_cast<u_int*>(w_data) = (vend != world.vendings.end()) ? vend->item_id : 0; w_data += sizeof(u_int);
+                        *reinterpret_cast<int*>(w_data) = (vend != world.vendings.end()) ? ((vend->per_item ? 1 : -1) * std::max(1, vend->price)) : 0; w_data += sizeof(int);
 
                         break;
                     }
@@ -276,45 +287,48 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             
             if (pOthers->user_id != pPeer->user_id)
             {
-                on::Spawn(*event.peer, pOthers->netid, pOthers->user_id, pOthers->pos, std::format("`{}{}", pOthers->prefix, pOthers->growid), pOthers->country, pOthers->role, pOthers->role >= DEVELOPER, false);
-                on::Spawn(peer, pPeer->netid, pPeer->user_id, pPeer->pos, std::format("`{}{}", pPeer->prefix, pPeer->growid), pPeer->country, pPeer->role, pPeer->role >= DEVELOPER, false);
+                on::Spawn(*event.peer, pOthers->netid, pOthers->user_id, pOthers->pos, std::format("`{}{}", pOthers->prefix, pOthers->ltoken[0]), pOthers->country, pOthers->role, pOthers->role >= DEVELOPER, false);
+                on::Spawn(peer, pPeer->netid, pPeer->user_id, pPeer->pos, std::format("`{}{}", pPeer->prefix, pPeer->ltoken[0]), pPeer->country, pPeer->role, pPeer->role >= DEVELOPER, false);
                 on::SetClothing(peer);
-                on::ConsoleMessage(&peer, std::format("`5<`{}{}`` entered, `w{}`` others here>``", pPeer->prefix, pPeer->growid, world.visitors));
+                packet::create(peer, false, 0, {
+                    "OnConsoleMessage",
+                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", pPeer->prefix, pPeer->ltoken[0], world.visitors).c_str()
+                });
             }
             
 
             if (pOthers->user_id != pPeer->user_id) // @note the reason this is here is cause we need the peer's OnSpawn to happen before OnTalkBubble
-            {
-                send_varlist(&peer, {
+                packet::create(peer, false, 0, {
                     "OnTalkBubble",
                     pPeer->netid,
-                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", pPeer->prefix, pPeer->growid, world.visitors),
+                    std::format("`5<`{}{}`` entered, `w{}`` others here>``", pPeer->prefix, pPeer->ltoken[0], world.visitors).c_str(),
                     1u
                 });
-            }
         });
-        on::Spawn(*event.peer, pPeer->netid, pPeer->user_id, pPeer->pos, std::format("`{}{}", pPeer->prefix, pPeer->growid), pPeer->country, pPeer->role, pPeer->role >= DEVELOPER, true);
+        on::Spawn(*event.peer, pPeer->netid, pPeer->user_id, pPeer->pos, std::format("`{}{}", pPeer->prefix, pPeer->ltoken[0]), pPeer->country, pPeer->role, pPeer->role >= DEVELOPER, true);
 
         if (pPeer->billboard.id != 0) on::BillboardChange(event); // @note don't waste memory if billboard is empty.
 
-        send_varlist(event.peer, {
+        packet::create(*event.peer, true, 0, {
             "OnSetPos", 
-            CL_Vec2f{pPeer->rest_pos.x, pPeer->rest_pos.y}
-        }, pPeer->netid);
+            std::vector<float>{pPeer->rest_pos.x, pPeer->rest_pos.y}
+        });
 
-        on::ConsoleMessage(event.peer, 
+        packet::create(*event.peer, false, 0, {
+            "OnConsoleMessage", 
             std::format(
                 "World `w{}{}`` entered.  There are `w{}`` other people here, `w{}`` online.", 
                 world.name, (buffs.empty()) ? "" : std::format(" `0[``{}`0]``", join(buffs, "``, ")), world.visitors, peers().size()
-            )
-        );
+            ).c_str()
+        });
         ++world.visitors;
+
         on::SetClothing(*event.peer);
         on::CountryState(event);
     }
     catch (const std::exception& exc)
     {
-        send_varlist(event.peer, { "OnFailedToEnterWorld" });
-        return;
+        if (exc.what() && *exc.what()) packet::create(*event.peer, false, 0, { "OnConsoleMessage", exc.what() });
+        packet::create(*event.peer, false, 0, { "OnFailedToEnterWorld" });
     }
 }

@@ -1,6 +1,6 @@
 #include "pch.hpp"
 #include "on/SetClothing.hpp"
-#include "on/ConsoleMessage.hpp"
+#include "tools/string.hpp"
 
 #include "skin.hpp"
 
@@ -8,7 +8,7 @@ void skin(ENetEvent& event, const std::string_view text)
 {
     if (text.length() <= sizeof("skin ") - 1) 
     {
-        on::ConsoleMessage(event.peer, "Usage: /skin `w{id}``");
+        packet::create(*event.peer, false, 0, { "OnConsoleMessage", "Usage: /skin `w{id}``" });
         return;
     }
     std::string id{ text.substr(sizeof("skin ")-1) };

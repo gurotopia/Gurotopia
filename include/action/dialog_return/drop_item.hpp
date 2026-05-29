@@ -1,3 +1,3 @@
 #pragma once
 
-extern void drop_item(ENetEvent& event, const ::hPipe &hPipe);
+extern void drop_item(ENetEvent& event, const std::vector<std::string> &&pipes);

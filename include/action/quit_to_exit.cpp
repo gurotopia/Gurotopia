@@ -1,6 +1,5 @@
 #include "pch.hpp"
 #include "on/RequestWorldSelectMenu.hpp"
-#include "on/ConsoleMessage.hpp"
 #include "quit_to_exit.hpp"
 
 void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip_selection = false) 
@@ -11,16 +10,16 @@ void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip
     if (world == worlds.end()) return; // @note peer was not in a world, therefore nothing to exit from.
 
     std::string &prefix = pPeer->prefix;
-    std::string message = std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, pPeer->growid, world->visitors-1);
+    std::string message = std::format("`5<`{}{}`` left, `w{}`` others here>``", prefix, pPeer->ltoken[0], world->visitors-1);
     std::string netid = std::format("netID|{}\n", pPeer->netid);
     std::string pId = std::format("pId|{}\n", pPeer->user_id); // @note this is found during OnSpawn 'eid', the value is the same for user_id.
-    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&event, pPeer, message, netid, pId](ENetPeer& peer) 
+    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [pPeer, message, netid, pId](ENetPeer& peer) 
     {
         ::peer *pOthers = static_cast<::peer*>(peer.data);
         if (pOthers->user_id == pPeer->user_id) return;
 
-        on::ConsoleMessage(event.peer, message);
-        send_varlist(&peer, { "OnRemove", netid, pId }); // @todo
+        packet::create(peer, false, 0, { "OnConsoleMessage", message.c_str() });
+        packet::create(peer, false, 0, { "OnRemove", netid.c_str(), pId.c_str() }); // @todo
     });
 
     if (--world->visitors <= 0) worlds.erase(world); // @note take 1, and if result is 0, delete memory copy of world.

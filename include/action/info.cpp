@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include "tools/create_dialog.hpp"
 #include "info.hpp"
 
@@ -48,12 +49,13 @@ void action::info(ENetEvent& event, const std::string& header)
             for (const std::string &prop : properties(item->property)) 
                 create_dialog.add_textbox(prop);
 
-            send_varlist(event.peer, {
+            packet::create(*event.peer, false, 0,
+            {
                 "OnDialogRequest",
                 create_dialog
                     .add_spacer("small")
                     .embed_data("itemID", item->id)
-                    .end_dialog("continue", "", "OK")
+                    .end_dialog("continue", "", "OK").c_str()
             });
         }
     }

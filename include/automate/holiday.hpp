@@ -4,8 +4,7 @@ enum holiday : u_char
 {
     H_NONE,
     H_VALENTINES,
-    H_PATRICKS,
-    H_G4G = 18
+    H_PATRICKS
 };
 extern u_char holiday;
 
@@ -17,4 +16,4 @@ extern std::string game_theme_string();
 
 extern std::pair<std::string, std::string> holiday_greeting();
 
-extern std::string holiday_banner();
+std::string holiday_banner();

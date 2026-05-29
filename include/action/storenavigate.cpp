@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include "buy.hpp"
 
 #include "storenavigate.hpp"

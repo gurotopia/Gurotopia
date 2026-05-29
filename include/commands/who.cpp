@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 
 #include "who.hpp"
 
@@ -11,14 +12,14 @@ void who(ENetEvent& event, const std::string_view text)
     {
         ::peer *pOthers = static_cast<::peer*>(peer.data);
 
-        std::string full_name = std::format("`{}{}", pOthers->prefix, pOthers->growid);
+        std::string full_name = std::format("`{}{}", pOthers->prefix, pOthers->ltoken[0]);
         if (pOthers->user_id != pPeer->user_id)
         {
-            send_varlist(event.peer, { "OnTalkBubble", pOthers->netid, full_name.c_str(), 1u });
+            packet::create(*event.peer, false, 0, { "OnTalkBubble", pOthers->netid, full_name.c_str(), 1u });
         }
         names.emplace_back(std::move(full_name));
     });
-    send_action(*event.peer, "log", std::format(
+    packet::action(*event.peer, "log", std::format(
         "msg|`wWho's in `${}``:`` {}``",
         pPeer->recent_worlds.back(), join(names, ", ")
     ));

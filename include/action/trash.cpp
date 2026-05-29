@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include "tools/create_dialog.hpp"
 #include "trash.hpp"
 
@@ -10,7 +11,7 @@ void action::trash(ENetEvent& event, const std::string& header)
 
     if (item->type == type::FIST || item->type == type::WRENCH)
     {
-        send_varlist(event.peer, { "OnTextOverlay", "You'd be sorry if you lost that!" });
+        packet::create(*event.peer, false, 0, { "OnTextOverlay", "You'd be sorry if you lost that!" });
         return;
     }
     // @todo add confirm message on untradeables
@@ -20,7 +21,7 @@ void action::trash(ENetEvent& event, const std::string& header)
     for (const ::slot &slot : pPeer->slots)
         if (slot.id == item->id)
         {
-            send_varlist(event.peer, {
+            packet::create(*event.peer, false, 0, {
                 "OnDialogRequest",
                 create_dialog()
                     .set_default_color("`o")
@@ -28,7 +29,7 @@ void action::trash(ENetEvent& event, const std::string& header)
                     .add_textbox(std::format("How many to `4destroy``? (you have {})", slot.count))
                     .add_text_input("count", "", 0, 5)
                     .embed_data("itemID", slot.id)
-                    .end_dialog("trash_item")
+                    .end_dialog("trash_item").c_str()
             });
             return;
         }

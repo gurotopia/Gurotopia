@@ -1,12 +1,13 @@
 #include "pch.hpp"
+#include "tools/string.hpp" // @note base64_decode()
 #include "https/server_data.hpp"
-#include "proton/Variant.hpp"
+#include "database/peer.hpp"
 
 #include "protocol.hpp"
 
 void action::protocol(ENetEvent& event, const std::string& header)
 {
-    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
+    std::string growid{}, password{};
     try 
     {
         std::vector<std::string> pipes = readch(header, '|');
@@ -20,36 +21,31 @@ void action::protocol(ENetEvent& event, const std::string& header)
             if (std::size_t pos = decoded.find("growId="); pos != std::string::npos) 
             {
                 pos += sizeof("growId=")-1zu;
-                pPeer->growid = decoded.substr(pos, decoded.find('&', pos) - pos);
+                growid = decoded.substr(pos, decoded.find('&', pos) - pos);
             }
             if (std::size_t pos = decoded.find("password="); pos != std::string::npos) 
             {
                 pos += sizeof("password=")-1zu;
-                pPeer->password = decoded.substr(pos, decoded.find('&', pos) - pos);
+                password = decoded.substr(pos);
             }
         } // @note delete decoded
-        if (pPeer->growid.empty() || pPeer->password.empty()) throw std::runtime_error("");
+        if (growid.empty() || password.empty()) throw std::runtime_error("");
+        growid = ::peer::resolve_name(growid);
     }
     catch (...) { 
-        send_action(*event.peer, "logon_fail", "");
+        packet::action(*event.peer, "logon_fail", "");
         return; // @note stop processing invalid protocol data
     }
 
-    if (!pPeer->exists(pPeer->growid))
-    {
-        pPeer->mysql_insert("growid", pPeer->growid);
-        
-        pPeer->mysql_update<std::string>("password", pPeer->password);
-    }
-    pPeer->mysql_select_all();
+    packet::create(*event.peer, false, 0, {"SetHasGrowID", 1, growid.c_str(), ""}); // @todo temp fix, i will change later.
 
-    send_varlist(event.peer, {
-        "OnSendToServer", 
-        (int)gServer_data.port, 
-        0, 
-        pPeer->user_id, 
-        std::format("{}|0|0", gServer_data.server), 
-        1, 
-        pPeer->growid.c_str() // @todo idk why this is 1028 if std::string
-    });
+    packet::create(*event.peer, false, 0, {
+        "OnSendToServer",
+        (signed)g_server_data.port,
+        0,
+        (signed)fnv1a(growid), // @todo downsize to 4 bit
+        std::format("{}|0|0", g_server_data.server).c_str(),
+        1,
+        growid.c_str()
+    }); // @note  PACKET_DISCONNECT
 }

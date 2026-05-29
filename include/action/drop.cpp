@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "tools/string.hpp"
 #include "tools/create_dialog.hpp"
 #include "drop.hpp"
 
@@ -10,7 +11,7 @@ void action::drop(ENetEvent& event, const std::string& header)
 
     if (item->cat == CAT_UNTRADEABLE)
     {
-        send_varlist(event.peer, { "OnTextOverlay", "You can't drop that." });
+        packet::create(*event.peer, false, 0, { "OnTextOverlay", "You can't drop that." });
         return;
     }
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
@@ -18,7 +19,7 @@ void action::drop(ENetEvent& event, const std::string& header)
     for (const ::slot &slot : pPeer->slots)
         if (slot.id == item->id) 
         {
-            send_varlist(event.peer, { 
+            packet::create(*event.peer, false, 0, {
                 "OnDialogRequest", 
                 create_dialog()
                     .set_default_color("`o")
@@ -26,7 +27,7 @@ void action::drop(ENetEvent& event, const std::string& header)
                     .add_textbox("How many to drop?")
                     .add_text_input("count", "", slot.count, 5)
                     .embed_data("itemID", item->id)
-                    .end_dialog("drop_item")
+                    .end_dialog("drop_item").c_str() // @todo handle c_str(); make packet accept std::string.
             });
             return;
         }

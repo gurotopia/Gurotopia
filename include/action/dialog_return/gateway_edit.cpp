@@ -2,28 +2,25 @@
 
 #include "gateway_edit.hpp"
 
-void gateway_edit(ENetEvent& event, const ::hPipe &hPipe)
+void gateway_edit(ENetEvent& event, const std::vector<std::string> &&pipes)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    const short tilex = atoi(hPipe["tilex"].c_str());
-    const short tiley = atoi(hPipe["tiley"].c_str());
+    const short tilex = atoi(pipes[5zu].c_str());
+    const short tiley = atoi(pipes[8zu].c_str());
 
     auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
     if (world == worlds.end()) return;
 
     block &block = world->blocks[cord(tilex, tiley)];
 
-    if (hPipe["dialog_name"] == "sign_edit") 
-        block.label = hPipe["sign_text"];
-    
-    if (hPipe["dialog_name"] == "door_edit") 
-        block.label = hPipe["door_name"];
+    if (pipes[3zu] == "door_edit" || pipes[3zu] == "sign_edit") 
+        block.label = pipes[11zu];
         
-    else if (hPipe["dialog_name"] == "gateway_edit") 
+    else if (pipes[3zu] == "gateway_edit") 
     {
         block.state[2] &= ~(S_PUBLIC | S_LOCKED);
-        block.state[2] |= stoi(hPipe["checkbox_public"]) ? S_PUBLIC : S_LOCKED;
+        block.state[2] |= stoi(pipes[11zu]) ? S_PUBLIC : S_LOCKED;
     }
 
     send_tile_update(event, {
@@ -31,20 +28,20 @@ void gateway_edit(ENetEvent& event, const ::hPipe &hPipe)
         .punch = { tilex, tiley }
     }, block, *world);
 
-    if (!hPipe["dialog_name"].empty())
+    if (pipes[10zu] == "door_name" && pipes.size() > 12zu)
     {
         for (::door &door : world->doors)
         {
             if (door.pos == ::pos{tilex, tiley}) 
             {
-                door.dest = hPipe["door_target"];
-                door.id = hPipe["door_id"];
+                door.dest = pipes[13];
+                door.id = pipes[15];
                 return;
             }
         }
         world->doors.emplace_back(::door(
-            hPipe["door_target"],
-            hPipe["door_id"],
+            pipes[13],
+            pipes[15],
             "", // @todo add password door
             { tilex, tiley }
         ));

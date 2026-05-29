@@ -8,14 +8,12 @@
     #include <chrono>
     #include <thread>
     #include <vector>
+    #include <sqlite3.h>
     #include <openssl/ssl.h>
 
-    #include "proton/Variant.hpp"
-    
     #include "database/items.hpp"
     #include "database/peer.hpp"
     #include "database/world.hpp"
-
-    #include "tools/string.hpp"
+    #include "packet/packet.hpp"
 
 #endif

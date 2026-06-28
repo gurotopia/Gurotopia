@@ -10,6 +10,8 @@ public:
     std::string maint{"Server under maintenance. Please try again later."};
     std::string loginurl{"login-gurotopia.vercel.app"};
     std::string meta{"gurotopia"};
+    std::string cdn_host{"ubistatic-a.akamaihd.net"};
+    std::string cdn_path{"0098/0210520267/cache/"};
 };
 extern ::server_data gServer_data;
 

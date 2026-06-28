@@ -12,7 +12,16 @@ void create_table_if_not_exist()
             uid INT AUTO_INCREMENT PRIMARY KEY,
             growid VARCHAR(18) UNIQUE,
             password VARCHAR(64),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            gems INT DEFAULT 0,
+            level SMALLINT UNSIGNED DEFAULT 1,
+            xp SMALLINT UNSIGNED DEFAULT 0,
+            role TINYINT UNSIGNED DEFAULT 0,
+            skin_color INT UNSIGNED DEFAULT 2527912447,
+            hair_color INT DEFAULT -1,
+            slot_size SMALLINT DEFAULT 16,
+            clothing TEXT,
+            inventory TEXT
         );
     )";
     
@@ -21,13 +30,27 @@ void create_table_if_not_exist()
         fprintf(stderr, "%s\n", mysql_error(db));
     }
 
-    // migration: widen password column for bcrypt hashes (was VARCHAR(18))
-    if (mysql_query(db, "ALTER TABLE peer MODIFY COLUMN password VARCHAR(64)"))
-    {
-        // 1054 = unknown column (fresh table), silent
-        if (mysql_errno(db) != 1054)
-            fprintf(stderr, "[migrate] %s\n", mysql_error(db));
-    }
+    // migrations for existing tables
+    auto migrate = [](const char *alter_stmt) {
+        if (mysql_query(db, alter_stmt))
+        {
+            if (mysql_errno(db) == 1054) return; // unknown column (fresh table)
+            // 1060 = duplicate column (already migrated), 1064 = syntax (harmless)
+            if (mysql_errno(db) != 1060 && mysql_errno(db) != 1064)
+                fprintf(stderr, "[migrate] %s: %s\n", alter_stmt, mysql_error(db));
+        }
+    };
+
+    migrate("ALTER TABLE peer MODIFY COLUMN password VARCHAR(64)");
+    migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS gems INT DEFAULT 0");
+    migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS level SMALLINT UNSIGNED DEFAULT 1");
+    migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS xp SMALLINT UNSIGNED DEFAULT 0");
+    migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS role TINYINT UNSIGNED DEFAULT 0");
+    migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS skin_color INT UNSIGNED DEFAULT 2527912447");
+    migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS hair_color INT DEFAULT -1");
+    migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS slot_size SMALLINT DEFAULT 16");
+    migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS clothing TEXT");
+    migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS inventory TEXT");
 
     const char* world_query = R"(
         CREATE TABLE IF NOT EXISTS world (
@@ -53,6 +76,9 @@ void create_table_if_not_exist()
 void mysql_connect()
 {
     db = mysql_init(NULL);
+
+    my_bool reconnect = 1;
+    mysql_options(db, MYSQL_OPT_RECONNECT, &reconnect);
 
     if (!mysql_real_connect(db, gDatabase_config.host.c_str(), gDatabase_config.user.c_str(), gDatabase_config.password.empty() ? NULL : gDatabase_config.password.c_str(), NULL, gDatabase_config.port, NULL, 0)) 
     {

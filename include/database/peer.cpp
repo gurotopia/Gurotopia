@@ -73,10 +73,72 @@ T peer::mysql_select(const std::string &column, const char *arg)
 
 void peer::mysql_select_all()
 {
+    auto trim_null = [](std::string &s) {
+        if (auto pos = s.find('\0'); pos != std::string::npos)
+            s.resize(pos);
+    };
+
     this->user_id    = this->mysql_select<signed>("uid");
     this->growid     = this->mysql_select<std::string>("growid");
     this->password   = this->mysql_select<std::string>("password");
     this->created_at = this->mysql_select<std::time_t>("created_at", "UNIX_TIMESTAMP");
+
+    // gameplay state
+    this->gems        = this->mysql_select<signed>("gems");
+    this->level.front() = (u_short)this->mysql_select<signed>("level");
+    this->level.back()  = (u_short)this->mysql_select<signed>("xp");
+    this->role        = (u_char)this->mysql_select<signed>("role");
+    this->skin_color  = (u_int)this->mysql_select<unsigned>("skin_color");
+    this->hair_color  = this->mysql_select<signed>("hair_color");
+    this->slot_size   = (short)this->mysql_select<signed>("slot_size");
+
+    // clothing CSV: val,val,... (10 floats)
+    std::string cloth_str = this->mysql_select<std::string>("clothing");
+    trim_null(cloth_str);
+    if (!cloth_str.empty())
+    {
+        auto parts = readch(cloth_str, ',');
+        for (std::size_t i = 0; i < std::min(parts.size(), this->clothing.size()); ++i)
+            this->clothing[i] = std::stof(parts[i]);
+    }
+
+    // inventory CSV: id:count,id:count,...
+    std::string inv_str = this->mysql_select<std::string>("inventory");
+    trim_null(inv_str);
+    if (!inv_str.empty())
+    {
+        this->slots.clear();
+        auto pairs = readch(inv_str, ',');
+        for (const auto &pair : pairs)
+        {
+            auto kv = readch(pair, ':');
+            if (kv.size() >= 2)
+                this->slots.emplace_back((short)std::atoi(kv[0].c_str()), (short)std::atoi(kv[1].c_str()));
+        }
+    }
+}
+
+void peer::mysql_save()
+{
+    // clothing → CSV
+    std::string cloth_csv;
+    for (std::size_t i = 0; i < this->clothing.size(); ++i)
+        cloth_csv += (i == 0 ? "" : ",") + std::to_string(this->clothing[i]);
+
+    // inventory → CSV id:count,...
+    std::string inv_csv;
+    for (std::size_t i = 0; i < this->slots.size(); ++i)
+        inv_csv += (i == 0 ? "" : ",") + std::format("{}:{}", this->slots[i].id, this->slots[i].count);
+
+    this->mysql_update<signed>("gems", this->gems);
+    this->mysql_update<signed>("level", this->level.front());
+    this->mysql_update<signed>("xp", this->level.back());
+    this->mysql_update<signed>("role", this->role);
+    this->mysql_update<unsigned>("skin_color", this->skin_color);
+    this->mysql_update<signed>("hair_color", this->hair_color);
+    this->mysql_update<signed>("slot_size", this->slot_size);
+    this->mysql_update<std::string>("clothing", cloth_csv);
+    this->mysql_update<std::string>("inventory", inv_csv);
 }
 
 u_short peer::emplace(::slot slot) 
@@ -166,6 +228,11 @@ std::vector<ENetPeer*> peers(const std::string &world, peer_condition condition,
 void safe_disconnect_peers(int code)
 {
     puts("killing gurotopia...");
+
+    // save all active worlds to DB before disconnecting
+    for (::world &w : worlds)
+        if (w.visitors > 0)
+            w.mysql_save();
 
     for (ENetPeer &p : std::span(host->peers, host->peerCount))
         if (p.state == ENET_PEER_STATE_CONNECTED)

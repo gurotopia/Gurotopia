@@ -9,6 +9,7 @@
 #include "include/https/https.hpp" // @note https::listener()
 #include "include/https/server_data.hpp" // @note gServer_data
 #include "include/database/database.hpp" // @note mysql_connect()
+#include "include/database/database_config.hpp" // @note load_database_config(), gDatabase_config
 #include "include/automate/holiday.hpp" // @note holiday
 #include <filesystem>
 #include <csignal>
@@ -43,6 +44,7 @@ int main()
     host->checksum = enet_crc32;
     enet_host_compress_with_range_coder(host);
 
+    gDatabase_config = load_database_config();
     mysql_connect();
     decode_items();      // @note reads items.dat into legible class members (id, item name, ect)
     parse_store();       // @todo thread loop this so the store can update without restarting server (stored in .\resource\store.txt)

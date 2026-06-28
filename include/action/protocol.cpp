@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "https/server_data.hpp"
 #include "proton/Variant.hpp"
+#include "tools/crypt.hpp"
 
 #include "protocol.hpp"
 
@@ -35,11 +36,30 @@ void action::protocol(ENetEvent& event, const std::string& header)
         return; // @note stop processing invalid protocol data
     }
 
+    // save plaintext before mysql_select_all may overwrite pPeer->password
+    const std::string plaintext = pPeer->password;
+
     if (!pPeer->exists(pPeer->growid))
     {
         pPeer->mysql_insert("growid", pPeer->growid);
-        
-        pPeer->mysql_update<std::string>("password", pPeer->password);
+
+        std::string hashed = bcrypt_hash(plaintext);
+        if (hashed.empty())
+        {
+            send_action(*event.peer, "logon_fail", "");
+            return;
+        }
+        pPeer->mysql_update<std::string>("password", hashed);
+    }
+    else
+    {
+        // existing player: load hash from DB, verify against plaintext
+        pPeer->mysql_select_all(); // pPeer->password = hash from DB now
+        if (!bcrypt_verify(plaintext, pPeer->password))
+        {
+            send_action(*event.peer, "logon_fail", "");
+            return;
+        }
     }
     pPeer->mysql_select_all();
 

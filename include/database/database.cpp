@@ -11,7 +11,7 @@ void create_table_if_not_exist()
         CREATE TABLE IF NOT EXISTS peer (
             uid INT AUTO_INCREMENT PRIMARY KEY,
             growid VARCHAR(18) UNIQUE,
-            password VARCHAR(18),
+            password VARCHAR(64),
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     )";
@@ -19,6 +19,14 @@ void create_table_if_not_exist()
     if (mysql_query(db, query))
     {
         fprintf(stderr, "%s\n", mysql_error(db));
+    }
+
+    // migration: widen password column for bcrypt hashes (was VARCHAR(18))
+    if (mysql_query(db, "ALTER TABLE peer MODIFY COLUMN password VARCHAR(64)"))
+    {
+        // 1054 = unknown column (fresh table), silent
+        if (mysql_errno(db) != 1054)
+            fprintf(stderr, "[migrate] %s\n", mysql_error(db));
     }
 
     const char* world_query = R"(

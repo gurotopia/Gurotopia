@@ -22,8 +22,10 @@
                     "#maint|{}\n"
                     "loginurl|{}\n"
                     "meta|{}\n"
+                    "cdn_host|{}\n"
+                    "cdn_path|{}\n"
                     "RTENDMARKERBS1001", 
-                    server_data.server, server_data.port, server_data.type, server_data.type2, server_data.maint, server_data.loginurl, server_data.meta
+                    server_data.server, server_data.port, server_data.type, server_data.type2, server_data.maint, server_data.loginurl, server_data.meta, server_data.cdn_host, server_data.cdn_path
                 );
         } // @note close write
         else
@@ -42,6 +44,8 @@
             server_data.maint = pipes[9];
             server_data.loginurl = pipes[11];
             server_data.meta = pipes[13];
+            server_data.cdn_host = (pipes.size() > 15) ? pipes[15] : server_data.cdn_host;
+            server_data.cdn_path = (pipes.size() > 17) ? pipes[17] : server_data.cdn_path;
         } // @note delete str, pipes
     } // @note close file
     return server_data;

@@ -10,9 +10,13 @@
 #include "include/https/server_data.hpp" // @note gServer_data
 #include "include/database/database.hpp" // @note mysql_connect()
 #include "include/database/database_config.hpp" // @note load_database_config(), gDatabase_config
+#include "include/database/peer.hpp" // @note send_data, compress_state
 #include "include/automate/holiday.hpp" // @note holiday
 #include <filesystem>
 #include <csignal>
+
+using namespace std::chrono;
+using namespace std::literals::chrono_literals;
 
 volatile sig_atomic_t gSignal = 0;
 static void request_shutdown(sig_atomic_t signal) { gSignal = signal; }
@@ -51,10 +55,31 @@ int main()
     check_for_holiday(); // @note check for any holidays using local time (your VPS or local time) - @todo thread loop so it can change the holiday without restarting
 
     ENetEvent event{};
+    auto last_ping = steady_clock::now();
     while (!gSignal)
-        while (enet_host_service(host, &event, 1000/*ms*/) > 0)
+    {
+        // service ENet with 100ms timeout so ping fires without waiting 1s
+        while (enet_host_service(host, &event, 100) > 0)
             if (const auto i = event_pool.find(event.type); i != event_pool.end())
                 i->second(event);
+
+        // send PING_REQUEST to all peers in worlds every 5 seconds
+        // without this, clients silently disconnect ~6s after entering a world
+        auto now = steady_clock::now();
+        if (now - last_ping >= 5s)
+        {
+            last_ping = now;
+            for (ENetPeer &p : std::span(host->peers, host->peerCount))
+            {
+                if (p.state != ENET_PEER_STATE_CONNECTED) continue;
+                ::peer *pp = static_cast<::peer*>(p.data);
+                if (pp && pp->netid != 0) // @note peer is in a world
+                {
+                    send_data(p, compress_state(::state{.type = 0x16 /*PACKET_PING_REQUEST*/}));
+                }
+            }
+        }
+    }
 
     safe_disconnect_peers(gSignal);
     mysql_close(db);

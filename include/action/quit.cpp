@@ -9,6 +9,7 @@ void action::quit(ENetEvent& event, const std::string& header)
     if (event.peer == nullptr) return;
     if (event.peer->data != nullptr) 
     {
+        static_cast<::peer*>(event.peer->data)->mysql_save();
         delete static_cast<::peer*>(event.peer->data);
         event.peer->data = nullptr;
     }

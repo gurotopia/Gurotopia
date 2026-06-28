@@ -16,9 +16,27 @@ void create_table_if_not_exist()
         );
     )";
     
-    /* world table */
-
     if (mysql_query(db, query))
+    {
+        fprintf(stderr, "%s\n", mysql_error(db));
+    }
+
+    const char* world_query = R"(
+        CREATE TABLE IF NOT EXISTS world (
+            name VARCHAR(18) PRIMARY KEY,
+            owner INT DEFAULT 0,
+            is_public TINYINT DEFAULT 0,
+            lock_state TINYINT UNSIGNED DEFAULT 0,
+            minimum_entry_level TINYINT UNSIGNED DEFAULT 1,
+            blocks LONGTEXT,
+            objects LONGTEXT,
+            doors LONGTEXT,
+            displays LONGTEXT,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        );
+    )";
+
+    if (mysql_query(db, world_query))
     {
         fprintf(stderr, "%s\n", mysql_error(db));
     }

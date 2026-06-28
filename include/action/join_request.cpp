@@ -27,7 +27,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         if (it == worlds.end()) 
         {
             it = worlds.emplace(it, big_name);
-            generate_world(*it, big_name);
+            if (!it->mysql_load())
+                generate_world(*it, big_name);
         }
         ::world &world = *it;
 

@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "tools/ransuu.hpp"
 #include "on/ConsoleMessage.hpp"
+#include "database.hpp"
 
 #include "world.hpp"
 
@@ -300,4 +301,224 @@ void blast::thermonuclear(world &world, const std::string& name)
     }
     world.blocks = std::move(blocks);
     world.name = std::move(name);
+}
+
+void world::mysql_save()
+{
+    // serialize blocks: fg:bg:s2:s3:label;...
+    std::string blocks_str;
+    for (const ::block &b : this->blocks)
+    {
+        std::string label = b.label;
+        for (char &c : label) { if (c == ';' || c == ':' || c == ',') c = '?'; }
+        blocks_str += std::format("{}:{}:{}:{}:{};",
+            b.fg, b.bg, b.state[2], b.state[3], label);
+    }
+
+    // serialize objects: id:count:x:y:uid;...
+    std::string objects_str;
+    for (const ::object &o : this->objects)
+    {
+        objects_str += std::format("{}:{}:{}:{}:{};",
+            o.id, o.count, o.pos.x, o.pos.y, o.uid);
+    }
+    // sentinel: save last_object_uid
+    objects_str += std::format("0:0:0:0:{};", this->last_object_uid);
+
+    // serialize doors: dest:id:password:x:y;...
+    std::string doors_str;
+    for (const ::door &d : this->doors)
+    {
+        doors_str += std::format("{}:{}:{}:{}:{};",
+            d.dest, d.id, d.password, d.pos.x, d.pos.y);
+    }
+
+    // serialize displays: id:x:y;...
+    std::string displays_str;
+    for (const ::display &d : this->displays)
+    {
+        displays_str += std::format("{}:{}:{};", d.id, d.pos.x, d.pos.y);
+    }
+
+    // escape strings for SQL
+    // escape name separately
+    unsigned long nlen;
+    char name_esc_buf[256];
+    nlen = mysql_real_escape_string(db, name_esc_buf, this->name.c_str(), this->name.size());
+
+    auto escape = [](const std::string &s, unsigned long &len) -> char* {
+        char *buf = new char[s.size() * 2 + 1];
+        len = mysql_real_escape_string(db, buf, s.c_str(), s.size());
+        return buf;
+    };
+
+    unsigned long blen, olen, dlen, displen;
+    char *b_esc = escape(blocks_str, blen);
+    char *o_esc = escape(objects_str, olen);
+    char *d_esc = escape(doors_str, dlen);
+    char *disp_esc = escape(displays_str, displen);
+
+    char query[16384];
+    int qlen = snprintf(query, sizeof(query),
+        "INSERT INTO world (name, owner, is_public, lock_state, minimum_entry_level, blocks, objects, doors, displays) "
+        "VALUES ('%.*s', %d, %d, %d, %d, '%.*s', '%.*s', '%.*s', '%.*s') "
+        "ON DUPLICATE KEY UPDATE owner=%d, is_public=%d, lock_state=%d, minimum_entry_level=%d, blocks='%.*s', objects='%.*s', doors='%.*s', displays='%.*s'",
+        (int)nlen, name_esc_buf, this->owner, this->is_public, this->lock_state, this->minimum_entry_level,
+        (int)blen, b_esc, (int)olen, o_esc, (int)dlen, d_esc, (int)displen, disp_esc,
+        this->owner, this->is_public, this->lock_state, this->minimum_entry_level,
+        (int)blen, b_esc, (int)olen, o_esc, (int)dlen, d_esc, (int)displen, disp_esc);
+
+    delete[] b_esc;
+    delete[] o_esc;
+    delete[] d_esc;
+    delete[] disp_esc;
+
+    if (qlen < 0 || qlen >= (int)sizeof(query))
+    {
+        fprintf(stderr, "[world::mysql_save] query too long for %s\n", this->name.c_str());
+        return;
+    }
+
+    if (mysql_query(db, query))
+        fprintf(stderr, "[world::mysql_save] %s: %s\n", this->name.c_str(), mysql_error(db));
+    else
+        printf("[world::mysql_save] saved world '%s' (%zu blocks, %zu objects)\n",
+            this->name.c_str(), this->blocks.size(), this->objects.size());
+}
+
+bool world::mysql_load()
+{
+    auto escape = [](const std::string &s) -> std::string {
+        char *buf = new char[s.size() * 2 + 1];
+        mysql_real_escape_string(db, buf, s.c_str(), s.size());
+        std::string result(buf);
+        delete[] buf;
+        return result;
+    };
+
+    std::string query = "SELECT owner, is_public, lock_state, minimum_entry_level, blocks, objects, doors, displays FROM world WHERE name = '"
+        + escape(this->name) + "' LIMIT 1";
+
+    if (mysql_query(db, query.c_str()))
+    {
+        fprintf(stderr, "[world::mysql_load] %s: %s\n", this->name.c_str(), mysql_error(db));
+        return false;
+    }
+
+    MYSQL_RES *res = mysql_store_result(db);
+    if (!res) return false;
+
+    MYSQL_ROW row = mysql_fetch_row(res);
+    if (!row)
+    {
+        mysql_free_result(res);
+        return false; // world not in DB
+    }
+
+    this->owner = row[0] ? std::atoi(row[0]) : 0;
+    this->is_public = row[1] ? std::atoi(row[1]) : 0;
+    this->lock_state = row[2] ? (u_char)std::atoi(row[2]) : 0;
+    this->minimum_entry_level = row[3] ? (u_char)std::atoi(row[3]) : 1;
+
+    // parse blocks: fg:bg:s2:s3:label;...
+    if (row[4])
+    {
+        this->blocks.clear();
+        std::string blocks_str(row[4]);
+        auto parse_blocks = readch(blocks_str, ';');
+        for (const auto &token : parse_blocks)
+        {
+            auto parts = readch(token, ':');
+            if (parts.size() >= 5)
+            {
+                auto now = std::chrono::steady_clock::now();
+                this->blocks.emplace_back(
+                    (short)std::atoi(parts[0].c_str()),   // fg
+                    (short)std::atoi(parts[1].c_str()),   // bg
+                    now,
+                    parts[4],                              // label
+                    (u_char)std::atoi(parts[2].c_str()),  // s2
+                    (u_char)std::atoi(parts[3].c_str())   // s3
+                );
+            }
+        }
+    }
+
+    // parse objects: id:count:x:y:uid;...
+    if (row[5])
+    {
+        this->objects.clear();
+        u_int max_uid = 0;
+        std::string objects_str(row[5]);
+        auto parse_objects = readch(objects_str, ';');
+        for (const auto &token : parse_objects)
+        {
+            auto parts = readch(token, ':');
+            if (parts.size() >= 5)
+            {
+                u_short oid = (u_short)std::atoi(parts[0].c_str());
+                if (oid == 0)
+                {
+                    // sentinel: 0:0:0:0:last_object_uid
+                    this->last_object_uid = (u_int)std::atoi(parts[4].c_str());
+                }
+                else
+                {
+                    u_int uid = (u_int)std::atoi(parts[4].c_str());
+                    if (uid > max_uid) max_uid = uid;
+                    this->objects.emplace_back(
+                        oid,
+                        (u_short)std::atoi(parts[1].c_str()),
+                        ::pos{static_cast<float>(std::atof(parts[2].c_str())), static_cast<float>(std::atof(parts[3].c_str()))},
+                        uid
+                    );
+                }
+            }
+        }
+        if (this->last_object_uid == 0 && max_uid > 0)
+            this->last_object_uid = max_uid;
+    }
+
+    // parse doors: dest:id:password:x:y;...
+    if (row[6])
+    {
+        this->doors.clear();
+        std::string doors_str(row[6]);
+        auto parse_doors = readch(doors_str, ';');
+        for (const auto &token : parse_doors)
+        {
+            auto parts = readch(token, ':');
+            if (parts.size() >= 5)
+            {
+                this->doors.emplace_back(
+                    parts[0], parts[1], parts[2],
+                    ::pos{static_cast<float>(std::atof(parts[3].c_str())), static_cast<float>(std::atof(parts[4].c_str()))}
+                );
+            }
+        }
+    }
+
+    // parse displays: id:x:y;...
+    if (row[7])
+    {
+        this->displays.clear();
+        std::string displays_str(row[7]);
+        auto parse_displays = readch(displays_str, ';');
+        for (const auto &token : parse_displays)
+        {
+            auto parts = readch(token, ':');
+            if (parts.size() >= 3)
+            {
+                this->displays.emplace_back(
+                    (u_int)std::atoi(parts[0].c_str()),
+                    ::pos{static_cast<float>(std::atof(parts[1].c_str())), static_cast<float>(std::atof(parts[2].c_str()))}
+                );
+            }
+        }
+    }
+
+    mysql_free_result(res);
+    printf("[world::mysql_load] loaded world '%s' (%zu blocks, %zu objects) from DB\n",
+        this->name.c_str(), this->blocks.size(), this->objects.size());
+    return true;
 }

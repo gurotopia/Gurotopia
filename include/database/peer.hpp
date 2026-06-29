@@ -70,6 +70,7 @@ public:
     template<typename T>
     T    mysql_select(const std::string &column, const char *arg = "");
     void mysql_select_all();
+    void mysql_save();
 
     int user_id{}; // @note unqiue user id.
     std::string growid{""}, password{""};

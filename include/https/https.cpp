@@ -138,19 +138,32 @@ void https::listener()
         if (SSL_accept(ssl) > 0)
         {
 
-            char buf[213]; // @note size of growtopia's POST request.
-            const int length{ sizeof(buf) };
+            char buf[1024];
+            std::string request;
+            int total = 0;
 
-            if (SSL_read(ssl, buf, length) == length)
+            // read until \r\n\r\n (end of HTTP headers)
+            while (total < (int)sizeof(buf) - 1)
+            {
+                int n = SSL_read(ssl, buf + total, 1);
+                if (n <= 0) break;
+                total += n;
+                buf[total] = '\0';
+                if (total >= 4 && std::string_view(buf + total - 4, 4) == "\r\n\r\n")
+                    break;
+            }
+            request.assign(buf, total);
+
+            if (!request.empty())
             {
                 puts(buf);
-                
-                if (std::string_view(buf, sizeof(buf )).contains("POST /growtopia/server_data.php HTTP/1.1"))
+
+                if (request.find("POST /growtopia/server_data.php HTTP/1.1") != std::string::npos)
                 {
                     SSL_write(ssl, response.c_str(), response.size());
                 }
             }
-            else ERR_print_errors_fp(stderr); // @note we don't accept growtopia GET. this error is normal if appears.
+            else ERR_print_errors_fp(stderr);
         }
         else ERR_print_errors_fp(stderr);
 

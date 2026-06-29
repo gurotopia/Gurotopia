@@ -167,6 +167,11 @@ void safe_disconnect_peers(int code)
 {
     puts("killing gurotopia...");
 
+    // save all active worlds to DB before disconnecting (worlds survive Ctrl+C)
+    for (::world &w : worlds)
+        if (w.visitors > 0)
+            w.mysql_save();
+
     for (ENetPeer &p : std::span(host->peers, host->peerCount))
         if (p.state == ENET_PEER_STATE_CONNECTED)
             enet_peer_disconnect(&p, 0);

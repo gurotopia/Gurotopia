@@ -23,7 +23,7 @@ void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip
         send_varlist(&peer, { "OnRemove", netid, pId }); // @todo
     });
 
-    if (--world->visitors <= 0) worlds.erase(world); // @note take 1, and if result is 0, delete memory copy of world.
+    if (--world->visitors <= 0) { world->mysql_save(); worlds.erase(world); } // @note take 1, and if result is 0, save then delete memory copy of world.
     pPeer->netid = 0; // this will fix any packets being sent outside of world; this can also be used to check if peer is not in a world.
 
     prefix.front() = (prefix.front() == '2' || prefix.front() == 'c') ? 'w' : prefix.front();

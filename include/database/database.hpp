@@ -25,6 +25,7 @@ extern MYSQL_BIND make_bind_in(const long &buffer);
 extern MYSQL_BIND make_bind_in(const long long &buffer);
 extern MYSQL_BIND make_bind_in(const float &buffer);
 extern MYSQL_BIND make_bind_in(const std::string &buffer);
+extern MYSQL_BIND make_bind_in(const std::vector<u_char> &buffer);
 
 extern MYSQL_BIND make_bind_out(signed &buffer);
 extern MYSQL_BIND make_bind_out(unsigned &buffer);

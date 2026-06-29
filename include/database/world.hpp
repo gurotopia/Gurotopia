@@ -114,6 +114,9 @@ public:
     std::vector<::random_block> random_blocks{};
 
     ::pos 现weather{};
+
+    void mysql_save();
+    bool mysql_load();
 };
 extern std::vector<world> worlds;
 

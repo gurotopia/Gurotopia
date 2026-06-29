@@ -91,6 +91,7 @@ void peer::mysql_select_all()
     this->skin_color  = (u_int)this->mysql_select<unsigned>("skin_color");
     this->hair_color  = this->mysql_select<signed>("hair_color");
     this->slot_size   = (short)this->mysql_select<signed>("slot_size");
+    this->last_daily  = this->mysql_select<std::time_t>("last_daily", "UNIX_TIMESTAMP");
 
     // clothing CSV: val,val,... (10 floats)
     std::string cloth_str = this->mysql_select<std::string>("clothing");
@@ -139,6 +140,15 @@ void peer::mysql_save()
     this->mysql_update<signed>("slot_size", this->slot_size);
     this->mysql_update<std::string>("clothing", cloth_csv);
     this->mysql_update<std::string>("inventory", inv_csv);
+
+    // save last_daily via raw prepared statement (needs FROM_UNIXTIME for TIMESTAMP column)
+    {
+        ::hStmt hStmt{ "UPDATE peer SET last_daily = FROM_UNIXTIME(?) WHERE growid = ?" };
+        long long ts = (long long)this->last_daily;
+        MYSQL_BIND params[2] = { make_bind_in(ts), make_bind_in(this->growid) };
+        mysql_stmt_bind_param(hStmt.pStmt, params);
+        mysql_stmt_execute(hStmt.pStmt);
+    }
 }
 
 u_short peer::emplace(::slot slot) 

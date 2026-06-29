@@ -125,6 +125,7 @@ public:
 
     u_short fires_removed{};
     u_short gbc_pity{}; // @note GBC pity; for each 100 will receive super GBC
+    std::time_t last_daily{}; // @note last daily bonus claim time
 };
 
 extern ENetHost* host;

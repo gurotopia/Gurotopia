@@ -5,16 +5,21 @@
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
 
-#include "include/database/shouhin.hpp" // @note init_shouhin_tachi()
+#include "include/database/shouhin.hpp" // @note parse_store()
 #include "include/https/https.hpp" // @note https::listener()
 #include "include/https/server_data.hpp" // @note gServer_data
 #include "include/database/database.hpp" // @note mysql_connect()
 #include "include/database/database_config.hpp" // @note load_database_config(), gDatabase_config
-#include "include/automate/holiday.hpp" // @note holiday
+#include "include/automate/holiday.hpp" // @note check_for_holiday(), holiday
 #include <filesystem>
 #include <csignal>
+#include <atomic>
+
+using namespace std::chrono;
+using namespace std::literals::chrono_literals;
 
 volatile sig_atomic_t gSignal = 0;
+static std::atomic<bool> gShutdown{false};
 static void request_shutdown(sig_atomic_t signal) { gSignal = signal; }
 
 int main()
@@ -47,8 +52,31 @@ int main()
     gDatabase_config = load_database_config();
     mysql_connect();
     decode_items();      // @note reads items.dat into legible class members (id, item name, ect)
-    parse_store();       // @todo thread loop this so the store can update without restarting server (stored in .\resource\store.txt)
-    check_for_holiday(); // @note check for any holidays using local time (your VPS or local time) - @todo thread loop so it can change the holiday without restarting
+    parse_store();       // initial load
+    check_for_holiday(); // initial load
+
+    // thread: auto-refresh store every 60 seconds
+    std::thread store_thread([]{
+        while (!gShutdown)
+        {
+            std::this_thread::sleep_for(60s);
+            if (gShutdown) break;
+            parse_store();
+            printf("[store] store refreshed from resources/store.txt\n");
+        }
+    });
+    store_thread.detach();
+
+    // thread: auto-refresh holiday every 300 seconds (5 min)
+    std::thread holiday_thread([]{
+        while (!gShutdown)
+        {
+            std::this_thread::sleep_for(300s);
+            if (gShutdown) break;
+            check_for_holiday();
+        }
+    });
+    holiday_thread.detach();
 
     ENetEvent event{};
     while (!gSignal)
@@ -56,6 +84,7 @@ int main()
             if (const auto i = event_pool.find(event.type); i != event_pool.end())
                 i->second(event);
 
+    gShutdown = true;
     safe_disconnect_peers(gSignal);
     mysql_close(db);
     return 0;

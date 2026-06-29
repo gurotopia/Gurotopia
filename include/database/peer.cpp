@@ -91,6 +91,8 @@ void peer::mysql_select_all()
     this->skin_color  = (u_int)this->mysql_select<unsigned>("skin_color");
     this->hair_color  = this->mysql_select<signed>("hair_color");
     this->slot_size   = (short)this->mysql_select<signed>("slot_size");
+    this->banned      = (bool)this->mysql_select<signed>("banned");
+    this->muted       = (bool)this->mysql_select<signed>("muted");
 
     // clothing CSV: val,val,... (10 floats)
     std::string cloth_str = this->mysql_select<std::string>("clothing");
@@ -139,6 +141,8 @@ void peer::mysql_save()
     this->mysql_update<signed>("slot_size", this->slot_size);
     this->mysql_update<std::string>("clothing", cloth_csv);
     this->mysql_update<std::string>("inventory", inv_csv);
+    this->mysql_update<signed>("banned", this->banned);
+    this->mysql_update<signed>("muted", this->muted);
 }
 
 u_short peer::emplace(::slot slot) 

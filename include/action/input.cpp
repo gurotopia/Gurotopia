@@ -17,6 +17,12 @@ void action::input(ENetEvent& event, const std::string& header)
     text.erase(std::find_if_not(text.rbegin(), text.rend(), ::isspace).base(), text.end());
     if (text.empty()) return; // @note we recheck if empty since we did trimming.
     
+    if (pPeer->muted)
+    {
+        on::ConsoleMessage(event.peer, "`4You are muted.``");
+        return;
+    }
+
     steady_clock::time_point now = steady_clock::now();
     pPeer->messages.push_back(now);
     if (pPeer->messages.size() > 5) pPeer->messages.pop_front();

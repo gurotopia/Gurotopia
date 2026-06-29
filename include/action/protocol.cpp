@@ -43,6 +43,14 @@ void action::protocol(ENetEvent& event, const std::string& header)
     }
     pPeer->mysql_select_all();
 
+    // ban check
+    if (pPeer->banned)
+    {
+        send_action(*event.peer, "logon_fail", "");
+        enet_peer_disconnect_later(event.peer, 0);
+        return;
+    }
+
     send_varlist(event.peer, {
         "OnSendToServer", 
         (int)gServer_data.port, 

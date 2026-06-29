@@ -21,7 +21,9 @@ void create_table_if_not_exist()
             hair_color INT DEFAULT -1,
             slot_size SMALLINT DEFAULT 16,
             clothing TEXT,
-            inventory TEXT
+            inventory TEXT,
+            banned TINYINT DEFAULT 0,
+            muted TINYINT DEFAULT 0
         );
     )";
 
@@ -51,6 +53,8 @@ void create_table_if_not_exist()
     migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS slot_size SMALLINT DEFAULT 16");
     migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS clothing TEXT");
     migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS inventory TEXT");
+    migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS banned TINYINT DEFAULT 0");
+    migrate("ALTER TABLE peer ADD COLUMN IF NOT EXISTS muted TINYINT DEFAULT 0");
 }
 
 void mysql_connect()

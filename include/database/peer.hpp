@@ -125,6 +125,8 @@ public:
 
     u_short fires_removed{};
     u_short gbc_pity{}; // @note GBC pity; for each 100 will receive super GBC
+    bool banned{};
+    bool muted{};
 };
 
 extern ENetHost* host;

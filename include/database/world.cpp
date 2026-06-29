@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "tools/ransuu.hpp"
 #include "on/ConsoleMessage.hpp"
+#include "database.hpp"
 
 #include "world.hpp"
 
@@ -300,4 +301,264 @@ void blast::thermonuclear(world &world, const std::string& name)
     }
     world.blocks = std::move(blocks);
     world.name = std::move(name);
+}
+
+void world::mysql_save()
+{
+    /* @note per-tile data -> single binary BLOB (leeendl's design).
+     * layout: [u_char version][u_int count] then per-block:
+     *   short fg | short bg | u_char state[4] | u_short label_len | char label[label_len]
+     * labels live in the BLOB as a length-prefixed char array; empty tiles cost
+     * just the 2-byte length (0). hits are intentionally NOT stored — they're
+     * temporary (reset on countdown). world-level data (owner/flags) stays as columns. */
+    constexpr u_char BLOB_VERSION = 1;
+    std::vector<u_char> blob;
+    blob.reserve(5 + this->blocks.size() * 10);
+
+    auto push16 = [&](short v) {
+        blob.push_back(static_cast<u_char>(v & 0xFF));
+        blob.push_back(static_cast<u_char>((v >> 8) & 0xFF));
+    };
+    auto push32 = [&](u_int v) {
+        blob.push_back(static_cast<u_char>(v & 0xFF));
+        blob.push_back(static_cast<u_char>((v >> 8) & 0xFF));
+        blob.push_back(static_cast<u_char>((v >> 16) & 0xFF));
+        blob.push_back(static_cast<u_char>((v >> 24) & 0xFF));
+    };
+
+    blob.push_back(BLOB_VERSION);
+    push32(static_cast<u_int>(this->blocks.size()));
+
+    for (const ::block &b : this->blocks)
+    {
+        push16(b.fg);
+        push16(b.bg);
+        blob.push_back(b.state[0]);
+        blob.push_back(b.state[1]);
+        blob.push_back(b.state[2]);
+        blob.push_back(b.state[3]);
+
+        // label as length-prefixed char array (empty -> length 0, no bytes)
+        u_short llen = static_cast<u_short>(b.label.size());
+        push16(static_cast<short>(llen));
+        for (char c : b.label) blob.push_back(static_cast<u_char>(c));
+    }
+
+    // serialize objects: id:count:x:y:uid;...
+    std::string objects_str;
+    for (const ::object &o : this->objects)
+    {
+        objects_str += std::format("{}:{}:{}:{}:{};",
+            o.id, o.count, o.pos.x, o.pos.y, o.uid);
+    }
+    // sentinel: save last_object_uid
+    objects_str += std::format("0:0:0:0:{};", this->last_object_uid);
+
+    // serialize doors: dest:id:password:x:y;...
+    std::string doors_str;
+    for (const ::door &d : this->doors)
+    {
+        doors_str += std::format("{}:{}:{}:{}:{};",
+            d.dest, d.id, d.password, d.pos.x, d.pos.y);
+    }
+
+    // serialize displays: id:x:y;...
+    std::string displays_str;
+    for (const ::display &d : this->displays)
+    {
+        displays_str += std::format("{}:{}:{};", d.id, d.pos.x, d.pos.y);
+    }
+
+    /* binary BLOB has null bytes -> must use a prepared statement, not string interpolation. */
+    ::hStmt hStmt{
+        "INSERT INTO world (name, owner, is_public, lock_state, minimum_entry_level, blocks, objects, doors, displays) "
+        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) "
+        "ON DUPLICATE KEY UPDATE owner=VALUES(owner), is_public=VALUES(is_public), lock_state=VALUES(lock_state), "
+        "minimum_entry_level=VALUES(minimum_entry_level), blocks=VALUES(blocks), "
+        "objects=VALUES(objects), doors=VALUES(doors), displays=VALUES(displays)"
+    };
+
+    int owner = this->owner;
+    int is_public = this->is_public;
+    int lock_state = this->lock_state;
+    int min_level = this->minimum_entry_level;
+
+    MYSQL_BIND params[9] = {
+        make_bind_in(this->name),
+        make_bind_in(owner),
+        make_bind_in(is_public),
+        make_bind_in(lock_state),
+        make_bind_in(min_level),
+        make_bind_in(blob),
+        make_bind_in(objects_str),
+        make_bind_in(doors_str),
+        make_bind_in(displays_str)
+    };
+    mysql_stmt_bind_param(hStmt.pStmt, params);
+
+    if (mysql_stmt_execute(hStmt.pStmt))
+        fprintf(stderr, "[world::mysql_save] %s: %s\n", this->name.c_str(), mysql_stmt_error(hStmt.pStmt));
+    else
+        printf("[world::mysql_save] saved world '%s' (%zu blocks, %zu objects, %zu blob bytes)\n",
+            this->name.c_str(), this->blocks.size(), this->objects.size(), blob.size());
+}
+
+bool world::mysql_load()
+{
+    auto escape = [](const std::string &s) -> std::string {
+        char *buf = new char[s.size() * 2 + 1];
+        mysql_real_escape_string(db, buf, s.c_str(), s.size());
+        std::string result(buf);
+        delete[] buf;
+        return result;
+    };
+
+    std::string query = "SELECT owner, is_public, lock_state, minimum_entry_level, blocks, objects, doors, displays FROM world WHERE name = '"
+        + escape(this->name) + "' LIMIT 1";
+
+    if (mysql_query(db, query.c_str()))
+    {
+        fprintf(stderr, "[world::mysql_load] %s: %s\n", this->name.c_str(), mysql_error(db));
+        return false;
+    }
+
+    MYSQL_RES *res = mysql_store_result(db);
+    if (!res) return false;
+
+    MYSQL_ROW row = mysql_fetch_row(res);
+    if (!row)
+    {
+        mysql_free_result(res);
+        return false; // world not in DB
+    }
+    unsigned long *lengths = mysql_fetch_lengths(res); // @note BLOB has null bytes, can't use strlen
+
+    this->owner = row[0] ? std::atoi(row[0]) : 0;
+    this->is_public = row[1] ? std::atoi(row[1]) : 0;
+    this->lock_state = row[2] ? (u_char)std::atoi(row[2]) : 0;
+    this->minimum_entry_level = row[3] ? (u_char)std::atoi(row[3]) : 1;
+
+    /* @note decode per-tile binary BLOB. layout:
+     *   [u_char version][u_int count] then per-block:
+     *   fg(2) bg(2) state[4] label_len(2) label[label_len]. */
+    if (row[4] && lengths && lengths[4] >= 5)
+    {
+        this->blocks.clear();
+        const u_char *buf = reinterpret_cast<const u_char*>(row[4]);
+        unsigned long len = lengths[4];
+        std::size_t p = 0;
+
+        u_char version = buf[p++];
+        auto read32 = [&]() -> u_int {
+            u_int v = buf[p] | (buf[p+1] << 8) | (buf[p+2] << 16) | ((u_int)buf[p+3] << 24);
+            p += 4; return v;
+        };
+        auto read16 = [&]() -> u_short {
+            u_short v = (u_short)(buf[p] | (buf[p+1] << 8));
+            p += 2; return v;
+        };
+
+        if (version == 1)
+        {
+            u_int count = read32();
+            this->blocks.reserve(count);
+            auto now = std::chrono::steady_clock::now();
+            for (u_int i = 0; i < count && p + 8 <= len; ++i)
+            {
+                short fg = (short)read16();
+                short bg = (short)read16();
+                u_char s0 = buf[p++], s1 = buf[p++], s2 = buf[p++], s3 = buf[p++];
+
+                u_short llen = read16();
+                std::string label;
+                if (llen > 0 && p + llen <= len)
+                {
+                    label.assign(reinterpret_cast<const char*>(buf + p), llen);
+                    p += llen;
+                }
+
+                ::block b(fg, bg, now, label, s2, s3);
+                b.state[0] = s0; b.state[1] = s1;
+                this->blocks.emplace_back(std::move(b));
+            }
+        }
+    }
+
+    // parse objects: id:count:x:y:uid;...
+    if (row[5])
+    {
+        this->objects.clear();
+        u_int max_uid = 0;
+        std::string objects_str(row[5]);
+        auto parse_objects = readch(objects_str, ';');
+        for (const auto &token : parse_objects)
+        {
+            auto parts = readch(token, ':');
+            if (parts.size() >= 5)
+            {
+                u_short oid = (u_short)std::atoi(parts[0].c_str());
+                if (oid == 0)
+                {
+                    // sentinel: 0:0:0:0:last_object_uid
+                    this->last_object_uid = (u_int)std::atoi(parts[4].c_str());
+                }
+                else
+                {
+                    u_int uid = (u_int)std::atoi(parts[4].c_str());
+                    if (uid > max_uid) max_uid = uid;
+                    this->objects.emplace_back(
+                        oid,
+                        (u_short)std::atoi(parts[1].c_str()),
+                        ::pos{static_cast<float>(std::atof(parts[2].c_str())), static_cast<float>(std::atof(parts[3].c_str()))},
+                        uid
+                    );
+                }
+            }
+        }
+        if (this->last_object_uid == 0 && max_uid > 0)
+            this->last_object_uid = max_uid;
+    }
+
+    // parse doors: dest:id:password:x:y;...
+    if (row[6])
+    {
+        this->doors.clear();
+        std::string doors_str(row[6]);
+        auto parse_doors = readch(doors_str, ';');
+        for (const auto &token : parse_doors)
+        {
+            auto parts = readch(token, ':');
+            if (parts.size() >= 5)
+            {
+                this->doors.emplace_back(
+                    parts[0], parts[1], parts[2],
+                    ::pos{static_cast<float>(std::atof(parts[3].c_str())), static_cast<float>(std::atof(parts[4].c_str()))}
+                );
+            }
+        }
+    }
+
+    // parse displays: id:x:y;...
+    if (row[7])
+    {
+        this->displays.clear();
+        std::string displays_str(row[7]);
+        auto parse_displays = readch(displays_str, ';');
+        for (const auto &token : parse_displays)
+        {
+            auto parts = readch(token, ':');
+            if (parts.size() >= 3)
+            {
+                this->displays.emplace_back(
+                    (u_int)std::atoi(parts[0].c_str()),
+                    ::pos{static_cast<float>(std::atof(parts[1].c_str())), static_cast<float>(std::atof(parts[2].c_str()))}
+                );
+            }
+        }
+    }
+
+    mysql_free_result(res);
+    printf("[world::mysql_load] loaded world '%s' (%zu blocks, %zu objects) from DB\n",
+        this->name.c_str(), this->blocks.size(), this->objects.size());
+    return true;
 }

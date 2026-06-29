@@ -6,6 +6,7 @@ main.out
 main.exe
 items.dat
 server_data.php
+database.cfg
 
 # VSC user settings
 .vscode/settings.json

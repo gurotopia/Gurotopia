@@ -1,6 +1,7 @@
 #include "pch.hpp"
 
 #include "database.hpp"
+#include "database_config.hpp"
 
 MYSQL *db;
 
@@ -27,14 +28,14 @@ void mysql_connect()
 {
     db = mysql_init(NULL);
 
-    if (!mysql_real_connect(db, "127.0.0.1", "root", "ukEhT<ZM3~&t)jI{", NULL, 3306, NULL, 0)) 
+    if (!mysql_real_connect(db, gDatabase_config.host.c_str(), gDatabase_config.user.c_str(), gDatabase_config.password.empty() ? NULL : gDatabase_config.password.c_str(), NULL, gDatabase_config.port, NULL, 0)) 
     {
         fprintf(stderr, "%s\n", mysql_error(db));
     }
     else printf("connected to SQL server on %s:%d\n", db->host, db->port);
 
-    mysql_query(db, "CREATE DATABASE IF NOT EXISTS gurotopia");
-    mysql_select_db(db, "gurotopia");
+    mysql_query(db, ("CREATE DATABASE IF NOT EXISTS " + gDatabase_config.schema).c_str());
+    mysql_select_db(db, gDatabase_config.schema.c_str());
 
     create_table_if_not_exist();
 }

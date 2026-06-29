@@ -43,7 +43,7 @@ void action::protocol(ENetEvent& event, const std::string& header)
     {
         pPeer->mysql_insert("growid", pPeer->growid);
 
-        std::string hashed = bcrypt_hash(plaintext);
+        std::string hashed = password_hash(plaintext);
         if (hashed.empty())
         {
             send_action(*event.peer, "logon_fail", "");
@@ -55,7 +55,7 @@ void action::protocol(ENetEvent& event, const std::string& header)
     {
         // existing player: load hash from DB, verify against plaintext
         pPeer->mysql_select_all(); // pPeer->password = hash from DB now
-        if (!bcrypt_verify(plaintext, pPeer->password))
+        if (!password_verify(plaintext, pPeer->password))
         {
             send_action(*event.peer, "logon_fail", "");
             return;

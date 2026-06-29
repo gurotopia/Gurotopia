@@ -70,6 +70,7 @@ public:
     template<typename T>
     T    mysql_select(const std::string &column, const char *arg = "");
     void mysql_select_all();
+    void mysql_save();
 
     int user_id{}; // @note unqiue user id.
     std::string growid{""}, password{""};
@@ -124,6 +125,7 @@ public:
 
     u_short fires_removed{};
     u_short gbc_pity{}; // @note GBC pity; for each 100 will receive super GBC
+    std::time_t last_daily{}; // @note last daily bonus claim time
 };
 
 extern ENetHost* host;

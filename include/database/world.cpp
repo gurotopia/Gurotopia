@@ -219,13 +219,18 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
     });
 }
 
-void remove_fire(ENetEvent &event, state state, block &block, world& world)
+void send_particle_effect(ENetEvent &event, const ::pos& pos, ::pos speed)
 {
     state_visuals(*event.peer, ::state{
         .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-        .pos = state.punch.by_32(),
-        .speed = ::pos{ 0x00000000, 0x95 }
+        .pos = pos,
+        .speed = speed
     });
+}
+
+void remove_fire(ENetEvent &event, state state, block &block, world& world)
+{
+    send_particle_effect(event, {0x00, 0x95}, state.punch.by_32());
 
     block.state[3] &= ~S_FIRE;
     send_tile_update(event, state, block, world);

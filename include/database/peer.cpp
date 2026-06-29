@@ -116,12 +116,7 @@ void peer::add_xp(ENetEvent &event, u_short value)
         }
         if (lvl == 125) on::CountryState(event);
 
-        /* @todo make particle effect smaller like growtopia */
-        state_visuals(*event.peer, {
-            .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-            .pos = this->pos, 
-            .speed = ::pos{0, 0x2e}
-        });
+        send_particle_effect(event, {0x00, 0x2e}, this->pos); // @todo make particle effect smaller like growtopia
         send_varlist(event.peer, { 
             "OnTalkBubble", 
             this->netid,

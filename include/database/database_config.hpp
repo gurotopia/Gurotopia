@@ -4,13 +4,11 @@ class database_config
 {
 public:
     std::string host{"127.0.0.1"};
-    int port{3306};
     std::string user{"root"};
     std::string password{""};
-    std::string schema{"gurotopia"};
 };
 
-extern ::database_config gDatabase_config;
+extern ::database_config gDb_config; // @note db for short, "database" looked long and ugly.
 
 /*
     @return database_config read from 'database.cfg'.

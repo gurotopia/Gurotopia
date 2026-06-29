@@ -88,26 +88,19 @@ void tile_change(ENetEvent& event, state state)
             ransuu ransuu;
             u_char apply_damage_value{}; // @note used to change a tile value without using send_tile_update() 
 
-            if (pPeer->clothing[hand] == 2952) // @note check if the user is holding the Digger's Spade
+            if (pPeer->clothing[hand] == 2952/*Digger's Spade*/)
             {
-                if(item->id == 2 || item->id == 14)
+                if(item->id == 2/*Dirt*/ || item->id == 14)
                 {
                     if (block.fg != 0) block.hits[0] = 3;
                     else block.hits[1] = 3;
     
-                    float particle_type = 0x02;
-    
-                    if(item->id == 2) particle_type = ransuu[{0x02, 0x03}]; // @note idk if this is the correct one, at least by looking at the color it looks like dirt
-                    else if(item->id == 14) particle_type = ransuu[{0x0e, 0x0f}];
-    
-                    state_visuals(*event.peer, ::state{
-                        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-                        .pos = state.punch.by_32(),
-                        .speed = ::pos{ particle_type, (float)0x61 }
-                    });
+                    u_int color = (item->id ==  2/*Dirt*/) ? ransuu[{0x02, 0x03}]/* @note idk if this is the correct one, at least by looking at the color it looks like dirt*/ : 
+                                  (item->id == 14/*Cave Background*/) ? ransuu[{0x0e, 0x0f}] : 0x02;
+
+                    send_particle_effect(event, {color, 0x61}, state.punch.by_32());
                 }
             }
-
             switch (item->id)
             {
                 case 758: // @note Roulette Wheel
@@ -521,11 +514,7 @@ void tile_change(ENetEvent& event, state state)
             }
             if (particle > 0.0f)
             {
-                state_visuals(*event.peer, ::state{
-                    .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-                    .pos = state.punch.by_32(),
-                    .speed = ::pos{ color, particle }
-                });
+                send_particle_effect(event, {color, particle}, state.punch.by_32());
             }
             send_tile_update(event, std::move(state), block, *world);
 

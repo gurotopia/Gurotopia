@@ -137,6 +137,11 @@ void add_drop(ENetEvent &event, ::slot im, ::pos pos);
 
 extern void send_tile_update(ENetEvent &event, state s, block &b, world& w);
 
+/*
+* @param speed actually just the particle color & visual, not the speed.
+*/
+extern void send_particle_effect(ENetEvent &event, const ::pos& pos, ::pos speed);
+
 extern void remove_fire(ENetEvent &event, state state, block &block, world& world);
 
 void generate_world(world &world, const std::string& name);

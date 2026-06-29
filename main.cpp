@@ -44,7 +44,7 @@ int main()
     host->checksum = enet_crc32;
     enet_host_compress_with_range_coder(host);
 
-    gDatabase_config = load_database_config();
+    gDb_config = load_database_config();
     mysql_connect();
     decode_items();      // @note reads items.dat into legible class members (id, item name, ect)
     parse_store();       // @todo thread loop this so the store can update without restarting server (stored in .\resource\store.txt)

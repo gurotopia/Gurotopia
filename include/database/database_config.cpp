@@ -3,11 +3,11 @@
 
 #include "database_config.hpp"
 
-::database_config gDatabase_config{};
+::database_config gDb_config{};
 
 ::database_config load_database_config()
 {
-    ::database_config config{};
+    ::database_config db_config{};
     {
         std::ifstream file("database.cfg");
         if (!file.is_open())
@@ -17,12 +17,9 @@
                 std::format(
                     /* @note this is read via std::getline() into readch(), pipe-delimited format */
                     "host|{}\n"
-                    "port|{}\n"
                     "user|{}\n"
-                    "password|{}\n"
-                    "schema|{}\n"
-                    "RTENDMARKERBS1001",
-                    config.host, config.port, config.user, config.password, config.schema
+                    "password|{}\n",
+                    db_config.host, db_config.user, db_config.password
                 );
         } // @note close write
         else
@@ -34,12 +31,10 @@
                 pipes.insert(pipes.end(), pipe_pair.begin(), pipe_pair.end());
             }
 
-            config.host     = pipes[1];
-            config.port     = std::stoi(pipes[3]);
-            config.user     = pipes[5];
-            config.password = pipes[7];
-            config.schema   = pipes[9];
-        } // @note close file, delete str, pipes
-    }
-    return config;
+            db_config.host     = pipes[1];
+            db_config.user     = pipes[3];
+            db_config.password = pipes[5];
+        } // @note delete pipes
+    } // @note close file
+    return db_config;
 }

@@ -1,5 +1,14 @@
 #pragma once
 
+#include <array>
+#include <cmath>
+#include <deque>
+#include <functional>
+
+/* default cosmetic values (BGRA packed) */
+inline constexpr u_int  DEFAULT_SKIN_COLOR = 2527912447; // @note default growtopia skin tone
+inline constexpr int    DEFAULT_HAIR_COLOR = 0xffffffff; // @note BGRA, white
+
 /* id, count */
 struct slot {
     slot(short _id, short _count) : id(_id), count(_count) {}
@@ -7,11 +16,9 @@ struct slot {
     short count{0}; // @note total amount of that item
 };
 
-#include <cmath> // @todo
-
 /* x, y */
 struct pos {
-    pos() = default; // @todo
+    pos() = default;
     pos(float _x, float _y) : x(_x), y(_y) {}
     pos(int _x, int _y)     : x(_x), y(_y) {}
 
@@ -54,9 +61,6 @@ enum pstate : int
     S_DUCT_TAPE   = 0x00002000
 };
 
-#include <deque>
-#include <array>
-
 class peer {
 public:
     bool exists(const std::string& growid);
@@ -82,8 +86,8 @@ public:
     std::string prefix{ 'w'  }; // @note display name color, default: "w" (White)
     std::string country{};
 
-    u_int skin_color{ 2527912447 };
-    int hair_color = 0xffffffff; // @note BGRA
+    u_int skin_color{ DEFAULT_SKIN_COLOR };
+    int hair_color = DEFAULT_HAIR_COLOR; // @note BGRA
 
     int state{}; // @note using pstate::
 
@@ -127,8 +131,6 @@ public:
 };
 
 extern ENetHost* host;
-
-#include <functional>
 
 enum peer_condition
 {

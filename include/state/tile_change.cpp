@@ -95,7 +95,7 @@ void tile_change(ENetEvent& event, state state)
                     if (block.fg != 0) block.hits[0] = 3;
                     else block.hits[1] = 3;
     
-                    u_int color = (item->id ==  2/*Dirt*/) ? ransuu[{0x02, 0x03}]/* @note idk if this is the correct one, at least by looking at the color it looks like dirt*/ : 
+                    int color = (item->id ==  2/*Dirt*/) ? ransuu[{0x02, 0x03}]/* @note idk if this is the correct one, at least by looking at the color it looks like dirt*/ : 
                                   (item->id == 14/*Cave Background*/) ? ransuu[{0x0e, 0x0f}] : 0x02;
 
                     send_particle_effect(event, {color, 0x61}, state.punch.by_32());
@@ -359,25 +359,12 @@ void tile_change(ENetEvent& event, state state)
                     if (!door_mover(*world, state.punch)) throw std::runtime_error("There's no room to put the door there! You need 2 empty spaces vertically.");
 
                     std::string remember_name = world->name;
-                    std::vector<ENetPeer*> world_peers = peers(remember_name, PEER_SAME_WORLD);
-
-                    for (ENetPeer *peer : world_peers)
-                    {
-                        if (!peer || peer->state != ENET_PEER_STATE_CONNECTED) continue;
-
-                        ENetEvent peer_event{};
-                        peer_event.peer = peer;
-                        action::quit_to_exit(peer_event, "", true); // @note everyone in world exits
-                    }
-
-                    for (ENetPeer *peer : world_peers)
-                    {
-                        if (!peer || peer->state != ENET_PEER_STATE_CONNECTED) continue;
-
-                        ENetEvent peer_event{};
-                        peer_event.peer = peer;
-                        action::join_request(peer_event, "", remember_name); // @note everyone in world re-joins
-                    }
+                    peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer& p) 
+                    { 
+                        ENetEvent fake{.peer = &p};
+                        action::quit_to_exit(fake, "", true); // @note everyone in world exits
+                        action::join_request(fake, "", remember_name); // @note everyone in world re-joins
+                    });
                     return;
                 }
                 case 822: // @note Water Bucket

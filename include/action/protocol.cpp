@@ -30,46 +30,38 @@ void action::protocol(ENetEvent& event, const std::string& header)
             }
         } // @note delete decoded
         if (pPeer->growid.empty() || pPeer->password.empty()) throw std::runtime_error("");
+
+        // save plaintext before mysql_select_all may overwrite pPeer->password
+        const std::string plaintext = pPeer->password;
+        if (!pPeer->exists(pPeer->growid))
+        {
+            pPeer->mysql_insert("growid", pPeer->growid);
+
+            std::string hashed = password_hash(plaintext);
+            if (hashed.empty()) throw std::runtime_error("");
+
+            pPeer->mysql_update<std::string>("password", hashed);
+        }
+        else
+        {
+            // existing player: load hash from DB, verify against plaintext
+            pPeer->mysql_select_all(); // pPeer->password = hash from DB now
+            if (!password_verify(plaintext, pPeer->password)) throw std::runtime_error("");
+        }
+        pPeer->mysql_select_all();
+
+        send_varlist(event.peer, {
+            "OnSendToServer", 
+            (int)gServer_data.port, 
+            0, 
+            pPeer->user_id, 
+            std::format("{}|0|0", gServer_data.server), 
+            1, 
+            pPeer->growid.c_str() // @todo idk why this is 1028 if std::string
+        });
     }
     catch (...) { 
         send_action(*event.peer, "logon_fail", "");
         return; // @note stop processing invalid protocol data
     }
-
-    // save plaintext before mysql_select_all may overwrite pPeer->password
-    const std::string plaintext = pPeer->password;
-
-    if (!pPeer->exists(pPeer->growid))
-    {
-        pPeer->mysql_insert("growid", pPeer->growid);
-
-        std::string hashed = password_hash(plaintext);
-        if (hashed.empty())
-        {
-            send_action(*event.peer, "logon_fail", "");
-            return;
-        }
-        pPeer->mysql_update<std::string>("password", hashed);
-    }
-    else
-    {
-        // existing player: load hash from DB, verify against plaintext
-        pPeer->mysql_select_all(); // pPeer->password = hash from DB now
-        if (!password_verify(plaintext, pPeer->password))
-        {
-            send_action(*event.peer, "logon_fail", "");
-            return;
-        }
-    }
-    pPeer->mysql_select_all();
-
-    send_varlist(event.peer, {
-        "OnSendToServer", 
-        (int)gServer_data.port, 
-        0, 
-        pPeer->user_id, 
-        std::format("{}|0|0", gServer_data.server), 
-        1, 
-        pPeer->growid.c_str() // @todo idk why this is 1028 if std::string
-    });
 }

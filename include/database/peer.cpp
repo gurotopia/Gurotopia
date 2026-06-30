@@ -62,11 +62,20 @@ T peer::mysql_select(const std::string &column, const char *arg)
     MYSQL_BIND param = make_bind_in(this->growid);
     mysql_stmt_bind_param(hStmt.pStmt, &param);
 
+    unsigned long length = 0;
     MYSQL_BIND result = make_bind_out(value);
+    result.length = &length;
     mysql_stmt_bind_result(hStmt.pStmt, &result);
 
     mysql_stmt_execute(hStmt.pStmt);
     mysql_stmt_fetch(hStmt.pStmt);
+
+    // strings bind into a fixed 1024-byte buffer; trim to the real column
+    // length so values compare byte-for-byte (PBKDF2 hashes were failing
+    // verify because the buffer stayed padded with NULs).
+    if constexpr (std::is_same_v<T, std::string>)
+        value.resize(length);
+
     return value;
 }
 /* since we will only select during mysql_select_all */ // @note add templates here if use select outside of this file.

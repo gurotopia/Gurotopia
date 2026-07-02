@@ -5,9 +5,13 @@
 #include <deque>
 #include <functional>
 
-/* default cosmetic values (BGRA packed) */
-inline constexpr u_int  DEFAULT_SKIN_COLOR = 2527912447; // @note default growtopia skin tone
-inline constexpr int    DEFAULT_HAIR_COLOR = 0xffffffff; // @note BGRA, white
+enum bgra : u_int
+{
+    BLUE  = 0xff000000,
+    GREEN = 0x00ff0000,
+    RED   = 0x0000ff00,
+    ALPHA = 0x000000ff
+};
 
 /* id, count */
 struct slot {
@@ -29,6 +33,10 @@ struct pos {
 
     int x_int() const { return std::floor(x); }
     int y_int() const { return std::floor(y); }
+
+    // @todo unsure if this works...
+    u_int x_u_int() const { return std::floor(x); }
+    u_int y_u_int() const { return std::floor(y); }
 
     auto operator<=>(const pos&) const = default;
 };
@@ -86,8 +94,8 @@ public:
     std::string prefix{ 'w'  }; // @note display name color, default: "w" (White)
     std::string country{};
 
-    u_int skin_color{ DEFAULT_SKIN_COLOR };
-    int hair_color = DEFAULT_HAIR_COLOR; // @note BGRA
+    u_int skin_color{ 2527912447 };
+    u_int hair_color = bgra::GREEN | bgra::GREEN | bgra::RED | bgra::ALPHA; // @note value declines for specfic hair colors
 
     int state{}; // @note using pstate::
 

@@ -350,7 +350,7 @@ void tile_change(ENetEvent& event, state state)
                 // audio/shower.wav
                 send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, "You dyed your hair!", 0u, 1u });
             }
-            float color{}; // @note the color of the paint particle effect.
+            float color{}; // @note the color of the particle effect.
             float particle{};
             switch (item->id)
             {
@@ -450,49 +450,49 @@ void tile_change(ENetEvent& event, state state)
                 case 3478: // @note Paint Bucket - Red
                 {
                     block.state[3] |= S_RED;
-                    color = 0x0000ff00, particle = 0xa8; 
+                    color = bgra::RED, particle = 0xa8; 
                     break;
                 }
                 case 3480: // @note Paint Bucket - Yellow
                 {
                     block.state[3] |= S_YELLOW;
-                    color = 0x00ffff00, particle = 0xa8; // @note red + green
+                    color = bgra::GREEN | bgra::RED, particle = 0xa8;
                     break;
                 }
                 case 3482: // @note Paint Bucket - Green
                 {
                     block.state[3] |= S_GREEN;
-                    color = 0x00ff0000, particle = 0xa8;
+                    color = bgra::GREEN, particle = 0xa8;
                     break;
                 }
                 case 3484: // @note Paint Bucket - Aqua
                 {
                     block.state[3] |= S_AQUA;
-                    color = 0xffff0000, particle = 0xa8; // @note blue + green
+                    color = bgra::BLUE | bgra::GREEN, particle = 0xa8;
                     break;
                 }
                 case 3486: // @note Paint Bucket - Blue
                 {
                     block.state[3] |= S_BLUE;
-                    color = 0xff000000, particle = 0xa8;
+                    color = bgra::BLUE, particle = 0xa8;
                     break;
                 }
                 case 3488: // @note Paint Bucket - Purple
                 {
                     block.state[3] |= S_PURPLE;
-                    color = 0xff00ff00, particle = 0xa8; // @note blue + red
+                    color = bgra::BLUE | bgra::RED, particle = 0xa8; // @note blue + red
                     break;
                 }
                 case 3490: // @note Paint Bucket - Charcoal
                 {
                     block.state[3] |= S_CHARCOAL;
-                    color = 0xffffffff, particle = 0xa8; // @note B(blue)G(green)R(red)A(alpha/opacity) max will provide a pure black color. idk if growtopia is the same.
+                    color = bgra::BLUE | bgra::GREEN | bgra::RED | bgra::ALPHA, particle = 0xa8; // @note max will provide a pure black color. idk if growtopia is the same.
                     break;
                 }
                 case 3492: // @note Paint Bucket - Vanish
                 {
                     block.state[3] &= ~S_VANISH;
-                    color = 0xffffff00, particle = 0xa8; // @todo get exact color. I just guessed T-T
+                    color = bgra::BLUE | bgra::GREEN | bgra::RED, particle = 0xa8; // @todo get exact color. I just guessed T-T
                 }
                 case 3822: break; // Red Hair Dye
                 case 3824: break; // Green Hair Dye

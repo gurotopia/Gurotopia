@@ -171,21 +171,19 @@ void safe_disconnect_peers(int code)
 {
     puts("killing gurotopia...");
 
-    for (ENetPeer &p : std::span(host->peers, host->peerCount))
-        if (p.state == ENET_PEER_STATE_CONNECTED)
-            enet_peer_disconnect(&p, 0);
-
+    peers("", peer_condition::PEER_ALL, [](ENetPeer &p) { enet_peer_disconnect(&p, 0); });
     enet_host_flush(host);
     enet_host_destroy(host);
-    host = nullptr;
+    host = nullptr; // @todo clean this up better
     enet_deinitialize();
+
     puts("killed gurotopia safely!");
 }
 
 state get_state(const std::vector<u_char> &&packet) 
 {
     const int     *i32   = reinterpret_cast<const int*>(packet.data());
-    const u_short *u_i32 = reinterpret_cast<const u_short*>(packet.data());
+    const u_int *u_i32 = reinterpret_cast<const u_int*>(packet.data());
     const float   *f_i32 = reinterpret_cast<const float*>(packet.data());
 
     return state{

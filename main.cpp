@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: 972eee806a938045e350ee33c0395154591f16f6 2026-6-30
+    @version perent SHA: 31fcdfce22b7b411c7eff7a7d373748316542c1f 2026-7-2
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -14,15 +14,18 @@
 #include <filesystem>
 #include <csignal>
 
-volatile sig_atomic_t gSignal = 0;
-static void request_shutdown(sig_atomic_t signal) { gSignal = signal; }
+namespace
+{
+    volatile std::sig_atomic_t gSignal = 0;
+}
+static void signal_handler(std::sig_atomic_t signal) { gSignal = signal; }
 
 int main()
 {
     /* !! please press Ctrl + C when restarting or stopping server !! */
-    std::signal(SIGINT, request_shutdown);
+    std::signal(SIGINT, signal_handler);
 #ifdef SIGHUP // @note unix
-    std::signal(SIGHUP, request_shutdown); // @note PuTTY, SSH problems
+    std::signal(SIGHUP, signal_handler); // @note PuTTY, SSH problems
 #endif
 
     /* libary version checker */

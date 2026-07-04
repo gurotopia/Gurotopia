@@ -85,12 +85,53 @@ int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed u
     auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
     if (world == worlds.end()) return -1;
 
+    // @note update existing object by uid (e.g. after pickup — count is already set by caller)
+    if (uid != 0)
+    {
+        auto object = std::ranges::find(world->objects, uid, &::object::uid);
+        if (object != world->objects.end())
+        {
+            if (slot.count == 0 || slot.id == 0)
+            {
+                state.netid = pPeer->netid;
+                state.uid = 0xffffffff;
+                state.id = uid;
+            }
+            else
+            {
+                object->count = slot.count; // @note replace, not add — caller already computed the new count
+                state.netid = 0xfffffffd;
+                state.uid = uid;
+                state.count = static_cast<float>(slot.count);
+                state.id = object->id;
+                state.pos = object->pos;
+            }
+        }
+        state_visuals(*event.peer, std::move(state));
+        return uid;
+    }
+
     auto object = std::ranges::find_if(world->objects, [&](const ::object &object) {
-        return uid == 0 && object.id == slot.id && (object.pos.by_32(true) == pos.by_32(true));
+        return object.id == slot.id && (object.pos.by_32(true) == pos.by_32(true));
     });
 
     if (object != world->objects.end()) // @note merge drop
     {
+        u_short new_count = object->count + slot.count;
+        if (new_count > 200) // @note split into separate UID when over stack limit (200 per stack)
+        {
+            u_short excess = new_count - 200;
+            object->count = 200;
+            state.netid = 0xfffffffd;
+            state.uid = object->uid;
+            state.count = static_cast<float>(object->count);
+            state.id = object->id;
+            state.pos = object->pos;
+            state_visuals(*event.peer, std::move(state));
+            // create a separate drop object for the remainder
+            auto it = world->objects.emplace_back(::object(slot.id, excess, pos, ++world->last_object_uid));
+            return it.uid;
+        }
         object->count += slot.count;
         state.netid = 0xfffffffd;
         state.uid = object->uid;

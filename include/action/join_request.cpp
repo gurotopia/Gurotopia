@@ -82,16 +82,16 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     {
                         if (!is_tile_lock(block.fg)) world.is_public = (block.state[2] & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
 
-                        int admins = std::ranges::count_if(world.admin, std::identity{});
-                        data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + (admins * 4zu));
+                        int access = std::ranges::count_if(world.access, std::identity{});
+                        data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + (access * 4zu));
                         w_data = data.data() + offset;
 
                         *w_data++ = 0x03;
                         *w_data++ = world.lock_state;
                         *reinterpret_cast<int*>(w_data) = world.owner; w_data += sizeof(int);
-                        *reinterpret_cast<int*>(w_data) = admins; w_data += sizeof(int);
+                        *reinterpret_cast<int*>(w_data) = access; w_data += sizeof(int);
                         // @todo minimal level
-                        /* @todo admin list */
+                        /* @todo access list */
                         break;
                     }
                     case type::MAIN_DOOR: 
@@ -266,7 +266,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         if (!pPeer->role)
             pPeer->prefix.front() = 
                 (pPeer->user_id == world.owner) ? '2' : 
-                (std::ranges::contains(world.admin, pPeer->user_id)) ? 'c' : pPeer->prefix.front();
+                (std::ranges::contains(world.access, pPeer->user_id)) ? 'c' : 
+                pPeer->prefix.front(); // @note keeps the existing prefix
 
         pPeer->pos = pPeer->rest_pos;
         pPeer->netid = ++world.netid_counter;

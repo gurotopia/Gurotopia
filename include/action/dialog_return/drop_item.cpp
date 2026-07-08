@@ -6,6 +6,9 @@ void drop_item(ENetEvent& event, const ::hPipe &hPipe)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
+    auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
+    if (world == worlds.end()) return;
+
     const short itemID = atoi(hPipe["itemID"].c_str());
     short count = atoi(hPipe["count"].c_str());
 
@@ -17,5 +20,5 @@ void drop_item(ENetEvent& event, const ::hPipe &hPipe)
     modify_item_inventory(event, ::slot(itemID, -count));
 
     float x_nabor = (pPeer->facing_left) ? pPeer->pos.x - 32 : pPeer->pos.x + 32; // @note peer's naboring tile (drop position)
-    add_drop(event, {itemID, count}, {x_nabor, pPeer->pos.y});
+    add_drop(event, {itemID, count}, {x_nabor, pPeer->pos.y}, *world);
 }

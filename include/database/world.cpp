@@ -76,96 +76,74 @@ u_short modify_item_inventory(ENetEvent& event, ::slot slot)
     return pPeer->emplace(::slot(slot.id, slot.count));
 }
 
-int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed uid) 
+void item_change_object(ENetEvent& event, ::state state) 
+{
+    state.type = 0x0e; // @note PACKET_ITEM_CHANGE_OBJECT
+
+    state_visuals(*event.peer, std::move(state));
+}
+
+void merge_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &world)
+{
+    auto object = std::ranges::find_if(world.objects, [&](const ::object &object) {
+        return object.id == slot.id && (object.pos.by_32(true) == pos.by_32(true));
+    });
+    object->count += slot.count;
+
+    item_change_object(event, ::state{
+        .netid = (int)0xfffffffd,
+        .uid   = (int)object->uid,
+        .count = static_cast<float>(object->count),
+        .id    = object->id,
+        .pos   = object->pos
+    });
+}
+
+void remove_object(ENetEvent& event, signed uid, ::world &world)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    ::state state{.type = 0x0e}; // @note PACKET_ITEM_CHANGE_OBJECT
-
-    auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
-    if (world == worlds.end()) return -1;
-
-    // @note update existing object by uid (e.g. after pickup — count is already set by caller)
-    if (uid != 0)
-    {
-        auto object = std::ranges::find(world->objects, uid, &::object::uid);
-        if (object != world->objects.end())
-        {
-            if (slot.count == 0 || slot.id == 0)
-            {
-                state.netid = pPeer->netid;
-                state.uid = 0xffffffff;
-                state.id = uid;
-            }
-            else
-            {
-                object->count = slot.count; // @note replace, not add — caller already computed the new count
-                state.netid = 0xfffffffd;
-                state.uid = uid;
-                state.count = static_cast<float>(slot.count);
-                state.id = object->id;
-                state.pos = object->pos;
-            }
-        }
-        state_visuals(*event.peer, std::move(state));
-        return uid;
-    }
-
-    auto object = std::ranges::find_if(world->objects, [&](const ::object &object) {
-        return object.id == slot.id && (object.pos.by_32(true) == pos.by_32(true));
+    auto object = std::ranges::find_if(world.objects, [&](const ::object &object) {
+        return object.uid == uid;
     });
 
-    if (object != world->objects.end()) // @note merge drop
-    {
-        u_short new_count = object->count + slot.count;
-        if (new_count > 200) // @note split into separate UID when over stack limit (200 per stack)
-        {
-            u_short excess = new_count - 200;
-            object->count = 200;
-            state.netid = 0xfffffffd;
-            state.uid = object->uid;
-            state.count = static_cast<float>(object->count);
-            state.id = object->id;
-            state.pos = object->pos;
-            state_visuals(*event.peer, std::move(state));
-            // create a separate drop object for the remainder
-            auto it = world->objects.emplace_back(::object(slot.id, excess, pos, ++world->last_object_uid));
-            return it.uid;
-        }
-        object->count += slot.count;
-        state.netid = 0xfffffffd;
-        state.uid = object->uid;
-        state.count = static_cast<float>(object->count);
-        state.id =  object->id;
-        state.pos = object->pos;
-    }
-    else if (slot.count == 0 || slot.id == 0) // @note remove drop
-    {
-        state.netid = pPeer->netid;
-        state.uid = 0xffffffff;
-        state.id = uid;
-    }
-    else // @note add new drop
-    {
-        auto it = world->objects.emplace_back(::object(slot.id, slot.count, pos, ++world->last_object_uid)); // @note a iterator ahead of time
-        state.netid = 0xffffffff;
-        state.uid = it.uid;
-        state.count = static_cast<float>(slot.count);
-        state.id = it.id;
-        state.pos = pos;
-    }
-    state_visuals(*event.peer, std::move(state));
-    return state.uid;
+    item_change_object(event, ::state{
+        .netid = pPeer->netid,
+        .uid   = (int)0xffffffff,
+        .id    = uid
+    });
 }
 
-void add_drop(ENetEvent &event, ::slot im, ::pos pos)
+int add_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &world)
+{
+    /* @todo got a little messy */
+    auto object = std::ranges::find_if(world.objects, [&](const ::object &object) {
+        return object.id == slot.id && (object.pos.by_32(true) == pos.by_32(true));
+    });
+    if (object != world.objects.end()) 
+    {
+        merge_object(event, slot, pos, world);
+        return object->uid;
+    }
+    ::object it = world.objects.emplace_back(::object(slot.id, slot.count, pos, ++world.last_object_uid)); // @note a iterator ahead of time
+
+    item_change_object(event, ::state{
+        .netid = (int)0xffffffff,
+        .uid   = (int)it.uid,
+        .count = static_cast<float>(slot.count),
+        .id    = it.id,
+        .pos   = pos
+    });
+    return it.uid;
+}
+
+void add_drop(ENetEvent &event, ::slot im, ::pos pos, ::world &world) // @todo
 {
     ransuu ransuu;
-    item_change_object(event, {im.id, im.count},
-    {
+    add_object(event, im, ::pos{
         pos.x + ransuu[{0, 16}],
         pos.y + ransuu[{0, 16}]
-    });
+    }, world);
 }
 
 void send_tile_update(ENetEvent &event, state state, block &block, world &world) 
@@ -190,14 +168,14 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
         {
             if (!is_tile_lock(block.fg)) world.is_public = (block.state[2] & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
 
-            std::size_t admins = std::ranges::count_if(world.admin, std::identity{});
-            data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + 4zu + (admins * 4zu));
+            int access = std::ranges::count_if(world.access, std::identity{});
+            data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + 4zu + (access * 4));
 
             data[pos++] = 0x03;
             data[pos++] = world.lock_state;
             *reinterpret_cast<int*>(&data[pos]) = world.owner; pos += sizeof(int);
-            *reinterpret_cast<int*>(&data[pos]) = admins; pos += sizeof(int);
-            /* @todo admin list */
+            *reinterpret_cast<int*>(&data[pos]) = access; pos += sizeof(int);
+            /* @todo access list */
             break;
         }
         case type::DOOR:
@@ -283,7 +261,6 @@ void remove_fire(ENetEvent &event, state state, block &block, world& world)
         on::ConsoleMessage(event.peer, "`oI'm so good at fighting fires, I rescused this `2Highly Combustible Box``!");
         modify_item_inventory(event, {3090/*Combustible Box*/, 1});
     }
-
     pPeer->add_xp(event, 1);
 }
 

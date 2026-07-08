@@ -98,7 +98,7 @@ public:
     std::string name{};
 
     int owner{ 00 }; // @note owner of world using peer's user id.
-    std::array<int, 6zu> admin{}; // @note admins (by user id). excluding owner. (6 is a experimental amount, if increase update me if any issue occur -leeendl)
+    int access[20]; // @note {user_id} @credit https://www.growtopiagame.com/forums/member/440629-yeldyt
     bool is_public{}; // @note checks if world is public to break/place
     u_char lock_state{0x00}; // @note uses lock_state::
     u_char minimum_entry_level{1}; // @note minimal level required to enter a world
@@ -113,7 +113,7 @@ public:
     std::vector<::display> displays{};
     std::vector<::random_block> random_blocks{};
 
-    ::pos 现weather{};
+    ::pos weather{};
 };
 extern std::vector<world> worlds;
 
@@ -131,9 +131,13 @@ extern void tile_apply_damage(ENetEvent &event, state state, block &block, u_int
 */
 extern u_short modify_item_inventory(ENetEvent& event, ::slot slot);
 
-extern int item_change_object(ENetEvent& event, ::slot slot, const ::pos& pos, signed uid = 0);
+extern void item_change_object(ENetEvent& event, ::state state);
 
-void add_drop(ENetEvent &event, ::slot im, ::pos pos);
+extern void merge_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &world);
+extern void remove_object(ENetEvent& event, signed uid, ::world &world);
+extern int  add_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &world);
+
+extern void add_drop(ENetEvent &event, ::slot im, ::pos pos, ::world &world);
 
 extern void send_tile_update(ENetEvent &event, state s, block &b, world& w);
 

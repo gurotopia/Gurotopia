@@ -36,9 +36,9 @@ void tile_change(ENetEvent& event, state state)
                 return; // @note avoid hitting the block
             }
 
-        if (!(item->cat & CAT_PUBLIC)) // @note if block is public skip validating if peer is owner or admin
+        if (!(item->cat & CAT_PUBLIC)) // @note if block is public skip validating if peer is owner or access
             if ((world->owner && !world->is_public && !pPeer->role) &&
-                (pPeer->user_id != world->owner && !std::ranges::contains(world->admin, pPeer->user_id))) return;
+                (pPeer->user_id != world->owner && !std::ranges::contains(world->access, pPeer->user_id))) return;
 
         bool lock_visuals{}; // @todo this looks sloppy
         
@@ -139,23 +139,23 @@ void tile_change(ENetEvent& event, state state)
                                 u_char gems = ransuu[{1, 100}]; // @note source: https://growtopia.fandom.com/wiki/ATM_Machine
                                 for (short i : {100, 50, 10, 5, 1}/* gem type */)
                                     for (; gems >= i; gems -= i/* downgrade type */)
-                                        add_drop(event, {112, i}, state.punch.by_32());
+                                        add_drop(event, {112, i}, state.punch.by_32(), *world);
                                         
                                 break;
                             }
                             case 872:/*chicken*/ case 866:/*cow*/ case 1632:/*coffee maker*/ case 3888:/*sheep*/
                             {
-                                add_drop(event, ::slot(item->id+2, ransuu[{1, 2}]), state.punch.by_32());
+                                add_drop(event, ::slot(item->id+2, ransuu[{1, 2}]), state.punch.by_32(), *world);
                                 break;
                             }
                             case 5116:/*tea set*/
                             {
-                                add_drop(event, ::slot(item->id-2, ransuu[{1, 2}]), state.punch.by_32());
+                                add_drop(event, ::slot(item->id-2, ransuu[{1, 2}]), state.punch.by_32(), *world);
                                 break;
                             }
                             case 2798:/*well*/
                             {
-                                add_drop(event, ::slot(822/*water bucket*/, ransuu[{1, 2}]), state.punch.by_32());
+                                add_drop(event, ::slot(822/*water bucket*/, ransuu[{1, 2}]), state.punch.by_32(), *world);
                                 break;
                             }
                             case 928:/*science station*/ // @note source: https://growtopia.fandom.com/wiki/Science_Station
@@ -165,7 +165,7 @@ void tile_change(ENetEvent& event, state state)
                                     (!ransuu[{0, 8}])  ? chemcial = 920/*B*/ : 
                                     (!ransuu[{0, 6}])  ? chemcial = 924/*Y*/ : 
                                     (!ransuu[{0, 4}])  ? chemcial = 916/*R*/ : chemcial = 914/*G*/;
-                                add_drop(event, {chemcial, 1}, state.punch.by_32());
+                                add_drop(event, {chemcial, 1}, state.punch.by_32(), *world);
                                 break;
                             }
                         }
@@ -182,18 +182,18 @@ void tile_change(ENetEvent& event, state state)
                     if ((steady_clock::now() - block.tick) / 1s >= item->tick) // @todo limit this check.
                     {
                         block.hits[0] = 99;
-                        add_drop(event, ::slot(item->id - 1, ransuu[{2, 12}]), state.punch.by_32()); // @note fruit (from tree)
+                        add_drop(event, ::slot(item->id - 1, ransuu[{2, 12}]), state.punch.by_32(), *world); // @note fruit (from tree)
                     }
                     break;
                 }
                 case type::WEATHER_MACHINE:
                 {
-                    ::block &weather_machine = world->blocks[cord(world->现weather.x, world->现weather.y)];
+                    ::block &weather_machine = world->blocks[cord(world->weather.x, world->weather.y)];
 
                     if (!(block.state[2] & S_TOGGLE) && !(weather_machine.state[2] & S_TOGGLE)) weather_machine.state[2] &= ~S_TOGGLE; // @note so we can avoid the upcoming ^= if the weather machine is already toggled
                     block.state[2] ^= S_TOGGLE; // @note if punched twice it can detoggle that is why we use ^= not |=
                     
-                    world->现weather = state.punch;
+                    world->weather = state.punch;
                     
                     peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [block, item](ENetPeer& p)
                     {
@@ -258,7 +258,7 @@ void tile_change(ENetEvent& event, state state)
                     388; // @note Perfume
                     // @todo add all the remaining drops - https://growtopia.fandom.com/wiki/Golden_Booty_Chest
 
-                add_drop(event, ::slot(reward, (reward == 3408 || reward == 3404) ? 10 : 1), state.punch.by_32());
+                add_drop(event, ::slot(reward, (reward == 3408 || reward == 3404) ? 10 : 1), state.punch.by_32(), *world);
                 if (reward == 1458)
                 {
                     std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", pPeer->growid, item->raw_name);
@@ -282,7 +282,7 @@ void tile_change(ENetEvent& event, state state)
 
             if (item->cat == CAT_RETURN)
             {
-                int uid = item_change_object(event, ::slot(item->id, 1), state.pos);
+                int uid = add_object(event, ::slot(item->id, 1), state.pos, *world);
                 item_activate_object(event, ::state{.id = uid, .punch = state.punch});
             }
             else if (u_char(item->property) & 04) { } // @note "This item never drops any seeds."; should it drop a block?
@@ -306,10 +306,10 @@ void tile_change(ENetEvent& event, state state)
                         u_char gems = ransuu[{1, rarity_to_gem}];
                         for (short i : {10, 5, 1}/* gem type */)
                             for (; gems >= i; gems -= i/* downgrade type */)
-                                add_drop(event, {112, i}, state.punch.by_32());
+                                add_drop(event, {112, i}, state.punch.by_32(), *world);
                     }
-                    if (!ransuu[{0, (rarity_to_gem > 1) ? 2 : 4}]) add_drop(event, ::slot(item->id + 1, 1), state.punch.by_32());
-                    else if (!ransuu[{0, (rarity_to_gem > 1) ? 4 : 8}]) add_drop(event, ::slot(item->id, 1), state.punch.by_32());
+                    if (!ransuu[{0, (rarity_to_gem > 1) ? 2 : 4}]) add_drop(event, ::slot(item->id + 1, 1), state.punch.by_32(), *world); 
+                    else if (!ransuu[{0, (rarity_to_gem > 1) ? 4 : 8}]) add_drop(event, ::slot(item->id, 1), state.punch.by_32(), *world);
                 } /* ~gem drop */
 
                 pPeer->add_xp(event, std::trunc(1.0f + item->rarity / 5.0f));

@@ -16,11 +16,20 @@ void item_activate_object(ENetEvent& event, state state)
     auto item = std::ranges::find(items, object->id, &::item::id);
     if (item->type != type::GEM)
     {
+        u_short remember = object->count;
+
+        object->count = modify_item_inventory(event, ::slot(object->id, object->count)); // @return remains
+        if (object->count > 0)
+        {
+            add_object(event, ::slot(object->id, object->count), object->pos, *world);
+        }
+        u_short collected = remember - object->count;
+        if (collected ==/*unsigned*/ 0) return; // @todo
+
         on::ConsoleMessage(event.peer, (item->rarity >= 999) ?
-            std::format("Collected `w{} {}``.", object->count, item->raw_name) :
-            std::format("Collected `w{} {}``. Rarity: `w{}``", object->count, item->raw_name, item->rarity)
+            std::format("Collected `w{} {}``.",                collected, item->raw_name) :
+            std::format("Collected `w{} {}``. Rarity: `w{}``", collected, item->raw_name, item->rarity)
         );
-        object->count = pPeer->emplace(::slot(object->id, object->count));
     }
     else 
     {
@@ -28,6 +37,7 @@ void item_activate_object(ENetEvent& event, state state)
         object->count = 0;
         on::SetBux(event);
     }
-    item_change_object(event, ::slot(object->id, object->count), object->pos, state.id/*@todo*/);
+    remove_object(event, object->uid, *world);
+
     if (object->count == 0) world->objects.erase(object);
 }

@@ -29,14 +29,17 @@ struct pos {
     float x, y;
 
     /* use this for pixeled position - i did my best t-t */
-    pos by_32(bool pixel = false) const { return (pixel) ? pos{std::floor(x/32.0f), std::floor(y/32.0f)} : pos{x*32.0f, y*32.0f}; }
+    pos by_32(bool pixel = false) const { 
+        return (pixel) ? 
+            pos{std::floor/*<auto>*/(x/32.0f), std::floor/*<auto>*/(y/32.0f)} : 
+            pos{x*32.0f, y*32.0f}; 
+    }
 
-    int x_int() const { return std::floor(x); }
-    int y_int() const { return std::floor(y); }
+    int x_int() const { return std::floor<int>(x); }
+    int y_int() const { return std::floor<int>(y); }
 
-    // @todo unsure if this works...
-    u_int x_u_int() const { return std::floor(x); }
-    u_int y_u_int() const { return std::floor(y); }
+    u_int x_u_int() const { return std::floor<u_int>(x); }
+    u_int y_u_int() const { return std::floor<u_int>(y); }
 
     auto operator<=>(const pos&) const = default;
 };

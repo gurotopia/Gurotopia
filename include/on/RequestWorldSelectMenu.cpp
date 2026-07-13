@@ -7,7 +7,7 @@ void on::RequestWorldSelectMenu(ENetEvent& event)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     
-    auto section = [](const auto& range, const char* color) 
+    auto section = [](const auto& range, const std::string &color) 
     {
         std::string result;
         for (const auto &name : range) 

@@ -5,12 +5,7 @@
 
 void sb(ENetEvent& event, const std::string_view text)
 {
-    if (text.length() <= sizeof("sb ") - 1) 
-    {
-        on::ConsoleMessage(event.peer, "Usage: /sb `w{message}``");
-        return;
-    }
-    std::string message{ text.substr(sizeof("sb ")-1) };
+    const std::string message{ text.substr(sizeof("sb ")-1) };
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);

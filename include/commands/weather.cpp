@@ -77,12 +77,7 @@ int get_weather_id(u_int item_id)
 
 void weather(ENetEvent& event, const std::string_view text)
 {
-    if (text.length() <= sizeof("weather ") - 1) 
-    {
-        on::ConsoleMessage(event.peer, "`^Usage: /weather {id}");
-        return;
-    }
-    std::string id{ text.substr(sizeof("weather ") - 1) };
+    const std::string id{ text.substr(sizeof("weather ") - 1) };
 
     send_varlist(event.peer, {
         "OnSetCurrentWeather",

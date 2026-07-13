@@ -5,12 +5,7 @@
 
 void me(ENetEvent& event, const std::string_view text)
 {
-    if (text.length() <= sizeof("me ") - 1) 
-    {
-        on::ConsoleMessage(event.peer, "Usage: /me `w{message}``");
-        return;
-    }
-    std::string message{ text.substr(sizeof("me ")-1) };
+    const std::string message{ text.substr(sizeof("me ")-1) };
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     
     peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &pPeer, message](ENetPeer& peer)

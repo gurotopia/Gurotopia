@@ -32,12 +32,12 @@ static void cross_close(SOCKET fd)
 }
 
 /* cross-platform error log */
-static void cross_log(const char *message)
+static void cross_log(const std::string &message)
 {
 #ifdef _WIN32
-    std::fprintf(stderr, "%s: %d\n", message, WSAGetLastError());
+    std::fprintf(stderr, "%s: %d\n", message.c_str(), WSAGetLastError());
 #else // @note unix
-    std::fprintf(stderr, "%s: %s\n", message, strerror(errno));
+    std::fprintf(stderr, "%s: %s\n", message.c_str(), strerror(errno));
 #endif
 }
 
@@ -137,7 +137,6 @@ void https::listener()
         }
         if (SSL_accept(ssl) > 0)
         {
-
             char buf[213]; // @note size of growtopia's POST request.
             const int length{ sizeof(buf) };
 

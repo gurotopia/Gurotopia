@@ -54,7 +54,7 @@ template void peer::mysql_update<float>(const std::string&, const float&);
 template void peer::mysql_update<std::string>(const std::string&, const std::string&);
 
 template<typename T>
-T peer::mysql_select(const std::string &column, const char *arg)
+T peer::mysql_select(const std::string &column, const std::string &arg)
 {
     T value{};
     ::hStmt hStmt{ std::format("SELECT {}({}) FROM peer WHERE growid = ? LIMIT 1", arg, column).c_str() };

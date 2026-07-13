@@ -32,9 +32,17 @@ void action::input(ENetEvent& event, const std::string& header)
         std::string command = text.substr(1, text.find(' ') - 1);
         
         if (auto it = cmd_pool.find(command); it != cmd_pool.end()) 
-            it->second(std::ref(event), std::move(text.substr(1)/* remove the '/' */));
+        {
+            if (std::ranges::find(cmd_requires_arg, command) != cmd_requires_arg.end() && text.length() <= command.length()+1)
+            {
+                send_action(*event.peer, "log", "msg|`4Unknown command.`` Enter `$/?`` for a list of valid commands.");
+            }
+            else it->second(std::ref(event), std::move(text.substr(1)/* remove the '/' */));
+        }
         else 
+        {
             send_action(*event.peer, "log", "msg|`4Unknown command.`` Enter `$/?`` for a list of valid commands.");
+        }
     }
     else 
     {

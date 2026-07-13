@@ -7,11 +7,6 @@
 
 void warp(ENetEvent& event, const std::string_view text)
 {
-    if (text.length() <= sizeof("warp ") - 1) 
-    {
-        on::ConsoleMessage(event.peer, "Usage: /warp `w{world name}``");
-        return;
-    }
     std::string world_name{ text.substr(sizeof("warp ") - 1) };
     std::for_each(world_name.begin(), world_name.end(), [](char& c) { c = std::toupper(c); });
 

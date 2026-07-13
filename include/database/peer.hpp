@@ -83,7 +83,7 @@ public:
     void mysql_update(const std::string& column, const T& value);
 
     template<typename T>
-    T    mysql_select(const std::string &column, const char *arg = "");
+    T    mysql_select(const std::string &column, const std::string &arg = "");
     void mysql_select_all();
 
     int user_id{}; // @note unqiue user id.

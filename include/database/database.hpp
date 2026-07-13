@@ -9,7 +9,7 @@ extern void mysql_connect();
 class hStmt
 {
 public:
-    hStmt(const char *query);
+    hStmt(const std::string &query);
    ~hStmt();
 
     hStmt           (const hStmt&) = delete;

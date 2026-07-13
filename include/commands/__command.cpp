@@ -15,7 +15,7 @@
 
 /* emote commands all dispatch to on::Action. listed once here so the
  * cmd_pool registration and the /help text stay in sync automatically. */
-static constexpr std::array<std::string_view, 24zu> emotes{
+static constexpr std::string_view emotes[24]{
     "wave", "dance", "love", "sleep", "facepalm", "fp",
     "smh", "yes", "no", "omg", "idk", "shrug",
     "furious", "rolleyes", "foldarms", "fa", "stubborn", "fold",
@@ -26,6 +26,10 @@ static constexpr std::array<std::string_view, 24zu> emotes{
 static constexpr std::string_view named_help =
     "/find /warp {world} /punch {id} /skin {id} /sb {msg} /who /me {msg} "
     "/news /weather {id} /ghost /ageworld";
+
+std::array<std::string_view, 6> cmd_requires_arg{
+    "warp", "punch", "skin", "sb", "me", "weather"
+};
 
 /* if you plan to use this outside of this file, please include in __command.hpp (^-^) - and just make it a void. */
 auto help_return = [](ENetEvent& event, const std::string_view text) 

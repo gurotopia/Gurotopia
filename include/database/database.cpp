@@ -7,7 +7,7 @@ MYSQL *db;
 
 void create_table_if_not_exist()
 {
-    const char* query = R"(
+    std::string query = R"(
         CREATE TABLE IF NOT EXISTS peer (
             uid INT AUTO_INCREMENT PRIMARY KEY,
             growid VARCHAR(18) UNIQUE,
@@ -18,7 +18,7 @@ void create_table_if_not_exist()
     
     /* world table */
 
-    if (mysql_query(db, query))
+    if (mysql_query(db, query.c_str()))
     {
         fprintf(stderr, "%s\n", mysql_error(db));
     }
@@ -48,14 +48,14 @@ void mysql_connect()
     create_table_if_not_exist();
 }
 
-hStmt::hStmt(const char *query)
+hStmt::hStmt(const std::string &query)
 {
     this->pStmt = mysql_stmt_init(db);
     if (!pStmt) 
     {
         fprintf(stderr, "%s\n", mysql_error(db));
     }
-    if (mysql_stmt_prepare(pStmt, query, (u_long)strlen(query)))
+    if (mysql_stmt_prepare(pStmt, query.c_str(), (u_long)query.size()))
     {
         fprintf(stderr, "%s\n", mysql_error(db));
     }

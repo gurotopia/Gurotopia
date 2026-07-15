@@ -125,7 +125,7 @@ void peer::add_xp(ENetEvent &event, u_short value)
         }
         if (lvl == 125) on::CountryState(event);
 
-        send_particle_effect(event, {0x00, 0x2e}, this->pos); // @todo make particle effect smaller like growtopia
+        send_particle_effect(event, this->pos, {0x00, 0x2e}); // @todo make particle effect smaller like growtopia
         send_varlist(event.peer, { 
             "OnTalkBubble", 
             this->netid,
@@ -195,7 +195,7 @@ state get_state(const std::vector<u_char> &&packet)
         .id = i32[6],
         .pos = ::pos{f_i32[7], f_i32[8]},
         .speed = ::pos{f_i32[9], f_i32[10]},
-        .idk = i32[11],
+        .idk = f_i32[11],
         .punch = ::pos{i32[12], i32[13]},
         .size = u_i32[14]
     };
@@ -219,7 +219,7 @@ std::vector<u_char> compress_state(const state &state)
     f_i32[8] = state.pos.y;
     f_i32[9] = state.speed.x;
     f_i32[10] = state.speed.y;
-    i32[11] = state.idk;
+    f_i32[11] = state.idk;
     i32[12] = state.punch.x;
     i32[13] = state.punch.y;
     u_i32[14] = state.size;

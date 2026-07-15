@@ -176,7 +176,7 @@ public:
     int id{}; // @note peer's active hand, so 18 (fist) = punching, 32 (wrench) interacting, ect
     ::pos pos{}; // @note position 1D {x, y}
     ::pos speed{}; // @note player movement (velocity(x), gravity(y)), higher gravity = smaller jumps
-    int idk{};
+    float idk{};
     ::pos punch{}; // @note punching/placing position 2D {x, y}
     u_int size{};
 };

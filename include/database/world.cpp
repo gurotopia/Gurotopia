@@ -143,7 +143,7 @@ void add_drop(ENetEvent &event, ::slot im, ::pos pos, ::world &world) // @todo
     }, world);
 }
 
-void send_tile_update(ENetEvent &event, state state, block &block, world &world) 
+void send_tile_update(ENetEvent &event, ::state state, ::block &block, ::world &world) 
 {
     state.type = 05; // @note PACKET_SEND_TILE_UPDATE_DATA
     state.peer_state = peer_state::S_EXTENDED;
@@ -235,18 +235,20 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
     });
 }
 
-void send_particle_effect(ENetEvent &event, const ::pos& pos, ::pos speed)
+void send_particle_effect(ENetEvent &event, const ::pos& pos, ::pos speed, int id, float offset)
 {
     state_visuals(*event.peer, ::state{
-        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
+        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT,
+        .id = id,
         .pos = pos,
-        .speed = speed
+        .speed = speed,
+        .idk = offset
     });
 }
 
-void remove_fire(ENetEvent &event, state state, block &block, world& world)
+void remove_fire(ENetEvent &event, state state, ::block &block, ::world& world)
 {
-    send_particle_effect(event, {0x00, 0x95}, state.punch.by_32());
+    send_particle_effect(event, state.punch.by_32(), {0x00, 0x95});
 
     block.state[3] &= ~S_FIRE;
     send_tile_update(event, state, block, world);
@@ -261,11 +263,22 @@ void remove_fire(ENetEvent &event, state state, block &block, world& world)
     pPeer->add_xp(event, 1);
 }
 
-void generate_world(world &world, const std::string& name)
+void fireworks(ENetEvent &event, const ::pos& pos)
+{
+    ransuu ransuu;
+    int firework[3]{ ransuu[{0x25, 0x28}], ransuu[{0x25, 0x28}], ransuu[{0x25, 0x28}] };
+    int offset  [3]{ ransuu[{260, 2200}], ransuu[{260, 2200}], ransuu[{260, 2200}] };
+
+    send_particle_effect(event, pos, {0xb3, firework[0]}, 0xc8*0, offset[0]);
+    send_particle_effect(event, pos, {0xbe, firework[1]}, 0xc8*1, offset[1]);
+    send_particle_effect(event, pos, {0x7c, firework[2]}, 0xc8*2, offset[2]);
+}
+
+void generate_world(::world &world, const std::string& name)
 {
     ransuu ransuu;
     u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
-    std::vector<block> blocks(100 * 60, block{0, 0});
+    std::vector<::block> blocks(100 * 60, ::block{0, 0});
     
     for (std::size_t i = 0ull; i < blocks.size(); ++i)
     {
@@ -284,9 +297,9 @@ void generate_world(world &world, const std::string& name)
     world.name = std::move(name);
 }
 
-bool door_mover(world &world, const ::pos &pos)
+bool door_mover(::world &world, const ::pos &pos)
 {
-    std::vector<block> &blocks = world.blocks;
+    std::vector<::block> &blocks = world.blocks;
 
     if (blocks[cord(pos.x, pos.y)].fg != 0 ||
         blocks[cord(pos.x, (pos.y + 1))].fg != 0) return false;
@@ -305,7 +318,7 @@ bool door_mover(world &world, const ::pos &pos)
     return true;
 }
 
-void blast::thermonuclear(world &world, const std::string& name)
+void blast::thermonuclear(::world &world, const std::string& name)
 {
     ransuu ransuu;
     u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];

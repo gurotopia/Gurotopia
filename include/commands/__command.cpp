@@ -1,5 +1,6 @@
 #include "pch.hpp"
 #include "on/Action.hpp"
+#include "time.hpp"
 #include "find.hpp"
 #include "warp.hpp"
 #include "punch.hpp"
@@ -24,11 +25,11 @@ static constexpr std::string_view emotes[24]{
 
 /* named commands with their usage hint, shown in /help */
 static constexpr std::string_view named_help =
-    "/find /warp {world} /punch {id} /skin {id} /sb {msg} /who /me {msg} "
+    "/time /sb {msg} /find /warp {world} /punch {id} /skin {id} /who /me {msg} "
     "/news /weather {id} /ghost /ageworld";
 
 std::array<std::string_view, 6> cmd_requires_arg{
-    "warp", "punch", "skin", "sb", "me", "weather"
+    "sb", "warp", "punch", "skin", "me", "weather"
 };
 
 /* if you plan to use this outside of this file, please include in __command.hpp (^-^) - and just make it a void. */
@@ -47,6 +48,7 @@ std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::s
     {
         {"help", help_return },
         {"?", help_return },
+        {"time", &command::time}, // @note namespace is to prevent mismatching C time
         {"find", &find},
         {"warp", &warp},
         {"punch", &punch},

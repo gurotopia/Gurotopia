@@ -139,20 +139,23 @@ extern int  add_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world 
 
 extern void add_drop(ENetEvent &event, ::slot im, ::pos pos, ::world &world);
 
-extern void send_tile_update(ENetEvent &event, state s, block &b, world& w);
+extern void send_tile_update(ENetEvent &event, state s, ::block &b, ::world& w);
 
 /*
 * @param speed actually just the particle color & visual, not the speed.
+* @param id seems to be a 0xc8 multiplier for multiple particles. unsure.
 */
-extern void send_particle_effect(ENetEvent &event, const ::pos& pos, ::pos speed);
+extern void send_particle_effect(ENetEvent &event, const ::pos& pos, ::pos speed, int id = 0xc8*0, float offset = 0.0f);
 
-extern void remove_fire(ENetEvent &event, state state, block &block, world& world);
+extern void remove_fire(ENetEvent &event, state state, ::block &block, ::world& world);
 
-void generate_world(world &world, const std::string& name);
+extern void fireworks(ENetEvent &event, const ::pos& pos);
 
-bool door_mover(world &world, const ::pos &pos);
+void generate_world(::world &world, const std::string& name);
+
+bool door_mover(::world &world, const ::pos &pos);
 
 namespace blast
 {
-    void thermonuclear(world &world, const std::string& name);
+    void thermonuclear(::world &world, const std::string& name);
 }

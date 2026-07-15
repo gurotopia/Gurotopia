@@ -27,7 +27,7 @@ std::string game_theme_string()
         case H_VALENTINES: return "valentines-theme";
         case H_PATRICKS:   return "patricks-theme";
         case H_SUMMERFEST: return "summerfest-theme";
-        case H_G4G:   return "g4g-theme";
+        case H_G4G:        return "g4g-theme";
     }
     return "";
 }
@@ -36,10 +36,10 @@ std::pair<std::string, std::string> holiday_greeting()
 {
     switch (holiday)
     {
-        case H_VALENTINES: return {"`5Valentine's Week!``", "`4Happy Valentine's Week!``"};
+        case H_VALENTINES: return {"`5Valentine's Week!``",   "`4Happy Valentine's Week!``"};
         case H_PATRICKS:   return {"`5St. Patrick's Week!``", "`2Happy St. Patrick's Day!``"};
-        case H_SUMMERFEST: return {"`5Summerfest``", "`3Party down, it's `4Summerfest!`` Collect Fireworks and celebrate!``"};
-        case H_G4G:        return {"`5Grow4Good Week!``", "It's `2Grow4Good!`` Complete tasks, earn rewards and contribute to a great cause!"};
+        case H_SUMMERFEST: return {"`5Summerfest``",          "`3Party down, it's `4Summerfest!`` Collect Fireworks and celebrate!``"};
+        case H_G4G:        return {"`5Grow4Good Week!``",     "It's `2Grow4Good!`` Complete tasks, earn rewards and contribute to a great cause!"};
     }
     return {"", ""};
 }

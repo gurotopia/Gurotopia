@@ -98,7 +98,7 @@ void tile_change(ENetEvent& event, state state)
                     int color = (item->id ==  2/*Dirt*/) ? ransuu[{0x02, 0x03}]/* @note idk if this is the correct one, at least by looking at the color it looks like dirt*/ : 
                                   (item->id == 14/*Cave Background*/) ? ransuu[{0x0e, 0x0f}] : 0x02;
 
-                    send_particle_effect(event, {color, 0x61}, state.punch.by_32());
+                    send_particle_effect(event, state.punch.by_32(), {color, 0x61});
                 }
             }
             switch (item->id)
@@ -420,6 +420,11 @@ void tile_change(ENetEvent& event, state state)
                     pPeer->add_xp(event, 10000);
                     break;
                 }
+                case 834: // @note Fireworks
+                {
+                    fireworks(event, state.punch.by_32());
+                    break;
+                }
                 case 2480: // @note Megaphone
                 {
                     send_varlist(event.peer, {
@@ -501,7 +506,7 @@ void tile_change(ENetEvent& event, state state)
             }
             if (particle > 0.0f)
             {
-                send_particle_effect(event, {color, particle}, state.punch.by_32());
+                send_particle_effect(event, state.punch.by_32(), {color, particle});
             }
             send_tile_update(event, std::move(state), block, *world);
 

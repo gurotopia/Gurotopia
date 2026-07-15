@@ -5,7 +5,7 @@
 void action::setSkin(ENetEvent& event, const std::string& header)
 {
     std::vector<std::string> pipes = readch(header, '|');
-    if (pipes.size() < 4zu) return;
+    if (pipes.size() < 4ull) return;
 
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     try

@@ -143,8 +143,9 @@ void https::listener()
             if (SSL_read(ssl, buf, length) == length)
             {
                 puts(buf);
+                std::string content = std::string(buf, length);
                 
-                if (std::string_view(buf, sizeof(buf )).contains("POST /growtopia/server_data.php HTTP/1.1"))
+                if (content.find("POST /growtopia/server_data.php HTTP/1.1") != std::string_view::npos)
                 {
                     SSL_write(ssl, response.c_str(), response.size());
                 }

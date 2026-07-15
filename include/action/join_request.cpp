@@ -37,7 +37,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 .type = 0x04, // @note PACKET_SEND_MAP_DATA
                 .peer_state = peer_state::S_EXTENDED
             });
-            data.resize(data.size() + 24zu + world.name.length() + (8zu * world.blocks.size()) + 12zu + 8zu/*total drop uid*/);
+            data.resize(data.size() + 24ull + world.name.length() + (8ull * world.blocks.size()) + 12ull + 8ull/*total drop uid*/);
             u_char *w_data = data.data() + sizeof(::state) + 6;
 
             const short len = world.name.length();
@@ -83,7 +83,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                         if (!is_tile_lock(block.fg)) world.is_public = (block.state[2] & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
 
                         int access = std::ranges::count_if(world.access, std::identity{});
-                        data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + (access * 4zu));
+                        data.resize(data.size() + 1ull + 1ull + 4ull + 4ull + (access * 4ull));
                         w_data = data.data() + offset;
 
                         *w_data++ = 0x03;
@@ -104,7 +104,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     case type::PORTAL:
                     {
                         const short len = block.label.length();
-                        data.resize(data.size() + 4zu + len); // @note 01 {2} {} 0 0
+                        data.resize(data.size() + 4ull + len); // @note 01 {2} {} 0 0
                         w_data = data.data() + offset;
 
                         *w_data++ = 0x01;
@@ -123,7 +123,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     case type::SIGN:
                     {
                         const short len = block.label.length();
-                        data.resize(data.size() + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
+                        data.resize(data.size() + 1ull + 2ull + len + 4ull); // @note 02 {2} {} ff ff ff ff
                         w_data = data.data() + offset;
 
                         *w_data++ = 0x02;
@@ -135,7 +135,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::SEED:
                     {
-                        data.resize(data.size() + 1zu + 4zu + 1zu);
+                        data.resize(data.size() + 1ull + 4ull + 1ull);
                         w_data = data.data() + offset;
 
                         *w_data++ = 0x04;
@@ -146,7 +146,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::PROVIDER:
                     {
-                        data.resize(data.size() + 1zu + 4zu);
+                        data.resize(data.size() + 1ull + 4ull);
                         w_data = data.data() + offset;
 
                         *w_data++ = 0x09;
@@ -179,7 +179,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case RANDOM:
                     {
-                        data.resize(data.size() + 1zu + 1zu);
+                        data.resize(data.size() + 1ull + 1ull);
                         w_data = data.data() + offset;
                         *w_data++ = 0x08;
 
@@ -196,7 +196,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case DISPLAY_BLOCK:
                     {
-                        data.resize(data.size() + 1zu + 4zu);
+                        data.resize(data.size() + 1ull + 4ull);
                         w_data = data.data() + offset;
                         *w_data++ = 0x17;
                         
@@ -213,7 +213,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::VENDING_MACHINE:
                     {
-                        data.resize(data.size() + 1zu + 4zu + 4zu);
+                        data.resize(data.size() + 1ull + 4ull + 4ull);
                         w_data = data.data() + offset;
 
                         *w_data++ = 0x18;
@@ -224,7 +224,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::FISH_TANK_PORT:
                     {
-                        data.resize(data.size() + 1zu);
+                        data.resize(data.size() + 1ull);
                         w_data = data.data() + offset;
 
                         *w_data++ = 0x00; // @todo if glow toggled this becomes 0x10
@@ -243,7 +243,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
             for (const ::object &object : world.objects) 
             {
                 int offset = w_data - data.data();
-                data.resize(data.size() + sizeof(::object) + 4zu/*@todo*/);
+                data.resize(data.size() + sizeof(::object) + 4ull/*@todo*/);
                 w_data = data.data() + offset;
                 
                 *reinterpret_cast<u_short*>(w_data) = object.id;        w_data += sizeof(u_short);
@@ -266,7 +266,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         if (!pPeer->role)
             pPeer->prefix.front() = 
                 (pPeer->user_id == world.owner) ? '2' : 
-                (std::ranges::contains(world.access, pPeer->user_id)) ? 'c' : 
+                (std::ranges::find(world.access, pPeer->user_id) != world.access.end()) ? 'c' : 
                 pPeer->prefix.front(); // @note keeps the existing prefix
 
         pPeer->pos = pPeer->rest_pos;

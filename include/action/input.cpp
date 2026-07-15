@@ -48,13 +48,13 @@ void action::input(ENetEvent& event, const std::string& header)
     {
         if (pPeer->state & S_DUCT_TAPE)
         {
-            static constexpr std::array<std::string_view, 4zu> muffled{ "mfmm", "mmfmfm", "mffm", "mfmfmm" };
+            static constexpr std::array<std::string_view, 4ull> muffled{ "mfmm", "mmfmfm", "mffm", "mfmfmm" };
 
             std::string muffled_text{};
             muffled_text.reserve(text.size());
 
             std::size_t word_index{};
-            for (std::size_t i = 0zu; i < text.size();)
+            for (std::size_t i = 0ull; i < text.size();)
             {
                 if (std::isspace(text[i]))
                 {

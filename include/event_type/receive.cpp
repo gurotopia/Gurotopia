@@ -6,7 +6,7 @@
 void receive(ENetEvent& event) 
 {
     std::span<const enet_uint8> data{event.packet->data, event.packet->dataLength};
-    switch (data[0zu]) 
+    switch (data[0ull]) 
     {
         case 2: case 3: 
         {
@@ -18,11 +18,11 @@ void receive(ENetEvent& event)
             if (pipes.size() < 2) break;
             
             std::string action{};
-            if (pipes[0zu] == "protocol" || pipes[0zu] == "tankIDName")
+            if (pipes[0ull] == "protocol" || pipes[0ull] == "tankIDName")
             {
-                action = pipes[0zu];
+                action = pipes[0ull];
             }
-            else action = std::format("{}|{}", pipes[0zu], pipes[1zu]);
+            else action = std::format("{}|{}", pipes[0ull], pipes[1ull]);
 
             if (const auto i = action_pool.find(action); i != action_pool.end())
                 i->second(event, header);

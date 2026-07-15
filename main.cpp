@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version perent SHA: a71f3aec92dc183e03bf1a7de9975c09b25914d5 2026-7-13
+    @version parent SHA: 227cdafe686d58828a81d6e89111c005b643ae0b 2026-7-14
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -40,7 +40,7 @@ int main()
             .port = gServer_data.port
         };
 
-        host = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50zu/* max peer count */, 2zu, 0, 0);
+        host = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50ull/* max peer count */, 2ull, 0, 0);
         std::thread(&https::listener).detach();
     } // @note delete address
     host->usingNewPacketForServer = true;

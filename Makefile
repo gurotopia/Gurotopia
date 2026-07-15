@@ -1,41 +1,37 @@
 CXX := g++
-CXXFLAGS := -std=c++2b -g -Iinclude -MMD -MP
-LIBS := -L./include/enet/lib -L./include/mysql/lib -lssl -lcrypto -lmariadb
-
-BUILD_DIR := build
+CXXFLAGS := -std=c++20 -g -Iinclude -MMD -MP
+LDLIBS := -L./include/enet/lib -L./include/mysql/lib -lssl -lcrypto -lmariadb
 
 ifeq ($(OS),Windows_NT)
-	LIBS += -lenet_32 -lws2_32 -lwinmm
-	OUTPUT := main.exe
-else
-	LIBS += -lenet
-	OUTPUT := main.out
+LDLIBS += -lenet_32 -lws2_32 -lwinmm
+else # linux
+LDLIBS += -lenet
 endif
 
-all: $(OUTPUT)
+all: main.out
 
 SOURCES := main.cpp \
 		$(wildcard include/*.cpp) \
 		$(wildcard include/**/*.cpp) \
 		$(wildcard include/**/**/*.cpp)
 
-OBJECTS := $(SOURCES:%.cpp=$(BUILD_DIR)/%.o)
-DEPS := $(OBJECTS:.o=.d)
+objects := $(SOURCES:%.cpp=build/%.o)
 
-$(OUTPUT): $(OBJECTS)
-	$(CXX) $(OBJECTS) -o $@ $(LIBS)
+main.out: $(objects)
+	$(CXX) $(objects) -o $@ $(LDLIBS)
 
-$(BUILD_DIR)/pch.gch: include/pch.hpp | $(BUILD_DIR)
-	$(CXX) $(CXXFLAGS) -Iinclude -x c++-header $< -o $@
+build/pch.gch: include/pch.hpp | build
+	$(CXX) $(CXXFLAGS) -x c++-header $< -o $@
 
-$(BUILD_DIR)/%.o: %.cpp $(BUILD_DIR)/pch.gch | $(BUILD_DIR)
+build/%.o: %.cpp build build/pch.gch
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+	$(CXX) $(CXXFLAGS) -include include/pch.hpp -c $< -o $@
 
-$(BUILD_DIR):
+build:
 	@mkdir -p $@
 
--include $(DEPS)
+-include $(objects:.o=.d)
 
-clean:
-	rm -rf $(BUILD_DIR)
+.PHONY : clean
+clean :
+	-rm -rf build

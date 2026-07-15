@@ -8,7 +8,7 @@ void action::tankIDName(ENetEvent& event, const std::string& header)
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     std::vector<std::string> pipes = readch(header, '|');
-    if (pipes.empty() || pipes.size() < 41zu) enet_peer_disconnect_later(event.peer, 0);
+    if (pipes.empty() || pipes.size() < 41ull) enet_peer_disconnect_later(event.peer, 0);
 
     for (std::size_t i = 0; i < pipes.size(); ++i) 
     {

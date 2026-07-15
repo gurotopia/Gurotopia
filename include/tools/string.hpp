@@ -5,7 +5,7 @@
     @param c the char to search for and split
     @return std::vector<std::string> storing each split off from c found in the str.
 */
-extern std::vector<std::string> readch(const std::string &str, char c);
+extern std::vector<std::string> readch(const std::string &str, char deli);
 
 struct hPipe
 {

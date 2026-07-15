@@ -98,7 +98,7 @@ public:
     std::string name{};
 
     int owner{ 00 }; // @note owner of world using peer's user id.
-    int access[20]; // @note {user_id} @credit https://www.growtopiagame.com/forums/member/440629-yeldyt
+    std::array<int, 20> access{}; // @note {user_id} @credit https://www.growtopiagame.com/forums/member/440629-yeldyt
     bool is_public{}; // @note checks if world is public to break/place
     u_char lock_state{0x00}; // @note uses lock_state::
     u_char minimum_entry_level{1}; // @note minimal level required to enter a world

@@ -237,12 +237,12 @@ void send_inventory_state(ENetEvent &event)
     });
 
     std::size_t size = pPeer->slots.size();
-    data.resize(data.size() + 5zu + (size * sizeof(int)));
+    data.resize(data.size() + 5ull + (size * sizeof(int)));
 
-    int *i32 = reinterpret_cast<int*>(&data[58zu]);
+    int *i32 = reinterpret_cast<int*>(&data[58ull]);
 
-    *i32++ = std::byteswap<int>(pPeer->slot_size);
-    *i32++ = std::byteswap<int>(size);
+    *i32++ = _byteswap_ulong(pPeer->slot_size);
+    *i32++ = _byteswap_ulong(size);
     for (const ::slot &slot : pPeer->slots)
         *i32++ = slot.id | (slot.count & 0xff) << 16;
 

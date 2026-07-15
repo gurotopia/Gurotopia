@@ -90,7 +90,7 @@ public:
     std::string growid{""}, password{""};
     std::time_t created_at{}; // @note when inserted in SQL (account age)
     u_char role{};
-    std::array<float, 10zu> clothing{}; // @note peer's clothing {id, clothing::}
+    std::array<float, 10ull> clothing{}; // @note peer's clothing {id, clothing::}
     u_char punch_effect{}; // @note last equipped clothing that has a effect. supporting 0-255 effects.
 
     int netid{}; // @note peer's netid is world identity. this will be useful for many packet sending
@@ -119,7 +119,7 @@ public:
     std::vector<short> fav{};
 
     signed gems{0};
-    std::array<u_short, 2zu> level{ 1, 0 }; // {level, xp} XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
+    std::array<u_short, 2ull> level{ 1, 0 }; // {level, xp} XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
     /*
     * @brief add XP safely, this function also handles level up.
     */
@@ -130,8 +130,8 @@ public:
     */
     void update_effects();
 
-    std::array<std::string, 6zu> recent_worlds{}; // @note recent worlds, a list of 6 worlds, once it reaches 7 it'll be replaced by the oldest
-    std::array<std::string, 200zu> my_worlds{}; // @note first 200 relevant worlds locked by peer.
+    std::array<std::string, 6ull> recent_worlds{}; // @note recent worlds, a list of 6 worlds, once it reaches 7 it'll be replaced by the oldest
+    std::array<std::string, 200ull> my_worlds{}; // @note first 200 relevant worlds locked by peer.
     
     std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming
 
@@ -181,20 +181,20 @@ public:
     u_int size{};
 };
 
-enum packet_pos
+enum packet_pos : std::size_t
 {
     P_INIT,
-    P_TYPE       = 4zu,
-    P_NETID      = P_TYPE*2,
-    P_UID        = P_TYPE*3,
-    P_PEER_STATE = P_TYPE*4,
-    P_COUNT      = P_TYPE*5,
-    P_ID         = P_TYPE*6,
-    P_POS        = P_TYPE*7, // @note 8 bit
-    P_SPEED      = P_TYPE*9, // @note 8 bit
-    P_IDK        = P_TYPE*11,
-    P_PUNCH      = P_TYPE*12, // @note 8 bit
-    P_SIZE       = P_TYPE*14
+    P_TYPE       = 4ull,
+    P_NETID      = P_TYPE*2ull,
+    P_UID        = P_TYPE*3ull,
+    P_PEER_STATE = P_TYPE*4ull,
+    P_COUNT      = P_TYPE*5ull,
+    P_ID         = P_TYPE*6ull,
+    P_POS        = P_TYPE*7ull, // @note 8 bit
+    P_SPEED      = P_TYPE*9ull, // @note 8 bit
+    P_IDK        = P_TYPE*11ull,
+    P_PUNCH      = P_TYPE*12ull, // @note 8 bit
+    P_SIZE       = P_TYPE*14ull
 };
 
 extern state get_state(const std::vector<u_char> &&packet);

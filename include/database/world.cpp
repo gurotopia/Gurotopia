@@ -22,13 +22,13 @@ void send_action(ENetPeer& p, const std::string& action, const std::string& str)
     data[0] = 3; // @note NET_MESSAGE_GAME_MESSAGE
     {
         const u_char *i8 = reinterpret_cast<const u_char*>(fmt_action.c_str());
-        for (std::size_t i = 0zu; i < fmt_action.length(); ++i)
+        for (std::size_t i = 0ull; i < fmt_action.length(); ++i)
             data[sizeof(int) + i] = i8[i];
     }
     if (!str.empty())
     {
         const u_char *i8 = reinterpret_cast<const u_char*>(str.c_str());
-        for (std::size_t i = 0zu; i < str.length(); ++i)
+        for (std::size_t i = 0ull; i < str.length(); ++i)
             data[sizeof(int) + fmt_action.length() + i] = i8[i];
     }
     
@@ -153,7 +153,7 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
     std::vector<u_char> data = compress_state(state);
 
     short pos = sizeof(::state); // @note start after state bytes (as every packet has)
-    data.resize(pos + 8zu); // @note {2} {2} 00 00 00 00
+    data.resize(pos + 8ull); // @note {2} {2} 00 00 00 00
     
     *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
     *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
@@ -169,7 +169,7 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
             if (!is_tile_lock(block.fg)) world.is_public = (block.state[2] & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
 
             int access = std::ranges::count_if(world.access, std::identity{});
-            data.resize(data.size() + 1zu + 1zu + 4zu + 4zu + 4zu + (access * 4));
+            data.resize(data.size() + 1ull + 1ull + 4ull + 4ull + 4ull + (access * 4));
 
             data[pos++] = 0x03;
             data[pos++] = world.lock_state;
@@ -182,7 +182,7 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
         case type::PORTAL:
         {
             short len = block.label.length();
-            data.resize(pos + 1zu + 2zu + len + 1zu); // @note 01 {2} {} 0 0
+            data.resize(pos + 1ull + 2ull + len + 1ull); // @note 01 {2} {} 0 0
 
             data[pos++] = 0x01;
             
@@ -194,7 +194,7 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
         case type::SIGN:
         {
             short len = block.label.length();
-            data.resize(pos + 1zu + 2zu + len + 4zu); // @note 02 {2} {} ff ff ff ff
+            data.resize(pos + 1ull + 2ull + len + 4ull); // @note 02 {2} {} ff ff ff ff
 
             data[pos++] = 0x02;
 
@@ -205,7 +205,7 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
         }
         case type::SEED:
         {
-            data.resize(pos + 1zu + 5zu);
+            data.resize(pos + 1ull + 5ull);
 
             data[pos++] = 0x04;
             *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
@@ -214,7 +214,7 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
         }
         case type::PROVIDER:
         {
-            data.resize(pos + 5zu);
+            data.resize(pos + 5ull);
 
             data[pos++] = 0x09;
             *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
@@ -222,7 +222,7 @@ void send_tile_update(ENetEvent &event, state state, block &block, world &world)
         }
         case DISPLAY_BLOCK:
         {
-            data.resize(pos + 1zu + 4zu);
+            data.resize(pos + 1ull + 4ull);
             auto display = std::ranges::find(world.displays, state.punch, &::display::pos);
 
             data[pos++] = 0x17;
@@ -270,7 +270,7 @@ void generate_world(world &world, const std::string& name)
     u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
     std::vector<block> blocks(100 * 60, block{0, 0});
     
-    for (std::size_t i = 0zu; i < blocks.size(); ++i)
+    for (std::size_t i = 0ull; i < blocks.size(); ++i)
     {
         ::block &block = blocks[i];
         if (i >= cord(0, 37))
@@ -294,7 +294,7 @@ bool door_mover(world &world, const ::pos &pos)
     if (blocks[cord(pos.x, pos.y)].fg != 0 ||
         blocks[cord(pos.x, (pos.y + 1))].fg != 0) return false;
 
-    for (std::size_t i = 0zu; i < blocks.size(); ++i)
+    for (std::size_t i = 0ull; i < blocks.size(); ++i)
     {
         if (blocks[i].fg == 6)
         {
@@ -314,7 +314,7 @@ void blast::thermonuclear(world &world, const std::string& name)
     u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
     std::vector<block> blocks(100 * 60, block{0, 0});
     
-    for (std::size_t i = 0zu; i < blocks.size(); ++i)
+    for (std::size_t i = 0ull; i < blocks.size(); ++i)
     {
         blocks[i].fg = (i >= cord(0, 54)) ? 8 : 0;
 

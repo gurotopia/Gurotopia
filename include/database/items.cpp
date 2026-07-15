@@ -12,7 +12,7 @@ template<typename T>
 void shift_pos(const std::vector<u_char> &data, u_int &pos, T &value) 
 {
     u_char *i8 = reinterpret_cast<u_char*>(&value); 
-    for (std::size_t i = 0zu; i < sizeof(T); ++i) 
+    for (std::size_t i = 0ull; i < sizeof(T); ++i) 
         i8[i] = data[pos + i];
     pos += sizeof(T);
 }
@@ -22,7 +22,7 @@ template<typename T>
 void data_modify(std::vector<u_char> &data, const u_int &pos, const T &value) 
 {
     const u_char *i8 = reinterpret_cast<const u_char*>(&value);
-    for (std::size_t i = 0zu; i < sizeof(T); ++i) 
+    for (std::size_t i = 0ull; i < sizeof(T); ++i) 
         data[pos + i] = i8[i];
 }
 
@@ -105,7 +105,7 @@ void decode_items()
         }
         pos += sizeof(int);
 
-        pos += sizeof(std::array<u_char, 4zu>);
+        pos += sizeof(std::array<u_char, 4ull>);
 
         pos += *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short);
@@ -119,7 +119,7 @@ void decode_items()
         pos += *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short);
 
-        pos += sizeof(std::array<u_char, 16zu>);
+        pos += sizeof(std::array<u_char, 16ull>);
 
         shift_pos(im_data, pos, im.tick);
 
@@ -135,7 +135,7 @@ void decode_items()
         pos += *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short);
 
-        pos += sizeof(std::array<u_char, 80zu>);
+        pos += sizeof(std::array<u_char, 80ull>);
 
         if (version >= 0x0b) // @date February 2019
         {
@@ -145,13 +145,13 @@ void decode_items()
         if (version >= 0x0c) // @date October 2020
         {
             pos += sizeof(int);
-            pos += sizeof(std::array<u_char, 9zu>);
+            pos += sizeof(std::array<u_char, 9ull>);
         }
         if (version >= 0x0d) pos += sizeof(int); // @date May 2021
         if (version >= 0x0e) pos += sizeof(int); // @date October 2021
         if (version >= 0x0f)
         {
-            pos += sizeof(std::array<u_char, 25zu>);
+            pos += sizeof(std::array<u_char, 25ull>);
             pos += *(reinterpret_cast<short*>(&im_data[pos]));
             pos += sizeof(short);
         }
@@ -162,7 +162,7 @@ void decode_items()
         }
         if (version >= 0x11) pos += sizeof(int); // @date April 2024
         if (version >= 0x12) pos += sizeof(int); // @date December 2024
-        if (version >= 0x13) pos += sizeof(std::array<u_char, 9zu>);
+        if (version >= 0x13) pos += sizeof(std::array<u_char, 9ull>);
         if (version >= 0x15) pos += sizeof(short); // @date September 2025
         if (version >= 0x16)
         {

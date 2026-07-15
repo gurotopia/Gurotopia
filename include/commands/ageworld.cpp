@@ -12,7 +12,7 @@ void ageworld(ENetEvent& event, const std::string_view text)
     if (world == worlds.end()) return;
 
     std::vector<block> &blocks = world->blocks;
-    for (std::size_t i = 0zu; i < blocks.size(); ++i)
+    for (std::size_t i = 0ull; i < blocks.size(); ++i)
     {
         block &block = blocks[i];
         auto item = std::ranges::find(items, block.fg, &::item::id); // @todo reduce iteration

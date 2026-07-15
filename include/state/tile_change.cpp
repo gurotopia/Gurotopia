@@ -38,7 +38,7 @@ void tile_change(ENetEvent& event, state state)
 
         if (!(item->cat & CAT_PUBLIC)) // @note if block is public skip validating if peer is owner or access
             if ((world->owner && !world->is_public && !pPeer->role) &&
-                (pPeer->user_id != world->owner && !std::ranges::contains(world->access, pPeer->user_id))) return;
+                (pPeer->user_id != world->owner && std::ranges::find(world->access, pPeer->user_id) == world->access.end())) return;
 
         bool lock_visuals{}; // @todo this looks sloppy
         
@@ -324,7 +324,7 @@ void tile_change(ENetEvent& event, state state)
         }
         else if (item->type == type::CONSUMEABLE) 
         {
-            if (item->raw_name.contains(" Blast"))
+            if (item->raw_name.find(" Blast") != std::string::npos)
             {
                 send_varlist(event.peer, {
                     "OnDialogRequest",
@@ -340,8 +340,8 @@ void tile_change(ENetEvent& event, state state)
                 });
             }
 
-            if (item->raw_name.contains("Paint Bucket - ") && pPeer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
-            if (item->raw_name.contains("Hair Dye"))
+            if (item->raw_name.find("Paint Bucket - ") != std::string::npos && pPeer->clothing[hand] != 3494) throw std::runtime_error("you need a Paintbrush to apply paint!");
+            if (item->raw_name.find("Hair Dye") != std::string::npos)
             {
                 if (state.punch != pPeer->pos.by_32(true)) throw std::runtime_error("Don't spill your dye!");
                 else if (world->blocks[cord(pPeer->pos.by_32(true).x, pPeer->pos.by_32(true).y)].fg != 230/*Bathtub*/) throw std::runtime_error("You'll make a huge mess if you do that outside the Bathtub!");

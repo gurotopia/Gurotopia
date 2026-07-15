@@ -9,7 +9,7 @@ std::vector<std::string> readch(const std::string &str, char deli)
     result.reserve(std::ranges::count(str, deli) + 1);
 
     for (const auto &part : str | std::views::split(deli))
-        result.emplace_back(std::string_view(part));
+        result.emplace_back(std::string_view{part.begin(), part.end()});
 
     return result;
 }

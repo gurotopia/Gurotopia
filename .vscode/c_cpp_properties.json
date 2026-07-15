@@ -8,7 +8,7 @@
             ],
             "defines": [],
             "compilerPath": "c:/msys64/ucrt64/bin/g++.exe",
-            "cStandard": "c20",
+            "cStandard": "c17",
             "cppStandard": "c++20",
             "intelliSenseMode": "windows-gcc-x64"
         }

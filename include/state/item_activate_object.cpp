@@ -13,12 +13,12 @@ void item_activate_object(ENetEvent& event, state state)
 
     auto object = std::ranges::find(world->objects, state.id, &::object::uid);
 
-    auto item = std::ranges::find(items, object->id, &::item::id);
-    if (item->type != type::GEM)
+    if (object->id != 112/*gem*/)
     {
-        u_short remember = object->count;
+        auto item = std::ranges::find(items, object->id, &::item::id);
 
-        object->count = modify_item_inventory(event, ::slot(object->id, object->count)); // @return remains
+        u_short remember = object->count;
+        object->count = pPeer->emplace(::slot(object->id, object->count)); // @return remains after reaching 200
         if (object->count > 0)
         {
             add_object(event, ::slot(object->id, object->count), object->pos, *world);
@@ -37,7 +37,7 @@ void item_activate_object(ENetEvent& event, state state)
         object->count = 0;
         on::SetBux(event);
     }
-    remove_object(event, object->uid, *world);
+    remove_object(event, object->uid);
 
     if (object->count == 0) world->objects.erase(object);
 }

@@ -134,7 +134,7 @@ extern u_short modify_item_inventory(ENetEvent& event, ::slot slot);
 extern void item_change_object(ENetEvent& event, ::state state);
 
 extern void merge_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &world);
-extern void remove_object(ENetEvent& event, signed uid, ::world &world);
+extern void remove_object(ENetEvent& event, signed uid);
 extern int  add_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &world);
 
 extern void add_drop(ENetEvent &event, ::slot im, ::pos pos, ::world &world);

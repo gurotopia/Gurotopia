@@ -241,8 +241,13 @@ void send_inventory_state(ENetEvent &event)
 
     int *i32 = reinterpret_cast<int*>(&data[58ull]);
 
+#ifdef _WIN32
     *i32++ = _byteswap_ulong(pPeer->slot_size);
     *i32++ = _byteswap_ulong(size);
+#else // @note linux
+    *i32++ = __builtin_bswap32(pPeer->slot_size);
+    *i32++ = __builtin_bswap32(size);
+#endif
     for (const ::slot &slot : pPeer->slots)
         *i32++ = slot.id | (slot.count & 0xff) << 16;
 

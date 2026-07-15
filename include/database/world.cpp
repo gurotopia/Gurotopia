@@ -88,6 +88,7 @@ void merge_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &worl
     auto object = std::ranges::find_if(world.objects, [&](const ::object &object) {
         return object.id == slot.id && (object.pos.by_32(true) == pos.by_32(true));
     });
+    /* @todo avoid surpassing 200 and call add_object() for the remaining amount */ // @note future self reference peer::emplace()...
     object->count += slot.count;
 
     item_change_object(event, ::state{
@@ -99,13 +100,9 @@ void merge_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &worl
     });
 }
 
-void remove_object(ENetEvent& event, signed uid, ::world &world)
+void remove_object(ENetEvent& event, signed uid)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
-
-    auto object = std::ranges::find_if(world.objects, [&](const ::object &object) {
-        return object.uid == uid;
-    });
 
     item_change_object(event, ::state{
         .netid = pPeer->netid,
@@ -120,7 +117,7 @@ int add_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &world)
     auto object = std::ranges::find_if(world.objects, [&](const ::object &object) {
         return object.id == slot.id && (object.pos.by_32(true) == pos.by_32(true));
     });
-    if (object != world.objects.end()) 
+    if (object != world.objects.end() && object->count < 200/*@todo*/) 
     {
         merge_object(event, slot, pos, world);
         return object->uid;

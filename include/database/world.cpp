@@ -158,8 +158,8 @@ void send_tile_update(ENetEvent &event, ::state state, ::block &block, ::world &
     
     data[pos++] = block.state[2] ;
     data[pos++] = block.state[3];
-    auto item = std::ranges::find(items, block.fg, &::item::id);
-    switch (item->type)
+    const ::item &item = id_to_item(block.fg);
+    switch (item.type)
     {
         case type::LOCK:
         {
@@ -238,7 +238,8 @@ void send_tile_update(ENetEvent &event, ::state state, ::block &block, ::world &
 void send_particle_effect(ENetEvent &event, const ::pos& pos, ::pos speed, int id, float offset)
 {
     state_visuals(*event.peer, ::state{
-        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT,
+        .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
+        .netid = id, // @todo figure out if this is correct, i just assumed from firework visuals
         .id = id,
         .pos = pos,
         .speed = speed,
@@ -266,19 +267,19 @@ void remove_fire(ENetEvent &event, state state, ::block &block, ::world& world)
 void fireworks(ENetEvent &event, const ::pos& pos)
 {
     ransuu ransuu;
-    int firework[3]{ ransuu[{0x25, 0x28}], ransuu[{0x25, 0x28}], ransuu[{0x25, 0x28}] };
-    int offset  [3]{ ransuu[{260, 2200}], ransuu[{260, 2200}], ransuu[{260, 2200}] };
+    int type  [3]{ ransuu[{0x25, 0x28}], ransuu[{0x25, 0x28}], ransuu[{0x25, 0x28}] };
+    int offset[3]{ ransuu[{260, 2200}], ransuu[{260, 2200}], ransuu[{260, 2200}] };
 
-    send_particle_effect(event, pos, {0xb3, firework[0]}, 0xc8*0, offset[0]);
-    send_particle_effect(event, pos, {0xbe, firework[1]}, 0xc8*1, offset[1]);
-    send_particle_effect(event, pos, {0x7c, firework[2]}, 0xc8*2, offset[2]);
+    send_particle_effect(event, pos, {0xb3, type[0]}, 0xc8*0, offset[0]);
+    send_particle_effect(event, pos, {0xbe, type[1]}, 0xc8*1, offset[1]);
+    send_particle_effect(event, pos, {0x7c, type[2]}, 0xc8*2, offset[2]);
 }
 
 void generate_world(::world &world, const std::string& name)
 {
     ransuu ransuu;
-    u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
-    std::vector<::block> blocks(100 * 60, ::block{0, 0});
+    u_short main_door = ransuu[{2, cord(0, 60) / 100 - 4}];
+    std::vector<::block> blocks(cord(0, 60), ::block{0, 0});
     
     for (std::size_t i = 0ull; i < blocks.size(); ++i)
     {
@@ -306,10 +307,10 @@ bool door_mover(::world &world, const ::pos &pos)
 
     for (std::size_t i = 0ull; i < blocks.size(); ++i)
     {
-        if (blocks[i].fg == 6)
+        if (blocks[i].fg == 6/*Main Door*/)
         {
-            blocks[i].fg = 0; // remove main door
-            blocks[cord(i % 100, (i / 100 + 1))].fg = 0; // remove bedrock below
+            blocks[i].fg = 0; // @note remove main door
+            blocks[cord(i % 100, (i / 100 + 1))].fg = 0; // @note remove bedrock below
             break;
         }
     }
@@ -321,15 +322,15 @@ bool door_mover(::world &world, const ::pos &pos)
 void blast::thermonuclear(::world &world, const std::string& name)
 {
     ransuu ransuu;
-    u_short main_door = ransuu[{2, 100 * 60 / 100 - 4}];
-    std::vector<block> blocks(100 * 60, block{0, 0});
-    
+
+    u_short main_door = ransuu[{2, cord(0, 60) / 100 - 4}];
+    std::vector<::block> blocks(cord(0, 60), ::block{0, 0});
     for (std::size_t i = 0ull; i < blocks.size(); ++i)
     {
         blocks[i].fg = (i >= cord(0, 54)) ? 8 : 0;
 
-        if (i == cord(main_door, 36)) blocks[i].fg = 6;
-        else if (i == cord(main_door, 37)) blocks[i].fg = 8;
+        if (i == cord(main_door, 36)) blocks[i].fg = 6; // @note main door
+        else if (i == cord(main_door, 37)) blocks[i].fg = 8; // @note bedrock (below main door)
     }
     world.blocks = std::move(blocks);
     world.name = std::move(name);

@@ -40,7 +40,7 @@ void mysql_connect()
     {
         fprintf(stderr, "%s\n", mysql_error(db));
     }
-    else printf("connected to SQL server on %s:%d\n", db->host, db->port);
+    else printf("connected to MariaDB server on %s:%d\n", db->host, db->port);
 
     mysql_query(db, "CREATE DATABASE IF NOT EXISTS gurotopia");
     mysql_select_db(db, "gurotopia");

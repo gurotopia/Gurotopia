@@ -154,8 +154,6 @@ enum cat : u_char {
     CAT_UNTRADEABLE =     0x80  // @note This item cannot be dropped or traded.
 };
 
-#include <string>
-
 enum collision : u_char {
     NO_COLLISION,
     FULL,
@@ -192,7 +190,10 @@ public:
 
     std::array<u_short, 2> splice{}; // @note version 23 | {seed1, seed2}
 };
-extern std::vector<item> items;
+extern std::vector<::item> items;
+
+extern const ::item &id_to_item(u_short id) noexcept; // @note std::out_of_range is handled
+
 
 extern std::vector<u_char> im_data;
 

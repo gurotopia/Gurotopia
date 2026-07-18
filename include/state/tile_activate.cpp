@@ -11,9 +11,8 @@ void tile_activate(ENetEvent& event, state state)
     if (world == worlds.end()) return;
 
     ::block &block = world->blocks[cord(state.punch.x, state.punch.y)];
-    auto item = std::ranges::find(items, block.fg, &::item::id);
-
-    switch (item->type)
+    const ::item &item = id_to_item(block.fg);
+    switch (item.type)
     {
         case type::MAIN_DOOR:
         {

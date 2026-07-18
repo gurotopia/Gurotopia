@@ -39,7 +39,7 @@ void popup(ENetEvent& event, const ::hPipe &hPipe)
     }
     else if (hPipe["buttonClicked"] == "billboard_edit")
     {
-        auto item = std::ranges::find(items, pPeer->billboard.id, &::item::id);
+        const ::item &item = id_to_item(pPeer->billboard.id);
 
         send_varlist(event.peer, {
             "OnDialogRequest",
@@ -59,7 +59,7 @@ void popup(ENetEvent& event, const ::hPipe &hPipe)
                 "end_dialog|billboard_edit|Close|Update|\n",
                 (pPeer->billboard.id == 0) ? 
                     "" : 
-                    std::format("add_label_with_icon|small|`w{}``|left|{}|\n", item->raw_name, pPeer->billboard.id),
+                    std::format("add_label_with_icon|small|`w{}``|left|{}|\n", item.raw_name, pPeer->billboard.id),
                 to_char(pPeer->billboard.show),
                 to_char(pPeer->billboard.isBuying),
                 pPeer->billboard.price,

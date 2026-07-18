@@ -11,13 +11,13 @@ void ageworld(ENetEvent& event, const std::string_view text)
     auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
     if (world == worlds.end()) return;
 
-    std::vector<block> &blocks = world->blocks;
+    std::vector<::block> &blocks = world->blocks;
     for (std::size_t i = 0ull; i < blocks.size(); ++i)
     {
-        block &block = blocks[i];
-        auto item = std::ranges::find(items, block.fg, &::item::id); // @todo reduce iteration
+        ::block &block = blocks[i];
+        const ::item &item = id_to_item(block.fg);
         
-        if (item->type == type::PROVIDER || item->type == type::SEED) // @todo
+        if (item.type == type::PROVIDER || item.type == type::SEED) // @todo
         {
             block.tick -= 86400s;
             send_tile_update(event, 

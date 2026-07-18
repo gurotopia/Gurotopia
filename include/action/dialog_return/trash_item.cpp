@@ -10,7 +10,7 @@ void trash_item(ENetEvent& event, const ::hPipe &hPipe)
     const short itemID = atoi(hPipe["itemID"].c_str());
     short count = atoi(hPipe["count"].c_str());
 
-    auto item = std::ranges::find(items, itemID, &::item::id);
+    const ::item &item = id_to_item(itemID);
 
     for (const ::slot &slot : pPeer->slots)
         if (slot.id == itemID)
@@ -18,5 +18,5 @@ void trash_item(ENetEvent& event, const ::hPipe &hPipe)
             else if (count < 0) count = 0;
 
     modify_item_inventory(event, ::slot(itemID, -count));
-    on::ConsoleMessage(event.peer, std::format("{} `w{}`` recycled, `w0`` gems earned.", count, item->raw_name));
+    on::ConsoleMessage(event.peer, std::format("{} `w{}`` recycled, `w0`` gems earned.", count, item.raw_name));
 }

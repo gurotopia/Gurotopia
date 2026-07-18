@@ -4,26 +4,42 @@
 
 #include "items.hpp"
 
-std::vector<item> items;
+std::vector<::item> items;
+
+const ::item &id_to_item(u_short id) noexcept // @note std::out_of_range is handled
+{
+    if (id >= items.size()) return items[0]; // @note we can't return a contructor so this is gonna be our dummy value
+    
+    return items[id];
+}
+
 
 std::vector<u_char> im_data(sizeof(::state)/*inital packet*/, 0x00);
 
 template<typename T>
-void shift_pos(const std::vector<u_char> &data, u_int &pos, T &value) 
+void shift_pos(const std::vector<u_char> &data, u_int &pos, T &value) noexcept // @note std::out_of_range is handled
 {
-    u_char *i8 = reinterpret_cast<u_char*>(&value); 
+    u_char *i8 = reinterpret_cast<u_char*>(&value);
+
+    if (pos + sizeof(T) >= data.size()) puts("this items.dat is unsupported");
     for (std::size_t i = 0ull; i < sizeof(T); ++i) 
+    {
         i8[i] = data[pos + i];
+    }
     pos += sizeof(T);
 }
 
 /* have not tested modifying string values··· */
 template<typename T>
-void data_modify(std::vector<u_char> &data, const u_int &pos, const T &value) 
+void data_modify(std::vector<u_char> &data, const u_int &pos, const T &value) noexcept // @note std::out_of_range is handled
 {
     const u_char *i8 = reinterpret_cast<const u_char*>(&value);
+
+    if (pos + sizeof(T) >= data.size()) return; // @todo for custom items we would need resize data (im_data)
     for (std::size_t i = 0ull; i < sizeof(T); ++i) 
+    {
         data[pos + i] = i8[i];
+    }
 }
 
 void decode_items()
@@ -48,21 +64,21 @@ void decode_items()
     const std::string_view token{"PBG892FXX982ABC*"};
     for (u_int i = 0; i < count; ++i)
     {
-        ::item im;
+        ::item item;
         
-        shift_pos(im_data, pos, im.id); pos += 2; // @note downside im.id to 2 bit (short)
-        shift_pos(im_data, pos, im.property);
+        shift_pos(im_data, pos, item.id); pos += 2; // @note downside im.id to 2 bit (short)
+        shift_pos(im_data, pos, item.property);
 
-        shift_pos(im_data, pos, im.cat);
+        shift_pos(im_data, pos, item.cat);
 
-        shift_pos(im_data, pos, im.type);
+        shift_pos(im_data, pos, item.type);
         pos += sizeof(u_char);
 
         short len = *(reinterpret_cast<short*>(&im_data[pos]));
         pos += sizeof(short);
-        im.raw_name.resize(len);
+        item.raw_name.resize(len);
         for (short i = 0; i < len; ++i) 
-            im.raw_name[i] = im_data[pos] ^ token[(i + im.id) % token.length()], 
+            item.raw_name[i] = im_data[pos] ^ token[(i + item.id) % token.length()], 
             ++pos;
 
         pos += *(reinterpret_cast<short*>(&im_data[pos]));
@@ -71,26 +87,26 @@ void decode_items()
         pos += sizeof(int);
         pos += sizeof(u_char);
 
-        shift_pos(im_data, pos, im.ingredient);
+        shift_pos(im_data, pos, item.ingredient);
         pos += sizeof(u_char);
         pos += sizeof(u_char);
         pos += sizeof(u_char);
         pos += sizeof(u_char);
 
-        shift_pos(im_data, pos, im.collision);
-        shift_pos(im_data, pos, im.hits);
-        if (im.hits != 0) im.hits /= 6; // @note unknown reason behind why break hit is muliplied by 6 then having to divide by 6
+        shift_pos(im_data, pos, item.collision);
+        shift_pos(im_data, pos, item.hits);
+        if (item.hits != 0) item.hits /= 6; // @note unknown reason behind why break hit is muliplied by 6 then having to divide by 6
 
-        shift_pos(im_data, pos, im.hit_reset);
+        shift_pos(im_data, pos, item.hit_reset);
 
-        if (im.type == type::CLOTHING) 
+        if (item.type == type::CLOTHING) 
         {
             u_char cloth_type{};
-            shift_pos(im_data, pos, im.cloth_type);
+            shift_pos(im_data, pos, item.cloth_type);
         }
         else pos += 1; // @note assign nothing
-        if (im.type == type::AURA) im.cloth_type = clothing::ances;
-        shift_pos(im_data, pos, im.rarity);
+        if (item.type == type::AURA) item.cloth_type = clothing::ances;
+        shift_pos(im_data, pos, item.rarity);
 
         pos += sizeof(u_char);
         {
@@ -121,7 +137,7 @@ void decode_items()
 
         pos += sizeof(std::array<u_char, 16ull>);
 
-        shift_pos(im_data, pos, im.tick);
+        shift_pos(im_data, pos, item.tick);
 
         pos += sizeof(short);
         pos += sizeof(short);
@@ -168,13 +184,13 @@ void decode_items()
         {
             len = *reinterpret_cast<short*>(&im_data[pos]);
             pos += sizeof(short);
-            im.info.assign(reinterpret_cast<char*>(&im_data[pos]), len);
+            item.info.assign(reinterpret_cast<char*>(&im_data[pos]), len);
             pos += len;
         }
         if (version >= 0x17) 
         {
-            shift_pos(im_data, pos, im.splice[0]);
-            shift_pos(im_data, pos, im.splice[1]);
+            shift_pos(im_data, pos, item.splice[0]);
+            shift_pos(im_data, pos, item.splice[1]);
         }
         if (version >= 0x18) pos += sizeof(u_char); // @date December 2025
         if (version >= 0x19)
@@ -190,7 +206,7 @@ void decode_items()
         }
         if (version == 0x1a) pos += sizeof(std::byte); // May 2026
         
-        items.emplace_back(im);
+        items.emplace_back(item);
     }
     printf("items.dat parsed successfully!\n");
 }

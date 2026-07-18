@@ -1,8 +1,7 @@
 #pragma once
 
-#include <array>
-#include <cmath>
-#include <deque>
+#include <cmath> // @note std::floor
+#include <deque> // @note std::deque
 #include <functional>
 
 enum bgra : u_int
@@ -179,22 +178,6 @@ public:
     float idk{};
     ::pos punch{}; // @note punching/placing position 2D {x, y}
     u_int size{};
-};
-
-enum packet_pos : std::size_t
-{
-    P_INIT,
-    P_TYPE       = 4ull,
-    P_NETID      = P_TYPE*2ull,
-    P_UID        = P_TYPE*3ull,
-    P_PEER_STATE = P_TYPE*4ull,
-    P_COUNT      = P_TYPE*5ull,
-    P_ID         = P_TYPE*6ull,
-    P_POS        = P_TYPE*7ull, // @note 8 bit
-    P_SPEED      = P_TYPE*9ull, // @note 8 bit
-    P_IDK        = P_TYPE*11ull,
-    P_PUNCH      = P_TYPE*12ull, // @note 8 bit
-    P_SIZE       = P_TYPE*14ull
 };
 
 extern state get_state(const std::vector<u_char> &&packet);

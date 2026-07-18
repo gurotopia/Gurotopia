@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version parent SHA: 724e9771acd6c3f56bb9ec5b274683738d3edd05 2026-7-15
+    @version parent SHA: 724e9771acd6c3f56bb9ec5b274683738d3edd05 2026-7-18
 */
 #include "include/pch.hpp"
 #include "include/event_type/__event_type.hpp"
@@ -11,14 +11,13 @@
 #include "include/database/database.hpp" // @note mysql_connect()
 #include "include/database/database_config.hpp" // @note load_database_config(), gDatabase_config
 #include "include/automate/holiday.hpp" // @note holiday
-#include <filesystem>
 #include <csignal>
 
 namespace
 {
     volatile std::sig_atomic_t gSignal = 0;
 }
-static void signal_handler(std::sig_atomic_t signal) { gSignal = signal; }
+static void signal_handler(int signal) { gSignal = signal; }
 
 int main()
 {

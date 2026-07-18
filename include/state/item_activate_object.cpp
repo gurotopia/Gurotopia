@@ -12,10 +12,9 @@ void item_activate_object(ENetEvent& event, state state)
     if (world == worlds.end()) return;
 
     auto object = std::ranges::find(world->objects, state.id, &::object::uid);
-
     if (object->id != 112/*gem*/)
     {
-        auto item = std::ranges::find(items, object->id, &::item::id);
+        const ::item &item = id_to_item(object->id);
 
         u_short remember = object->count;
         object->count = pPeer->emplace(::slot(object->id, object->count)); // @return remains after reaching 200
@@ -26,9 +25,9 @@ void item_activate_object(ENetEvent& event, state state)
         u_short collected = remember - object->count;
         if (collected ==/*unsigned*/ 0) return; // @todo
 
-        on::ConsoleMessage(event.peer, (item->rarity >= 999) ?
-            std::format("Collected `w{} {}``.",                collected, item->raw_name) :
-            std::format("Collected `w{} {}``. Rarity: `w{}``", collected, item->raw_name, item->rarity)
+        on::ConsoleMessage(event.peer, (item.rarity >= 999) ?
+            std::format("Collected `w{} {}``.",                collected, item.raw_name) :
+            std::format("Collected `w{} {}``. Rarity: `w{}``", collected, item.raw_name, item.rarity)
         );
     }
     else 

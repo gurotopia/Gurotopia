@@ -4,11 +4,11 @@
 
 void action::drop(ENetEvent& event, const std::string& header)
 {
-    std::string itemID = readch(header, '|')[4];
+    const std::string &itemID = readch(header, '|')[4];
     
-    auto item = std::ranges::find(items, atoi(itemID.c_str()), &::item::id);
-
-    if (item->cat == CAT_UNTRADEABLE)
+    const ::item &item = id_to_item(atoi(itemID.c_str()));
+    
+    if (item.cat == CAT_UNTRADEABLE)
     {
         send_varlist(event.peer, { "OnTextOverlay", "You can't drop that." });
         return;
@@ -16,16 +16,16 @@ void action::drop(ENetEvent& event, const std::string& header)
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     
     for (const ::slot &slot : pPeer->slots)
-        if (slot.id == item->id) 
+        if (slot.id == item.id) 
         {
             send_varlist(event.peer, { 
                 "OnDialogRequest", 
                 create_dialog()
                     .set_default_color("`o")
-                    .add_label_with_icon("big", std::format("`wDrop {}``", item->raw_name), item->id)
+                    .add_label_with_icon("big", std::format("`wDrop {}``", item.raw_name), item.id)
                     .add_textbox("How many to drop?")
                     .add_text_input("count", "", slot.count, 5)
-                    .embed_data("itemID", item->id)
+                    .embed_data("itemID", item.id)
                     .end_dialog("drop_item")
             });
             return;

@@ -92,12 +92,12 @@ u_short peer::emplace(::slot slot)
 {
     if (auto it = std::ranges::find(this->slots, slot.id, &::slot::id); it != this->slots.end()) 
     {
-        u_short excess = std::max(0, (it->count + slot.count) - 200);
+        const u_short excess = std::max(0, (it->count + slot.count) - 200);
         it->count = std::min(it->count + slot.count, 200);
         if (it->count == 0)
         {
-            auto item = std::ranges::find(items, it->id, &::item::id);
-            if (item->cloth_type != clothing::none) this->clothing[item->cloth_type] = 0;
+            const ::item &item = id_to_item(it->id);
+            if (item.cloth_type != clothing::none) this->clothing[item.cloth_type] = 0;
         }
         return excess;
     }
@@ -139,8 +139,8 @@ void peer::update_effects()
     this->punch_effect = 0;
     for (float cloth : this->clothing)
     {
-        u_short punch_id = get_punch_id(static_cast<u_int>(cloth));
-        if (punch_id != 0)
+        u_char punch_id = get_punch_id((u_int)cloth);
+        if (punch_id != 0) // @note an actual change rather than no effect.
             this->punch_effect = punch_id;
     }
 }

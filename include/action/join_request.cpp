@@ -61,8 +61,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 *w_data++ = block.state[3];
 
                 int offset = w_data - data.data();
-                auto item = std::ranges::find(items, block.fg, &::item::id); // @todo limit iteration during world enter
-                switch (item->type)
+                const ::item &item = id_to_item(block.fg); // @todo limit iteration during world enter
+                switch (item.type)
                 {
                     case type::TRAMPOLINE:
                     case type::ENTRANCE:
@@ -232,7 +232,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     default: 
                         throw std::runtime_error(std::format("`w{}``'s visuals has not been added yet. ({})", 
-                            item->raw_name, item->type));
+                            item.raw_name, item.type));
                 }
                 ++i;
             }

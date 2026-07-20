@@ -7,7 +7,7 @@
 
 void warp(ENetEvent& event, const std::string_view text)
 {
-    std::string world_name{ text.substr(sizeof("warp ") - 1) };
+    std::string world_name{ text.substr(strlen("warp ")) };
     std::for_each(world_name.begin(), world_name.end(), [](char& c) { c = std::toupper(c); });
 
     send_action(*event.peer, "log", std::format("msg| `6/warp {}``", world_name));

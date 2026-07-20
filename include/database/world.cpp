@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "database.hpp"
 #include "tools/ransuu.hpp"
 #include "on/ConsoleMessage.hpp"
 
@@ -7,14 +8,135 @@
 using namespace std::chrono;
 using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec, seconds)
 
-world::world(const std::string& name) 
+std::vector<u_char> block::to_blob()
+{
+    blob blob;
+    blob.i16(this->fg);
+    blob.i16(this->bg);
+    blob.u8(this->state[0]);
+    blob.u8(this->state[1]);
+    blob.u8(this->state[2]);
+    blob.u8(this->state[3]);
+
+    return blob.data();
+}
+
+bool world::exists(const std::string& name)
+{
+    ::hStmt hStmt{ "SELECT 1 FROM world WHERE name = ? LIMIT 1" };
+
+    MYSQL_BIND param = make_bind_in(name);
+    hStmt.bind_and_execute(&param);
+
+    return (!mysql_stmt_store_result(hStmt.pStmt) && mysql_stmt_num_rows(hStmt.pStmt) > 0);
+}
+
+template<typename T>
+void world::mysql_insert(const std::string& column, const T& value)
+{
+    ::hStmt hStmt{ std::format("INSERT INTO world ({}) VALUES (?)", column).c_str() };
+
+    MYSQL_BIND param = make_bind_in(value);
+    hStmt.bind_and_execute(&param);
+}
+template void world::mysql_insert<signed>(const std::string&, const signed&);
+template void world::mysql_insert<unsigned>(const std::string&, const unsigned&);
+template void world::mysql_insert<float>(const std::string&, const float&);
+template void world::mysql_insert<std::string>(const std::string&, const std::string&);
+template void world::mysql_insert<std::vector<u_char>>(const std::string&, const std::vector<u_char>&);
+
+template<typename T>
+void world::mysql_update(const std::string& column, const T& value)
+{
+    ::hStmt hStmt{ std::format("UPDATE world SET {} = ? WHERE name = ?", column).c_str() };
+
+    MYSQL_BIND params[2] = {
+        make_bind_in(value),      // SET
+        make_bind_in(this->name) // WHERE
+    };
+    hStmt.bind_and_execute(params);
+}
+template void world::mysql_update<signed>(const std::string&, const signed&);
+template void world::mysql_update<unsigned>(const std::string&, const unsigned&);
+template void world::mysql_update<float>(const std::string&, const float&);
+template void world::mysql_update<std::string>(const std::string&, const std::string&);
+template void world::mysql_update<std::vector<u_char>>(const std::string&, const std::vector<u_char>&);
+
+template<typename T>
+T world::mysql_select(const std::string &column, const std::string &arg)
+{
+    T value{};
+    ::hStmt hStmt{ std::format("SELECT {}({}) FROM world WHERE name = ? LIMIT 1", arg, column).c_str() };
+
+    MYSQL_BIND param = make_bind_in(this->name);
+    mysql_stmt_bind_param(hStmt.pStmt, &param);
+
+    unsigned long length = 0;
+    MYSQL_BIND result = make_bind_out(value);
+    result.length = &length;
+    mysql_stmt_bind_result(hStmt.pStmt, &result);
+
+    mysql_stmt_execute(hStmt.pStmt);
+    mysql_stmt_fetch(hStmt.pStmt);
+    
+    if constexpr (std::is_same_v<T, std::string> || std::is_same_v<T, std::vector<u_char>>)
+        value.resize(length);
+
+    return value;
+}
+
+void world::mysql_select_all()
+{
+    this->name = this->mysql_select<std::string>("name");
+
+    {
+        auto blob = this->mysql_select<std::vector<u_char>>("blocks");
+        this->blocks.resize(cord(0, 60));
+
+        const u_char *u8 = blob.data(); // @note i did not have the brain capacity to reinterpret it. t-t
+        int i{};
+        for (::block &block : this->blocks)
+        {
+            memcpy(&block.fg, u8 + i, sizeof(short)); i += sizeof(short);
+            memcpy(&block.bg, u8 + i, sizeof(short)); i += sizeof(short);
+            block.state[0] = u8[i++];
+            block.state[1] = u8[i++];
+            block.state[2] = u8[i++];
+            block.state[3] = u8[i++];
+        }
+    } // @note delete blob, index
+}
+
+world::world(const std::string &name) 
 {
     this->name = name;
+
+    if (this->exists(this->name)) 
+    {
+        this->mysql_select_all();
+    }
+    else 
+    {
+        this->mysql_insert("name", this->name); // @note DEFAULT
+        generate_world(*this);
+    }
+}
+world::~world()
+{
+    this->mysql_update("name", this->name);
+    
+    std::vector<u_char> blob{};
+    for (::block &block : this->blocks)
+    {
+        std::vector<u_char> a_blob = block.to_blob();
+        blob.insert(blob.end(), a_blob.begin(), a_blob.end());
+    }
+    this->mysql_update("blocks", blob);
 }
 
 std::vector<world> worlds;
 
-void send_action(ENetPeer& p, const std::string& action, const std::string& str) 
+void send_action(ENetPeer& p, const std::string &action, const std::string &str) 
 {
     const std::string &fmt_action = std::format("action|{}\n", action);
     std::vector<u_char> data(sizeof(int) + fmt_action.length() + str.length(), 0x00);
@@ -53,7 +175,7 @@ void state_visuals(ENetPeer &peer, state &&state)
     });
 }
 
-void tile_apply_damage(ENetEvent& event, state state, block &block, u_int value)
+void tile_apply_damage(ENetEvent &event, state state, block &block, u_int value)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
@@ -64,7 +186,7 @@ void tile_apply_damage(ENetEvent& event, state state, block &block, u_int value)
 	state_visuals(*event.peer, std::move(state));
 }
 
-u_short modify_item_inventory(ENetEvent& event, ::slot slot)
+u_short modify_item_inventory(ENetEvent &event, ::slot slot)
 {   
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
@@ -76,14 +198,14 @@ u_short modify_item_inventory(ENetEvent& event, ::slot slot)
     return pPeer->emplace(::slot(slot.id, slot.count));
 }
 
-void item_change_object(ENetEvent& event, ::state state) 
+void item_change_object(ENetEvent &event, ::state state) 
 {
     state.type = 0x0e; // @note PACKET_ITEM_CHANGE_OBJECT
 
     state_visuals(*event.peer, std::move(state));
 }
 
-void merge_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &world)
+void merge_object(ENetEvent &event, ::slot slot, const ::pos &pos, ::world &world)
 {
     auto object = std::ranges::find_if(world.objects, [&](const ::object &object) {
         return object.id == slot.id && (object.pos.by_32(true) == pos.by_32(true));
@@ -247,7 +369,7 @@ void send_particle_effect(ENetEvent &event, const ::pos& pos, ::pos speed, int i
     });
 }
 
-void remove_fire(ENetEvent &event, state state, ::block &block, ::world& world)
+void remove_fire(ENetEvent &event, state state, ::block &block, ::world &world)
 {
     send_particle_effect(event, state.punch.by_32(), {0x00, 0x95});
 
@@ -264,7 +386,7 @@ void remove_fire(ENetEvent &event, state state, ::block &block, ::world& world)
     pPeer->add_xp(event, 1);
 }
 
-void fireworks(ENetEvent &event, const ::pos& pos)
+void fireworks(ENetEvent &event, const ::pos &pos)
 {
     ransuu ransuu;
     int type  [3]{ ransuu[{0x25, 0x28}], ransuu[{0x25, 0x28}], ransuu[{0x25, 0x28}] };
@@ -275,7 +397,7 @@ void fireworks(ENetEvent &event, const ::pos& pos)
     send_particle_effect(event, pos, {0x7c, type[2]}, 0xc8*2, offset[2]);
 }
 
-void generate_world(::world &world, const std::string& name)
+void generate_world(::world &world)
 {
     ransuu ransuu;
     u_short main_door = ransuu[{2, cord(0, 60) / 100 - 4}];
@@ -295,7 +417,6 @@ void generate_world(::world &world, const std::string& name)
         else if (i == cord(main_door, 37)) block.fg = 8; // @note bedrock (below main door)
     }
     world.blocks = std::move(blocks);
-    world.name = std::move(name);
 }
 
 bool door_mover(::world &world, const ::pos &pos)
@@ -319,11 +440,11 @@ bool door_mover(::world &world, const ::pos &pos)
     return true;
 }
 
-void blast::thermonuclear(::world &world, const std::string& name)
+void blast::thermonuclear(::world &world, const std::string &name)
 {
     ransuu ransuu;
 
-    u_short main_door = ransuu[{2, cord(0, 60) / 100 - 4}];
+    const u_short main_door = ransuu[{2, cord(0, 60) / 100 - 4}];
     std::vector<::block> blocks(cord(0, 60), ::block{0, 0});
     for (std::size_t i = 0ull; i < blocks.size(); ++i)
     {

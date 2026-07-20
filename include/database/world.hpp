@@ -50,6 +50,8 @@ struct block
     u_char state[4];
 
     u_char hits[2] = {0, 0}; // @note fg, bg
+
+    std::vector<u_char> to_blob();
 };
 #define cord(x,y) (y * 100 + x)
 
@@ -94,6 +96,19 @@ class world
 {
 public:
     world(const std::string& name = "");
+    ~world();
+
+    bool exists(const std::string& name);
+
+    template<typename T>
+    void mysql_insert(const std::string& column, const T& value);
+
+    template<typename T>
+    void mysql_update(const std::string& column, const T& value);
+
+    template<typename T>
+    T    mysql_select(const std::string &column, const std::string &arg = "");
+    void mysql_select_all();
 
     std::string name{};
 
@@ -117,7 +132,7 @@ public:
 };
 extern std::vector<world> worlds;
 
-extern void send_action(ENetPeer& p, const std::string& action, const std::string& str);
+extern void send_action(ENetPeer &p, const std::string &action, const std::string &str);
 
 extern void send_data(ENetPeer &peer, const std::vector<u_char> &&data);
 
@@ -129,33 +144,33 @@ extern void tile_apply_damage(ENetEvent &event, state state, block &block, u_int
 * @brief set slot::count to nagative value if you want to remove an amount. 
 * @return the remaining amount if exeeds 200. e.g. emplace(slot{0, 201}) returns 1.
 */
-extern u_short modify_item_inventory(ENetEvent& event, ::slot slot);
+extern u_short modify_item_inventory(ENetEvent &event, ::slot slot);
 
 extern void item_change_object(ENetEvent& event, ::state state);
 
-extern void merge_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &world);
+extern void merge_object(ENetEvent& event, ::slot slot, const ::pos &pos, ::world &world);
 extern void remove_object(ENetEvent& event, signed uid);
-extern int  add_object(ENetEvent& event, ::slot slot, const ::pos& pos, ::world &world);
+extern int  add_object(ENetEvent& event, ::slot slot, const ::pos &pos, ::world &world);
 
 extern void add_drop(ENetEvent &event, ::slot im, ::pos pos, ::world &world);
 
-extern void send_tile_update(ENetEvent &event, state s, ::block &b, ::world& w);
+extern void send_tile_update(ENetEvent &event, state s, ::block &b, ::world &world);
 
 /*
 * @param speed actually just the particle color & visual, not the speed.
 * @param id seems to be a 0xc8 multiplier for multiple particles. unsure.
 */
-extern void send_particle_effect(ENetEvent &event, const ::pos& pos, ::pos speed, int id = 0xc8*0, float offset = 0.0f);
+extern void send_particle_effect(ENetEvent &event, const ::pos &pos, ::pos speed, int id = 0xc8*0, float offset = 0.0f);
 
 extern void remove_fire(ENetEvent &event, state state, ::block &block, ::world& world);
 
-extern void fireworks(ENetEvent &event, const ::pos& pos);
+extern void fireworks(ENetEvent &event, const ::pos &pos);
 
-void generate_world(::world &world, const std::string& name);
+extern void generate_world(::world &world);
 
-bool door_mover(::world &world, const ::pos &pos);
+extern bool door_mover(::world &world, const ::pos &pos);
 
 namespace blast
 {
-    void thermonuclear(::world &world, const std::string& name);
+    extern void thermonuclear(::world &world, const std::string &name);
 }

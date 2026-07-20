@@ -16,8 +16,7 @@ bool peer::exists(const std::string& growid)
     ::hStmt hStmt{ "SELECT 1 FROM peer WHERE growid = ? LIMIT 1" };
 
     MYSQL_BIND param = make_bind_in(growid);
-    mysql_stmt_bind_param(hStmt.pStmt, &param);
-    mysql_stmt_execute(hStmt.pStmt);
+    hStmt.bind_and_execute(&param);
 
     return (!mysql_stmt_store_result(hStmt.pStmt) && mysql_stmt_num_rows(hStmt.pStmt) > 0);
 }
@@ -28,8 +27,7 @@ void peer::mysql_insert(const std::string& column, const T& value)
     ::hStmt hStmt{ std::format("INSERT INTO peer ({}) VALUES (?)", column).c_str() };
 
     MYSQL_BIND param = make_bind_in(value);
-    mysql_stmt_bind_param(hStmt.pStmt, &param);
-    mysql_stmt_execute(hStmt.pStmt);
+    hStmt.bind_and_execute(&param);
 }
 template void peer::mysql_insert<signed>(const std::string&, const signed&);
 template void peer::mysql_insert<unsigned>(const std::string&, const unsigned&);
@@ -45,8 +43,7 @@ void peer::mysql_update(const std::string& column, const T& value)
         make_bind_in(value),       // SET
         make_bind_in(this->growid) // WHERE
     };
-    mysql_stmt_bind_param(hStmt.pStmt, params);
-    mysql_stmt_execute(hStmt.pStmt);
+    hStmt.bind_and_execute(params);
 }
 template void peer::mysql_update<signed>(const std::string&, const signed&);
 template void peer::mysql_update<unsigned>(const std::string&, const unsigned&);
@@ -69,10 +66,7 @@ T peer::mysql_select(const std::string &column, const std::string &arg)
 
     mysql_stmt_execute(hStmt.pStmt);
     mysql_stmt_fetch(hStmt.pStmt);
-
-    // strings bind into a fixed 1024-byte buffer; trim to the real column
-    // length so values compare byte-for-byte (PBKDF2 hashes were failing
-    // verify because the buffer stayed padded with NULs).
+    
     if constexpr (std::is_same_v<T, std::string>)
         value.resize(length);
 

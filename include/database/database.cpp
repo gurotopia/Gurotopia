@@ -7,29 +7,32 @@ MYSQL *db;
 
 void create_table_if_not_exist()
 {
-    std::string query = R"(
-        CREATE TABLE IF NOT EXISTS peer (
-            uid INT AUTO_INCREMENT PRIMARY KEY,
-            growid VARCHAR(18) UNIQUE,
-            password VARCHAR(128),
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
-    )";
-    
-    /* world table */
-
-    if (mysql_query(db, query.c_str()))
     {
-        fprintf(stderr, "%s\n", mysql_error(db));
-    }
-
-    // migration: widen password column for PBKDF2 hashes (was VARCHAR(18))
-    if (mysql_query(db, "ALTER TABLE peer MODIFY COLUMN password VARCHAR(128)"))
+        std::string query = R"(
+            CREATE TABLE IF NOT EXISTS peer (
+                uid INT AUTO_INCREMENT PRIMARY KEY,
+                growid VARCHAR(18) UNIQUE,
+                password VARCHAR(128),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        )";
+        if (mysql_query(db, query.c_str()))
+        {
+            fprintf(stderr, "%s\n", mysql_error(db));
+        }
+    } // @note delete query
     {
-        // 1054 = unknown column (fresh table), silent
-        if (mysql_errno(db) != 1054)
-            fprintf(stderr, "[migrate] %s\n", mysql_error(db));
-    }
+        std::string query = R"(
+            CREATE TABLE IF NOT EXISTS world (
+                name VARCHAR(64) NOT NULL PRIMARY KEY,
+                blocks BLOB NULL
+            );
+        )";
+        if (mysql_query(db, query.c_str()))
+        {
+            fprintf(stderr, "%s\n", mysql_error(db));
+        }
+    } // @note delete query
 }
 
 void mysql_connect()
@@ -47,6 +50,8 @@ void mysql_connect()
 
     create_table_if_not_exist();
 }
+
+/* hStmt */
 
 hStmt::hStmt(const std::string &query)
 {
@@ -67,6 +72,20 @@ hStmt::~hStmt()
         fprintf(stderr, "%s\n", mysql_error(db));
     }
 }
+
+void hStmt::bind_and_execute(MYSQL_BIND *param)
+{
+    if (mysql_stmt_bind_param(pStmt, param))
+    {
+        fprintf(stderr, "%s\n", mysql_error(db));
+    }
+    if (mysql_stmt_execute(pStmt))
+    {
+        fprintf(stderr, "%s\n", mysql_error(db));
+    }
+}
+
+/* ~ hStmt ~ */
 
 
 MYSQL_BIND make_bind_in(const signed &buffer)
@@ -92,6 +111,10 @@ MYSQL_BIND make_bind_in(const float &buffer)
 MYSQL_BIND make_bind_in(const std::string &buffer)
 {
     return { .buffer = (void*)buffer.c_str(), .buffer_length = (u_long)buffer.size(), .buffer_type = MYSQL_TYPE_STRING };
+}
+MYSQL_BIND make_bind_in(const std::vector<u_char> &buffer)
+{
+    return { .buffer = (void*)buffer.data(), .buffer_length = (u_long)buffer.size(), .buffer_type = MYSQL_TYPE_BLOB };
 }
 
 MYSQL_BIND make_bind_out(signed &buffer)
@@ -119,4 +142,10 @@ MYSQL_BIND make_bind_out(std::string &buffer)
     buffer.resize(1024, '\0');
 
     return { .buffer = buffer.data(), .buffer_length = (u_long)buffer.size(), .buffer_type = MYSQL_TYPE_STRING };
+}
+MYSQL_BIND make_bind_out(std::vector<u_char> &buffer)
+{
+    buffer.resize(cord(0, 60)* sizeof(::block));
+
+    return { .buffer = buffer.data(), .buffer_length = (u_long)buffer.size(), .buffer_type = MYSQL_TYPE_BLOB };
 }

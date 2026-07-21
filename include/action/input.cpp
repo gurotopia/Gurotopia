@@ -1,9 +1,8 @@
 #include "pch.hpp"
 #include "commands/__command.hpp"
 #include "on/ConsoleMessage.hpp"
+#include "tools/time.hpp"
 #include "input.hpp"
-
-using namespace std::chrono;
 
 void action::input(ENetEvent& event, const std::string& header)
 {
@@ -17,10 +16,10 @@ void action::input(ENetEvent& event, const std::string& header)
     text.erase(std::find_if_not(text.rbegin(), text.rend(), ::isspace).base(), text.end());
     if (text.empty()) return; // @note we recheck if empty since we did trimming.
     
-    steady_clock::time_point now = steady_clock::now();
+    u_int now = ticks();
     pPeer->messages.push_back(now);
     if (pPeer->messages.size() > 5) pPeer->messages.pop_front();
-    if (pPeer->messages.size() == 5 && duration_cast<std::chrono::seconds>(now - pPeer->messages.front()).count() < 6)
+    if (pPeer->messages.size() == 5 && now - pPeer->messages.front() < 6)
     {
         on::ConsoleMessage(event.peer,
             "`6>>`4Spam detected! ``Please wait a bit before typing anything else.  "  

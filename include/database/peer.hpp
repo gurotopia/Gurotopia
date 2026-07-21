@@ -132,7 +132,7 @@ public:
     std::array<std::string, 6ull> recent_worlds{}; // @note recent worlds, a list of 6 worlds, once it reaches 7 it'll be replaced by the oldest
     std::array<std::string, 200ull> my_worlds{}; // @note first 200 relevant worlds locked by peer.
     
-    std::deque<std::chrono::steady_clock::time_point> messages; // @note last 5 que messages sent time, this is used to check for spamming
+    std::deque<u_int> messages; // @note last 5 que messages sent time, this is used to check for spamming
 
     std::array<Friend, 25> friends;
 

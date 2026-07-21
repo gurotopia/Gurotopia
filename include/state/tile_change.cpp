@@ -6,15 +6,13 @@
 #include "commands/weather.hpp"
 #include "item_activate.hpp"
 #include "tools/ransuu.hpp"
+#include "tools/time.hpp"
 #include "tools/create_dialog.hpp"
 #include "action/quit_to_exit.hpp"
 #include "action/join_request.hpp"
 #include "item_activate_object.hpp"
 
 #include "tile_change.hpp"
-
-using namespace std::chrono;
-using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec, seconds)
 
 void tile_change(ENetEvent& event, state state) 
 {
@@ -130,7 +128,7 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case type::PROVIDER:
                 {
-                    if ((steady_clock::now() - block.tick) / 1s >= item.tick)
+                    if (ticks() - block.tick >= item.tick)
                     {
                         switch (item.id)
                         {
@@ -169,7 +167,7 @@ void tile_change(ENetEvent& event, state state)
                                 break;
                             }
                         }
-                        block.tick = steady_clock::now();
+                        block.tick = ticks();
                         send_tile_update(event, std::move(state), block, *world); // @note update countdown on provider.
 
                         pPeer->add_xp(event, 1);
@@ -179,7 +177,7 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case type::SEED:
                 {
-                    if ((steady_clock::now() - block.tick) / 1s >= item.tick) // @todo limit this check.
+                    if (ticks() - block.tick >= item.tick) // @todo limit this check.
                     {
                         block.hits[0] = 99;
                         add_drop(event, ::slot(item.id - 1, ransuu[{2, 12}]), state.punch.by_32(), *world); // @note fruit (from tree)
@@ -675,7 +673,7 @@ void tile_change(ENetEvent& event, state state)
                                     0u,
                                     1u
                                 });
-                                block.tick = steady_clock::now();
+                                block.tick = ticks();
                                 block.fg = item.id;
                                 update_tile = true;
                                 break;
@@ -729,13 +727,13 @@ void tile_change(ENetEvent& event, state state)
                 }
                 case type::PROVIDER:
                 {
-                    block.tick = steady_clock::now();
+                    block.tick = ticks();
                     break;
                 }
                 case type::SEED:
                 {
                     block.state[2] |= 0x11;
-                    block.tick = steady_clock::now();
+                    block.tick = ticks();
                     break;
                 }
             }

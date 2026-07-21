@@ -35,23 +35,24 @@ enum lock_state : u_char
     RAINBOWS = 0x80
 };
 
+u_char get_type(const ::item &item);
+
 struct block 
 {
     block(short _fg = 0, short _bg = 0, 
-        std::chrono::steady_clock::time_point _tick = std::chrono::steady_clock::time_point(),
+        std::time_t _tick = 0,
         std::string _label = "", u_char s3 = 0, u_char s4 = 0
     ) : fg(_fg), bg(_bg), tick(_tick), label(_label), state(0, 0, s3, s4) {}
     
     short fg{0}, bg{0};
-    
-    std::chrono::steady_clock::time_point tick{}; // @note record a point in time for the tile e.g. tree growth, providers, ect.
-    std::string label{}; // @note sign/door label @todo store in seperate class
-
     u_char state[4];
+    u_char type;
+    std::string label{}; // @note sign/door label @todo store in seperate class
+    std::time_t tick{}; // @note record a point in time for the tile e.g. tree growth, providers, ect.
 
     u_char hits[2] = {0, 0}; // @note fg, bg
 
-    std::vector<u_char> to_blob();
+    std::vector<u_char> to_blob() const;
 };
 #define cord(x,y) (y * 100 + x)
 

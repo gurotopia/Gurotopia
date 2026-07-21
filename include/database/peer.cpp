@@ -9,8 +9,6 @@
 
 #include "peer.hpp"
 
-using namespace std::chrono;
-
 bool peer::exists(const std::string& growid)
 {
     ::hStmt hStmt{ "SELECT 1 FROM peer WHERE growid = ? LIMIT 1" };

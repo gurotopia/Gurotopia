@@ -7,11 +7,9 @@
 #include "on/ConsoleMessage.hpp"
 #include "commands/weather.hpp"
 #include "tools/ransuu.hpp"
+#include "tools/time.hpp"
 
 #include "join_request.hpp"
-
-using namespace std::chrono;
-using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec, seconds)
 
 void action::join_request(ENetEvent& event, const std::string& header, const std::string_view world_name = "") 
 {
@@ -35,7 +33,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 .type = 0x04, // @note PACKET_SEND_MAP_DATA
                 .peer_state = peer_state::S_EXTENDED
             });
-            data.resize(data.size() + 24ull + world.name.length() + (8ull * world.blocks.size()) + 12ull + 8ull/*total drop uid*/);
+            data.resize(data.size() + 24ull + world.name.length() + (8ull * world.blocks.size()) + 12ull + 8ull/*total drop uid*/ + 999ull/*@todo fix later*/);
             u_char *w_data = data.data() + sizeof(::state) + 6;
 
             const short len = world.name.length();
@@ -51,40 +49,24 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
             for (u_short i = 0; const ::block &block : world.blocks)
             {
-                *reinterpret_cast<short*>(w_data) = block.fg; w_data += sizeof(short);
-                *reinterpret_cast<short*>(w_data) = block.bg; w_data += sizeof(short);
-
-                w_data += sizeof(short);
-                *w_data++ = block.state[2];
-                *w_data++ = block.state[3];
-
+                ::block copy = block;
+                copy.tick = ticks() - copy.tick;
+                for (const u_char u8 : copy.to_blob())
+                    *w_data++ = u8;
+                
                 int offset = w_data - data.data();
-                const ::item &item = id_to_item(block.fg); // @todo limit iteration during world enter
+                
+                const ::item &item = id_to_item(block.fg);
                 switch (item.type)
                 {
-                    case type::TRAMPOLINE:
-                    case type::ENTRANCE:
-                    case type::SFX_BLOCK: // @note roulette wheel
-                    case type::PLATFORM:
-                    case type::STRONG: // @note bedrock
-                    case type::FIRE_PAIN: // @note lava
-                    case type::FOREGROUND: 
-                    case type::BACKGROUND:
-                    case type::ANIMATED: // @note chand
-                    case type::BOUNCY:
-                    case type::CHECKPOINT:
-                    case type::TOGGLEABLE_BLOCK:
-                    case type::CHEST: // @note treasure, booty chest
-                        break;
                     case type::LOCK: 
                     {
                         if (!is_tile_lock(block.fg)) world.is_public = (block.state[2] & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
 
                         int access = std::ranges::count_if(world.access, std::identity{});
-                        data.resize(data.size() + 1ull + 1ull + 4ull + 4ull + (access * 4ull));
+                        data.resize(data.size() + 1ull + 4ull + 4ull + (access * 4ull));
                         w_data = data.data() + offset;
 
-                        *w_data++ = 0x03;
                         *w_data++ = world.lock_state;
                         *reinterpret_cast<int*>(w_data) = world.owner; w_data += sizeof(int);
                         *reinterpret_cast<int*>(w_data) = access; w_data += sizeof(int);
@@ -95,61 +77,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     case type::MAIN_DOOR: 
                     {
                         pPeer->rest_pos = ::pos((i % x) * 32 , (i / x) * 32);
-
-                        [[fallthrough]];
-                    }
-                    case type::DOOR:
-                    case type::PORTAL:
-                    {
-                        const short len = block.label.length();
-                        data.resize(data.size() + 4ull + len); // @note 01 {2} {} 0 0
-                        w_data = data.data() + offset;
-
-                        *w_data++ = 0x01;
-
-                        *reinterpret_cast<short*>(w_data) = len; w_data += sizeof(short);
-                        for (u_char c : block.label) *w_data++ = c;
-                        *w_data++ = '\0'; // @note terminator which Growtopia requires.
-                        break;
-                    }
-                    case type::MAILBOX:
-                    {
-                        // @todo add "full" label (not here, but in tile_change.cpp)
-
-                        [[fallthrough]];
-                    }
-                    case type::SIGN:
-                    {
-                        const short len = block.label.length();
-                        data.resize(data.size() + 1ull + 2ull + len + 4ull); // @note 02 {2} {} ff ff ff ff
-                        w_data = data.data() + offset;
-
-                        *w_data++ = 0x02;
-
-                        *reinterpret_cast<short*>(w_data) = len; w_data += sizeof(short);
-                        for (u_char c : block.label) *w_data++ = c;
-                        *reinterpret_cast<int*>(w_data) = 0xffffffff; w_data += sizeof(int); // @note ff ff ff ff
-                        break;
-                    }
-                    case type::SEED:
-                    {
-                        data.resize(data.size() + 1ull + 4ull + 1ull);
-                        w_data = data.data() + offset;
-
-                        *w_data++ = 0x04;
-
-                        *reinterpret_cast<u_int*>(w_data) = (steady_clock::now() - block.tick) / 1s; w_data += sizeof(u_int);
-                        *w_data++ = 0x03; // @note fruit on tree
-                        break;
-                    }
-                    case type::PROVIDER:
-                    {
-                        data.resize(data.size() + 1ull + 4ull);
-                        w_data = data.data() + offset;
-
-                        *w_data++ = 0x09;
-
-                        *reinterpret_cast<u_int*>(w_data) = (steady_clock::now() - block.tick) / 1s; w_data += sizeof(u_int);
                         break;
                     }
                     case type::WEATHER_MACHINE:
@@ -177,9 +104,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case RANDOM:
                     {
-                        data.resize(data.size() + 1ull + 1ull);
+                        data.resize(data.size() + 1ull);
                         w_data = data.data() + offset;
-                        *w_data++ = 0x08;
 
                         auto random = std::ranges::find(world.random_blocks, ::pos{i % x, i / x}, &::random_block::pos);
                         if (random == world.random_blocks.end()) 
@@ -194,9 +120,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case DISPLAY_BLOCK:
                     {
-                        data.resize(data.size() + 1ull + 4ull);
+                        data.resize(data.size() + 4ull);
                         w_data = data.data() + offset;
-                        *w_data++ = 0x17;
                         
                         auto display = std::ranges::find(world.displays, ::pos{i % x, i / x}, &::display::pos);
                         if (display == world.displays.end()) 
@@ -211,26 +136,14 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                     }
                     case type::VENDING_MACHINE:
                     {
-                        data.resize(data.size() + 1ull + 4ull + 4ull);
+                        data.resize(data.size() + 4ull + 4ull);
                         w_data = data.data() + offset;
 
-                        *w_data++ = 0x18;
                         *reinterpret_cast<u_int*>(w_data) = 0; w_data += sizeof(u_int); // @note item's ID
                         *reinterpret_cast<int*>(w_data) = 0; w_data += sizeof(int); // @note world locks per item (or item(s) per world lock)
 
                         break;
                     }
-                    case type::FISH_TANK_PORT:
-                    {
-                        data.resize(data.size() + 1ull);
-                        w_data = data.data() + offset;
-
-                        *w_data++ = 0x00; // @todo if glow toggled this becomes 0x10
-                        break;
-                    }
-                    default: 
-                        throw std::runtime_error(std::format("`w{}``'s visuals has not been added yet. ({})", 
-                            item.raw_name, item.type));
                 }
                 ++i;
             }

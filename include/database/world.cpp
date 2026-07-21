@@ -1,14 +1,29 @@
 #include "pch.hpp"
 #include "database.hpp"
 #include "tools/ransuu.hpp"
+#include "tools/time.hpp"
 #include "on/ConsoleMessage.hpp"
 
 #include "world.hpp"
 
-using namespace std::chrono;
-using namespace std::literals::chrono_literals; // @note for 'ms' 's' (millisec, seconds)
+u_char get_type(const ::item &item)
+{
+    switch (item.type)
+    {
+        case type::MAIN_DOOR: case type::DOOR: case type::PORTAL: return 0x01;
+        case type::SIGN: case type::MAILBOX: return 0x02;
+        case type::LOCK: return 0x03;
+        case type::SEED: return 0x04;
+        case type::RANDOM: return 0x08;
+        case type::PROVIDER: return 0x09;
+        case type::FISH_TANK_PORT: return 0x10; // @note is 0x00 if not glowing enabled
+        case type::DISPLAY_BLOCK: return 0x17;
+        case type::VENDING_MACHINE: return 0x18;
+    }
+    return 0x00;
+}
 
-std::vector<u_char> block::to_blob()
+std::vector<u_char> block::to_blob() const
 {
     blob blob;
     blob.i16(this->fg);
@@ -17,6 +32,24 @@ std::vector<u_char> block::to_blob()
     blob.u8(this->state[1]);
     blob.u8(this->state[2]);
     blob.u8(this->state[3]);
+    if (this->fg != 0)
+    if (u_char type = get_type(::item(id_to_item(this->fg))); type > 0x00)
+    {
+        blob.u8(type);
+        if (type == 0x01/*doors, portal*/ || type == 0x02/*sign, mailbox*/)
+        {
+            blob.i16((short)this->label.length());
+            for (char c : this->label) blob.u8((u_char)c);
+
+            if (type == 0x01) blob.u8('\0'); // @note terminator which Growtopia requires.
+            else              blob.i32(0xffffffff); // @todo understand this better...
+        }
+        else if (type == 0x04/*seed*/ || type == 0x09/*provider*/)
+        {
+            blob.i32(this->tick);
+            if (type == 0x04) blob.u8(0x03); // @todo randomize fruit on tree
+        }
+    }
 
     return blob.data();
 }
@@ -99,7 +132,6 @@ T world::mysql_select(const std::string &column, const std::string &arg)
 void world::mysql_select_all()
 {
     this->name = this->mysql_select<std::string>("name");
-
     {
         auto blob = this->mysql_select<std::vector<u_char>>("blocks");
         this->blocks.resize(cord(0, 60));
@@ -114,6 +146,28 @@ void world::mysql_select_all()
             block.state[1] = u8[i++];
             block.state[2] = u8[i++];
             block.state[3] = u8[i++];
+            if (block.fg != 0)
+            if (u_char type = get_type(::item(id_to_item(block.fg))); type > 0x00)
+            {
+                block.type = u8[i++];
+                if (type == 0x01/*doors, portal*/ || type == 0x02/*sign, mailbox*/)
+                {
+                    short len{};
+                    memcpy(&len, u8 + i, sizeof(short)); i += sizeof(short);
+
+                    block.label.resize(len);
+                    for (char &c : block.label)
+                        c = u8[i++];
+                    
+                    if (type == 0x01) i++; // @note '\0'
+                    else i += sizeof(int); // @note 0xffffffff
+                }
+                else if (type == 0x04/*seed*/ || type == 0x09/*provider*/)
+                {
+                    memcpy(&block.tick, u8 + i, sizeof(int)); i += sizeof(int);
+                    if (type == 0x04) i++; // @note fruit on tree
+                }
+            }
         }
     } // @note delete blob, i
     {
@@ -152,7 +206,6 @@ world::world(const std::string &name)
 world::~world()
 {
     this->mysql_update("name", this->name);
-    
     {
         std::vector<u_char> blob{};
         for (::block &block : this->blocks)
@@ -314,14 +367,13 @@ void send_tile_update(ENetEvent &event, ::state state, ::block &block, ::world &
     std::vector<u_char> data = compress_state(state);
 
     short pos = sizeof(::state); // @note start after state bytes (as every packet has)
-    data.resize(pos + 8ull); // @note {2} {2} 00 00 00 00
-    
-    *reinterpret_cast<short*>(&data[pos]) = block.fg; pos += sizeof(short);
-    *reinterpret_cast<short*>(&data[pos]) = block.bg; pos += sizeof(short);
-    pos += sizeof(short);
-    
-    data[pos++] = block.state[2] ;
-    data[pos++] = block.state[3];
+    data.resize(pos + 99ull); // @todo fix later
+
+    ::block copy = block;
+    copy.tick = ticks() - copy.tick;
+    for (const u_char u8 : copy.to_blob())
+        data[pos++] = u8;
+
     const ::item &item = id_to_item(block.fg);
     switch (item.type)
     {
@@ -330,63 +382,20 @@ void send_tile_update(ENetEvent &event, ::state state, ::block &block, ::world &
             if (!is_tile_lock(block.fg)) world.is_public = (block.state[2] & S_PUBLIC); // @note check if world lock has S_PUBLIC flag, i will change this later
 
             int access = std::ranges::count_if(world.access, std::identity{});
-            data.resize(data.size() + 1ull + 1ull + 4ull + 4ull + 4ull + (access * 4));
+            data.resize(data.size() + 1ull + 4ull + 4ull + 4ull + (access * 4));
 
-            data[pos++] = 0x03;
             data[pos++] = world.lock_state;
             *reinterpret_cast<int*>(&data[pos]) = world.owner; pos += sizeof(int);
             *reinterpret_cast<int*>(&data[pos]) = access; pos += sizeof(int);
             /* @todo access list */
             break;
         }
-        case type::DOOR:
-        case type::PORTAL:
-        {
-            short len = block.label.length();
-            data.resize(pos + 1ull + 2ull + len + 1ull); // @note 01 {2} {} 0 0
-
-            data[pos++] = 0x01;
-            
-            *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-            for (const char &c : block.label) data[pos++] = c;
-            data[pos++] = '\0';
-            break;
-        }
-        case type::SIGN:
-        {
-            short len = block.label.length();
-            data.resize(pos + 1ull + 2ull + len + 4ull); // @note 02 {2} {} ff ff ff ff
-
-            data[pos++] = 0x02;
-
-            *reinterpret_cast<short*>(&data[pos]) = len; pos += sizeof(short);
-            for (const char &c : block.label) data[pos++] = c;
-            *reinterpret_cast<int*>(&data[pos]) = 0xffffffff; pos += sizeof(int);
-            break;
-        }
-        case type::SEED:
-        {
-            data.resize(pos + 1ull + 5ull);
-
-            data[pos++] = 0x04;
-            *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
-            data[pos++] = 0x03; // @note fruit on tree
-            break;
-        }
-        case type::PROVIDER:
-        {
-            data.resize(pos + 5ull);
-
-            data[pos++] = 0x09;
-            *reinterpret_cast<int*>(&data[pos]) = (steady_clock::now() - block.tick) / 1s; pos += sizeof(int);
-            break;
-        }
         case DISPLAY_BLOCK:
         {
-            data.resize(pos + 1ull + 4ull);
+            data.resize(pos + 4ull);
+
             auto display = std::ranges::find(world.displays, state.punch, &::display::pos);
 
-            data[pos++] = 0x17;
             *reinterpret_cast<int*>(&data[pos]) = display->id; pos += sizeof(int);
             break;
         }

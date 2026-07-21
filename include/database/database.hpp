@@ -22,20 +22,31 @@ public:
 
 struct blob
 {
-    void i16(short val)
-    {
-        mData.push_back((u_char)(val & 0xff));
-        mData.push_back(((u_char)(val >> 8) & 0xff));
+    /* @note template vibes */
+    void f32(float val) { 
+        mData.resize(i + sizeof(float));
+        memcpy(mData.data() + i, &val, sizeof(float)); i += sizeof(float); 
     }
-    void u8(u_char val) { mData.push_back(val); }
+    void i32(int val)   { 
+        mData.resize(i + sizeof(int));
+        memcpy(mData.data() + i, &val, sizeof(int));   i += sizeof(int); 
+    }
+    void i16(short val) {
+        mData.resize(i + sizeof(short));
+        memcpy(mData.data() + i, &val, sizeof(short)); i += sizeof(short); 
+    }
+    void u8(u_char val) { 
+        mData.resize(i + sizeof(u_char));
+        mData[i++] = val; 
+     }
 
-    std::vector<u_char> data()
-    {
-        return mData;
+    const std::vector<u_char> &data() const noexcept { 
+        return mData; 
     }
 
 private:
     std::vector<u_char> mData;
+    int i{};
 };
 
 extern MYSQL_BIND make_bind_in(const signed &buffer);

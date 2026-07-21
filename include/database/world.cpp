@@ -20,6 +20,17 @@ std::vector<u_char> block::to_blob()
 
     return blob.data();
 }
+std::vector<u_char> object::to_blob()
+{
+    blob blob;
+    blob.i16(this->id);
+    blob.i16(this->count);
+    blob.f32(this->pos.x);
+    blob.f32(this->pos.y);
+    blob.i32(this->uid);
+
+    return blob.data();
+}
 
 bool world::exists(const std::string& name)
 {
@@ -104,7 +115,24 @@ void world::mysql_select_all()
             block.state[2] = u8[i++];
             block.state[3] = u8[i++];
         }
-    } // @note delete blob, index
+    } // @note delete blob, i
+    {
+        auto blob = this->mysql_select<std::vector<u_char>>("objects");
+
+        const u_char *u8 = blob.data(); // @note i did not have the brain capacity to reinterpret it. t-t (memcpy is safer anyways...)
+        int i{};
+        memcpy(&this->last_object_uid, u8, sizeof(u_int)); i += sizeof(u_int); // @todo real gt has this as 8 bits not just 4.
+
+        objects.resize(this->last_object_uid);
+        for (::object &object : this->objects)
+        {
+            memcpy(&object.id,    u8 + i, sizeof(u_short)); i += sizeof(u_short);
+            memcpy(&object.count, u8 + i, sizeof(u_short)); i += sizeof(u_short);
+            memcpy(&object.pos.x, u8 + i, sizeof(float));   i += sizeof(float);
+            memcpy(&object.pos.y, u8 + i, sizeof(float));   i += sizeof(float);
+            memcpy(&object.uid,   u8 + i, sizeof(u_int));   i += sizeof(u_int);
+        }
+    } // @note delete blob, i
 }
 
 world::world(const std::string &name) 
@@ -125,13 +153,27 @@ world::~world()
 {
     this->mysql_update("name", this->name);
     
-    std::vector<u_char> blob{};
-    for (::block &block : this->blocks)
     {
-        std::vector<u_char> a_blob = block.to_blob();
-        blob.insert(blob.end(), a_blob.begin(), a_blob.end());
+        std::vector<u_char> blob{};
+        for (::block &block : this->blocks)
+        {
+            std::vector<u_char> a_blob = block.to_blob();
+            blob.insert(blob.end(), a_blob.begin(), a_blob.end());
+        }
+        this->mysql_update("blocks", blob);
     }
-    this->mysql_update("blocks", blob);
+    {
+        std::vector<u_char> blob{};
+
+        blob.resize(blob.size() + sizeof(u_int));
+        memcpy(blob.data(), &this->last_object_uid, sizeof(u_int)); // @todo add the other 4 bits like real growtopia
+        for (::object &object : this->objects)
+        {
+            std::vector<u_char> a_blob = object.to_blob();
+            blob.insert(blob.end(), a_blob.begin(), a_blob.end());
+        }
+        this->mysql_update("objects", blob);
+    }
 }
 
 std::vector<world> worlds;

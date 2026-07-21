@@ -84,12 +84,14 @@ struct random_block
 
 struct object 
 {
-    object(u_short _id, u_short _count, ::pos _pos, u_int _uid) : id(_id), count(_count), pos(_pos), uid(_uid) {}
+    object(u_short _id = 0, u_short _count = 0, ::pos _pos = {0, 0}, u_int _uid = 0) : id(_id), count(_count), pos(_pos), uid(_uid) {}
     u_short id{};
     u_short count{};
     ::pos pos{};
 
     u_int uid{};
+
+    std::vector<u_char> to_blob();
 };
 
 class world 

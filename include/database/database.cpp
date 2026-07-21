@@ -25,7 +25,8 @@ void create_table_if_not_exist()
         std::string query = R"(
             CREATE TABLE IF NOT EXISTS world (
                 name VARCHAR(64) NOT NULL PRIMARY KEY,
-                blocks BLOB NULL
+                blocks BLOB NULL,
+                objects BLOB NULL
             );
         )";
         if (mysql_query(db, query.c_str()))

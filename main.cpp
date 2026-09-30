@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version parent SHA: 7d52e21d120625f1011bed6b844a9409d07fedc1 2026-8-31
+    @version parent SHA: 8f2b5977fd057b99e2e2a6f0e65170145decc159 2026-9-30
 */
 #include "include/pch.hpp"
 #include "include/eventType/_eventType.hpp"
@@ -24,9 +24,6 @@ int main()
 #ifdef SIGHUP // @note unix
     std::signal(SIGHUP, signal_handler); // @note PuTTY, SSH problems
 #endif
-
-    /* libary version checker */
-    std::printf("openssl/openssl %s\n", OpenSSL_version(OPENSSL_VERSION_STRING));
 
     mysql_library_init(0, NULL, NULL);
     enet_initialize();

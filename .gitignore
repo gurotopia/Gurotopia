@@ -10,3 +10,6 @@ mysql_login.txt
 
 # VSC user settings
 .vscode/settings.json
+
+# Zed - once i fully understand how use it i'll publish tasks.json and debug.json
+.zed/

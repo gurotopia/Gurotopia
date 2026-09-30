@@ -38,10 +38,10 @@ void action::protocol(ENetEvent& event, const std::string& header)
 
     send_varlist(event.peer, {
         "OnSendToServer", 
-        (int)gServer_data.port, 
+        (signed)gServer_data.port, 
         0, 
         pPeer->user_id, 
-        std::format("{}|0|0", gServer_data.server), 
+        std::format("{}|0|0", gServer_data.server), // @todo UUIDToken
         1, 
         pPeer->growid.c_str()
     }); // @note PACKET_DISCONNECT from client.

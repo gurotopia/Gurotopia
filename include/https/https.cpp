@@ -24,14 +24,18 @@
 /* cross-platform socket close */
 static void cross_close(SOCKET fd)
 {
+    int ret =
 #ifdef _WIN32
-    closesocket(fd);
+    closesocket(fd)
 #else // @note unix
-    close(fd);
+    close(fd)
 #endif
+    ; // ending of ret. hehe some silly code ;)
+
+    if (ret == SOCKET_ERROR) printf("socket close error.\n");
 }
 
-/* cross-platform error log */
+/* cross-platform WSA error log, fallback on linux with strerror() */
 static void cross_log(const std::string &message)
 {
 #ifdef _WIN32
@@ -60,8 +64,6 @@ void https::listener()
     {
         ERR_print_errors_fp(stderr);
     }
-
-    SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
 
 #ifdef SIGPIPE // @note unix
     std::signal(SIGPIPE, SIG_IGN);
@@ -126,36 +128,38 @@ void https::listener()
         SOCKET fd = accept(socket, reinterpret_cast<sockaddr*>(&addr), &addrlen);
         if (fd == INVALID_SOCKET) continue;
         
+        /* https://docs.openssl.org/3.0/man3/SSL_new/#return-values */
         SSL *ssl = SSL_new(ctx);
-        if (!ssl) {
-            cross_close(fd);
-            continue;
+        if (!ssl || !SSL_up_ref(ssl)) continue;
+        /* https://docs.openssl.org/3.0/man3/SSL_set_fd/#return-values */
+        /* https://docs.openssl.org/3.0/man3/SSL_accept/#return-values */
+        else if (SSL_set_fd(ssl, fd) != 1 || SSL_accept(ssl) <= 0) {
+            //int ret = SSL_get_error(ssl, 3);
+            ERR_print_errors_fp(stderr);
         }
-        if (SSL_set_fd(ssl, fd) != 1) {
-            cross_close(fd);
-            continue;
-        }
-        if (SSL_accept(ssl) > 0)
-        {
+        else {
             char buf[213]; // @note size of growtopia's POST request.
             const int length{ sizeof(buf) };
 
-            if (SSL_read(ssl, buf, length) == length)
+            int rbytes = SSL_read(ssl, buf, length);
+            if (rbytes <= 0) ERR_print_errors_fp(stderr); // @todo support retryable
+            else if (rbytes == length) // @note save time instead of doing >0
             {
-                puts(buf);
-                std::string content = std::string(buf, length);
-                
-                if (content.find("POST /growtopia/server_data.php HTTP/1.1") != std::string_view::npos)
-                {
-                    SSL_write(ssl, response.c_str(), response.size());
-                }
-            }
-            else ERR_print_errors_fp(stderr); // @note we don't accept growtopia GET. this error is normal if appears.
-        }
-        else ERR_print_errors_fp(stderr);
+                printf("%s\n", buf); // @note to confirm the peer connected. else you could also see if loginurl dashboard appears.
 
-        SSL_shutdown(ssl);
+                int wbytes = SSL_write(ssl, response.c_str(), response.size());
+                if (wbytes <= 0) ERR_print_errors_fp(stderr); // @todo support retryable
+            }
+        }
+
+        /* "It can also occur when not all data was read using SSL_read()." */
+        if (SSL_shutdown(ssl) <0) 
+        {
+            //int ret = SSL_get_error(ssl, 3);
+            ERR_print_errors_fp(stderr);
+        }
         SSL_free(ssl);
+        if (shutdown(fd, 2) == SOCKET_ERROR) cross_log("failed to shutdown socket"); // @todo unsure if WSA can handle this.
         cross_close(fd);
     }
 }

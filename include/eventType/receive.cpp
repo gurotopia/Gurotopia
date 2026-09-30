@@ -39,6 +39,7 @@ void receive(ENetEvent& event)
                 i->second(event, std::move(gamePacket));
             break;
         }
+        default: printf("received unqiue: %d\n", data[0ull]);
     }
     enet_packet_destroy(event.packet);
 }

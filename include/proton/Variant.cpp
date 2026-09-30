@@ -115,19 +115,20 @@ void send_varlist(ENetPeer *peer, VariantList vlist, int netid, int delay)
 	u_int size = 0;
     u_char *pMem = vlist.SerializeToMem(&size, NULL);
 
-    std::vector<u_char> data = compress_state(::gamePacket{
+    ::blob data = compress_state(::gamePacket{
         .type = 01, // @note PACKET_CALL_FUNCTION
         .netid = netid,
         .state = state::S_EXTENDED,
 		.id = delay,
 		.size = size
-    }).data();
+	});
 	u_int pos = data.size(); // @note sizeof(::gamePacket)
 	data.resize(pos + size);
 
-	memcpy(data.data() + pos, pMem, size);
+	u_char *raw = data.data().data();
+	memcpy(raw + pos, pMem, size);
     delete[] pMem;
 
-	ENetPacket *packet = enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE);
+	ENetPacket *packet = enet_packet_create(raw, data.size(), ENET_PACKET_FLAG_RELIABLE);
     if (enet_peer_send(peer, 0, packet)) enet_packet_destroy(packet);
 }

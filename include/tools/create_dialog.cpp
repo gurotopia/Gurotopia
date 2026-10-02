@@ -127,3 +127,8 @@ std::string create_dialog::end_dialog(std::string btn_id, std::string btn_close,
     _d.append(std::format("end_dialog|{}|{}|{}|\n", btn_id, btn_close, btn_return));
     return _d; 
 }
+create_dialog& create_dialog::add_raw(std::string raw)
+{
+    _d.append(raw);
+    return *this;
+}

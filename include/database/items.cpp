@@ -2,6 +2,8 @@
 #include <filesystem>
 #include <fstream>
 
+#include <fstream>
+#include <fstream>
 #include "items.hpp"
 
 std::vector<::item> items;
@@ -14,6 +16,8 @@ const ::item &id_to_item(u_short id) noexcept // @note std::out_of_range is hand
 }
 
 
+std::vector<u_int> harmful_type_pos{}; // @note /god items.dat
+u_int im_file_offset{};
 std::vector<u_char> im_data(sizeof(::gamePacket)/*inital packet*/, 0x00);
 
 template<typename T>
@@ -48,6 +52,7 @@ void decode_items()
     im_data = compress_state(::gamePacket{ .type = 0x10,/*PACKET_SEND_ITEM_DATABASE_DATA*/ .state = state::S_EXTENDED, .size = size }).data();
     
     u_int pos = im_data.size(); // @note sizeof(::gamePacket)
+    im_file_offset = pos;
     im_data.resize(pos + size); // @note resize to fit binary data
     
     std::ifstream("items.dat", std::ios::binary)
@@ -64,11 +69,18 @@ void decode_items()
         ::item item;
         
         shift_pos(im_data, pos, item.id); pos += 2; // @note downside im.id to 2 bit (short)
+        const u_int prop_at = pos; // @note where this item's property bytes sit in the raw data
+        const u_int item_start = pos;
         shift_pos(im_data, pos, item.property);
+        if (item.id == 8) { item.property = 0; memset(&im_data[prop_at], 0, pos - prop_at); }
 
         shift_pos(im_data, pos, item.cat);
 
+        const u_int type_at = pos;
+        const u_int type_pos = pos;
         shift_pos(im_data, pos, item.type);
+        if (item.type == type::DEADLY || item.type == type::FIRE_PAIN || item.type == type::STING_PAIN) harmful_type_pos.emplace_back(type_pos);
+        if (item.id == 8) { item.type = 17; im_data[type_at] = 17; }
         pos += sizeof(u_char);
 
         short len = *(reinterpret_cast<short*>(&im_data[pos]));
@@ -96,6 +108,12 @@ void decode_items()
 
         shift_pos(im_data, pos, item.hit_reset);
 
+        if (item.id == 156 || item.id == 678 || item.id == 1206)
+        {
+            for (u_int b = item_start; b < item_start + 240 && b < im_data.size(); ++b) printf("%02x ", im_data[b]);
+            printf("\n");
+        }
+
         if (item.type == type::CLOTHING) 
         {
             u_char cloth_type{};
@@ -103,6 +121,7 @@ void decode_items()
         }
         else pos += 1; // @note assign nothing
         if (item.type == type::AURA) item.cloth_type = clothing::ANCES;
+        const u_int rarity_at = pos;
         shift_pos(im_data, pos, item.rarity);
 
         pos += sizeof(u_char);
@@ -205,5 +224,6 @@ void decode_items()
         
         items.emplace_back(item);
     }
-    printf("items.dat parsed successfully!\n");
+   for (::item &it : items) if (it.id == 8) it.property = 0;
+    for (::item &it : items) if (it.id == 8) it.property = 0;
 }

@@ -45,9 +45,15 @@ void action::info(ENetEvent& event, const std::string& header)
                     .add_textbox(std::format("Rarity: `w{}``", item.rarity))
                     .add_spacer("small");
             
-            for (const std::string &prop : properties(item.property)) 
-                create_dialog.add_textbox(prop);
+            for (const std::string &prop : properties(item.property))
 
+                create_dialog.add_textbox(prop);
+            if (::peer *pDev = static_cast<::peer*>(event.peer->data); pDev && pDev->role >= DEVELOPER)
+            {
+                create_dialog.add_spacer("small");
+                create_dialog.add_textbox(std::format("`6[dev]`` ID: `w{}``  type: `w{}``  prop: `w{}``", (int)item.id, (int)item.type, (int)item.property));
+                create_dialog.add_textbox(std::format("`6[dev]`` hits: `w{}``  coll: `w{}``  cloth: `w{}``", (int)item.hits, (int)item.collision, (int)item.cloth_type));
+            }
             send_varlist(event.peer, {
                 "OnDialogRequest",
                 create_dialog

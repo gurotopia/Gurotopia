@@ -3,11 +3,13 @@
 #include "world.hpp"
 #include "onVariant/SetClothing.hpp"
 #include "onVariant/CountryState.hpp"
+#include "commands/legendary.hpp"
 #include "onVariant/ConsoleMessage.hpp"
 #include "commands/punch.hpp"
 #include "tools/string.hpp"
 
 #include "peer.hpp"
+#include "commands/buffs.hpp"
 
 bool peer::exists(const std::string &growid)
 {
@@ -89,6 +91,23 @@ void peer::mysql_select_all()
     this->growid     = this->mysql_select<std::string>("growid");
     this->password   = this->mysql_select<std::string>("password");
     this->created_at = this->mysql_select<std::time_t>("created_at", "UNIX_TIMESTAMP");
+    this->gems       = this->mysql_select<signed>("gems");
+    this->role       = static_cast<u_char>(this->mysql_select<signed>("role"));
+    this->level.front() = static_cast<u_short>(this->mysql_select<signed>("level"));
+    this->level.back()  = static_cast<u_short>(this->mysql_select<signed>("xp"));
+    this->curse_until = static_cast<std::time_t>(this->mysql_select<signed>("curse_until"));
+    this->ban_until = static_cast<std::time_t>(this->mysql_select<signed>("ban_until"));
+    this->god_mode = this->mysql_select<signed>("god") != 0;
+    this->renamed_at = static_cast<std::time_t>(this->mysql_select<signed>("renamed_at"));
+    if (this->level.front() == 0) this->level.front() = 1;
+    {
+        std::vector<u_char> cloth(this->clothing.size() * sizeof(float));
+        cloth = this->mysql_select<std::vector<u_char>>("clothing");
+        (void)0; // @note debug line removed
+        if (cloth.size() >= this->clothing.size() * sizeof(float))
+            memcpy(this->clothing.data(), cloth.data(), this->clothing.size() * sizeof(float));
+        this->update_effects(); // @note restore punch effect from the loaded clothing
+    }
 
     auto blob = this->mysql_select<std::vector<u_char>>("inventory");
     const u_char *u8 = blob.data();
@@ -117,11 +136,32 @@ void peer::mysql_select_all()
     return blob;
 }
 
+/* Birth Certificate: if this name was renamed, the name it has now (empty if not) */
+static std::string renamed_to(const std::string &old)
+{
+    std::string value{};
+    ::hStmt hStmt{ "SELECT new_name FROM renames WHERE old_name = ? LIMIT 1" };
+    MYSQL_BIND param = make_bind_in(old);
+    hStmt.bind_param(&param);
+
+    u_long length = 0;
+    MYSQL_BIND result = make_bind_out(value);
+    result.length = &length;
+    mysql_stmt_bind_result(hStmt.pStmt, &result);
+
+    hStmt.execute();
+    hStmt.fetch();
+    value.resize(length);
+    return value;
+}
 void peer::load(const std::string &growid, const std::string &password)
 {
-    if (!this->exists(growid)) 
+    this->growid = growid;
+    if (!this->exists(this->growid))
+        if (const std::string moved = renamed_to(this->growid); !moved.empty()) this->growid = moved; // @note logged in with an old name
+    if (!this->exists(this->growid)) 
     {
-        this->mysql_insert("growid", growid);
+        this->mysql_insert("growid", this->growid);
         this->mysql_update("password", password);
 
         this->slots.resize(3ull); // @note since it's pre-determined we don't need do peer::emplace, and less iteration
@@ -129,6 +169,15 @@ void peer::load(const std::string &growid, const std::string &password)
         this->slots[1ull] = ::slot{32, 1};   // @note Wrench
         this->slots[2ull] = ::slot{9640, 1}; // @note My First World Lock
         this->mysql_update<std::vector<u_char>>("inventory", this->serialize_inventory().data());
+        this->mysql_update("gems", this->gems);
+        this->mysql_update("role", static_cast<signed>(this->role));
+        this->mysql_update("level", static_cast<signed>(this->level.front()));
+        this->mysql_update("xp", static_cast<signed>(this->level.back())); this->mysql_update("curse_until", static_cast<signed>(this->curse_until));
+        {
+            std::vector<u_char> cloth(this->clothing.size() * sizeof(float));
+            memcpy(cloth.data(), this->clothing.data(), cloth.size());
+            this->mysql_update<std::vector<u_char>>("clothing", cloth);
+        }
     }
     this->mysql_select_all();
 }
@@ -136,6 +185,15 @@ void peer::load(const std::string &growid, const std::string &password)
 peer::~peer()
 {
     this->mysql_update<std::vector<u_char>>("inventory", this->serialize_inventory().data());
+    this->mysql_update("gems", this->gems);
+        this->mysql_update("role", static_cast<signed>(this->role));
+        this->mysql_update("level", static_cast<signed>(this->level.front()));
+        this->mysql_update("xp", static_cast<signed>(this->level.back())); this->mysql_update("curse_until", static_cast<signed>(this->curse_until));
+        {
+            std::vector<u_char> cloth(this->clothing.size() * sizeof(float));
+            memcpy(cloth.data(), this->clothing.data(), cloth.size());
+            this->mysql_update<std::vector<u_char>>("clothing", cloth);
+        }
 }
 
 u_short peer::emplace(::slot slot) 
@@ -157,6 +215,8 @@ u_short peer::emplace(::slot slot)
 
 void peer::add_xp(ENetEvent &event, u_short value) 
 {
+    value = buff_xp(*this, value);
+    legend_on_xp(event, value); // @note Legendary Quest "Earn XP" steps
     u_short &lvl = this->level.front();
     u_short &xp = this->level.back() += value; // @note factor the new xp amount
 
@@ -167,6 +227,24 @@ void peer::add_xp(ENetEvent &event, u_short value)
 
         xp -= xp_formula;
         lvl++;
+
+        // every level: gems that scale with how far you've come
+        this->gems += 100 * lvl;
+        send_varlist(event.peer, { "OnSetBux", this->gems, 1, 1 });
+
+        // every 5 levels: four more inventory slots
+        if (lvl % 5 == 0 && this->slot_size < 200)
+        {
+            this->slot_size = std::min(this->slot_size + 4, 200);
+            send_varlist(event.peer, { "OnConsoleMessage",
+                std::format("`2Your backpack now holds `w{}`` items!``", this->slot_size) });
+        }
+
+        // milestone items
+        if (lvl == 10)  modify_item_inventory(event, ::slot{ 242, 1 });   // World Key
+        if (lvl == 25)  modify_item_inventory(event, ::slot{ 1486, 1 });  // Growtoken-ish reward
+        if (lvl == 75)  modify_item_inventory(event, ::slot{ 6216, 1 });  // rare cosmetic
+        if (lvl == 100) modify_item_inventory(event, ::slot{ 9640, 5 });  // World Locks
 
         if (lvl == 50) 
         {
@@ -186,6 +264,17 @@ void peer::add_xp(ENetEvent &event, u_short value)
 void peer::update_effects()
 {
     this->punch_effect = 0;
+
+    static constexpr int double_jump_items[] = { 156, 394, 678, 1424, 2216, 2588, 3184, 4720 };
+    bool can_double_jump = false;
+    for (float c2 : this->clothing)
+    {
+        const int id = static_cast<int>(c2);
+        for (int dj : double_jump_items) if (id == dj) { can_double_jump = true; break; }
+        if (can_double_jump) break;
+    }
+    if (can_double_jump) this->state |= S_DOUBLE_JUMP;
+    else                 this->state &= ~S_DOUBLE_JUMP;
     for (float cloth : this->clothing)
     {
         u_char punch_id = get_punch_id((u_int)cloth);
@@ -218,7 +307,22 @@ std::vector<ENetPeer*> peers(const std::string &world, peer_condition condition,
 
 void safe_disconnect_peers(int code)
 {
-    peers("", peer_condition::PEER_ALL, [](ENetPeer &p) { enet_peer_disconnect(&p, 0); });
+    peers("", peer_condition::PEER_ALL, [](ENetPeer &p) {
+        if (::peer *pPeer = static_cast<::peer*>(p.data); pPeer && !pPeer->growid.empty())
+        {
+            pPeer->mysql_update<std::vector<u_char>>("inventory", pPeer->serialize_inventory().data());
+            pPeer->mysql_update("gems", pPeer->gems);
+            pPeer->mysql_update("role", static_cast<signed>(pPeer->role));
+            pPeer->mysql_update("level", static_cast<signed>(pPeer->level.front()));
+            pPeer->mysql_update("xp", static_cast<signed>(pPeer->level.back())); pPeer->mysql_update("curse_until", static_cast<signed>(pPeer->curse_until));
+            {
+                std::vector<u_char> cloth(pPeer->clothing.size() * sizeof(float));
+                memcpy(cloth.data(), pPeer->clothing.data(), cloth.size());
+                pPeer->mysql_update<std::vector<u_char>>("clothing", cloth);
+            }
+        }
+        enet_peer_disconnect(&p, 0);
+    });
     enet_host_flush(host);
     
     enet_host_destroy(host);

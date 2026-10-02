@@ -86,6 +86,7 @@ void action::buy(ENetEvent& event, const std::string& header, const std::string_
                 });
                 return;
             }
+            const auto base_items = shouhin.items; // @note keep the store.txt contents for the next purchase
             std::vector<short> ids{};
             if (shouhin.btn == "basic_splice") // @note source: https://growtopia.fandom.com/wiki/Basic_Splicing_Kit
             {
@@ -132,7 +133,7 @@ void action::buy(ENetEvent& event, const std::string& header, const std::string_
                 else modify_item_inventory(event, {item.first, item.second});
                 received.append(std::format("{}, ", raw_name)); // @todo add green text to rare items, or something cool.
             }
-            shouhin.items.clear(); // @todo
+            shouhin.items = base_items; // @note restore, so packs and backpack upgrades work every time
 
             send_varlist(event.peer, { "OnStorePurchaseResult", (_tab < 5) ? 
                 std::format(

@@ -6,18 +6,22 @@
 #include "tools/create_dialog.hpp"
 #include "automate/holiday.hpp"
 
+#include "action/join_request.hpp"
+#include "action/quit_to_exit.hpp"
+#include "commands/friendsys.hpp"
+#include "commands/legendary.hpp"
 #include "enter_game.hpp"
 
 void action::enter_game(ENetEvent& event, const std::string& header) 
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    pPeer->display_growid = std::format("`w{}``", pPeer->growid);
+    if (pPeer->nickname.empty()) pPeer->display_growid = (pPeer->role >= DEVELOPER) ? std::format("`6@{}``", pPeer->growid) : (pPeer->role >= MODERATOR) ? std::format("`5@{}``", pPeer->growid) : std::format("`w{}``", pPeer->growid);
     on::ConsoleMessage(event.peer, 
-        std::format("Welcome back, {}. No friends are online.", 
-            pPeer->display_growid
-        )
+        std::format("Welcome back, {}. {}", pPeer->display_growid, friends_welcome(*pPeer))
     );
+    friends_alert(*pPeer, true); // @note tells your online friends
+    legend_load(*pPeer);
     on::ConsoleMessage(event.peer, holiday_greeting().second);
     on::ConsoleMessage(event.peer, "`5Personal Settings active:`` `#Can customize profile``");
     
@@ -45,4 +49,11 @@ void action::enter_game(ENetEvent& event, const std::string& header)
         "OnSetFeatureEnableFlags",
         "EA8DEAcGAgEOBQgKCQ0MEQQ=" // @todo Dw0JEQQMEAMPAgYBDgUICg==
     });
+
+    /* back into the same world after /god reloaded items.dat - done 2 seconds later by the timer */
+    if (!pPeer->god_rejoin.empty())
+    {
+        if (pPeer->netid != 0) action::quit_to_exit(event, "", true); // @note the game left the world when it reloaded
+        pPeer->god_rejoin_at = std::time(nullptr) + 2;
+    }
 }

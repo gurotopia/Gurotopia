@@ -14,3 +14,7 @@ public:
     void init();
 };
 extern ::server_data gServer_data;
+
+/* the address a player got at login, reused when the game is told where to reconnect */
+extern void remember_address(const std::string &client_ip, const std::string &server_ip);
+extern std::string server_for_peer(const ENetPeer &p);

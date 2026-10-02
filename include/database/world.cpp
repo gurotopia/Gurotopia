@@ -1,4 +1,5 @@
 #include "pch.hpp"
+#include "commands/buffs.hpp"
 #include "tools/random.hpp"
 #include "tools/time.hpp"
 #include "onVariant/ConsoleMessage.hpp"
@@ -137,7 +138,7 @@ void block::reset()
                 blob.u8(this->lock_state);
                 blob.i32(this->owner);
                 blob.i32(access);
-                /* @todo access list */
+                for (int uid : this->access) if (uid != 0) blob.i32(uid); // @note the game expects the list right after the count
             }
             else if (type == '\x04'/*seed*/)
             {
@@ -155,7 +156,7 @@ void block::reset()
     blob.i32(0x00);
     blob.i32(0x00);
 
-    blob.i32(this->last_object_uid);
+    blob.i32(static_cast<int>(this->objects.size())); // @note number of drops
     blob.i32(this->last_object_uid);
     for (const ::object &object : this->objects) 
     {
@@ -237,6 +238,21 @@ void world::mysql_select_all()
 {
     this->name = this->mysql_select<std::string>("name");
     this->owner = this->mysql_select<int>("owner");
+    this->base_weather = this->mysql_select<int>("weather");
+    this->treasure_spots = this->mysql_select<std::string>("treasure");
+    {
+        const std::string list = this->mysql_select<std::string>("access"); // @note "12,34,56"
+        std::size_t i = 0;
+        for (std::size_t at = 0; at < list.size() && i < this->access.size(); )
+        {
+            std::size_t comma = list.find(',', at);
+            if (comma == std::string::npos) comma = list.size();
+            const int uid = std::atoi(list.substr(at, comma - at).c_str());
+            if (uid != 0) this->access[i++] = uid;
+            at = comma + 1;
+        }
+    }
+    this->nuked = this->mysql_select<signed>("nuked") != 0;
     {
         this->trees.clear();
         ::blob blob = this->mysql_select<::blob>("blocks");
@@ -253,7 +269,7 @@ void world::mysql_select_all()
             blob.read_u8(block.state[2], pos);
             blob.read_u8(block.state[3], pos);
 
-            if (block.fg != 0 || block.fg!=2||block.fg!=4||block.fg!=8||block.fg!=14) // @note so we can save time
+            if (block.fg != 0) // @note so we can save time
             if (char type = get_type(id_to_item(block.fg)); type > '\x00')
             {
                 const ::pos block_pos{i % x, i / x};
@@ -287,9 +303,9 @@ void world::mysql_select_all()
 
         const u_char *u8 = blob.data(); // @note i did not have the brain capacity to reinterpret it. t-t (memcpy is safer anyways...)
         int i{};
-        memcpy(&this->last_object_uid, u8, sizeof(u_int)); i += sizeof(u_int); // @todo real gt has this as 8 bits not just 4.
+        if (blob.size() >= sizeof(u_int)) { memcpy(&this->last_object_uid, u8, sizeof(u_int)); } i += sizeof(u_int); // @todo real gt has this as 8 bits not just 4.
 
-        objects.resize(this->last_object_uid);
+        objects.resize(blob.size() >= sizeof(u_int) ? (blob.size() - sizeof(u_int)) / 16 : 0); // @note count from the saved data, not the last drop number
         for (::object &object : this->objects)
         {
             memcpy(&object.id,    u8 + i, sizeof(u_short)); i += sizeof(u_short);
@@ -315,7 +331,20 @@ world::world(const std::string &name) : name(name)/*DEFAULT*/
 }
 world::~world()
 {
+    this->save();
+}
+
+void world::save()
+{
     this->mysql_update("owner", this->owner);
+    this->mysql_update("weather", static_cast<signed>(this->base_weather));
+    this->mysql_update("treasure", this->treasure_spots);
+    {
+        std::string list{};
+        for (int uid : this->access) if (uid != 0) list += (list.empty() ? "" : ",") + std::to_string(uid);
+        this->mysql_update("access", list);
+    }
+    this->mysql_update("nuked", static_cast<signed>(this->nuked ? 1 : 0));
     {
         ::blob blob;
 
@@ -417,6 +446,7 @@ void tile_apply_damage(ENetEvent &event, ::gamePacket gamePacket, block &block, 
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     (block.fg == 0) ? ++block.hits[1] : ++block.hits[0];
+    if (pPeer->clothing[clothing::HAND] == 1956 || buff_active(*pPeer, buff::PUNCH)) (block.fg == 0) ? ++block.hits[1] : ++block.hits[0]; // @note Chaos Cursed Wand
     gamePacket.type = (value << 24) | 0x000008; // @note 0x{}000008
     gamePacket.id = 6; // @note idk exactly
     gamePacket.netid = pPeer->netid;
@@ -430,7 +460,7 @@ u_short modify_item_inventory(ENetEvent &event, ::slot slot)
     ::gamePacket gamePacket{.id = slot.id};
     if (slot.count < 0) gamePacket.type = (slot.count*-1 << 16) | 0x000d; // @noote 0x00{}000d
     else                gamePacket.type = (slot.count    << 24) | 0x000d; // @noote 0x{}00000d
-    state_visuals(*event.peer, std::move(gamePacket));
+    send_data(*event.peer, compress_state(gamePacket)); // @note only the player whose backpack changes - state_visuals sent it to the whole world
 
     return pPeer->emplace(::slot(slot.id, slot.count));
 }
@@ -539,6 +569,8 @@ void send_tile_update(ENetEvent &event, ::gamePacket gamePacket, ::block &block,
             blob.u8(world.lock_state);
             blob.i32(world.owner);
             blob.i32(access);
+            for (int uid : world.access) if (uid != 0) blob.i32(uid); // @note the game expects the list right after the count
+            break;
         }
         case type::SEED:
         {

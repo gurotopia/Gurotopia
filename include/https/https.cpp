@@ -1,6 +1,31 @@
 #include "pch.hpp"
 #include "https.hpp"
 #include "server_data.hpp"
+#include <fstream>
+
+/* which address a player gets: on this PC 127.0.0.1, on the home network (or a VPN) the address they
+   reached us on, over the internet the public address in public_ip.txt */
+static bool is_private(const u_char *b)
+{
+    return b[0] == 10 || b[0] == 127 || (b[0] == 172 && b[1] >= 16 && b[1] <= 31) || (b[0] == 192 && b[1] == 168) ||
+           (b[0] == 169 && b[1] == 254) || (b[0] == 100 && b[1] >= 64 && b[1] <= 127);
+}
+static std::string ip_text(const u_char *b) { return std::format("{}.{}.{}.{}", b[0], b[1], b[2], b[3]); }
+static std::string public_ip()
+{
+    std::ifstream f("public_ip.txt");
+    std::string ip{};
+    std::getline(f, ip);
+    while (!ip.empty() && std::isspace(static_cast<unsigned char>(ip.back()))) ip.pop_back();
+    return ip;
+}
+static std::string make_response(const std::string &server_ip)
+{
+    const std::string content = std::format(
+        "server|{}\nport|{}\ntype|{}\ntype2|{}\n#maint|{}\nloginurl|{}\nmeta|{}\nRTENDMARKERBS1001",
+        server_ip, gServer_data.port, gServer_data.type, gServer_data.type2, gServer_data.maint, gServer_data.loginurl, gServer_data.meta);
+    return std::format("HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{}", content.size(), content);
+}
 
 #include <openssl/err.h>
 
@@ -8,7 +33,6 @@
     #include <winsock2.h>
     #include <ws2tcpip.h>
 #else
-    #include <csignal>
     #include <unistd.h>
     #include <arpa/inet.h>
     #include <netinet/in.h>
@@ -24,18 +48,14 @@
 /* cross-platform socket close */
 static void cross_close(SOCKET fd)
 {
-    int ret =
 #ifdef _WIN32
-    closesocket(fd)
+    closesocket(fd);
 #else // @note unix
-    close(fd)
+    close(fd);
 #endif
-    ; // ending of ret. hehe some silly code ;)
-
-    if (ret == SOCKET_ERROR) printf("socket close error.\n");
 }
 
-/* cross-platform WSA error log, fallback on linux with strerror() */
+/* cross-platform error log */
 static void cross_log(const std::string &message)
 {
 #ifdef _WIN32
@@ -64,6 +84,8 @@ void https::listener()
     {
         ERR_print_errors_fp(stderr);
     }
+
+    SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
 
 #ifdef SIGPIPE // @note unix
     std::signal(SIGPIPE, SIG_IGN);
@@ -127,39 +149,63 @@ void https::listener()
         /* https://learn.microsoft.com/en-us/windows/win32/api/winsock2/nf-winsock2-accept */
         SOCKET fd = accept(socket, reinterpret_cast<sockaddr*>(&addr), &addrlen);
         if (fd == INVALID_SOCKET) continue;
-        
-        /* https://docs.openssl.org/3.0/man3/SSL_new/#return-values */
-        SSL *ssl = SSL_new(ctx);
-        if (!ssl || !SSL_up_ref(ssl)) continue;
-        /* https://docs.openssl.org/3.0/man3/SSL_set_fd/#return-values */
-        /* https://docs.openssl.org/3.0/man3/SSL_accept/#return-values */
-        else if (SSL_set_fd(ssl, fd) != 1 || SSL_accept(ssl) <= 0) {
-            //int ret = SSL_get_error(ssl, 3);
-            ERR_print_errors_fp(stderr);
-        }
-        else {
-            char buf[213]; // @note size of growtopia's POST request.
-            const int length{ sizeof(buf) };
 
-            int rbytes = SSL_read(ssl, buf, length);
-            if (rbytes <= 0) ERR_print_errors_fp(stderr); // @todo support retryable
-            else if (rbytes == length) // @note save time instead of doing >0
-            {
-                printf("%s\n", buf); // @note to confirm the peer connected. else you could also see if loginurl dashboard appears.
-
-                int wbytes = SSL_write(ssl, response.c_str(), response.size());
-                if (wbytes <= 0) ERR_print_errors_fp(stderr); // @todo support retryable
-            }
-        }
-
-        /* "It can also occur when not all data was read using SSL_read()." */
-        if (SSL_shutdown(ssl) <0) 
+        const u_char *cb = reinterpret_cast<const u_char*>(&addr.sin_addr);
+        const std::string client_ip = ip_text(cb);
+        std::string server_ip = gServer_data.server;
         {
-            //int ret = SSL_get_error(ssl, 3);
-            ERR_print_errors_fp(stderr);
+            sockaddr_in local{};
+            decltype(addrlen) ll = sizeof(local);
+            if (getsockname(fd, reinterpret_cast<sockaddr*>(&local), &ll) == 0)
+                server_ip = ip_text(reinterpret_cast<const u_char*>(&local.sin_addr)); // @note the address they reached us on
+            if (!is_private(cb)) { const std::string pub = public_ip(); if (!pub.empty()) server_ip = pub; }
         }
+        
+        SSL *ssl = SSL_new(ctx);
+        if (!ssl) {
+            cross_close(fd);
+            continue;
+        }
+        if (SSL_set_fd(ssl, fd) != 1) {
+            cross_close(fd);
+            continue;
+        }
+        if (SSL_accept(ssl) > 0)
+        {
+            char buf[4096]; // @note any size of request
+            std::string request{}; // @note read the whole request (headers + body) before answering
+            for (int tries = 0; tries < 16 && request.size() < 16384; ++tries)
+            {
+                const int n = SSL_read(ssl, buf, sizeof(buf));
+                if (n <= 0) break;
+                request.append(buf, static_cast<std::size_t>(n));
+                const std::size_t end = request.find("\r\n\r\n");
+                if (end == std::string::npos) continue;
+                std::string head = request.substr(0, end);
+                for (char &ch : head) ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+                std::size_t need = end + 4;
+                if (const std::size_t cl = head.find("content-length:"); cl != std::string::npos)
+                    need += static_cast<std::size_t>(std::atoi(head.c_str() + cl + 15));
+                if (request.size() >= need) break;
+            }
+            const int length = static_cast<int>(request.size());
+
+            if (length > 0)
+            {
+                // @note full request printing removed
+                std::string content = request;
+                
+                if (content.find("POST /growtopia/server_data.php HTTP/1.1") != std::string_view::npos)
+                {
+                    { const std::string r = make_response(server_ip); SSL_write(ssl, r.c_str(), static_cast<int>(r.size())); remember_address(client_ip, server_ip); std::printf("[login] %s -> %s\n", client_ip.c_str(), server_ip.c_str()); }
+                }
+            }
+            else ERR_print_errors_fp(stderr); // @note we don't accept growtopia GET. this error is normal if appears.
+        }
+        else ERR_print_errors_fp(stderr);
+
+        SSL_shutdown(ssl);
         SSL_free(ssl);
-        if (shutdown(fd, 2) == SOCKET_ERROR) cross_log("failed to shutdown socket"); // @todo unsure if WSA can handle this.
         cross_close(fd);
     }
 }

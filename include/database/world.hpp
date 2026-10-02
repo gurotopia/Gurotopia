@@ -53,7 +53,7 @@ struct block
 
     ::blob to_blob() const;
 };
-#define cord(x,y) (y * 100 + x)
+#define cord(x,y) ((y) * 100 + (x)) // @note brackets so cord(x, y + 1) works
 
 struct door 
 {
@@ -144,6 +144,7 @@ public:
     template<typename T>
     T    mysql_select(const std::string &column, const std::string &arg = "");
     void mysql_select_all();
+    void save(); // @note writes blocks + objects to MariaDB
 
     std::string name{};
 
@@ -152,9 +153,10 @@ public:
     bool is_public{}; // @note checks if world is public to break/place
     u_char lock_state{0x00}; // @note uses lock_state::
     u_char minimum_entry_level{1}; // @note minimal level required to enter a world
+    bool nuked{}; // @note nuked worlds are staff-only // @note minimal level required to enter a world
 
     u_char visitors{}; // @note the current number of peers in a world, excluding invisable peers
-    u_char netid_counter{}; // @note a number that only increases, this value resets during ~world()
+    u_int netid_counter{}; // // @note a number that only increases, this value resets during ~world()
 
     std::vector<::block> blocks; // @note all blocks, size of 1D meaning (6000) instead of 2D (100, 60)
     u_int last_object_uid{0};
@@ -167,6 +169,8 @@ public:
 
     ::pos spawn{}; // @note position of main door
     ::pos weather{};
+    int base_weather{0}; // @note blast worlds: background weather id
+    std::string treasure_spots{}; // @note Beach Blast chests that still hold treasure, as "x,y;x,y;"
 
     ::blob serialize();
 };

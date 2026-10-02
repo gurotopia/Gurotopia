@@ -14,7 +14,7 @@ void sb(ENetEvent& event, const std::string_view text)
     std::string display = pPeer->recent_worlds.back();
     peers("", PEER_ALL, [&event, &pPeer, message, display](ENetPeer& peer) 
     {
-        on::ConsoleMessage(event.peer, 
+        on::ConsoleMessage(&peer, 
             std::format(
                 "CP:0_PL:0_OID:_CT:[SB]_ `5** from ({}```5) in [```${}```5] ** : ```${}``",
                 pPeer->display_growid, display, message

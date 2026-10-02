@@ -1,10 +1,12 @@
 #include "pch.hpp"
 
+#include "commands/playeractions.hpp"
 #include "popup.hpp"
 
 void popup(ENetEvent& event, const ::hPipe &hPipe)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
+    if (wrench_action(event, hPipe)) return; // @note trade, friend, pull and the staff buttons of the wrench menu
 
     if (hPipe["buttonClicked"] == "my_worlds")
     {

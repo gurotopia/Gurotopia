@@ -10,6 +10,7 @@ public:
     create_dialog& add_label_with_icon(std::string size, std::string label, int icon);
     create_dialog& add_label_with_ele_icon(std::string size, std::string label, int icon, u_char element);
     create_dialog& add_textbox(std::string label);
+    create_dialog& add_raw(std::string raw);
     create_dialog& add_text_input(std::string id, std::string label, short set_value, short length);
     create_dialog& add_text_input(std::string id, std::string label, std::string set_value, short length);
     create_dialog& add_smalltext(std::string label);

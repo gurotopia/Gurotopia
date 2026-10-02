@@ -1,6 +1,7 @@
 #include "pch.hpp"
 #include "action/join_request.hpp"
 #include "action/quit_to_exit.hpp"
+#include "commands/cooking.hpp"
 #include "tile_activate.hpp"
 
 void tile_activate(ENetEvent& event, ::gamePacket gamePacket)
@@ -14,6 +15,11 @@ void tile_activate(ENetEvent& event, ::gamePacket gamePacket)
     const ::item &item = id_to_item(block.fg);
     switch (item.type)
     {
+        case type::CHEMICAL_COMBINER: // @note E-Z Cook Oven and Chemical Combiner
+        {
+            cooking_use(event, *world, (int)gamePacket.punch.x, (int)gamePacket.punch.y);
+            break;
+        }
         case type::MAIN_DOOR:
         {
             action::quit_to_exit(event, "", false);

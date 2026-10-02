@@ -26,6 +26,20 @@ void create_table_if_not_exist()
     {
         std::fprintf(stderr, "%s\n", mysql_error(db));
     }
+
+    /* things added later: created here so nobody has to run SQL by hand (errors are ignored, they just mean "already there") */
+    static constexpr const char *upgrades[]{
+        "ALTER TABLE world ADD COLUMN IF NOT EXISTS access VARCHAR(400) NOT NULL DEFAULT ''",
+        "ALTER TABLE world ADD COLUMN IF NOT EXISTS treasure VARCHAR(2000) NOT NULL DEFAULT ''",
+        "ALTER TABLE world ADD COLUMN IF NOT EXISTS weather INT NOT NULL DEFAULT 0",
+        "ALTER TABLE peer ADD COLUMN IF NOT EXISTS curse_until INT NOT NULL DEFAULT 0",
+        "ALTER TABLE peer ADD COLUMN IF NOT EXISTS ban_until INT NOT NULL DEFAULT 0",
+        "ALTER TABLE peer ADD COLUMN IF NOT EXISTS god INT NOT NULL DEFAULT 0",
+        "ALTER TABLE peer ADD COLUMN IF NOT EXISTS renamed_at INT NOT NULL DEFAULT 0",
+        "CREATE TABLE IF NOT EXISTS renames (old_name VARCHAR(64) PRIMARY KEY, new_name VARCHAR(64) NOT NULL)",
+        "CREATE TABLE IF NOT EXISTS friends (uid INT NOT NULL, friend_uid INT NOT NULL, PRIMARY KEY (uid, friend_uid))",
+    };
+    for (const char *sql : upgrades) mysql_query(db, sql);
 }
 
 void mysql_connect()

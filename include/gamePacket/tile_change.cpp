@@ -1,9 +1,15 @@
+#include "commands/consumables.hpp"
+#include "commands/cooking.hpp"
 #include "pch.hpp"
 #include "onVariant/NameChanged.hpp"
 #include "onVariant/SetClothing.hpp"
 #include "onVariant/Action.hpp"
 #include "onVariant/ConsoleMessage.hpp"
 #include "commands/weather.hpp"
+#include "commands/growscan.hpp"
+#include "commands/jammers.hpp"
+#include "commands/lockaccess.hpp"
+#include "commands/legendary.hpp"
 #include "item_activate.hpp"
 #include "tools/random.hpp"
 #include "tools/time.hpp"
@@ -12,6 +18,9 @@
 #include "action/join_request.hpp"
 #include "item_activate_object.hpp"
 
+#include "commands/cooking.hpp"
+#include "commands/buffs_items.hpp"
+#include "commands/blasts.hpp"
 #include "tile_change.hpp"
 
 void tile_change(ENetEvent& event, ::gamePacket gamePacket) 
@@ -36,11 +45,19 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
 
         if (!(item.cat & CAT_PUBLIC)) // @note if block is public skip validating if peer is owner or access
             if ((world->owner && !world->is_public && !pPeer->role) &&
-                (pPeer->user_id != world->owner && std::ranges::find(world->access, pPeer->user_id) == world->access.end())) return;
+                (pPeer->user_id != world->owner && std::ranges::find(world->access, pPeer->user_id) == world->access.end()))
+            {
+                if (gamePacket.id == 18 && item.type == type::LOCK && !is_tile_lock(item.id)) // @note punching the World Lock: say whose it is
+                    throw std::runtime_error(std::format("`5[```w{}`` `$World Locked`` by `w{}```5]``", world->name, access_name_of(world->owner)));
+                return;
+            }
 
         bool tile_update{};
         bool lock_visuals{}; // @todo this looks sloppy
         
+        if (item.type == type::CONSUMEABLE && consumable_use(event, *world, item, gamePacket)) return; // @note consumables.cpp
+        if (gamePacket.id == 18 && blast_chest_punch(event, *world, block, gamePacket)) return; // @note one-punch treasure chests
+        if (gamePacket.id == 18) jammer_punch(event, *world, gamePacket); // @note jammers
         if (gamePacket.id == 18) // @note punching a block
         {
             static bool punch{}; // @note true if tile_change has been called within this inital (punch)
@@ -116,14 +133,28 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
             }
             switch (item.type)
             {
+                case type::CHEMICAL_COMBINER:
+                {
+                    if (cooking_use(event, *world, (int)gamePacket.punch.x, (int)gamePacket.punch.y)) return;
+                    break;
+                }
                 case type::STRONG: throw std::runtime_error("It's too strong to break.");
                 case type::MAIN_DOOR: throw std::runtime_error("(stand over and punch to use)");
                 case type::LOCK:
                 {
                     if (is_tile_lock(item.id)) break; // @todo seperate area for 'range_lock'
 
-                    if (world->owner != pPeer->user_id)
-                        throw std::runtime_error(std::format("`5[```w{}`` `$World Locked`` by (null)`5]``", world->name)); // @todo add owner name
+                    if (world->owner != pPeer->user_id && pPeer->role < DEVELOPER) // @note developers can break anyone's World Lock
+                        {
+                            std::string lock_owner{};
+                            peers("", peer_condition::PEER_ALL, [&lock_owner, &world](ENetPeer &q)
+                            {
+                                ::peer *o = static_cast<::peer*>(q.data);
+                                if (o && o->user_id == world->owner) lock_owner = o->growid;
+                            });
+                            if (lock_owner.empty()) lock_owner = access_name_of(world->owner); // @note offline owner: from the database
+                            throw std::runtime_error(std::format("`5[```w{}`` `$World Locked`` by `w{}```5]``", world->name, lock_owner));
+                        }
                     break;
                 }
                 case type::PROVIDER:
@@ -181,7 +212,10 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                     if (ticks() - tree->tick >= item.tick) // @todo limit this check.
                     {
                         block.hits[0] = 99;
-                        add_drop(event, ::slot(item.id - 1, RandomRange(1, tree->fruit*3)), gamePacket.punch.by_32(), *world); // @note fruit (from tree)
+                        const short fruit = static_cast<short>(RandomRange(1, tree->fruit*3));
+                        add_drop(event, ::slot(item.id - 1, fruit), gamePacket.punch.by_32(), *world); // @note fruit (from tree)
+                        const int fruit_rarity = id_to_item(item.id - 1).rarity;
+                        legend_on_harvest(event, (fruit_rarity < 999 ? fruit_rarity : 0) * fruit); // @note Legendary Quest
                     }
                     break;
                 }
@@ -204,7 +238,7 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                 case type::TOGGLEABLE_ANIMATED_BLOCK:
                 case type::CHEST:
                 {
-                    block.state[2] ^= S_TOGGLE;
+                    if (!is_jammer(item.id)) block.state[2] ^= S_TOGGLE;
                     break;
                 }
                 case type::RANDOM:
@@ -222,20 +256,35 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                     break;
                 }
             }
+            if ((block.fg == 8 || block.bg == 8) && pPeer->role < DEVELOPER)
+            {
+                send_varlist(event.peer, { "OnTalkBubble", pPeer->netid, std::string("It's too strong to break."), 0u, 1 });
+                return;
+            }
+            if (pPeer->block_history.size() >= 50) pPeer->block_history.erase(pPeer->block_history.begin());
+            pPeer->block_history.push_back(::block_change{ world->name, (int)gamePacket.punch.x, (int)gamePacket.punch.y, block.fg, block.bg });
             tile_apply_damage(event, std::move(gamePacket), block, apply_damage_value);
 
-            if (block.hits[0] >= item.hits) block.fg = 0, block.hits[0] = 0;
+            if ((block.fg == 8 || block.bg == 8) && pPeer->role >= DEVELOPER)
+            {
+                if (block.fg == 8) block.fg = 0, block.hits[0] = 0;
+                else block.bg = 0, block.hits[1] = 0;
+            }
+            else if (pPeer->instant_break && block.fg != 0) block.fg = 0, block.hits[0] = 0;
+            else if (pPeer->instant_break && block.bg != 0) block.bg = 0, block.hits[1] = 0;
+            else if (block.hits[0] >= item.hits) block.fg = 0, block.hits[0] = 0;
             else if (block.hits[1] >= item.hits) block.bg = 0, block.hits[1] = 0;
             else return;
             
             /* @todo update these changes with tile_update() */
             block.state[2] = 0x00; // @note reset tile direction
             block.state[3] &= ~S_VANISH; // @note remove paint
+            blast_treasure_break(event, *world, item, gamePacket); // @note chest / hidden treasure loot
             
             if (item.id == 392/*Heartstone*/ || item.id == 3402/*GBC*/ || item.id == 9350/*Super GBC*/)
             {
                 short reward =
-                    (!RandomRange(0, 99)) ? 1458 : // @note GHC
+                    (!RandomRange(0, buff_active(*pPeer, buff::PURE_LOVE) ? 49 : 99)) ? 1458 : // @note GHC (double chance with Pure Love Essence)
                     (!RandomRange(0, 20)) ? 362 : // @note Angel Wings
                     (!RandomRange(0, 8))  ? 366 : // @note Heartbow
                     (!RandomRange(0, 8))  ? 1470 : // @note Ruby Necklace
@@ -263,10 +312,9 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
             }
             else if (item.type == type::LOCK && !is_tile_lock(item.id))
             {
-                pPeer->display_growid = std::format("`w{}``", pPeer->growid);
-                on::NameChanged(event);
-                
                 world->owner = 0; // @todo have a seperate thing for 'range_lock'
+                world->access.fill(0); // @note the access list belonged to the lock
+                refresh_display_names(*world); // @note everyone in the world sees the new colours right now
             }
 
             if (item.cat == CAT_RETURN)
@@ -274,9 +322,10 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                 int uid = add_object(event, ::slot(item.id, 1), gamePacket.pos, *world);
                 item_activate_object(event, ::gamePacket{.id = uid, .punch = gamePacket.punch});
             }
-            else if (u_char(item.property) & 04) { } // @note "This item never drops any seeds."; should it drop a block?
+            else if (item.id == 8 || item.id == 7372 || item.id == 14908 || item.id == 14910 || item.id == 16206 || item.id == 16208 || (u_char(item.property) & 04)) { } // @note bedrock drops nothing // @note "This item never drops any seeds."; should it drop a block?
             else // @note normal break (drop gem, seed, block & give XP)
             {
+                buff_on_break(event, *world, item, gamePacket);
                 if (item.type != type::SEED)
                 { /* gem drop */
                     /* if greater than 1, assume it's a farmable.*/
@@ -301,6 +350,7 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                     else if (!RandomRange(0, (rarity_to_gem > 1) ? 4 : 8)) add_drop(event, ::slot(item.id, 1), gamePacket.punch.by_32(), *world);
                 } /* ~gem drop */
 
+                if (item.type != type::SEED) legend_on_break(event, item.rarity < 999 ? item.rarity : 0); // @note Legendary Quest
                 pPeer->add_xp(event, std::trunc(1.0f + item.rarity / 5.0f));
             }
         } // @note delete im, id
@@ -505,6 +555,9 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
         }
         else if (gamePacket.id == 32)
         {
+            if (item.type == type::GROWSCAN) { growscan_open(event, *world); return; } // @note Growscan 9000
+            if (wizard_wrench(event, *world, static_cast<int>(gamePacket.punch.x), static_cast<int>(gamePacket.punch.y))) return; // @note Legendary Wizard
+            if (is_jammer(block.fg)) { jammer_wrench(event, *world, block, gamePacket); return; } // @note jammers + Antigravity Generator
             switch (item.type)
             {
                 case type::LOCK:
@@ -523,7 +576,7 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                                 "embed_data|tilex|{}\n"
                                 "embed_data|tiley|{}\n"
                                 "add_spacer|small|\n"
-                                "add_label|small|Currently, you're the only one with access.``|left\n"
+                                "{}"
                                 "add_spacer|small|\n"
                                 "add_player_picker|playerNetID|`wAdd``|\n"
                                 "add_checkbox|checkbox_public|Allow anyone to Build and Break|{}\n"
@@ -538,7 +591,7 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                                 "add_button|changecat|`wCategory: None``|noflags|0|0|\n"
                                 "add_button|getKey|Get World Key|noflags|0|0|\n"
                                 "end_dialog|lock_edit|Cancel|OK|\n",
-                                item.raw_name, item.id, gamePacket.punch.x, gamePacket.punch.y, to_char(world->is_public), (world->lock_state & DISABLE_MUSIC) ? "1" : "0", world->minimum_entry_level
+                                item.raw_name, item.id, gamePacket.punch.x, gamePacket.punch.y, lock_access_rows(*world), to_char(world->is_public), (world->lock_state & DISABLE_MUSIC) ? "1" : "0", world->minimum_entry_level
                             )
                         });
                     }
@@ -717,8 +770,7 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                         world->owner = pPeer->user_id;
                         lock_visuals = true;
 
-                        pPeer->display_growid = std::format("`2{}``", pPeer->growid);
-                        on::NameChanged(event);
+                        refresh_display_names(*world); // @note the owner's name turns green for everyone in the world right now
                         if (std::ranges::find(pPeer->my_worlds, world->name) == pPeer->my_worlds.end()) 
                         {
                             std::ranges::rotate(pPeer->my_worlds, pPeer->my_worlds.begin() + 1);
@@ -736,7 +788,8 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                 }
                 case type::SEED:
                 {
-                    world->trees.emplace_back(ticks(), RandomRange(1, 3), gamePacket.punch);
+                    world->trees.emplace_back(ticks() - buff_tree_head_start(*pPeer, item), RandomRange(1, 3), gamePacket.punch);
+                    legend_on_plant(event, item.rarity < 999 ? item.rarity : 0); // @note Legendary Quest
                     block.state[2] = 0x11; // @todo
                     tile_update = true;
                     break;
@@ -753,6 +806,8 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                     break;
                 }
             }
+            if (pPeer->block_history.size() >= 50) pPeer->block_history.erase(pPeer->block_history.begin());
+            pPeer->block_history.push_back(::block_change{ world->name, (int)gamePacket.punch.x, (int)gamePacket.punch.y, block.fg, block.bg });
             block.state[2] |= (pPeer->facing_left) ? S_LEFT : S_RIGHT;
             (item.type == type::BACKGROUND) ? block.bg = gamePacket.id : block.fg = gamePacket.id;
             pPeer->emplace(::slot(item.id, -1));

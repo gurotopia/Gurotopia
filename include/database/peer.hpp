@@ -22,6 +22,8 @@ struct slot {
 };
 
 /* x, y */
+struct block_change { std::string world; int x; int y; short old_fg; short old_bg; };
+
 struct pos {
     pos() = default;
     pos(float _x, float _y) : x(_x), y(_y) {}
@@ -67,8 +69,12 @@ enum pstate : int
 {
     S_GHOST       = 0x00000001,
     S_DOUBLE_JUMP = 0x00000002,
-    S_DUCT_TAPE   = 0x00002000
+    S_DUCT_TAPE   = 0x00002000,
+    S_FROZEN      = 0x00000800,
+    S_INVISIBLE   = 0x00000024
 };
+
+struct active_buff { u_char id{}; std::time_t ends{}; u_short item{}; };
 
 class peer {
 public:
@@ -94,9 +100,24 @@ public:
     u_char role{};
     std::array<float, 10ull> clothing{}; // @note peer's clothing {id, clothing::}
     u_char punch_effect{}; // @note last equipped clothing that has a effect. supporting 0-255 effects.
+    bool god_mode{}; // @note /god, immune to damage
+    bool frozen{}; // @note /freeze
+    bool instant_break{}; // @note /breakall
+    std::time_t curse_until{}; // @note /curse, unix time the curse ends (0 = not cursed)
+    std::time_t freeze_until{}; // @note Freeze Wand, unix time the freeze ends (0 = none)
+    std::time_t ban_until{}; // @note Ban Wand, unix time the ban ends (0 = not banned)
+    std::vector<std::pair<int, std::time_t>> item_states{}; // @note effects from items: {state flag, ends}
+    std::vector<::active_buff> buffs{}; // @note timed buffs from consumables
+    std::string god_rejoin{}; ::pos god_rejoin_pos{}; std::time_t god_rejoin_at{}; // @note world to return to after /god reloads items.dat
+    std::time_t renamed_at{}; // @note Birth Certificate, last rename
+    u_int tint{}; std::time_t tint_until{}; short tint_item{}; // @note Blueberry / Cherry skin color
+    ::pos move{ 250.0f, 1000.0f }; std::time_t move_until{}; short move_item{}; // @note Mud Glob / Das Red Balloon {speed, gravity}
+    std::string last_msg_from{}; // @note /reply
+    std::vector<::block_change> block_history{}; // @note /undo // @note last equipped clothing that has a effect. supporting 0-255 effects.
 
     int netid{}; // @note peer's netid is world identity. this will be useful for many packet sending
-    std::string display_growid{}; // @note use this for displaying growid, never use ::growid
+    std::string display_growid{};
+    std::string nickname{}; // @note /nick disguise, empty = not disguised // @note use this for displaying growid, never use ::growid
     std::string country{};
 
     u_int skin_color{ 2527912447 };

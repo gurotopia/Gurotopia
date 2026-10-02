@@ -1,5 +1,10 @@
 #include "pch.hpp"
 #include "tools/create_dialog.hpp"
+#include "commands/curse.hpp"
+#include "commands/useitems.hpp"
+#include "commands/buffs.hpp"
+#include "commands/staff.hpp"
+#include "commands/legendary.hpp"
 #include "wrench.hpp"
 
 void action::wrench(ENetEvent& event, const std::string& header) 
@@ -25,9 +30,10 @@ void action::wrench(ENetEvent& event, const std::string& header)
                             .embed_data("netID", netid)
                             .add_popup_name("WrenchMenu")
                             .set_default_color("`o")
-                            .add_player_info(pOthers->display_growid, std::to_string(lvl), pOthers->level.back(), 50 * (lvl * lvl + 2))
+                            .add_player_info(pOthers->display_growid, (pOthers->role >= MODERATOR ? std::string{ "?" } : std::to_string(lvl)), pOthers->level.back(), 50 * (lvl * lvl + 2))
                             .add_spacer("small")
                             .add_spacer("small")
+                            .add_raw(title_quick_button(*pOthers)) // @note one-tap title on/off
                             .add_button("renew_pvp_license", "Get Card Battle License")
                             .add_spacer("small")
                             .set_custom_spacing(5, 10)
@@ -57,6 +63,10 @@ void action::wrench(ENetEvent& event, const std::string& header)
                             .add_textbox("Surgeon Level: 0")
                             .add_spacer("small")
                             .add_textbox("`wActive effects:``")
+                            .add_raw(curse_wrench_line(*pOthers))
+                            .add_raw(item_effects_wrench(*pOthers))
+                            .add_raw(buffs_wrench(*pOthers))
+                            .add_raw(mods_wrench(*pOthers))
                             /* @todo handle peer's effects */
                             .add_spacer("small")
                             .add_smalltext(std::format("Fires Put Out: {}", pOthers->fires_removed))
@@ -66,7 +76,7 @@ void action::wrench(ENetEvent& event, const std::string& header)
                                                     pOthers->recent_worlds.back(), pOthers->pos.by_32(true).x_int(), pOthers->pos.by_32(true).y_int()))
                             .add_textbox("`oYou are standing on the note \"A\".``")
                             .add_spacer("small")
-                            .add_textbox("`oTotal time played is `w0.0`` hours.  This account was created `w0`` days ago.``")
+                            .add_textbox(std::format("`oThis account was created `w{}`` days ago.``", pOthers->created_at > 0 ? (std::time(nullptr) - pOthers->created_at) / 86400 : 0))
                             .add_spacer("small")
                             .add_quick_exit()
                             .end_dialog("popup", "", "Continue")
@@ -75,35 +85,39 @@ void action::wrench(ENetEvent& event, const std::string& header)
                 /* wrench someone else */
                 else
                 {
-                    send_varlist(event.peer, {
-                        "OnDialogRequest",
-                        ::create_dialog()
-                            .embed_data("netID", netid)
-                            .add_popup_name("WrenchMenu")
-                            .set_default_color("`o")
-                            .add_label_with_icon("big", std::format("{} (`2{}``)``", pOthers->display_growid, lvl), 18)
-                            .embed_data("netID", netid)
-                            .add_spacer("small")
-                            .add_achieve("0"/*@todo add achivements*/)
-                            .add_custom_margin(75, -70.85)
-                            .add_custom_margin(-75, 70.85)
-                            .add_spacer("small")
-                            .add_label("small", "`1Achievements:`` 0/173"/*add total achivements*/)
-                            .add_spacer("small")
-                            .add_label("small", "`1Account Age:`` 0 days")
-                            .add_spacer("small")
-                            .add_button("trade", "`wTrade``")
-                            .add_button("sendpm", "`wSend Message``")
-                            .add_textbox("(No Battle Leash equipped)")
-                            .add_textbox("You need a valid license to battle!")
-                            .add_button("friend_add", "`wAdd as friend``")
-                            .add_button("show_clothes", "`wView worn clothes``")
-                            .add_button("ignore_player", "`wIgnore Player``")
-                            .add_button("report_player", "`wReport Player``")
-                            .add_spacer("small")
-                            .add_quick_exit()
-                            .end_dialog("popup", "", "Continue")
-                    });
+                    const bool staff_target = pOthers->role >= MODERATOR;
+                    const bool viewer_staff = pPeer->role >= MODERATOR;
+                    const std::string level_text = staff_target ? std::string{ "?" } : std::to_string(lvl);
+                    const std::string age_text = (staff_target && !viewer_staff) ? std::string{ "?" } :
+                        std::format("{} days", pOthers->created_at > 0 ? (std::time(nullptr) - pOthers->created_at) / 86400 : 0);
+
+                    ::create_dialog d{};
+                    d.embed_data("netID", netid)
+                     .add_popup_name("WrenchMenu")
+                     .set_default_color("`o")
+                     .add_label_with_icon("big", std::format("{} (`2{}``)``", pOthers->display_growid, level_text), 18)
+                     .embed_data("netID", netid)
+                     .add_spacer("small")
+                     .add_label("small", std::format("`1Account Age:`` {}", age_text))
+                     .add_spacer("small")
+                     .add_button("trade", "`wTrade``")
+                     .add_button("sendpm", "`wSend Message``")
+                     .add_button("show_clothes", "`wView worn clothes``");
+                    if (!staff_target || viewer_staff) // @note players can't friend, ignore or report staff
+                    {
+                        d.add_button("friend_add", "`wAdd as friend``")
+                         .add_button("ignore_player", "`wIgnore Player``")
+                         .add_button("report_player", "`wReport Player``");
+                    }
+                    {
+                        auto here = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
+                        const bool is_owner = here != worlds.end() && here->owner != 0 && here->owner == pPeer->user_id;
+                        if ((viewer_staff || is_owner) && !(staff_target && pOthers->role >= pPeer->role)) d.add_button("pull_player", "`wPull``"); // @note world owners and staff
+                    }
+                    if (viewer_staff) d.add_button("staff_panel", "`4Staff / Punish``"); // @note opens the staff window
+                    d.add_spacer("small")
+                     .add_quick_exit();
+                    send_varlist(event.peer, { "OnDialogRequest", d.end_dialog("popup", "", "Continue") });
                 }
                 return; // @note early exit else iteration will continue for EVERYONE in the world.
             }

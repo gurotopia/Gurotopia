@@ -3,10 +3,16 @@
 #include "action/quit_to_exit.hpp"
 #include "onVariant/ConsoleMessage.hpp"
 
+#include "action/respawn.hpp"
 #include "warp.hpp"
 
 void warp(ENetEvent& event, const std::string_view text)
 {
+    if (::peer *pCursed = static_cast<::peer*>(event.peer->data); pCursed->curse_until > std::time(nullptr) && pCursed->recent_worlds.back() == "HELL")
+    {
+        action::respawn(event, "");
+        return;
+    }
     std::string world_name{ text.substr(strlen("warp ")) };
     for (char &c : world_name) c = std::toupper(c); // @note start -> START
 

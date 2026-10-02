@@ -11,7 +11,7 @@ void receive(ENetEvent& event)
         case 2: case 3: 
         {
             std::string header{data.begin() + 4, data.end() - 1};
-            puts(header.c_str());
+            if (header.find("ltoken|") == std::string::npos && header.find("password") == std::string::npos) puts(header.c_str()); // @note never print logins (they contain passwords)
             
             std::ranges::replace(header, '\n', '|');
             const std::vector<std::string> pipes = readch(header, '|');
@@ -39,7 +39,6 @@ void receive(ENetEvent& event)
                 i->second(event, std::move(gamePacket));
             break;
         }
-        default: printf("received unqiue: %d\n", data[0ull]);
     }
     enet_packet_destroy(event.packet);
 }

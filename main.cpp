@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version parent SHA: 8f2b5977fd057b99e2e2a6f0e65170145decc159 2026-9-30
+    @version parent SHA: 7d52e21d120625f1011bed6b844a9409d07fedc1 2026-8-31
 */
 #include "include/pch.hpp"
 #include "include/eventType/_eventType.hpp"
@@ -11,6 +11,9 @@
 #include "include/database/database_config.hpp" // @note load_database_config(), gDatabase_config
 #include "include/automate/holiday.hpp" // @note holiday
 #include <csignal>
+#include <fstream>
+#include "commands/motd.hpp"
+#include "commands/wands.hpp"
 
 namespace
 {
@@ -24,6 +27,9 @@ int main()
 #ifdef SIGHUP // @note unix
     std::signal(SIGHUP, signal_handler); // @note PuTTY, SSH problems
 #endif
+
+    /* libary version checker */
+    std::printf("openssl/openssl %s\n", OpenSSL_version(OPENSSL_VERSION_STRING));
 
     mysql_library_init(0, NULL, NULL);
     enet_initialize();
@@ -41,6 +47,7 @@ int main()
     host->checksum = enet_crc32;
     enet_host_compress_with_range_coder(host);
 
+    { std::ifstream istrm("motd.txt"); if (istrm) std::getline(istrm, gMotd); }
     gDb_config.init();
     mysql_connect();
     decode_items();      // @note reads items.dat into legible class members (id, item name, ect)
@@ -49,11 +56,19 @@ int main()
 
     ENetEvent event{};
     while (!gSignal)
-        while (enet_host_service(host, &event, 1000/*ms*/) > 0)
+    {
+        while (enet_host_service(host, &event, 50/*ms*/) > 0)
+        {
             if (const auto i = eventType_pool.find(event.type); i != eventType_pool.end())
                 i->second(event);
+            tick_timers();
+        }
+        tick_timers();
+    }
 
     safe_disconnect_peers(gSignal);
+    worlds.clear();
+    worlds.clear(); // @note destructors save every world to MariaDB
     mysql_close(db); // @note deletes db (MYSQL* allocation)
     mysql_library_end();
 

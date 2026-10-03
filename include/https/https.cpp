@@ -33,6 +33,7 @@ static std::string make_response(const std::string &server_ip)
     #include <winsock2.h>
     #include <ws2tcpip.h>
 #else
+    #include <csignal>
     #include <unistd.h>
     #include <arpa/inet.h>
     #include <netinet/in.h>

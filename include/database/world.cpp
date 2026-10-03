@@ -431,7 +431,7 @@ u_short modify_item_inventory(ENetEvent &event, ::slot slot)
     ::gamePacket gamePacket{.id = slot.id};
     if (slot.count < 0) gamePacket.type = (slot.count*-1 << 16) | 0x000d; // @noote 0x00{}000d
     else                gamePacket.type = (slot.count    << 24) | 0x000d; // @noote 0x{}00000d
-    state_visuals(*event.peer, std::move(gamePacket));
+    send_data(*event.peer, compress_state(gamePacket)); // @note only the player whose backpack changes
 
     return pPeer->emplace(::slot(slot.id, slot.count));
 }

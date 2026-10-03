@@ -5,6 +5,7 @@
 
 void sb(ENetEvent& event, const std::string_view text)
 {
+    if (text.size() <= sizeof("sb ")-1) return; // @note "/sb" with no message: substr() would throw and crash the server
     const std::string message{ text.substr(sizeof("sb ")-1) };
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 

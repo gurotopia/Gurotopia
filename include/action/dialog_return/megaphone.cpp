@@ -6,5 +6,7 @@
 
 void megaphone(ENetEvent& event, const ::hPipe &hPipe)
 {
-    sb(event, hPipe["message"]); // @todo handle this when /sb requires gems @todo handle trim
+    const std::string message = hPipe["message"];
+    if (message.empty()) return;
+    sb(event, "sb " + message); // @note sb() skips the first 3 chars ("sb ") @todo handle this when /sb requires gems @todo handle trim
 }

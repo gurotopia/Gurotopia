@@ -155,7 +155,7 @@ void block::reset()
     blob.i32(0x00);
     blob.i32(0x00);
 
-    blob.i32(this->last_object_uid);
+    blob.i32(static_cast<int>(this->objects.size())); // @note number of drops
     blob.i32(this->last_object_uid);
     for (const ::object &object : this->objects) 
     {
@@ -287,9 +287,10 @@ void world::mysql_select_all()
 
         const u_char *u8 = blob.data(); // @note i did not have the brain capacity to reinterpret it. t-t (memcpy is safer anyways...)
         int i{};
-        memcpy(&this->last_object_uid, u8, sizeof(u_int)); i += sizeof(u_int); // @todo real gt has this as 8 bits not just 4.
+        if (blob.size() >= sizeof(u_int)) memcpy(&this->last_object_uid, u8, sizeof(u_int));
+        i += sizeof(u_int); // @todo real gt has this as 8 bits not just 4.
 
-        objects.resize(this->last_object_uid);
+        objects.resize(blob.size() >= sizeof(u_int) ? (blob.size() - sizeof(u_int)) / 16 : 0); // @note count from the saved data, not the last drop uid
         for (::object &object : this->objects)
         {
             memcpy(&object.id,    u8 + i, sizeof(u_short)); i += sizeof(u_short);

@@ -85,7 +85,7 @@ public:
     void mysql_update(const std::string &column, const T &value);
 
     template<typename T>
-    T    mysql_select(const std::string &column, const std::string &arg = "");
+    T    mysql_select(const std::string &column, const std::string &arg = "", bool by_user_id = false); // @note by_user_id: WHERE uid instead of WHERE growid
     void mysql_select_all();
 
     int user_id{}; // @note unqiue user id.

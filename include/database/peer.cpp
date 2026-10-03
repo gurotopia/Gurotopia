@@ -61,12 +61,12 @@ template void peer::mysql_update<float>(const std::string&, const float&);
 template void peer::mysql_update<std::string>(const std::string&, const std::string&);
 
 template<typename T>
-T peer::mysql_select(const std::string &column, const std::string &arg)
+T peer::mysql_select(const std::string &column, const std::string &arg, bool by_user_id)
 {
     T value{};
-    ::hStmt hStmt{ std::format("SELECT {}({}) FROM peer WHERE growid = ? LIMIT 1", arg, column).c_str() };
+    ::hStmt hStmt{ std::format("SELECT {}({}) FROM peer WHERE {} = ? LIMIT 1", arg, column, by_user_id ? "uid" : "growid").c_str() };
 
-    MYSQL_BIND param = make_bind_in(this->growid); // WHERE
+    MYSQL_BIND param = by_user_id ? make_bind_in(this->user_id) : make_bind_in(this->growid); // WHERE
     hStmt.bind_param(&param);
 
     u_long length = 0;
@@ -82,6 +82,7 @@ T peer::mysql_select(const std::string &column, const std::string &arg)
     return value;
 }
 /* since we will only select during mysql_select_all */ // @note add templates here if use select outside of this file.
+template std::string peer::mysql_select<std::string>(const std::string&, const std::string&, bool); // @note tile_change.cpp (World Lock owner name)
 
 void peer::mysql_select_all()
 {
@@ -135,6 +136,7 @@ void peer::load(const std::string &growid, const std::string &password)
 
 peer::~peer()
 {
+    if (this->growid.empty()) return; // @note an offline "fake" peer that was never loaded has nothing to save
     this->mysql_update<std::vector<u_char>>("inventory", this->serialize_inventory().data());
 }
 

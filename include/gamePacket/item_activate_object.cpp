@@ -12,18 +12,21 @@ void item_activate_object(ENetEvent& event, ::gamePacket gamePacket)
     if (world == worlds.end()) return;
 
     auto object = std::ranges::find(world->objects, gamePacket.id, &::object::uid);
-    if (object->id != 112/*gem*/)
-    {
-        const ::item &item = id_to_item(object->id);
+    if (object == world->objects.end()) return; // @note already picked up (the game can ask twice)
 
-        u_short remember = object->count;
-        object->count = pPeer->emplace(::slot(object->id, object->count)); // @return remains after reaching 200
-        if (object->count > 0)
-        {
-            add_object(event, ::slot(object->id, object->count), object->pos, *world);
-        }
-        u_short collected = remember - object->count;
-        if (collected ==/*unsigned*/ 0) return; // @todo
+    const u_int   uid = object->uid;
+    const u_short id  = object->id;
+    const ::pos   pos = object->pos;
+    u_short left = 0;
+
+    if (id != 112/*gem*/)
+    {
+        const ::item &item = id_to_item(id);
+
+        const u_short remember = object->count;
+        left = pPeer->emplace(::slot(static_cast<short>(id), static_cast<short>(remember))); // @return remains after reaching 200
+        const u_short collected = remember - left;
+        if (collected ==/*unsigned*/ 0) return; // @note backpack full: leave it where it is
 
         on::ConsoleMessage(event.peer, (item.rarity >= 999) ?
             std::format("Collected `w{} {}``.",                collected, item.raw_name) :
@@ -33,10 +36,10 @@ void item_activate_object(ENetEvent& event, ::gamePacket gamePacket)
     else 
     {
         pPeer->gems += object->count;
-        object->count = 0;
         on::SetBux(event);
     }
-    remove_object(event, object->uid);
+    remove_object(event, uid);
+    world->objects.erase(object); // @note erase before add_object(), which can move the list and break the iterator
 
-    if (object->count == 0) world->objects.erase(object);
+    if (left > 0) add_object(event, ::slot(static_cast<short>(id), static_cast<short>(left)), pos, *world); // @note the rest stays on the ground
 }

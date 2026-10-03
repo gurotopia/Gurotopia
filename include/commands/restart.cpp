@@ -1,5 +1,4 @@
 #include "pch.hpp"
-#include <csignal> // @note std::signal / SIGINT / SIGTERM (needed on Linux)
 #include "onVariant/ConsoleMessage.hpp"
 #include "database/world.hpp"
 #include "restart.hpp"

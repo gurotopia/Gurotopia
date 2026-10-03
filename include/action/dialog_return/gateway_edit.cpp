@@ -12,6 +12,9 @@ void gateway_edit(ENetEvent& event, const ::hPipe &hPipe)
     auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
     if (world == worlds.end()) return;
 
+    if (tilex < 0 || tilex >= 100 || tiley < 0 || cord(tilex, tiley) >= world->blocks.size()) return;
+    if (world->owner != 0 && world->owner != pPeer->user_id && std::ranges::find(world->access, pPeer->user_id) == world->access.end()) return; // @note same rule as building here
+
     block &block = world->blocks[cord(tilex, tiley)];
 
     if (hPipe["dialog_name"] == "sign_edit") 
@@ -49,7 +52,7 @@ void gateway_edit(ENetEvent& event, const ::hPipe &hPipe)
     else if (hPipe["dialog_name"] == "gateway_edit") 
     {
         block.state[2] &= ~(S_PUBLIC | S_LOCKED);
-        block.state[2] |= stoi(hPipe["checkbox_public"]) ? S_PUBLIC : S_LOCKED;
+        block.state[2] |= atoi(hPipe["checkbox_public"].c_str()) ? S_PUBLIC : S_LOCKED;
     }
 
     send_tile_update(event, {

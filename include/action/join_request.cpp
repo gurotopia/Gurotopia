@@ -100,6 +100,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
     catch (const std::exception& exc)
     {
         send_varlist(event.peer, { "OnFailedToEnterWorld" });
+        if (const std::string_view msg{ exc.what() }; !msg.empty()) on::ConsoleMessage(event.peer, std::string{ msg }); // @note tell the player why
         return;
     }
 }

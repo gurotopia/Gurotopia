@@ -8,7 +8,7 @@ void action::drop(ENetEvent& event, const std::string& header)
     
     const ::item &item = id_to_item(atoi(itemID.c_str()));
     
-    if (item.cat == CAT_UNTRADEABLE)
+    if (item.cat & CAT_UNTRADEABLE)
     {
         send_varlist(event.peer, { "OnTextOverlay", "You can't drop that." });
         return;

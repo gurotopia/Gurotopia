@@ -283,9 +283,9 @@ void world::mysql_select_all()
         }
     } // @note delete blob, i
     {
-        auto blob = this->mysql_select<std::vector<u_char>>("objects");
+        ::blob blob = this->mysql_select<::blob>("objects"); // @note ::blob is cut to the real length, std::vector<u_char> stays at the full buffer size
 
-        const u_char *u8 = blob.data(); // @note i did not have the brain capacity to reinterpret it. t-t (memcpy is safer anyways...)
+        const u_char *u8 = blob.data().data(); // @note i did not have the brain capacity to reinterpret it. t-t (memcpy is safer anyways...)
         int i{};
         if (blob.size() >= sizeof(u_int)) memcpy(&this->last_object_uid, u8, sizeof(u_int));
         i += sizeof(u_int); // @todo real gt has this as 8 bits not just 4.

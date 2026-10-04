@@ -123,7 +123,11 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                     if (is_tile_lock(item.id)) break; // @todo seperate area for 'range_lock'
 
                     if (world->owner != pPeer->user_id)
-                        throw std::runtime_error(std::format("`5[```w{}`` `$World Locked`` by (null)`5]``", world->name)); // @todo add owner name
+                    {
+                        ::peer owner{}; // @note offline "fake" peer, only used to read the owner's name
+                        owner.user_id = world->owner;
+                        throw std::runtime_error(std::format("`5[```w{}`` `$World Locked`` by `w{}```5]``", world->name, owner.mysql_select<std::string>("growid", "", true)));
+                    }
                     break;
                 }
                 case type::PROVIDER:

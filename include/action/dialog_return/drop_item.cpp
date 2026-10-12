@@ -10,12 +10,12 @@ void drop_item(ENetEvent& event, const ::hPipe &hPipe)
     if (world == worlds.end()) return;
 
     const short itemID = atoi(hPipe["itemID"].c_str());
-    short count = atoi(hPipe["count"].c_str());
+    if (id_to_item(itemID).cat & CAT_UNTRADEABLE) return;
 
-    for (const ::slot &slot : pPeer->slots)
-        if (slot.id == itemID)
-            if (count > slot.count) count = slot.count;
-            else if (count < 0) count = 0;
+    auto slot = std::ranges::find(pPeer->slots, itemID, &::slot::id);
+    if (slot == pPeer->slots.end()) return; // @note you can only drop what you have
+    const short count = static_cast<short>(std::clamp(atoi(hPipe["count"].c_str()), 0, static_cast<int>(slot->count)));
+    if (count == 0) return;
 
     modify_item_inventory(event, ::slot(itemID, -count));
 

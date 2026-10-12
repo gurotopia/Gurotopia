@@ -4,6 +4,7 @@
 #include "tile_activate.hpp"
 #include "item_activate.hpp"
 #include "item_activate_object.hpp"
+#include "set_icon_state.hpp"
 #include "ping_reply.hpp"
 #include "disconnect.hpp"
 
@@ -16,13 +17,7 @@ std::unordered_map<u_char, std::function<void(ENetEvent&, ::gamePacket)>> gamePa
     {0x07, std::bind(&tile_activate, std::placeholders::_1, std::placeholders::_2)},
     {0x0a, std::bind(&item_activate, std::placeholders::_1, std::placeholders::_2)},
     {0x0b, std::bind(&item_activate_object, std::placeholders::_1, std::placeholders::_2)},
+    {0x12, std::bind(&set_icon_state, std::placeholders::_1, std::placeholders::_2)},
     {0x15, std::bind(&ping_reply, std::placeholders::_1, std::placeholders::_2)},
-    {0x1a, std::bind(&disconnect, std::placeholders::_1, std::placeholders::_2)},
-    {0x12, [](ENetEvent &event, ::gamePacket gamePacket) // @note PACKET_SET_ICON_STATE: the "..." bubble while typing
-    {
-        ::peer *pPeer = static_cast<::peer*>(event.peer->data);
-        if (!pPeer || pPeer->netid == 0) return;
-        gamePacket.netid = pPeer->netid;
-        state_visuals(*event.peer, std::move(gamePacket));
-    }}
+    {0x1a, std::bind(&disconnect, std::placeholders::_1, std::placeholders::_2)}
 };

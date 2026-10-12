@@ -28,8 +28,8 @@ static constexpr std::string_view named_help =
     "/time /sb {msg} /find /warp {world} /punch {id} /skin {id} /who /me {msg} "
     "/news /weather {id} /ghost /trade {player}";
 
-std::array<std::string_view, 6> cmd_requires_arg{
-    "sb", "warp", "punch", "skin", "me", "weather"
+std::array<std::string_view, 7> cmd_requires_arg{
+    "sb", "warp", "punch", "skin", "me", "weather", "trade"
 };
 
 /* if you plan to use this outside of this file, please include in __command.hpp (^-^) - and just make it a void. */
@@ -59,7 +59,7 @@ std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::s
         {"news", &news},
         {"weather", &weather},
         {"ghost", &ghost},
-        {"trade", &trade_cmd}
+        {"trade", &trade}
     };
 
     for (std::string_view emote : emotes)

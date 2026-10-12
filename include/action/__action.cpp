@@ -22,9 +22,13 @@
 #include "store.hpp"
 #include "storenavigate.hpp"
 #include "buy.hpp"
+#include "trade_started.hpp"
+#include "mod_trade.hpp"
+#include "rem_trade.hpp"
+#include "trade_accept.hpp"
+#include "trade_cancel.hpp"
 
 #include "quit.hpp"
-#include "commands/trade.hpp"
 
 #include "__action.hpp"
 

@@ -1,11 +1,9 @@
 #include "pch.hpp"
 #include "action/quit_to_exit.hpp"
-#include "commands/trade.hpp"
 #include "quit.hpp"
 
 void action::quit(ENetEvent& event, const std::string& header) 
 {
-    if (event.peer != nullptr && event.peer->data != nullptr) trade_end_for(*static_cast<::peer*>(event.peer->data), "left the game"); // @note also drops trade requests
     action::quit_to_exit(event, "", true);
     
     if (event.peer == nullptr) return;

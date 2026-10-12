@@ -1,7 +1,7 @@
 #include "pch.hpp"
 #include "onVariant/RequestWorldSelectMenu.hpp"
 #include "onVariant/ConsoleMessage.hpp"
-#include "commands/trade.hpp"
+#include "tools/trade.hpp"
 #include "quit_to_exit.hpp"
 
 void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip_selection = false) 
@@ -11,7 +11,7 @@ void action::quit_to_exit(ENetEvent& event, const std::string& header, bool skip
     auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);
     if (world == worlds.end()) return; // @note peer was not in a world, therefore nothing to exit from.
 
-    trade_end_for(*pPeer, "left the world"); // @note a trade can't outlive the world it started in
+    trade_leave(event); // @note also covers action|quit and /warp, both exit through here
 
     std::string message = std::format("`5<{} left, `w{}`` others here>``", pPeer->display_growid, world->visitors-1);
     std::string netid = std::format("netID|{}\n", pPeer->netid);

@@ -1,7 +1,7 @@
 #include "pch.hpp"
 
 #include "onVariant/ConsoleMessage.hpp"
-#include "commands/trade.hpp"
+#include "action/trade.hpp"
 #include "popup.hpp"
 
 void popup(ENetEvent& event, const ::hPipe &hPipe)

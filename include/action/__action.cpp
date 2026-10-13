@@ -24,7 +24,7 @@
 #include "buy.hpp"
 
 #include "quit.hpp"
-#include "commands/trade.hpp"
+#include "action/trade.hpp"
 
 #include "__action.hpp"
 
@@ -57,6 +57,7 @@ std::unordered_map<std::string, std::function<void(ENetEvent&, const std::string
     {"action|mod_trade", std::bind(&action::mod_trade, std::placeholders::_1, std::placeholders::_2)},
     {"action|rem_trade", std::bind(&action::rem_trade, std::placeholders::_1, std::placeholders::_2)},
     {"action|trade_accept", std::bind(&action::trade_accept, std::placeholders::_1, std::placeholders::_2)},
+    {"action|trade_check_price", std::bind(&action::trade_check_price, std::placeholders::_1, std::placeholders::_2)},
     {"action|trade_cancel", std::bind(&action::trade_cancel, std::placeholders::_1, std::placeholders::_2)},
 
     {"action|quit", std::bind(&action::quit, std::placeholders::_1, std::placeholders::_2)}

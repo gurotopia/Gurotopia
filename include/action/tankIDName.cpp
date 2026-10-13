@@ -10,16 +10,20 @@ void action::tankIDName(ENetEvent& event, const std::string& header)
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     std::vector<std::string> pipes = readch(header, '|');
-    if (pipes.empty() || pipes.size() < 41ull) enet_peer_disconnect_later(event.peer, 0);
+    if (pipes.empty() || pipes.size() < 41ull)
+    {
+        enet_peer_disconnect_later(event.peer, 0);
+        return;
+    }
 
     /* @todo instead of setting these values we should check if there valid from SQL.*/
     std::string protocol{};
-    for (std::size_t i = 0; i < pipes.size(); ++i) 
+    for (std::size_t i = 0; i + 1 < pipes.size(); ++i) 
     {
         if      (pipes[i] == "tankIDName") pPeer->growid = pipes[i+1];
         else if (pipes[i] == "protocol")   protocol = pipes[i+1];
         else if (pipes[i] == "country")    pPeer->country = pipes[i+1];
-        else if (pipes[i] == "user")       pPeer->user_id = std::stoi(pipes[i+1]); // @todo validate user_id
+        else if (pipes[i] == "user")       pPeer->user_id = atoi(pipes[i+1].c_str()); // @todo validate user_id
     }
     if (atoi(protocol.c_str()) == 0) return; // @todo <226
 

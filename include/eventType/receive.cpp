@@ -6,10 +6,16 @@
 void receive(ENetEvent& event) 
 {
     std::span<const enet_uint8> data{event.packet->data, event.packet->dataLength};
+    if (data.size() < 4) // @note too short to hold a message type
+    {
+        enet_packet_destroy(event.packet);
+        return;
+    }
     switch (data[0ull]) 
     {
         case 2: case 3: 
         {
+            if (data.size() < 5) break; // @note need at least 1 byte after the type, which the client sets to '\0'
             std::string header{data.begin() + 4, data.end() - 1};
             puts(header.c_str());
             

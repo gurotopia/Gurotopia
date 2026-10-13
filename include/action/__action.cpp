@@ -24,6 +24,7 @@
 #include "buy.hpp"
 
 #include "quit.hpp"
+#include "action/trade.hpp"
 
 #include "__action.hpp"
 
@@ -52,6 +53,12 @@ std::unordered_map<std::string, std::function<void(ENetEvent&, const std::string
     {"action|store", std::bind(&action::store, std::placeholders::_1, std::placeholders::_2)},
     {"action|storenavigate", std::bind(&action::storenavigate, std::placeholders::_1, std::placeholders::_2)},
     {"action|buy", std::bind(&action::buy, std::placeholders::_1, std::placeholders::_2, "")},
+    {"action|trade_started", std::bind(&action::trade_started, std::placeholders::_1, std::placeholders::_2)},
+    {"action|mod_trade", std::bind(&action::mod_trade, std::placeholders::_1, std::placeholders::_2)},
+    {"action|rem_trade", std::bind(&action::rem_trade, std::placeholders::_1, std::placeholders::_2)},
+    {"action|trade_accept", std::bind(&action::trade_accept, std::placeholders::_1, std::placeholders::_2)},
+    {"action|trade_check_price", std::bind(&action::trade_check_price, std::placeholders::_1, std::placeholders::_2)},
+    {"action|trade_cancel", std::bind(&action::trade_cancel, std::placeholders::_1, std::placeholders::_2)},
 
     {"action|quit", std::bind(&action::quit, std::placeholders::_1, std::placeholders::_2)}
 };

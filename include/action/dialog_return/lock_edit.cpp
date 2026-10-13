@@ -1,10 +1,12 @@
 #include "pch.hpp"
 #include "onVariant/ConsoleMessage.hpp"
+#include "action/trade.hpp"
 
 #include "lock_edit.hpp"
 
 void lock_edit(ENetEvent& event, const ::hPipe &hPipe)
 {
+    if (hPipe["buttonClicked"] == "getKey") { trade_world_key(event); return; }
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     auto world = std::ranges::find(worlds, pPeer->recent_worlds.back(), &::world::name);

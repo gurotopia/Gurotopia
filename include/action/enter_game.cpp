@@ -19,12 +19,13 @@ void action::enter_game(ENetEvent& event, const std::string& header)
         )
     );
     on::ConsoleMessage(event.peer, holiday_greeting().second);
-    on::ConsoleMessage(event.peer, "`5Personal Settings active:`` `#Can customize profile``");
+    on::ConsoleMessage(event.peer, "`5Personal Settings active:`` `#Punch Joystick enabled``");
     
     send_inventory_state(event);
+
     on::SetBux(event);
     send_varlist(event.peer, { "OnSetVouchers", 0 });
-    send_varlist(event.peer, { "SetHasGrowID", 1, pPeer->growid.c_str(), "" });
+    send_varlist(event.peer, { "SetHasGrowID", 1u, pPeer->growid.c_str(), "" });
     {
         std::tm time = localtime();
 
@@ -37,6 +38,8 @@ void action::enter_game(ENetEvent& event, const std::string& header)
         });
     } // @note delete time
 
+    send_varlist(event.peer, { "OnRequestHoustonPricing" });
+
     on::RequestWorldSelectMenu(event);
     on::RequestGazette(event);
 
@@ -44,6 +47,6 @@ void action::enter_game(ENetEvent& event, const std::string& header)
     /* for v5.47+ client */
     send_varlist(event.peer, {
         "OnSetFeatureEnableFlags",
-        "EA8DEAcGAgEOBQgKCQ0MEQQ=" // @todo Dw0JEQQMEAMPAgYBDgUICg==
+        "EA4NBQgJAQoPAgQRBwYDEAw=" // @todo Dw0JEQQMEAMPAgYBDgUICg==
     });
 }

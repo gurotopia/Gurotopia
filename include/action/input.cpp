@@ -2,6 +2,8 @@
 #include "commands/__command.hpp"
 #include "onVariant/ConsoleMessage.hpp"
 #include "tools/time.hpp"
+#include "tools/random.hpp"
+
 #include "input.hpp"
 
 void action::input(ENetEvent& event, const std::string& header)
@@ -47,34 +49,17 @@ void action::input(ENetEvent& event, const std::string& header)
     {
         if (pPeer->state & S_DUCT_TAPE)
         {
-            static constexpr std::array<std::string_view, 4ull> muffled{ "mfmm", "mmfmfm", "mffm", "mfmfmm" };
-
-            std::string muffled_text{};
-            muffled_text.reserve(text.size());
-
-            std::size_t word_index{};
-            for (std::size_t i = 0ull; i < text.size();)
+            for (char &c : text)
             {
-                if (std::isspace(text[i]))
-                {
-                    muffled_text += text[i++];
-                    continue;
-                }
-
-                while (i < text.size() && !std::isspace(text[i]))
-                    ++i;
-
-                muffled_text += muffled[word_index % muffled.size()];
-                ++word_index;
+                if (c != ' ') c = (RandomRange(1, 3) == 1) ? 'm' : 'f';
             }
-            text = std::move(muffled_text);
         }
         const std::string &player_chat = std::format("CP:0_PL:0_OID:_player_chat={}", text);
         const std::string &message = std::format("CP:0_PL:0_OID:_CT:[W]_ `6<{}>`` `$`${}````", pPeer->display_growid, text);
         peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD, [&event, &pPeer, player_chat, message](ENetPeer& p) 
         {
-            send_varlist(&p, { "OnTalkBubble", pPeer->netid, player_chat });
-            on::ConsoleMessage(&p, message);
+            send_varlist(&p, { "OnTalkBubble", pPeer->netid, player_chat, 0u });
+            on::ConsoleMessage(&p, message, 2);
         });
     }
 }

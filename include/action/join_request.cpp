@@ -96,6 +96,11 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         ++world.visitors;
         on::SetClothing(*event.peer);
         on::CountryState(event);
+
+        send_varlist(event.peer, {
+            "OnSetFeatureEnableFlags",
+            "EAwQAw4BDQUICQoPAgQRBwY="
+        });
     }
     catch (const std::exception& exc)
     {

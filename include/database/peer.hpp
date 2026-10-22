@@ -139,6 +139,19 @@ public:
     
     std::deque<u_int> messages; // @note last 5 que messages sent time, this is used to check for spamming
 
+    // @note trade state is only kept for this connection.
+    struct trade_state
+    {
+        enum class phase { idle, waiting, editing, confirming };
+        int partner_uid{};
+        int partner_netid{};
+        bool started{};
+        phase stage{phase::idle};
+        bool accepted{};
+        bool confirmed{};
+        std::vector<::slot> offer{};
+    } trade{};
+
     u_short fires_removed{};
     u_short gbc_pity{}; // @note GBC pity; for each 100 will receive super GBC
 };

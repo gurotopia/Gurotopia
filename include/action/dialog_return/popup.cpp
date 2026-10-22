@@ -1,14 +1,28 @@
 #include "pch.hpp"
 
+#include "onVariant/ConsoleMessage.hpp"
+#include "action/trade.hpp"
 #include "popup.hpp"
 
-void popup(ENetEvent& event, const ::hPipe &hPipe)
+namespace
 {
-    ::peer *pPeer = static_cast<::peer*>(event.peer->data);
-
-    if (hPipe["buttonClicked"] == "my_worlds")
+    void request_trade(ENetEvent &event, const ::hPipe &hPipe)
     {
-        auto section = [](const auto &range) 
+        const ::peer &player = *static_cast<::peer*>(event.peer->data);
+        const int netid = atoi(hPipe["netID"].c_str());
+        ENetPeer *target = nullptr;
+        if (player.netid != 0)
+            peers(player.recent_worlds.back(), PEER_SAME_WORLD, [&](ENetPeer &connection) {
+                const ::peer *other = static_cast<::peer*>(connection.data);
+                if (other && other->netid == netid) target = &connection;
+            });
+        if (target) trade_request(event, *target);
+        else on::ConsoleMessage(event.peer, "`4That player isn't here anymore.``");
+    }
+
+    void show_worlds(ENetPeer &connection, const ::peer &player)
+    {
+        auto section = [](const auto &range)
         {
             std::string result;
             for (const std::string &name : range)
@@ -16,7 +30,7 @@ void popup(ENetEvent& event, const ::hPipe &hPipe)
                     result.append(std::format("add_button|{0}|{0}|noflags|0|0|\n", name));
             return result;
         };
-        send_varlist(event.peer, {
+        send_varlist(&connection, {
             "OnDialogRequest",
             std::format(
                 "set_default_color|`o\n"
@@ -33,15 +47,16 @@ void popup(ENetEvent& event, const ::hPipe &hPipe)
                 "add_spacer|small|\n"
                 "end_dialog|worlds_list||Back|\n"
                 "add_quick_exit|\n",
-                section(pPeer->my_worlds)
+                section(player.my_worlds)
             )
         });
     }
-    else if (hPipe["buttonClicked"] == "billboard_edit")
-    {
-        const ::item &item = id_to_item(pPeer->billboard.id);
 
-        send_varlist(event.peer, {
+    void show_billboard(ENetPeer &connection, const ::peer &player)
+    {
+        const ::item &item = id_to_item(player.billboard.id);
+
+        send_varlist(&connection, {
             "OnDialogRequest",
             std::format(
                 "set_default_color|`o\n"
@@ -57,19 +72,26 @@ void popup(ENetEvent& event, const ::hPipe &hPipe)
                 "add_checkbox|chk_perlock|Items per World Lock|{}\n"
                 "add_spacer|small|\n"
                 "end_dialog|billboard_edit|Close|Update|\n",
-                (pPeer->billboard.id == 0) ? 
-                    "" : 
-                    std::format("add_label_with_icon|small|`w{}``|left|{}|\n", item.raw_name, pPeer->billboard.id),
-                to_char(pPeer->billboard.show),
-                to_char(pPeer->billboard.isBuying),
-                pPeer->billboard.price,
-                to_char(pPeer->billboard.perItem),
-                to_char(!pPeer->billboard.perItem)
+                (player.billboard.id == 0) ?
+                    "" :
+                    std::format("add_label_with_icon|small|`w{}``|left|{}|\n", item.raw_name, player.billboard.id),
+                to_char(player.billboard.show),
+                to_char(player.billboard.isBuying),
+                player.billboard.price,
+                to_char(player.billboard.perItem),
+                to_char(!player.billboard.perItem)
             )
         });
     }
-    else if (hPipe["buttonClicked"] == "seed_diary_customization")
-    {
+}
+
+void popup(ENetEvent& event, const ::hPipe &hPipe)
+{
+    const ::peer &player = *static_cast<::peer*>(event.peer->data);
+    const std::string button = hPipe["buttonClicked"];
+    if (button == "trade") request_trade(event, hPipe); // @note wrench someone > Trade
+    else if (button == "my_worlds") show_worlds(*event.peer, player);
+    else if (button == "billboard_edit") show_billboard(*event.peer, player);
+    else if (button == "seed_diary_customization")
         send_varlist(event.peer, { "OnDialogRequestRML", "show_seed_diary_ui" });
-    }
 }

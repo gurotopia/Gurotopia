@@ -209,7 +209,7 @@ std::vector<ENetPeer*> peers(const std::string &world, peer_condition condition,
             if (condition == peer_condition::PEER_SAME_WORLD)
             {
                 ::peer *pOthers = static_cast<::peer*>(peer.data);
-                if (pOthers->netid == 0 || (pOthers->recent_worlds.back() != world)) continue;
+                if (!pOthers || pOthers->netid == 0 || (pOthers->recent_worlds.back() != world)) continue;
             }
             fun(peer);
             _peers.push_back(&peer);

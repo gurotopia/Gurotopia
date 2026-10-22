@@ -22,6 +22,8 @@ int GetSizeOfData(Variant::eType type)
 	case Variant::TYPE_INT32:
 	case Variant::TYPE_FLOAT:
 		return 4;
+	case Variant::TYPE_INT64:
+		return 8;
 	case Variant::TYPE_VECTOR2:
 		return sizeof(CL_Vec2f);
 	case Variant::TYPE_VECTOR3:

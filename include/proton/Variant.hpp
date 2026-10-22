@@ -8,6 +8,8 @@
 //  ***************************************************************
 #pragma once
 
+#include <cstdint>
+
 #include "Math/vec2.hpp"
 #include "Math/vec3.hpp"
 
@@ -30,11 +32,17 @@ public:
 		TYPE_ENTITY,
 		TYPE_COMPONENT,
 		TYPE_RECT,
-		TYPE_INT32
-				
+		TYPE_INT32,
+		TYPE_INT64 = 10
 	};
 	Variant(u_int var) {SetDefaults(); Set(var);}
 	Variant(int var) {SetDefaults(); Set(var);}
+	Variant(long long var) {SetDefaults(); Set(static_cast<int64_t>(var));}
+	Variant(unsigned long long var) {SetDefaults(); Set(static_cast<int64_t>(var));}
+#if defined(__APPLE__)
+	Variant(long var) {SetDefaults(); Set(static_cast<int64_t>(var));}
+	Variant(unsigned long var) {SetDefaults(); Set(static_cast<int64_t>(var));}
+#endif
 
 	Variant(float var) {SetDefaults(); Set(var);}
 	Variant(const char *var) {SetDefaults(); Set(std::string(var));} // @note const char* support
@@ -62,9 +70,19 @@ public:
 	}
 
 
-	void Set(int var) 
+	void Set(int var)
 	{
 		m_type = TYPE_INT32; *((int*)m_var) = var;
+	}
+
+	void Set(int64_t var)
+	{
+		m_type = TYPE_INT64; *((int64_t*)m_var) = var;
+	}
+
+	int64_t GetINT64() const
+	{
+		return *((int64_t*)m_var);
 	}
 
 

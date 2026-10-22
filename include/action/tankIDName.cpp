@@ -24,6 +24,9 @@ void action::tankIDName(ENetEvent& event, const std::string& header)
         else if (pipes[i] == "protocol" && i + 1 < pipes.size())   protocol = pipes[i+1];
         else if (pipes[i] == "country" && i + 1 < pipes.size())    pPeer->country = pipes[i+1];
         else if (pipes[i] == "user" && i + 1 < pipes.size() && !pipes[i+1].empty()) pPeer->user_id = std::stoi(pipes[i+1]);
+        else if (pipes[i] == "game_version" && i + 1 < pipes.size() && !pipes[i+1].empty()) {
+            try { pPeer->game_version = std::stof(pipes[i+1]); } catch (...) {}
+        }
     }
     if (atoi(protocol.c_str()) == 0) return; // @todo <226
 

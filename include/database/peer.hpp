@@ -76,6 +76,7 @@ public:
 
     bool load(const std::string &growid, const std::string &password);
     bool load_by_uid(int uid);
+    bool create_account(const std::string &growid, const std::string &password);
 
     bool exists(const std::string &growid);
 

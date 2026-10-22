@@ -7,7 +7,8 @@
 void action::protocol(ENetEvent& event, const std::string& header)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
-    try 
+    bool is_reg = false;
+    try
     {
         std::vector<std::string> pipes = readch(header, '|');
         if (pipes.size() < 4ull) throw std::runtime_error("");
@@ -17,15 +18,21 @@ void action::protocol(ENetEvent& event, const std::string& header)
             const std::string &decoded = base64_decode(pipes[3ull]);
             if (decoded.empty()) throw std::runtime_error("");
 
-            if (std::size_t pos = decoded.find("growId="); pos != std::string::npos) 
+            if (std::size_t pos = decoded.find("growId="); pos != std::string::npos)
             {
                 pos += strlen("growId=");
                 pPeer->growid = decoded.substr(pos, decoded.find('&', pos) - pos);
             }
-            if (std::size_t pos = decoded.find("password="); pos != std::string::npos) 
+            if (std::size_t pos = decoded.find("password="); pos != std::string::npos)
             {
                 pos += strlen("password=");
                 pPeer->password = decoded.substr(pos, decoded.find('&', pos) - pos);
+            }
+            if (std::size_t pos = decoded.find("reg="); pos != std::string::npos)
+            {
+                pos += strlen("reg=");
+                std::string reg_str = decoded.substr(pos, decoded.find('&', pos) - pos);
+                is_reg = (reg_str == "1");
             }
         } // @note delete decoded
         if (pPeer->growid.empty() || pPeer->password.empty()) throw std::runtime_error("");
@@ -34,12 +41,29 @@ void action::protocol(ENetEvent& event, const std::string& header)
         send_action(*event.peer, "logon_fail", "");
         return; // @note stop processing invalid protocol data
     }
-    if (!pPeer->load(pPeer->growid, pPeer->password))
+
+    bool loaded = false;
+    if (is_reg)
     {
-        send_action(*event.peer, "log", "msg|`4Logon failed:`` Invalid GrowID or password.");
-        send_action(*event.peer, "logon_fail", "");
-        enet_peer_disconnect_later(event.peer, 0);
-        return;
+        loaded = pPeer->create_account(pPeer->growid, pPeer->password);
+        if (!loaded)
+        {
+            send_action(*event.peer, "log", "msg|`4Registration failed:`` GrowID already exists.");
+            send_action(*event.peer, "logon_fail", "");
+            enet_peer_disconnect_later(event.peer, 0);
+            return;
+        }
+    }
+    else
+    {
+        loaded = pPeer->load(pPeer->growid, pPeer->password);
+        if (!loaded)
+        {
+            send_action(*event.peer, "log", "msg|`4Logon failed:`` Invalid GrowID or password.");
+            send_action(*event.peer, "logon_fail", "");
+            enet_peer_disconnect_later(event.peer, 0);
+            return;
+        }
     }
 
     send_varlist(event.peer, {

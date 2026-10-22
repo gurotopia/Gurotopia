@@ -157,6 +157,30 @@ bool peer::load_by_uid(int uid)
     return true;
 }
 
+bool peer::create_account(const std::string &growid, const std::string &password)
+{
+    this->growid = growid;
+    if (this->exists(growid))
+    {
+        return false;
+    }
+    this->mysql_insert("growid", growid);
+    this->mysql_update("password", password);
+
+    this->slot_size = 16;
+    this->slots.resize(3ull); // @note default starter items
+    this->slots[0ull] = ::slot{18, 1};   // @note fist
+    this->slots[1ull] = ::slot{32, 1};   // @note wrench
+    this->slots[2ull] = ::slot{9640, 1}; // @note my first world lock
+    this->mysql_update<std::vector<u_char>>("inventory", this->serialize_inventory().data());
+    this->mysql_update<long long>("gems", 0LL);
+    this->mysql_update<signed>("level", 1);
+    this->mysql_update<signed>("xp", 0);
+
+    this->mysql_select_all();
+    return true;
+}
+
 peer::~peer()
 {
     if (this->growid.empty()) return; // @note an offline "fake" peer that was never loaded has nothing to save

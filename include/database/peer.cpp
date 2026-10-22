@@ -92,17 +92,32 @@ void peer::mysql_select_all()
     this->created_at = this->mysql_select<std::time_t>("created_at", "UNIX_TIMESTAMP");
 
     auto blob = this->mysql_select<std::vector<u_char>>("inventory");
-    const u_char *u8 = blob.data();
-
-    int pos{};
-    memcpy(&this->slot_size, u8 + pos, sizeof(int)); pos += sizeof(int);
-    short size{};
-    memcpy(&size, u8 + pos, sizeof(short)); pos += sizeof(short);
-    this->slots.resize(size);
-    for (::slot &slot : this->slots)
+    if (blob.size() >= sizeof(int) + sizeof(short))
     {
-        memcpy(&slot.id,    u8 + pos, sizeof(short)); pos += sizeof(short);
-        memcpy(&slot.count, u8 + pos, sizeof(short)); pos += sizeof(short);
+        const u_char *u8 = blob.data();
+
+        int pos{};
+        memcpy(&this->slot_size, u8 + pos, sizeof(int)); pos += sizeof(int);
+        short size{};
+        memcpy(&size, u8 + pos, sizeof(short)); pos += sizeof(short);
+        this->slots.resize(size);
+        for (::slot &slot : this->slots)
+        {
+            if (pos + sizeof(short) * 2 <= blob.size())
+            {
+                memcpy(&slot.id,    u8 + pos, sizeof(short)); pos += sizeof(short);
+                memcpy(&slot.count, u8 + pos, sizeof(short)); pos += sizeof(short);
+            }
+        }
+    }
+    else
+    {
+        this->slot_size = 16;
+        this->slots.resize(3ull); // @note default starter items
+        this->slots[0ull] = ::slot{18, 1};   // @note fist
+        this->slots[1ull] = ::slot{32, 1};   // @note wrench
+        this->slots[2ull] = ::slot{9640, 1}; // @note my first world lock
+        this->mysql_update<std::vector<u_char>>("inventory", this->serialize_inventory().data());
     }
 }
 
@@ -118,20 +133,28 @@ void peer::mysql_select_all()
     return blob;
 }
 
-void peer::load(const std::string &growid, const std::string &password)
+bool peer::load(const std::string &growid, const std::string &password)
 {
-    if (!this->exists(growid)) 
+    this->growid = growid;
+    if (!this->exists(growid))
     {
-        this->mysql_insert("growid", growid);
-        this->mysql_update("password", password);
-
-        this->slots.resize(3ull); // @note since it's pre-determined we don't need do peer::emplace, and less iteration
-        this->slots[0ull] = ::slot{18, 1};   // @note Fist
-        this->slots[1ull] = ::slot{32, 1};   // @note Wrench
-        this->slots[2ull] = ::slot{9640, 1}; // @note My First World Lock
-        this->mysql_update<std::vector<u_char>>("inventory", this->serialize_inventory().data());
+        return false;
     }
     this->mysql_select_all();
+    if (password.empty() || this->password != password)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool peer::load_by_uid(int uid)
+{
+    this->user_id = uid;
+    this->growid = this->mysql_select<std::string>("growid", "", true);
+    if (this->growid.empty()) return false;
+    this->mysql_select_all();
+    return true;
 }
 
 peer::~peer()

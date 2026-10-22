@@ -10,20 +10,40 @@ void action::tankIDName(ENetEvent& event, const std::string& header)
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     std::vector<std::string> pipes = readch(header, '|');
-    if (pipes.empty() || pipes.size() < 41ull) enet_peer_disconnect_later(event.peer, 0);
+    if (pipes.empty() || pipes.size() < 10ull) {
+        enet_peer_disconnect_later(event.peer, 0);
+        return;
+    }
 
     /* @todo instead of setting these values we should check if there valid from SQL.*/
     std::string protocol{};
-    for (std::size_t i = 0; i < pipes.size(); ++i) 
+    for (std::size_t i = 0; i < pipes.size(); ++i)
     {
-        if      (pipes[i] == "tankIDName") pPeer->growid = pipes[i+1];
-        else if (pipes[i] == "protocol")   protocol = pipes[i+1];
-        else if (pipes[i] == "country")    pPeer->country = pipes[i+1];
-        else if (pipes[i] == "user")       pPeer->user_id = std::stoi(pipes[i+1]); // @todo validate user_id
+        if      (pipes[i] == "tankIDName" && i + 1 < pipes.size()) pPeer->growid = pipes[i+1];
+        else if (pipes[i] == "tankIDPass" && i + 1 < pipes.size()) pPeer->password = pipes[i+1];
+        else if (pipes[i] == "protocol" && i + 1 < pipes.size())   protocol = pipes[i+1];
+        else if (pipes[i] == "country" && i + 1 < pipes.size())    pPeer->country = pipes[i+1];
+        else if (pipes[i] == "user" && i + 1 < pipes.size() && !pipes[i+1].empty()) pPeer->user_id = std::stoi(pipes[i+1]);
     }
     if (atoi(protocol.c_str()) == 0) return; // @todo <226
 
-    pPeer->load(pPeer->growid, pPeer->password); // @note the ACTUAL loading. the one in protocol.cpp must be removed for performance...
+    bool loaded = false;
+    if (pPeer->user_id > 0)
+    {
+        loaded = pPeer->load_by_uid(pPeer->user_id);
+    }
+    else if (!pPeer->growid.empty())
+    {
+        loaded = pPeer->load(pPeer->growid, pPeer->password);
+    }
+
+    if (!loaded)
+    {
+        send_action(*event.peer, "log", "msg|`4Logon failed:`` Invalid GrowID or password.");
+        send_action(*event.peer, "logon_fail", "");
+        enet_peer_disconnect_later(event.peer, 0);
+        return;
+    }
 
     send_varlist(event.peer, { "OnOverrideGDPRFromServer", 18, 1, 0, 1 });
 

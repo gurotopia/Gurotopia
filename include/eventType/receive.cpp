@@ -18,9 +18,9 @@ void receive(ENetEvent& event)
             if (pipes.size() < 2) break;
             
             std::string action{};
-            if (pipes[0ull] == "protocol" || pipes[0ull] == "tankIDName")
+            if (pipes[0ull] == "protocol" || pipes[0ull] == "tankIDName" || pipes[0ull] == "requestedName")
             {
-                action = pipes[0ull];
+                action = (pipes[0ull] == "requestedName") ? "tankIDName" : pipes[0ull];
             }
             else action = std::format("{}|{}", pipes[0ull], pipes[1ull]);
 

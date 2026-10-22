@@ -37,11 +37,11 @@ public:
 	};
 	Variant(u_int var) {SetDefaults(); Set(var);}
 	Variant(int var) {SetDefaults(); Set(var);}
-	Variant(long long var) {SetDefaults(); Set(static_cast<int64_t>(var));}
-	Variant(unsigned long long var) {SetDefaults(); Set(static_cast<int64_t>(var));}
-#if defined(__APPLE__)
-	Variant(long var) {SetDefaults(); Set(static_cast<int64_t>(var));}
-	Variant(unsigned long var) {SetDefaults(); Set(static_cast<int64_t>(var));}
+	Variant(long long var) : m_as_floats{} {SetDefaults(); Set(static_cast<int64_t>(var));}
+	Variant(unsigned long long var) : m_as_floats{} {SetDefaults(); Set(static_cast<int64_t>(var));}
+#if defined(__LP64__) || defined(_LP64) || defined(__APPLE__)
+	Variant(long var) : m_as_floats{} {SetDefaults(); Set(static_cast<int64_t>(var));}
+	Variant(unsigned long var) : m_as_floats{} {SetDefaults(); Set(static_cast<int64_t>(var));}
 #endif
 
 	Variant(float var) {SetDefaults(); Set(var);}

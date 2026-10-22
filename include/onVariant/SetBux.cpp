@@ -13,7 +13,7 @@ void on::SetBux(ENetEvent& event)
         const float seconds_from_midnight = static_cast<float>(std::time(nullptr) % 86400);
         send_varlist(event.peer, {
             "OnSetBux",
-            static_cast<int64_t>(pPeer->gems),
+            static_cast<long long>(pPeer->gems),
             1,
             0,
             CL_Vec3f{ seconds_from_midnight, 0.0f, 0.0f }

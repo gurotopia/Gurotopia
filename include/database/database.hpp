@@ -48,34 +48,43 @@ struct blob
         mData.resize(size + sizeof(short));
         memcpy(mData.data() + size, &val, sizeof(short));
     }
-    void read_string(std::string &val, int &pos)
+    bool read_string(std::string &val, int &pos)
     {
         short len{};
-        read_i16(len, pos);
+        if (!read_i16(len, pos) || len < 0 || pos + len > (int)mData.size()) return false;
 
         val.resize(len);
         memcpy(val.data(), mData.data() + pos, len);
         pos += len;
+        return true;
     }
-    void read_u32(u_int &val, int &pos)
+    bool read_u32(u_int &val, int &pos)
     {
+        if (pos + (int)sizeof(u_int) > (int)mData.size()) return false;
         memcpy(&val, mData.data()+pos, sizeof(u_int));
         pos += sizeof(u_int);
+        return true;
     }
-    void read_i16(short &val, int &pos)
+    bool read_i16(short &val, int &pos)
     {
+        if (pos + (int)sizeof(short) > (int)mData.size()) return false;
         memcpy(&val, mData.data()+pos, sizeof(short));
         pos += sizeof(short);
+        return true;
     }
-    void read_i8(char &val, int &pos)
+    bool read_i8(char &val, int &pos)
     {
+        if (pos + (int)sizeof(char) > (int)mData.size()) return false;
+        memcpy(&val, mData.data()+pos, sizeof(char));
+        pos += sizeof(char);
+        return true;
+    }
+    bool read_u8(u_char &val, int &pos)
+    {
+        if (pos + (int)sizeof(u_char) > (int)mData.size()) return false;
         memcpy(&val, mData.data()+pos, sizeof(u_char));
         pos += sizeof(u_char);
-    }
-    void read_u8(u_char &val, int &pos)
-    {
-        memcpy(&val, mData.data()+pos, sizeof(u_char));
-        pos += sizeof(u_char);
+        return true;
     }
     void u8(u_char val) {
         mData.push_back(val);

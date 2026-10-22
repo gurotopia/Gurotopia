@@ -5,17 +5,34 @@
 
 MYSQL *db;
 
+static bool column_exists(const std::string &table, const std::string &column)
+{
+    std::string query = std::format(
+        "SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '{}' AND COLUMN_NAME = '{}' LIMIT 1",
+        table, column
+    );
+    if (mysql_query(db, query.c_str())) return false;
+    MYSQL_RES *res = mysql_store_result(db);
+    if (!res) return false;
+    my_ulonglong count = mysql_num_rows(res);
+    mysql_free_result(res);
+    return count > 0;
+}
+
 void create_table_if_not_exist()
 {
-    std::string query_peer = 
+    std::string query_peer =
         "CREATE TABLE IF NOT EXISTS peer ("
             "uid INT AUTO_INCREMENT PRIMARY KEY,"
             "growid VARCHAR(18) UNIQUE,"
             "password VARCHAR(18),"
             "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
-            "inventory BLOB"
+            "inventory BLOB,"
+            "gems BIGINT DEFAULT 0,"
+            "level INT DEFAULT 1,"
+            "xp INT DEFAULT 0"
         ")";
-    std::string query_world = 
+    std::string query_world =
         "CREATE TABLE IF NOT EXISTS world ("
             "name VARCHAR(24) NOT NULL PRIMARY KEY,"
             "owner INT DEFAULT 0,"
@@ -26,6 +43,13 @@ void create_table_if_not_exist()
     {
         std::fprintf(stderr, "%s\n", mysql_error(db));
     }
+
+    if (!column_exists("peer", "gems"))
+        mysql_query(db, "ALTER TABLE peer ADD COLUMN gems BIGINT DEFAULT 0");
+    if (!column_exists("peer", "level"))
+        mysql_query(db, "ALTER TABLE peer ADD COLUMN level INT DEFAULT 1");
+    if (!column_exists("peer", "xp"))
+        mysql_query(db, "ALTER TABLE peer ADD COLUMN xp INT DEFAULT 0");
 }
 
 void mysql_connect()

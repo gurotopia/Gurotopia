@@ -29,9 +29,10 @@ void item_activate_object(ENetEvent& event, ::gamePacket gamePacket)
             std::format("Collected `w{} {}``. Rarity: `w{}``", collected, item.raw_name, item.rarity)
         );
     }
-    else 
+    else
     {
         pPeer->gems += object->count;
+        pPeer->save();
         on::SetBux(event);
     }
     remove_object(event, object->uid);

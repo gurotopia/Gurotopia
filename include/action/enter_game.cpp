@@ -24,6 +24,10 @@ void action::enter_game(ENetEvent& event, const std::string& header)
     send_inventory_state(event);
 
     on::SetBux(event);
+    if (pPeer->level.front() > 1)
+    {
+        send_varlist(event.peer, { "OnPlayerLeveledUp", pPeer->level.front() });
+    }
     send_varlist(event.peer, { "OnSetVouchers", 0 });
     send_varlist(event.peer, { "SetHasGrowID", 1u, pPeer->growid.c_str(), "" });
     {

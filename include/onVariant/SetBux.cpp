@@ -6,7 +6,7 @@ void on::SetBux(ENetEvent& event)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    pPeer->gems = std::clamp(pPeer->gems, 0, std::numeric_limits<signed>::max());
+    pPeer->gems = std::clamp<long long>(pPeer->gems, 0LL, std::numeric_limits<long long>::max());
 
     if (pPeer->game_version >= 5.61f)
     {
@@ -21,6 +21,7 @@ void on::SetBux(ENetEvent& event)
     }
     else
     {
-        send_varlist(event.peer, { "OnSetBux", pPeer->gems, 1, 1 });
+        const int legacy_gems = static_cast<int>(std::min<long long>(pPeer->gems, std::numeric_limits<int>::max()));
+        send_varlist(event.peer, { "OnSetBux", legacy_gems, 1, 1 });
     }
 }

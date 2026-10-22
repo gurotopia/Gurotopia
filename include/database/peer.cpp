@@ -173,9 +173,6 @@ bool peer::create_account(const std::string &growid, const std::string &password
     this->slots[1ull] = ::slot{32, 1};   // @note wrench
     this->slots[2ull] = ::slot{9640, 1}; // @note my first world lock
     this->mysql_update<std::vector<u_char>>("inventory", this->serialize_inventory().data());
-    this->mysql_update<long long>("gems", 0LL);
-    this->mysql_update<signed>("level", 1);
-    this->mysql_update<signed>("xp", 0);
 
     this->mysql_select_all();
     return true;

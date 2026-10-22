@@ -20,17 +20,17 @@ void action::protocol(ENetEvent& event, const std::string& header)
 
             if (std::size_t pos = decoded.find("growId="); pos != std::string::npos)
             {
-                pos += strlen("growId=");
+                pos += sizeof("growId=") - 1;
                 pPeer->growid = decoded.substr(pos, decoded.find('&', pos) - pos);
             }
             if (std::size_t pos = decoded.find("password="); pos != std::string::npos)
             {
-                pos += strlen("password=");
+                pos += sizeof("password=") - 1;
                 pPeer->password = decoded.substr(pos, decoded.find('&', pos) - pos);
             }
             if (std::size_t pos = decoded.find("reg="); pos != std::string::npos)
             {
-                pos += strlen("reg=");
+                pos += sizeof("reg=") - 1;
                 std::string reg_str = decoded.substr(pos, decoded.find('&', pos) - pos);
                 is_reg = (reg_str == "1");
             }

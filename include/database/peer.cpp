@@ -406,6 +406,15 @@ gamePacket make_gamePacket(const enet_uint8 *data)
     return blob;
 }
 
+void set_extended_size(::blob &blob)
+{
+    constexpr std::size_t header = 15 * sizeof(int); // @note bytes written by compress_state()
+    if (blob.size() < header) return;
+
+    const u_int size = blob.size() - header;
+    memcpy(blob.data().data() + header - sizeof(u_int), &size, sizeof(u_int));
+}
+
 void send_inventory_state(ENetEvent &event)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
@@ -418,6 +427,7 @@ void send_inventory_state(ENetEvent &event)
     blob.u8(0x01); // @note enable flag for big backpack
 
     blob.push_back(pPeer->serialize_inventory());
+    set_extended_size(blob);
 
     ENetPacket *packet = enet_packet_create(blob.data().data(), blob.size(), ENET_PACKET_FLAG_RELIABLE);
 	if (enet_peer_send(event.peer, 0, packet)) enet_packet_destroy(packet);

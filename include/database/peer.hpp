@@ -192,4 +192,7 @@ extern gamePacket make_gamePacket(const enet_uint8 *data);
 /* put it back into it's original form */
 extern ::blob compress_state(const gamePacket &gamePacket);
 
+/* @note call after appending extended data to a compress_state() blob; writes gamePacket::size (the client's extendedDataSize) */
+extern void set_extended_size(::blob &blob);
+
 extern void send_inventory_state(ENetEvent &event);

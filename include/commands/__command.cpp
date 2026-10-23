@@ -11,6 +11,7 @@
 #include "news.hpp"
 #include "weather.hpp"
 #include "ghost.hpp"
+#include "trade.hpp"
 #include "__command.hpp"
 
 /* emote commands all dispatch to on::Action. listed once here so the
@@ -25,10 +26,10 @@ static constexpr std::string_view emotes[24]{
 /* named commands with their usage hint, shown in /help */
 static constexpr std::string_view named_help =
     "/time /sb {msg} /find /warp {world} /punch {id} /skin {id} /who /me {msg} "
-    "/news /weather {id} /ghost";
+    "/news /weather {id} /ghost /trade {player}";
 
-std::array<std::string_view, 6> cmd_requires_arg{
-    "sb", "warp", "punch", "skin", "me", "weather"
+std::array<std::string_view, 7> cmd_requires_arg{
+    "sb", "warp", "punch", "skin", "me", "weather", "trade"
 };
 
 /* if you plan to use this outside of this file, please include in __command.hpp (^-^) - and just make it a void. */
@@ -57,7 +58,8 @@ std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::s
         {"me", &me},
         {"news", &news},
         {"weather", &weather},
-        {"ghost", &ghost}
+        {"ghost", &ghost},
+        {"trade", &trade}
     };
 
     for (std::string_view emote : emotes)

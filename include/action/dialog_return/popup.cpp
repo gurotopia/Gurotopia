@@ -1,12 +1,25 @@
 #include "pch.hpp"
 
+#include "onVariant/ConsoleMessage.hpp"
+#include "tools/trade.hpp"
 #include "popup.hpp"
 
 void popup(ENetEvent& event, const ::hPipe &hPipe)
 {
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
-    if (hPipe["buttonClicked"] == "my_worlds")
+    if (hPipe["buttonClicked"] == "trade") // @note wrench someone > Trade
+    {
+        const int netid = atoi(hPipe["netID"].c_str());
+        for (ENetPeer *peer : peers(pPeer->recent_worlds.back(), PEER_SAME_WORLD))
+            if (static_cast<::peer*>(peer->data)->netid == netid)
+            {
+                trade_request(event, *peer);
+                return;
+            }
+        on::ConsoleMessage(event.peer, "`4That player isn't here anymore.``");
+    }
+    else if (hPipe["buttonClicked"] == "my_worlds")
     {
         auto section = [](const auto &range) 
         {

@@ -57,6 +57,13 @@ struct Billboard {
     bool perItem{}; // @note true if world locks per item, false if items per world lock
 };
 
+struct Trade {
+    int netid{}; // @note netid of the peer we want to trade with. 0 if not trading
+    bool accepted{}; // @note ticked "accept" in the trade window
+    bool confirmed{}; // @note pressed "Do The Trade!" in the confirm dialog
+    std::vector<::slot> offer{}; // @note what we give, at most 4 different items
+};
+
 enum role : u_char {
     PLAYER, 
     MODERATOR, 
@@ -107,6 +114,7 @@ public:
     int state{}; // @note using pstate::
 
     ::Billboard billboard{};
+    ::Trade trade{}; // @note reset with trade = {}
 
     ::pos pos{}; // @note position 1D {x, y}
     ::pos rest_pos{}; // @note respawn position {x, y}

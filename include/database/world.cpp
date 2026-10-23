@@ -376,7 +376,7 @@ std::vector<world> worlds;
 void send_action(ENetPeer& p, const std::string &action, const std::string &str) 
 {
     const std::string &fmt_action = std::format("action|{}\n", action);
-    std::vector<u_char> data(sizeof(int) + fmt_action.length() + str.length(), 0x00);
+    std::vector<u_char> data(sizeof(int) + fmt_action.length() + str.length() + 1, 0x00); // @note +1: the client overwrites the last byte with '\0'
     
     data[0] = 03; // @note NET_MESSAGE_GAME_MESSAGE
     {

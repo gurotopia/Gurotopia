@@ -38,7 +38,7 @@ auto help_return = [](ENetEvent& event, const std::string_view text)
     for (std::string_view emote : emotes)
         list += std::format(" /{}", emote);
 
-    send_action(*event.peer, "log", std::format("msg|>> Commands: {} \0", list));
+    send_action(*event.peer, "log", std::format("msg|>> Commands: {}", list));
 };
 
 std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::string_view)>> cmd_pool = []

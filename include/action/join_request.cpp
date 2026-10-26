@@ -33,6 +33,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         {
             ::blob blob = compress_state(::gamePacket{ .type = 0x04, /*PACKET_SEND_MAP_DATA*/ .state = (int)gamePacketState::EXTENDED });
             blob.push_back(world.serialize());
+            set_extended_size(blob); // @note a size of 0 makes the client log "Wrong world version" on every join
 
             ENetPacket *packet = enet_packet_create(blob.data().data(), blob.size(), ENET_PACKET_FLAG_RELIABLE);
             if (enet_peer_send(event.peer, 0, packet)) enet_packet_destroy(packet);

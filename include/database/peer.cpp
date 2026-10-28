@@ -92,6 +92,7 @@ void peer::mysql_select_all(bool by_user_id)
     this->password   = this->mysql_select<std::string>("password");
     this->created_at = this->mysql_select<std::time_t>("created_at", "UNIX_TIMESTAMP");
     this->gems       = this->mysql_select<long long>("gems");
+    this->wl_storage = this->mysql_select<signed>("wl_storage");
     this->level[0]   = this->mysql_select<signed>("level");
     this->level[1]   = this->mysql_select<signed>("xp");
     auto inventory   = this->mysql_select<::blob>("inventory");
@@ -137,13 +138,16 @@ void peer::mysql_update_all()
 {
     if (this->growid.empty()) return;
 
-    ::hStmt hStmt{ "UPDATE peer SET inventory = ?, gems = ?, level = ?, xp = ? WHERE growid = ?" };
+    ::hStmt hStmt{ "UPDATE peer SET inventory = ?, gems = ?, level = ?, xp = ?, wl_storage = ? WHERE growid = ?" };
+    const ::blob inventory = this->serialize_inventory();
+    const int level_value = this->level[0], xp_value = this->level[1];
 
-    MYSQL_BIND params[5] = {
-        make_bind_in(this->serialize_inventory()),
+    MYSQL_BIND params[6] = {
+        make_bind_in(inventory),
         make_bind_in(this->gems),
-        make_bind_in(this->level[0]),
-        make_bind_in(this->level[1]),
+        make_bind_in(level_value),
+        make_bind_in(xp_value),
+        make_bind_in(this->wl_storage),
         make_bind_in(this->growid)
     };
     hStmt.bind_param(params);

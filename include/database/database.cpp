@@ -19,6 +19,7 @@ void mysql_gateway::create_table_if_not_exist()
         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,"
         "inventory BLOB,"
         "gems BIGINT DEFAULT 0,"
+        "wl_storage INT DEFAULT 0,"
         "level INT DEFAULT 1,"
         "xp INT DEFAULT 0"
     ")");
@@ -57,6 +58,7 @@ void mysql_gateway::integrity()
     if (!column_found("peer", "gems"))  alter_table("peer", "gems BIGINT DEFAULT 0");
     if (!column_found("peer", "level")) alter_table("peer", "level INT DEFAULT 1");
     if (!column_found("peer", "xp"))    alter_table("peer", "xp INT DEFAULT 0");
+    if (!column_found("peer", "wl_storage")) alter_table("peer", "wl_storage INT DEFAULT 0");
 }
 
 void mysql_gateway::mysql_connect()

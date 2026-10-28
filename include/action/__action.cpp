@@ -26,6 +26,7 @@
 #include "store.hpp"
 #include "storenavigate.hpp"
 #include "buy.hpp"
+#include "worldlock_storage.hpp"
 
 #include "quit.hpp"
 
@@ -59,6 +60,9 @@ std::unordered_map<std::string, std::function<void(ENetEvent&, const std::string
     {"action|store", std::bind(&action::store, std::placeholders::_1, std::placeholders::_2)},
     {"action|storenavigate", std::bind(&action::storenavigate, std::placeholders::_1, std::placeholders::_2)},
     {"action|buy", std::bind(&action::buy, std::placeholders::_1, std::placeholders::_2, "")},
+
+    {"action|worldlock_storage_getpage", std::bind(&action::worldlock_storage, std::placeholders::_1, std::placeholders::_2)},
+    {"action|worldlock_storage_modify_amount", std::bind(&action::worldlock_storage, std::placeholders::_1, std::placeholders::_2)},
 
     {"action|quit", std::bind(&action::quit, std::placeholders::_1, std::placeholders::_2)}
 };

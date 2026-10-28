@@ -1,6 +1,12 @@
 #include "pch.hpp"
 
 #include "popup.hpp"
+#include <unordered_map>
+
+static const std::unordered_map<std::string, std::string> rml_pages{
+    {"seed_diary_customization", "show_seed_diary_ui"},
+    {"open_worldlock_storage", "show_world_lock_storage"}
+};
 
 void popup(ENetEvent& event, const ::hPipe &hPipe)
 {
@@ -68,9 +74,9 @@ void popup(ENetEvent& event, const ::hPipe &hPipe)
             )
         });
     }
-    else if (hPipe["buttonClicked"] == "seed_diary_customization")
+    else if (const auto it = rml_pages.find(hPipe["buttonClicked"]); it != rml_pages.end())
     {
-        send_varlist(event.peer, { "OnDialogRequestRML", "show_seed_diary_ui" });
+        send_varlist(event.peer, { "OnDialogRequestRML", it->second });
     }
     else if (hPipe["buttonClicked"] == "trade")
     {

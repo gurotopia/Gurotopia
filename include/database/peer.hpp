@@ -128,6 +128,7 @@ public:
     std::vector<short> fav{};
 
     long long gems{0};
+    int wl_storage{0};
     std::array<u_short, 2ull> level{ 1, 0 }; // {level, xp} XP formula credits: https://www.growtopiagame.com/forums/member/553046-kasete
     /*
     * @brief add XP safely, this function also handles level up.

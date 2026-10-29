@@ -13,6 +13,19 @@
 
 #include <algorithm> // linux
 
+namespace
+{
+    void world_lock_message(ENetEvent &event, const ::world &world)
+    {
+        if (world.owner <= 0) return;
+        const ::peer *pPeer = static_cast<::peer*>(event.peer->data);
+        ::peer owner{.user_id = world.owner};
+        const bool granted = pPeer->user_id == world.owner || std::ranges::find(world.access, pPeer->user_id) != world.access.end();
+        on::ConsoleMessage(event.peer, std::format("`5[```w{}`` `$World Locked`` by {}{}`5]``", world.name,
+            owner.mysql_select<std::string>("growid", "", true), granted ? " (`2ACCESS GRANTED``)" : ""));
+    }
+}
+
 void action::join_request(ENetEvent& event, const std::string& header, const std::string_view world_name = "") 
 {
     try 
@@ -23,7 +36,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         send_varlist(event.peer, { "OnForceTradeEnd" }); // @note sent before OnSendToServer
 
         std::string name =  hPipe["name"];
-        if (name.empty() && !world_name.empty()) name = world_name;
+        if (name.empty()) name = world_name;
 
         if (name.length() > 24) throw std::runtime_error(""); // @note impossible unless using a proxy since client caps at 24
         if (!alnum(name)) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
@@ -52,10 +65,11 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         } // @note delete name, first
         on::EmoticonDataChanged(event);
 
-        if (pPeer->user_id == world.owner) 
+        pPeer->display_growid = std::format("`w{}``", pPeer->growid);
+        if (pPeer->user_id == world.owner)
             pPeer->display_growid = std::format("`2{}``", pPeer->growid);
         else if (std::ranges::find(world.access, pPeer->user_id) != world.access.end()) 
-            pPeer->display_growid = std::format("`c{}``", pPeer->growid);
+            pPeer->display_growid = std::format("`^{}``", pPeer->growid);
 
         pPeer->rest_pos = world.spawn;
 
@@ -70,11 +84,6 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 on::Spawn(*peer, pPeer->netid, pPeer->user_id, pPeer->rest_pos, pPeer->display_growid, pPeer->country, pPeer->role, pPeer->role >= DEVELOPER, false);
                 on::SetClothing(peer);
                 on::ConsoleMessage(peer, std::format("`5<{} entered, `w{}`` others here>``", pPeer->display_growid, world.visitors));
-            }
-            
-
-            if (pOthers->user_id != pPeer->user_id) // @note the reason this is here is cause we need the peer's OnSpawn to happen before OnTalkBubble
-            {
                 send_varlist(peer, {
                     "OnTalkBubble",
                     pPeer->netid,
@@ -98,6 +107,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
                 world.name, world.visitors, host->connectedPeers
             )
         );
+        world_lock_message(event, world);
         ++world.visitors;
         on::SetClothing(event.peer);
         on::CountryState(event);
@@ -105,6 +115,12 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
         send_varlist(event.peer, {
             "OnSetFeatureEnableFlags",
             "EAwQAw4BDQUICQoPAgQRBwY="
+        });
+        peers(world.name, PeerSearch::WORLD, [&](ENetPeer *peer)
+        {
+            const ::peer *pOthers = static_cast<::peer*>(peer->data);
+            if (pOthers->user_id != pPeer->user_id)
+                send_varlist(event.peer, { "OnTalkBubble", static_cast<u_int>(pOthers->netid), pOthers->growid, 1u });
         });
     }
     catch (const std::exception& exc)

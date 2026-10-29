@@ -14,7 +14,7 @@ void sb(ENetEvent& event, const std::string_view text)
     if (world == worlds.end()) return;
 
     std::string display = pPeer->recent_worlds.back();
-    peers("", PeerSearch::EVERYONE, [&event, &pPeer, message, display](ENetPeer *peer) 
+    peers("", PeerSearch::EVERYONE, [&pPeer, message, display](ENetPeer *peer)
     {
         on::ConsoleMessage(peer, 
             std::format(
@@ -22,5 +22,6 @@ void sb(ENetEvent& event, const std::string_view text)
                 pPeer->display_growid, display, message
             )
         );
+        send_action(peer, "play_sfx", "file|audio/beep.wav\ndelayMS|0");
     });
 }

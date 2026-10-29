@@ -1,0 +1,19 @@
+name: Homebrew
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: macos-latest
+    name: macos-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - run: |
+          brew install gcc make mariadb-connector-c
+
+      - run: |
+          make -j"$(sysctl -n hw.ncpu)" \
+            includes="-Iinclude -Ibuild/include -I$(brew --prefix openssl@3)/include" \
+            libraries="-L$(brew --prefix openssl@3)/lib -L$(brew --prefix mariadb-connector-c)/lib -L./include/enet/lib -L./include/mysql/lib -lssl -lcrypto -lmariadb -lenet_macos"

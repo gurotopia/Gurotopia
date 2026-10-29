@@ -9,12 +9,13 @@
 
 void receive(ENetEvent& event) 
 {
-    std::span<const enet_uint8> data{event.packet->data, event.packet->dataLength};
+    const enet_uint8 *data = event.packet->data;
+    const size_t dataLength = event.packet->dataLength;
     switch (data[0ull]) 
     {
         case 2: case 3: 
         {
-            std::string header{data.begin() + 4, data.end() - 1};
+            std::string header{ reinterpret_cast<const char*>(data + 4), dataLength - 5 };
             print(header);
             
             std::ranges::replace(header, '\n', '|');

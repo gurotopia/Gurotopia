@@ -373,25 +373,13 @@ std::vector<world> worlds;
 
 void send_action(ENetPeer *peer, const std::string &action, const std::string &str) 
 {
-    const std::string &fmt_action = std::format("action|{}\n", action);
-    std::vector<u_char> data(sizeof(int) + fmt_action.length() + str.length(), 0x00);
-    
+    const std::string message = std::format("action|{}\n{}", action, str);
+    std::vector<u_char> data(sizeof(int) + message.size() + 1, 0x00);
     data[0] = 03; // @note NET_MESSAGE_GAME_MESSAGE
-    {
-        const u_char *i8 = reinterpret_cast<const u_char*>(fmt_action.c_str());
-        for (std::size_t i = 0ull; i < fmt_action.length(); ++i)
-            data[sizeof(int) + i] = i8[i];
-    }
-    if (!str.empty())
-    {
-        const u_char *i8 = reinterpret_cast<const u_char*>(str.c_str());
-        for (std::size_t i = 0ull; i < str.length(); ++i)
-            data[sizeof(int) + fmt_action.length() + i] = i8[i];
-    }
-    
+    std::ranges::copy(message, data.begin() + sizeof(int));
+
     ENetPacket *packet = enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE);
     if (enet_peer_send(peer, 0, packet)) enet_packet_destroy(packet);
-
 }
 
 void send_data(ENetPeer &peer, const ::blob &blob)

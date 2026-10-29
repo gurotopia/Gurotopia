@@ -9,6 +9,7 @@
 #include "friends.hpp"
 
 #include "join_request.hpp"
+#include "validate_world.hpp"
 #include "quit_to_exit.hpp"
 #include "respawn.hpp"
 #include "respawn_spike.hpp"
@@ -43,6 +44,7 @@ std::unordered_map<std::string, std::function<void(ENetEvent&, const std::string
     {"action|friends", std::bind(&action::friends, std::placeholders::_1, std::placeholders::_2)},
 
     {"action|join_request", std::bind(&action::join_request, std::placeholders::_1, std::placeholders::_2, "")},
+    {"action|validate_world", std::bind(&action::validate_world, std::placeholders::_1, std::placeholders::_2)},
     {"action|quit_to_exit", std::bind(&action::quit_to_exit, std::placeholders::_1, std::placeholders::_2, false)},
     {"action|respawn", std::bind(&action::respawn, std::placeholders::_1, std::placeholders::_2)},
     {"action|respawn_spike", std::bind(&action::respawn_spike, std::placeholders::_1, std::placeholders::_2)},

@@ -3,6 +3,7 @@
 #include "string.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <ranges>
 
 std::vector<std::string> readch(const std::string &str, char deli) 
@@ -39,7 +40,7 @@ bool number(const std::string& str)
 
 bool alnum(const std::string& str) 
 {
-    return !str.empty() && std::ranges::all_of(str, ::isalnum);
+    return !str.empty() && std::ranges::all_of(str, [](unsigned char c) { return std::isalnum(c); });
 }
 
 #include <openssl/bio.h>

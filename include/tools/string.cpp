@@ -28,17 +28,7 @@ std::string join(const std::vector<std::string>& range, const std::string& del)
     return result;
 }
 
-bool alpha(const std::string& str) 
-{
-    return !str.empty() && std::ranges::all_of(str, ::isalpha);
-}
-
-bool number(const std::string& str) 
-{
-    return !str.empty() && std::ranges::all_of(str, ::isdigit);
-}
-
-bool alnum(const std::string& str) 
+bool isalnum(const std::string &str) 
 {
     return !str.empty() && std::ranges::all_of(str, [](unsigned char c) { return std::isalnum(c); });
 }

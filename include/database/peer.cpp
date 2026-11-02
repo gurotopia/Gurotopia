@@ -203,7 +203,9 @@ peer::~peer()
 
 u_short peer::emplace(::slot slot) 
 {
-    if (auto it = std::ranges::find(this->slots, slot.id, &::slot::id); it != this->slots.end()) 
+    auto it = std::ranges::find(this->slots, slot.id, &::slot::id);
+
+    if (it != this->slots.end()) 
     {
         const u_short excess = std::max(0, (it->count + slot.count) - 200);
         it->count = std::min(it->count + slot.count, 200);
@@ -214,7 +216,16 @@ u_short peer::emplace(::slot slot)
         }
         return excess;
     }
-    else this->slots.emplace_back(std::move(slot)); // @note no such item in inventory, so we create a new entry.
+    this->slots.emplace_back(std::move(slot)); // @note no such item in inventory, so we create a new entry.
+    return 0;
+}
+
+u_short peer::have_slot(::slot slot)
+{
+    auto it = std::ranges::find(this->slots, slot.id, &::slot::id);
+
+    if (it != this->slots.end())
+        return it->count;
     return 0;
 }
 
@@ -263,6 +274,17 @@ void safe_disconnect_peers(int signal)
 {
     peers("", PeerSearch::EVERYONE, [](auto *p) { enet_peer_disconnect(p, 0); });
     enet_host_flush(host);
+}
+
+::blob compressMessage(const gameMessage &gameMessage)
+{
+    ::blob blob{};
+
+    blob.i32(gameMessage.packet_create);
+    for (char c : gameMessage.message) blob.u8(c);
+    blob.u8(gameMessage.terminator);
+
+    return blob;
 }
 
 gamePacket make_gamePacket(const enet_uint8 *data) 

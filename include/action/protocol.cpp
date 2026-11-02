@@ -38,7 +38,8 @@ void action::protocol(ENetEvent& event, const std::string& header)
         if (pPeer->growid.empty() || pPeer->password.empty()) throw std::runtime_error("");
     }
     catch (...) {
-        send_action(event.peer, "logon_fail", ""); // @note triggers action|quit on client.
+        send_gameMessage(event.peer, {.message = "action|logon_fail\n"}); // @note triggers action|quit on client.
+        
         return; // @note stop processing invalid protocol data
     }
     bool loaded = false;
@@ -49,7 +50,7 @@ void action::protocol(ENetEvent& event, const std::string& header)
     else {
         loaded = pPeer->load(pPeer->growid, pPeer->password);
     }
-    if (!loaded) send_action(event.peer, "logon_fail", ""); // @note triggers action|quit on client.
+    if (!loaded) send_gameMessage(event.peer, {.message = "action|logon_fail\n"}); // @note triggers action|quit on client.
 
     send_varlist(event.peer, {
         "OnSendToServer", 

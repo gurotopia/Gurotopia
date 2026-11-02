@@ -18,12 +18,12 @@ void on::SetClothing(ENetPeer *peer)
     ::gamePacket gamePacket {
         .type = 0x14 | ((0x808000 + pPeer->punch_effect) << 8), // @note 0x8080{}14 - PACKET_SET_CHARACTER_STATE
         .netid = pPeer->netid,
-        .count = 125.0f, // @note gtnoob has this as 'waterspeed'
+        .waterspeed = 125.0f,
         .id = pPeer->state, // @note 04 invisible (only eyes/mouth), 08 no arms, 16 no face, 32 invisible (only legs/arms), 64 devil horns, 128 angel halo, 2048 frozen, 4096 gray skin?,8192 ducttape, 16384 Onion effect, 32768 stars effect, 65536 zombie, 131072 hit by lava, 262144 shadow effect, 524288 irradiated effect, 1048576 spotlight, 2097152 pineapple thingy
         .pos = ::pos{ 1200.0f, 200.0f }, // @todo magic numbers
         .speed = ::pos{ 250.0f, 1000.0f }, // @todo magic numbers
         .punch = ::pos{ pPeer->hair_color, 0x00000000u } // @todo can this even be unsigned?
         
     };
-    state_visuals(*peer, std::move(gamePacket)); // @todo handle for 'p'
+    send_gamePacket(*peer, gamePacket); // @todo handle for 'p'
 }

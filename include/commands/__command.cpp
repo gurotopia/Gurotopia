@@ -2,69 +2,45 @@
 
 #include "onVariant/Action.hpp"
 
+#include "msg.hpp"
+#include "sb.hpp"
 #include "time.hpp"
+#include "who.hpp"
+#include "me.hpp"
 #include "find.hpp"
 #include "warp.hpp"
 #include "punch.hpp"
 #include "skin.hpp"
-#include "sb.hpp"
-#include "who.hpp"
-#include "me.hpp"
 #include "news.hpp"
 #include "weather.hpp"
 #include "ghost.hpp"
 
 #include "__command.hpp"
 
-/* emote commands all dispatch to on::Action. listed once here so the
- * cmd_pool registration and the /help text stay in sync automatically. */
-static constexpr std::string_view emotes[24]{
-    "wave", "dance", "love", "sleep", "facepalm", "fp",
-    "smh", "yes", "no", "omg", "idk", "shrug",
-    "furious", "rolleyes", "foldarms", "fa", "stubborn", "fold",
-    "dab", "sassy", "dance2", "march", "grumpy", "shy"
-};
-
-/* named commands with their usage hint, shown in /help */
-static constexpr std::string_view named_help =
-    "/time /sb {msg} /find /warp {world} /punch {id} /skin {id} /who /me {msg} "
-    "/news /weather {id} /ghost";
-
-std::array<std::string_view, 6> cmd_requires_arg{
-    "sb", "warp", "punch", "skin", "me", "weather"
-};
-
 /* if you plan to use this outside of this file, please include in __command.hpp (^-^) - and just make it a void. */
 auto help_return = [](ENetEvent& event, const std::string_view text) 
 {
-    std::string list{ named_help };
-    for (std::string_view emote : emotes)
-        list += std::format(" /{}", emote);
-
-    send_action(event.peer, "log", std::format("msg|>> Commands: {} \0", list));
+    send_gameMessage(event.peer, {.message = "action|log\nmsg|>> Commands: /msg /sb /time /who /me /find /warp /punch /skin /news /weather /ghost /ageworld /wave /dance /love /sleep /facepalm /fp /smh /yes /no /omg /idk /shrug /furious /rolleyes /foldarms /stubborn /fold /dab /sassy /dance2 /march /grumpy /shy"});
 };
 
-std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::string_view)>> cmd_pool = []
+std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::string_view)>> cmd_pool
 {
-    std::unordered_map<std::string_view, std::function<void(ENetEvent&, const std::string_view)>> pool
-    {
-        {"help", help_return },
-        {"?", help_return },
-        {"time", &command::time}, // @note namespace is to prevent mismatching C time
-        {"find", &find},
-        {"warp", &warp},
-        {"punch", &punch},
-        {"skin", &skin},
-        {"sb", &sb},
-        {"who", &who},
-        {"me", &me},
-        {"news", &news},
-        {"weather", &weather},
-        {"ghost", &ghost}
-    };
-
-    for (std::string_view emote : emotes)
-        pool.emplace(emote, &on::Action);
-
-    return pool;
-}();
+    {"help", help_return },
+    {"?", help_return },
+    {"msg", &msg},
+    {"sb", &sb},
+    {"time", &command::time}, // @note namespace is to prevent mismatching C time
+    {"who", &who},
+    {"me", &me},
+    {"find", &find},
+    {"warp", &warp},
+    {"punch", &punch},
+    {"skin", &skin},
+    {"news", &news},
+    {"weather", &weather},
+    {"ghost", &ghost},
+    {"wave", &on::Action}, {"dance", &on::Action}, {"love", &on::Action}, {"sleep", &on::Action}, {"facepalm", &on::Action}, {"fp", &on::Action}, 
+    {"smh", &on::Action}, {"yes", &on::Action}, {"no", &on::Action}, {"omg", &on::Action}, {"idk", &on::Action}, {"shrug", &on::Action}, 
+    {"furious", &on::Action}, {"rolleyes", &on::Action}, {"foldarms", &on::Action}, {"fa", &on::Action}, {"stubborn", &on::Action}, {"fold", &on::Action}, 
+    {"dab", &on::Action}, {"sassy", &on::Action}, {"dance2", &on::Action}, {"march", &on::Action}, {"grumpy", &on::Action}, {"shy", &on::Action}
+};

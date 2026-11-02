@@ -16,5 +16,5 @@ void movement(ENetEvent& event, ::gamePacket gamePacket)
     if (pPeer->pain_hp <= 0) action::respawn(event, ""), pPeer->pain_hp = 10;
     
     gamePacket.netid = pPeer->netid;
-    state_visuals(*event.peer, std::move(gamePacket)); // finished.
+    send_gamePacket(*event.peer, gamePacket); // finished.
 }

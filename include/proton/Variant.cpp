@@ -118,11 +118,11 @@ void send_varlist(ENetPeer *peer, VariantList vlist, int netid, int delay)
     u_char *pMem = vlist.SerializeToMem(&size, NULL);
 
     ::blob data = compress_state(::gamePacket{
-        .type = 01, // @note PACKET_CALL_FUNCTION
+        .type  = 01, // @note PACKET_CALL_FUNCTION
         .netid = netid,
         .state = (int)gamePacketState::EXTENDED,
-		.id = delay,
-		.size = size
+		.delay = delay,
+		.size  = size
 	});
 	u_int pos = data.size(); // @note sizeof(::gamePacket)
 	data.resize(pos + size);

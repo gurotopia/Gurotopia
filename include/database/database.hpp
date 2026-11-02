@@ -73,18 +73,7 @@ struct blob
     void u8(u_char val) {
         mData.push_back(val);
     }
-
-
-    bool read_string(std::string &val, int &pos)
-    {
-        short len{};
-        if (!read_i16(len, pos) || len < 0 || pos + len > (int)mData.size()) return false;
-
-        val.resize(len);
-        memcpy(val.data(), mData.data() + pos, len);
-        pos += len;
-        return true;
-    }
+    
     bool read_f32(float &val, int &pos)
     {
         if (pos + (int)sizeof(float) > (int)mData.size()) return false;

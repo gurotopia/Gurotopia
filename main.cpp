@@ -1,6 +1,6 @@
 /*
     @copyright gurotopia (c) 2024-05-25
-    @version parent SHA: 02d1dbc746e102185277f7fa6ad1ac2a94292beb 2026-10-29
+    @version parent SHA: 93930e16b2e290593071ba210261f08f0b946e32 2026-11-1
 */
 #include "include/pch.hpp"
 #include "include/eventType/_eventType.hpp"
@@ -32,13 +32,13 @@ int main()
     enet_initialize();
     {
         gServer_data.init(); // @note ./server_data.php
+        std::thread(&https::listener).detach();
+
         ENetAddress address{
             .type = ENET_ADDRESS_TYPE_IPV4, 
             .port = gServer_data.port
         };
-
         host = enet_host_create (ENET_ADDRESS_TYPE_IPV4, &address, 50ull/* max peer count */, 2ull, 0u, 0u);
-        std::thread(&https::listener).detach();
     } // @note delete address
     host->usingNewPacketForServer = true;
     host->checksum = enet_crc32;

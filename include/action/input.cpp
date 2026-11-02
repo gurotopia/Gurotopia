@@ -32,20 +32,21 @@ void action::input(ENetEvent& event, const std::string& header)
     }
     else if (text.starts_with('/')) 
     {
-        send_action(event.peer, "log", std::format("msg| `6{}``", text));
+        send_gameMessage(event.peer, {.message = std::format("action|log\nmsg|`6{}``", text)});
+        
         std::string command = text.substr(1, text.find(' ') - 1);
         
         if (auto it = cmd_pool.find(command); it != cmd_pool.end()) 
         {
             if (std::ranges::find(cmd_requires_arg, command) != cmd_requires_arg.end() && text.length() <= command.length()+1)
             {
-                send_action(event.peer, "log", "msg|`4Unknown command.`` Enter `$/?`` for a list of valid commands.");
+                send_gameMessage(event.peer, {.message = "action|log\nmsg|`4Unknown command.`` Enter `$/?`` for a list of valid commands."});
             }
             else it->second(std::ref(event), std::move(text.substr(1)/* remove the '/' */));
         }
         else 
         {
-            send_action(event.peer, "log", "msg|`4Unknown command.`` Enter `$/?`` for a list of valid commands.");
+            send_gameMessage(event.peer, {.message = "action|log\nmsg|`4Unknown command.`` Enter `$/?`` for a list of valid commands."});
         }
     }
     else 
@@ -62,7 +63,7 @@ void action::input(ENetEvent& event, const std::string& header)
         peers(pPeer->recent_worlds.back(), PeerSearch::WORLD, [&event, &pPeer, player_chat, message](ENetPeer *p) 
         {
             send_varlist(p, { "OnTalkBubble", pPeer->netid, player_chat, 0u });
-            on::ConsoleMessage(p, message, 2);
+            on::ConsoleMessage(p, message, pPeer->netid);
         });
     }
 }

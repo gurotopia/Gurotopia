@@ -9,13 +9,11 @@
 
 void receive(ENetEvent& event) 
 {
-    const enet_uint8 *data = event.packet->data;
-    const size_t dataLength = event.packet->dataLength;
-    switch (data[0ull]) 
+    switch (event.packet->data[0ull])
     {
         case 2: case 3: 
         {
-            std::string header{ reinterpret_cast<const char*>(data + 4), dataLength - 5 };
+            std::string header{ reinterpret_cast<const char*>(event.packet->data + 4), event.packet->dataLength - 5 };
             print(header);
             
             std::ranges::replace(header, '\n', '|');
@@ -44,7 +42,7 @@ void receive(ENetEvent& event)
                 i->second(event, std::move(gamePacket));
             break;
         }
-        default: print(std::format("received unqiue: {}", data[0ull]));
+        default: print(std::format("received unqiue: {}", event.packet->data[0ull]));
     }
     enet_packet_destroy(event.packet);
 }

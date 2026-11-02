@@ -54,7 +54,7 @@ void action::enter_game(ENetEvent& event, const std::string& header)
     {
         send_varlist(event.peer, {
             "OnSetFeatureEnableFlags",
-            "EA4NBQgJAQoPAgQRBwYDEAw=" // @todo Dw0JEQQMEAMPAgYBDgUICg==
+            "EAcGAQoDEAQRBQ0JCAwCDw4="
         });
     }
 }

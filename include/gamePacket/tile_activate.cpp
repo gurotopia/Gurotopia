@@ -27,10 +27,8 @@ void tile_activate(ENetEvent& event, ::gamePacket gamePacket)
             auto door = std::ranges::find(world->doors, gamePacket.punch, &::door::pos);
             if (door != world->doors.end() && !door->dest.empty())
             {
-                const std::string_view dest{ door->dest };
-
                 action::quit_to_exit(event, "", true);
-                action::join_request(event, "", dest);
+                action::join_request(event, "", door->dest);
             }
             else {
                 send_varlist(event.peer, ::VariantList{
@@ -65,5 +63,5 @@ void tile_activate(ENetEvent& event, ::gamePacket gamePacket)
         }
     }
 
-    state_visuals(*event.peer, std::move(gamePacket)); // finished.
+    send_gamePacket(*event.peer, gamePacket); // finished.
 }

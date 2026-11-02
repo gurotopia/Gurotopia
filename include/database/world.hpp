@@ -172,11 +172,11 @@ public:
 };
 extern std::vector<world> worlds;
 
-extern void send_action(ENetPeer *peer, const std::string &action, const std::string &str);
+extern void send_gameMessage(ENetPeer *peer, ::gameMessage gameMessage) ;
 
 extern void send_data(ENetPeer &peer, const ::blob &blob);
 
-extern void state_visuals(ENetPeer &peer, gamePacket &&gamePacket);
+extern void send_gamePacket(ENetPeer &peer, gamePacket &gamePacket);
 
 extern void tile_apply_damage(ENetEvent &event, gamePacket gamePacket, block &block, u_int value);
 

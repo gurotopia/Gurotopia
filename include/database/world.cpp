@@ -262,14 +262,20 @@ void world::mysql_select_all()
                 {
                     ::door &door = this->doors.emplace_back("","","", block_pos);
 
-                    blob.read_string(door.label, pos);
+                    short len{};
+                    blob.read_i16(len, pos);
+                    door.label.resize(len);
+                    for (char &c : door.label) blob.read_u8((u_char&)c, pos);
                     pos++;// @note \0
                 }
                 else if (type == '\x02'/*sign*/)
                 {
                     ::sign &sign = this->signs.emplace_back("", block_pos);
 
-                    blob.read_string(sign.label, pos);
+                    short len{};
+                    blob.read_i16(len, pos);
+                    sign.label.resize(len);
+                    for (char &c : sign.label) blob.read_u8((u_char&)c, pos);
                     blob.read_u32(sign.idk, pos);
                 }
                 else if (type == '\x04'/*seed*/)
@@ -371,26 +377,20 @@ world::~world()
 
 std::vector<world> worlds;
 
-void send_action(ENetPeer *peer, const std::string &action, const std::string &str) 
+void send_gameMessage(ENetPeer *peer, ::gameMessage gameMessage) 
 {
-    const std::string message = std::format("action|{}\n{}", action, str);
-    std::vector<u_char> data(sizeof(int) + message.size() + 1, 0x00);
-    data[0] = 03; // @note NET_MESSAGE_GAME_MESSAGE
-    std::ranges::copy(message, data.begin() + sizeof(int));
-
-    ENetPacket *packet = enet_packet_create(data.data(), data.size(), ENET_PACKET_FLAG_RELIABLE);
-    if (enet_peer_send(peer, 0, packet)) enet_packet_destroy(packet);
+    send_data(*peer, compressMessage(gameMessage));
 }
 
 void send_data(ENetPeer &peer, const ::blob &blob)
 {
     ENetPacket *packet = enet_packet_create(blob.data().data(), blob.size(), ENET_PACKET_FLAG_RELIABLE);
-    if (packet == nullptr || packet->dataLength < sizeof(::gamePacket)) return;
+    if (packet == nullptr) return;
 
     if (enet_peer_send(&peer, 0, packet)) enet_packet_destroy(packet);
 }
 
-void state_visuals(ENetPeer &peer, ::gamePacket &&gamePacket) 
+void send_gamePacket(ENetPeer &peer, ::gamePacket &gamePacket) 
 {
     ::peer *pPeer = static_cast<::peer*>(peer.data);
 
@@ -408,7 +408,7 @@ void tile_apply_damage(ENetEvent &event, ::gamePacket gamePacket, block &block, 
     gamePacket.type = (value << 24) | 0x000008; // @note 0x{}000008
     gamePacket.id = 6; // @note idk exactly
     gamePacket.netid = pPeer->netid;
-	state_visuals(*event.peer, std::move(gamePacket));
+	send_gamePacket(*event.peer, gamePacket);
 }
 
 u_short modify_item_inventory(ENetEvent &event, ::slot slot)
@@ -427,7 +427,7 @@ void item_change_object(ENetEvent &event, ::gamePacket gamePacket)
 {
     gamePacket.type = 0x0e; // @note PACKET_ITEM_CHANGE_OBJECT
 
-    state_visuals(*event.peer, std::move(gamePacket));
+    send_gamePacket(*event.peer, gamePacket);
 }
 
 void merge_object(ENetEvent &event, ::slot slot, const ::pos &pos, ::world &world)
@@ -547,14 +547,15 @@ void send_tile_update(ENetEvent &event, ::gamePacket gamePacket, ::block &block,
 
 void send_particle_effect(ENetEvent &event, const ::pos& pos, ::pos speed, int id, float offset)
 {
-    state_visuals(*event.peer, ::gamePacket{
+    ::gamePacket gamePacket{
         .type = 0x11, // @note PACKET_SEND_PARTICLE_EFFECT
-        .netid = id, // @todo figure out if this is correct, i just assumed from firework visuals
+        .particle_effect = id,
         .id = id,
         .pos = pos,
         .speed = speed,
         .idk = offset
-    });
+    };
+    send_gamePacket(*event.peer, gamePacket);
 }
 
 void remove_fire(ENetEvent &event, gamePacket gamePacket, ::block &block, ::world &world)

@@ -264,7 +264,7 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                     std::string message = std::format("msg|`4The Power of Love! `2{} found a `#Golden Heart Crystal`2 in a `#{}`2!", pPeer->growid, item.raw_name);
                     peers(pPeer->recent_worlds.back(), PeerSearch::EVERYONE, [message](ENetPeer *peer)
                     {
-                        send_action(peer, "log", message.c_str());
+                        send_gameMessage(peer, {.message = std::format("action|log\n{}", message.c_str())});
                     });
                 }
                 if (++pPeer->gbc_pity % 100 == 0) modify_item_inventory(event, ::slot{9350, 1});
@@ -643,7 +643,7 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
                     break;
                 }
             }
-            return; // @note leave early else wrench will act as a block unlike fist which breaks. this is cause of state_visuals()
+            return; // @note leave early else wrench will act as a block unlike fist which breaks. this is cause of send_gamePacket()
         }
         else // @note placing a block
         {
@@ -762,20 +762,21 @@ void tile_change(ENetEvent& event, ::gamePacket gamePacket)
             pPeer->emplace(::slot(item.id, -1));
         }
         gamePacket.netid = pPeer->netid; // @todo sometimes rgt has this as 0
-        state_visuals(*event.peer, std::move(gamePacket)); // finished.
+        send_gamePacket(*event.peer, gamePacket); // finished.
         if (tile_update) 
         {
             send_tile_update(event, std::move(gamePacket), block, *world);
         }
         if (lock_visuals) 
         {
-            state_visuals(*event.peer, ::gamePacket{
+            ::gamePacket copy_gamePacket = {
                 .type = 0x0f, // @note PACKET_SEND_LOCK
                 .netid = world->owner, 
                 .state = (int)gamePacketState::EXTENDED, 
                 .id = gamePacket.id,
                 .punch = gamePacket.punch
-            });
+            };
+            send_gamePacket(*event.peer, copy_gamePacket);
         }
     }
     catch (const std::exception& exc)

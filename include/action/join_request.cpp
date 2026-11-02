@@ -18,15 +18,17 @@ namespace
     void world_lock_message(ENetEvent &event, const ::world &world)
     {
         if (world.owner <= 0) return;
+
         const ::peer *pPeer = static_cast<::peer*>(event.peer->data);
         ::peer owner{.user_id = world.owner};
-        const bool granted = pPeer->user_id == world.owner || std::ranges::find(world.access, pPeer->user_id) != world.access.end();
+        
+        const bool granted = (pPeer->user_id == world.owner || std::ranges::find(world.access, pPeer->user_id) != world.access.end());
         on::ConsoleMessage(event.peer, std::format("`5[```w{}`` `$World Locked`` by {}{}`5]``", world.name,
             owner.mysql_select<std::string>("growid", "", true), granted ? " (`2ACCESS GRANTED``)" : ""));
     }
 }
 
-void action::join_request(ENetEvent& event, const std::string& header, const std::string_view world_name = "") 
+void action::join_request(ENetEvent& event, const std::string &header, const std::string &world_name = "") 
 {
     try 
     {
@@ -35,11 +37,10 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
         send_varlist(event.peer, { "OnForceTradeEnd" }); // @note sent before OnSendToServer
 
-        std::string name =  hPipe["name"];
-        if (name.empty()) name = world_name;
+        std::string name = (world_name.empty()) ? hPipe["name"] : world_name;
 
         if (name.length() > 24) throw std::runtime_error(""); // @note impossible unless using a proxy since client caps at 24
-        if (!alnum(name)) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
+        if (!isalnum(name)) throw std::runtime_error("Sorry, spaces and special characters are not allowed in world or door names.  Try again.");
 
         for (char &c : name) c = std::toupper(c); // @note start -> START
         
@@ -114,7 +115,7 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
 
         send_varlist(event.peer, {
             "OnSetFeatureEnableFlags",
-            "EAwQAw4BDQUICQoPAgQRBwY="
+            "EA4PAgcGAQoDEAQRBQ0JCAw="
         });
         peers(world.name, PeerSearch::WORLD, [&](ENetPeer *peer)
         {
@@ -125,8 +126,8 @@ void action::join_request(ENetEvent& event, const std::string& header, const std
     }
     catch (const std::exception& exc)
     {
+        on::ConsoleMessage(event.peer, exc.what()); // @note tell the player why
         send_varlist(event.peer, { "OnFailedToEnterWorld" });
-        if (const std::string_view msg{ exc.what() }; !msg.empty()) on::ConsoleMessage(event.peer, std::string{ msg }); // @note tell the player why
         return;
     }
 }

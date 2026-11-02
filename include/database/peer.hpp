@@ -124,6 +124,11 @@ public:
     * @return the remaining amount if exeeds 200. e.g. emplace(slot{0, 201}) returns 1.
     */
     u_short emplace(::slot slot);
+    /*
+    * @brief check if item exists in inventory (::slots)
+    * @return slot count (0 if not exist)
+    */
+    u_short have_slot(::slot slot);
     ::blob serialize_inventory() const;
 
     std::vector<short> fav{};
@@ -180,6 +185,16 @@ void peers(const std::string &world, PeerSearch search, Func &&fun)
 
 extern void safe_disconnect_peers(int signal);
 
+class gameMessage {
+    public:
+        int packet_create{ 03 }; // @note NET_MESSAGE_GAME_MESSAGE
+
+        std::string message{};
+        u_char terminator{ '\0' };
+};
+
+extern ::blob compressMessage(const gameMessage &gameMessage);
+
 enum class gamePacketState : int
 {
     UPDATE               = 0x00000004,
@@ -195,11 +210,23 @@ public:
     int packet_create{ 04 }; // @note NET_MESSAGE_GAME_PACKET
 
     int type{};
-    int netid{};
+    union
+    {
+        int netid{},
+            particle_effect;
+    };
     int uid{}; // @todo understand this better @note so far I think this holds uid value
     int state{}; // @note enum gamePacketState
-    float count{}; // @todo understand this better
-    int id{}; // @note peer's active hand, so 18 (fist) = punching, 32 (wrench) interacting, ect
+    union
+    {
+        float count{},
+              waterspeed;
+    };
+    union
+    {
+        int id{},
+            delay;
+    };
     ::pos pos{}; // @note position 1D {x, y}
     ::pos speed{}; // @note player movement (velocity(x), gravity(y)), higher gravity = smaller jumps
     float idk{};

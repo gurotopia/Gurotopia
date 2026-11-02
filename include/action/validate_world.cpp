@@ -5,6 +5,8 @@
 void action::validate_world(ENetEvent& event, const std::string& header)
 {
     const std::string name = ::hPipe{header}["name"];
-    if (name.length() > 24 || !alnum(name)) return;
-    send_action(event.peer, "world_validated", std::format("available|0\nworld_name|{}", name));
+    char available = 0;
+    if (name.length() > 24 || !isalnum(name)) available = -1;
+
+    send_gameMessage(event.peer, {.message = std::format("world_name|{}\naction|world_validated\navailable|{}", name, available)});
 }

@@ -80,10 +80,15 @@ void popup(ENetEvent& event, const ::hPipe &hPipe)
     }
     else if (hPipe["buttonClicked"] == "trade")
     {
-        ::peer peer{.user_id = atoi(hPipe["netID"].c_str())};
+        int user_id = atoi(hPipe["netID"].c_str());
 
-        peer.growid = peer.mysql_select<std::string>("growid", "", true);
-
-        send_varlist(event.peer, { "OnStartTrade", peer.growid, peer.user_id });
+        peers(pPeer->recent_worlds.back(), PeerSearch::WORLD, [&event, &pPeer, user_id](ENetPeer *p)
+        {
+            ::peer *pOthers = static_cast<::peer*>(p->data);
+            if (pOthers->user_id == user_id)
+            {
+                send_varlist(event.peer, { "OnStartTrade", pOthers->display_growid, pOthers->user_id });
+            }
+        });
     }
 }

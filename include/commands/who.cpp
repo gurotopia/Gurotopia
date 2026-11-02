@@ -17,8 +17,9 @@ void who(ENetEvent& event, const std::string_view text)
         }
         names.emplace_back(pOthers->display_growid);
     });
-    send_action(event.peer, "log", std::format(
-        "msg|`wWho's in `${}``:`` {}``",
+    send_gameMessage(event.peer, {.message = std::format(
+        "action|log\nmsg|`wWho's in `${}``:`` {}``",
         pPeer->recent_worlds.back(), join(names, ", ")
-    ));
+    )});
+    
 }

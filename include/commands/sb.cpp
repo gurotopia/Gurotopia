@@ -22,6 +22,6 @@ void sb(ENetEvent& event, const std::string_view text)
                 pPeer->display_growid, display, message
             )
         );
-        send_action(peer, "play_sfx", "file|audio/beep.wav\ndelayMS|0");
+        send_gameMessage(peer, {.message = "action|play_sfx\nfile|audio/beep.wav\ndelayMS|0"});
     });
 }

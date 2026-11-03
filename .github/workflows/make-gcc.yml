@@ -1,0 +1,73 @@
+name: make with G++
+on: 
+  push:
+    push:
+      - '**.c'
+      - '**.cpp'
+      - '**.h'
+      - '**.hpp'
+      - '**make.yml'
+      - '**Makefile'
+  pull_request:
+    push:
+      - '**.c'
+      - '**.cpp'
+      - '**.h'
+      - '**.hpp'
+      - '**make.yml'
+      - '**Makefile'
+
+permissions:
+  contents: read
+
+jobs:
+  linux:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - run: sudo apt-get update && sudo apt-get install build-essential libssl-dev libmariadb-dev
+
+      - run: make -j$(nproc)
+        # assume bash
+
+  windows:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      
+      - uses: msys2/setup-msys2@ec48f7c5447b3140e2b088413ae3a55687bccb6e # v2.33.0
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-openssl
+            make
+
+      - run: make -j$(nproc)
+        shell: msys2 {0}
+
+  macos:
+    permissions:
+      contents: write
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - run: brew install gcc make mariadb-connector-c
+
+      - run: |
+          make -j"$(sysctl -n hw.ncpu)" \
+            includes="-Iinclude -Ibuild/include -I$(brew --prefix openssl@3)/include" \
+            libraries="-L$(brew --prefix openssl@3)/lib -L$(brew --prefix mariadb-connector-c)/lib -L./include/enet/lib -L./include/mysql/lib -lssl -lcrypto -lmariadb -lenet_macos"

@@ -30,7 +30,7 @@ u_char get_punch_id(u_int item_id)
 
 void punch(ENetEvent& event, const std::string_view text) 
 {
-    const std::string id{ text.substr(sizeof("punch ")-1) };
+    const std::string id{ text.substr(sizeof("/punch ")-1) };
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     pPeer->punch_effect = (u_char)atoi(id.c_str());

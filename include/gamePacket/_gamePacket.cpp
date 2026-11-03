@@ -11,15 +11,14 @@
 
 #include "_gamePacket.hpp"
 
-std::unordered_map<u_char, std::function<void(ENetEvent&, ::gamePacket)>> gamePacket_pool
+const std::unordered_map<u_char, void(*)(ENetEvent&, ::gamePacket)> gamePacket_pool
 {
-    {0x00, std::bind(&movement, std::placeholders::_1, std::placeholders::_2)},
-    {0x03, std::bind(&tile_change, std::placeholders::_1, std::placeholders::_2)},
-    {0x07, std::bind(&tile_activate, std::placeholders::_1, std::placeholders::_2)},
-    {0x0a, std::bind(&item_activate, std::placeholders::_1, std::placeholders::_2)},
-    {0x0b, std::bind(&item_activate_object, std::placeholders::_1, std::placeholders::_2)},
-
-    {0x12, std::bind(&set_icon_state, std::placeholders::_1, std::placeholders::_2)},
-    {0x15, std::bind(&ping_reply, std::placeholders::_1, std::placeholders::_2)},
-    {0x1a, std::bind(&disconnect, std::placeholders::_1, std::placeholders::_2)}
+    {0x00, &movement},
+    {0x03, &tile_change},
+    {0x07, &tile_activate},
+    {0x0a, &item_activate},
+    {0x0b, &item_activate_object},
+    {0x12, &set_icon_state},
+    {0x15, &ping_reply},
+    {0x1a, &disconnect}
 };

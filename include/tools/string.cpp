@@ -2,18 +2,19 @@
 
 #include "string.hpp"
 
-#include <algorithm>
-#include <cctype>
-#include <ranges>
+#include <cctype> // @include std::isalnum
+#include <sstream>
 
 std::vector<std::string> readch(const std::string &str, char deli) 
 {
     std::vector<std::string> result;
-    result.reserve(std::ranges::count(str, deli) + 1);
-
-    for (const auto &part : str | std::views::split(deli))
-        result.emplace_back(std::string_view{part.begin(), part.end()});
-
+    
+    std::istringstream iss;
+    iss.str(str);
+    for (std::string line; std::getline(iss, line, deli); ) 
+    {
+        result.push_back(line);
+    }
     return result;
 }
 
@@ -30,24 +31,28 @@ std::string join(const std::vector<std::string>& range, const std::string& del)
 
 bool isalnum(const std::string &str) 
 {
-    return !str.empty() && std::ranges::all_of(str, [](unsigned char c) { return std::isalnum(c); });
+    for (char c : str)
+    {
+        if (!std::isalnum((u_char)c)) return false;
+    }
+    return true;
 }
 
 #include <openssl/bio.h>
-#include <openssl/evp.h>
+#include <openssl/evp.h> // @include BIO_f_base64()
 
 std::string base64_decode(const std::string& encoded)
 {
     if (encoded.empty()) return {};
 
-    BIO *bio = BIO_new_mem_buf(encoded.data(), static_cast<int>(encoded.size()));
+    BIO *bio = BIO_new_mem_buf(encoded.data(), (int)(encoded.size()));
     BIO *base64 = BIO_new(BIO_f_base64());
 
     bio = BIO_push(base64, bio);
     BIO_set_flags(base64, BIO_FLAGS_BASE64_NO_NL);
 
     std::string decode(encoded.size() * 3/4, '\0'); // @note RFC 4648
-    const int bio_read = BIO_read(bio, decode.data(), static_cast<int>(decode.size()));
+    const int bio_read = BIO_read(bio, decode.data(), (int)(decode.size()));
     BIO_free_all(bio);
 
     if (bio_read <= 0) return {};

@@ -2,8 +2,9 @@
 
 #include "connect.hpp"
 
-void _connect(ENetEvent& event, int status) 
+void _connect(ENetEvent& event) 
 {
+    int status = 1;
     ENetPacket *packet = enet_packet_create(nullptr, sizeof(status), ENET_PACKET_FLAG_RELIABLE);
 
     if (host->connectedPeers > host->peerCount) 

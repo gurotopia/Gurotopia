@@ -5,18 +5,19 @@
 
 #include "receive.hpp"
 
-#include <algorithm>
-
 void receive(ENetEvent& event) 
 {
     switch (event.packet->data[0ull])
     {
         case 2: case 3: 
         {
-            std::string header{ reinterpret_cast<const char*>(event.packet->data + 4), event.packet->dataLength - 5 };
+            std::string header = { 
+                reinterpret_cast<const char*>(event.packet->data + 4), 
+                event.packet->dataLength - 4 - sizeof('\0')
+            };
             print(header);
             
-            std::ranges::replace(header, '\n', '|');
+            for (char &c : header) if (c == '\n') c = '|';
             const std::vector<std::string> pipes = readch(header, '|');
             if (pipes.size() < 2) break;
             
@@ -42,7 +43,6 @@ void receive(ENetEvent& event)
                 i->second(event, std::move(gamePacket));
             break;
         }
-        default: print(std::format("received unqiue: {}", event.packet->data[0ull]));
     }
     enet_packet_destroy(event.packet);
 }

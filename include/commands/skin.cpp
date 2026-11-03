@@ -6,7 +6,7 @@
 
 void skin(ENetEvent& event, const std::string_view text)
 {
-    const std::string id{ text.substr(sizeof("skin ")-1) };
+    const std::string id{ text.substr(sizeof("/skin ")-1) };
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
 
     try

@@ -538,6 +538,7 @@ void send_tile_update(ENetEvent &event, ::gamePacket gamePacket, ::block &block,
             break;
         }
     }
+    set_extended_size(blob);
     ::peer *pPeer = static_cast<::peer*>(event.peer->data);
     peers(pPeer->recent_worlds.back(), PeerSearch::WORLD, [&blob](ENetPeer *peer) 
     {
